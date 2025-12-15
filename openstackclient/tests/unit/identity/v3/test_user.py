@@ -730,7 +730,7 @@ class TestUserCreate(identity_fakes.TestIdentityv3):
         ]
         verifylist = [
             (
-                'multi_factor_auth_rule',
+                'multi_factor_auth_rules',
                 [identity_fakes.mfa_opt1, identity_fakes.mfa_opt2],
             ),
             ('enable', False),
@@ -769,7 +769,7 @@ class TestUserCreate(identity_fakes.TestIdentityv3):
         verifylist = [
             ('ignore_password_expiry', True),
             ('disable_multi_factor_auth', True),
-            ('multi_factor_auth_rule', [identity_fakes.mfa_opt1]),
+            ('multi_factor_auth_rules', [identity_fakes.mfa_opt1]),
             ('enable', False),
             ('disable', False),
             ('name', self.user.name),
@@ -1667,7 +1667,7 @@ class TestUserSet(identity_fakes.TestIdentityv3):
             ('name', None),
             ('password', None),
             ('email', None),
-            ('multi_factor_auth_rule', [identity_fakes.mfa_opt1]),
+            ('multi_factor_auth_rules', [identity_fakes.mfa_opt1]),
             ('project', None),
             ('enable', False),
             ('disable', False),
@@ -1701,7 +1701,7 @@ class TestUserSet(identity_fakes.TestIdentityv3):
             ('email', None),
             ('ignore_password_expiry', True),
             ('enable_multi_factor_auth', True),
-            ('multi_factor_auth_rule', [identity_fakes.mfa_opt1]),
+            ('multi_factor_auth_rules', [identity_fakes.mfa_opt1]),
             ('project', None),
             ('enable', False),
             ('disable', False),

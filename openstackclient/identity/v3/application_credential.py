@@ -149,6 +149,7 @@ class CreateApplicationCredential(command.ShowOne):
         parser.add_argument(
             '--role',
             metavar='<role>',
+            dest='roles',
             action='append',
             default=[],
             help=_(
@@ -208,7 +209,7 @@ class CreateApplicationCredential(command.ShowOne):
         user_id = conn.config.get_auth().get_user_id(conn.identity)
 
         role_ids = []
-        for role in parsed_args.role:
+        for role in parsed_args.roles:
             if is_uuid_like(role):
                 role_ids.append({'id': role})
             else:

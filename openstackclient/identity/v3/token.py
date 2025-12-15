@@ -37,6 +37,7 @@ class AuthorizeRequestToken(command.ShowOne):
         parser.add_argument(
             '--role',
             metavar='<role>',
+            dest='roles',
             action='append',
             default=[],
             required=True,
@@ -52,7 +53,7 @@ class AuthorizeRequestToken(command.ShowOne):
 
         # NOTE(stevemar): We want a list of role ids
         roles = []
-        for role in parsed_args.role:
+        for role in parsed_args.roles:
             role_id = utils.find_resource(
                 identity_client.roles,
                 role,

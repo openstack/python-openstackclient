@@ -59,6 +59,7 @@ class CreateProject(command.ShowOne):
         parser.add_argument(
             '--property',
             metavar='<key=value>',
+            dest='properties',
             action=parseractions.KeyValueAction,
             help=_(
                 'Add a property to <name> '
@@ -79,8 +80,8 @@ class CreateProject(command.ShowOne):
         if parsed_args.disable:
             enabled = False
         kwargs = {}
-        if parsed_args.property:
-            kwargs = parsed_args.property.copy()
+        if parsed_args.properties:
+            kwargs.update(parsed_args.properties)
 
         try:
             project = identity_client.tenants.create(
@@ -230,6 +231,7 @@ class SetProject(command.Command):
         parser.add_argument(
             '--property',
             metavar='<key=value>',
+            dest='properties',
             action=parseractions.KeyValueAction,
             help=_(
                 'Set a project property '
@@ -255,8 +257,8 @@ class SetProject(command.Command):
             kwargs['enabled'] = True
         if parsed_args.disable:
             kwargs['enabled'] = False
-        if parsed_args.property:
-            kwargs.update(parsed_args.property)
+        if parsed_args.properties:
+            kwargs.update(parsed_args.properties)
         if 'id' in kwargs:
             del kwargs['id']
         if 'name' in kwargs:
@@ -338,6 +340,7 @@ class UnsetProject(command.Command):
         parser.add_argument(
             '--property',
             metavar='<key>',
+            dest='properties',
             action='append',
             default=[],
             help=_(
@@ -354,7 +357,7 @@ class UnsetProject(command.Command):
             parsed_args.project,
         )
         kwargs = project._info
-        for key in parsed_args.property:
+        for key in parsed_args.properties:
             if key in kwargs:
                 kwargs[key] = None
         identity_client.tenants.update(project.id, **kwargs)

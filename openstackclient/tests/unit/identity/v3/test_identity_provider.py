@@ -127,7 +127,7 @@ class TestIdentityProviderCreate(TestIdentityProvider):
         ]
         verifylist = [
             ('identity_provider_id', identity_fakes.idp_id),
-            ('remote_id', identity_fakes.idp_remote_ids[:1]),
+            ('remote_ids', identity_fakes.idp_remote_ids[:1]),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
@@ -157,7 +157,7 @@ class TestIdentityProviderCreate(TestIdentityProvider):
         ]
         verifylist = [
             ('identity_provider_id', identity_fakes.idp_id),
-            ('remote_id', identity_fakes.idp_remote_ids),
+            ('remote_ids', identity_fakes.idp_remote_ids),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
@@ -561,7 +561,7 @@ class TestIdentityProviderSet(TestIdentityProvider):
             ('description', new_description),
             ('enable', False),
             ('disable', False),
-            ('remote_id', None),
+            ('remote_ids', None),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.cmd.take_action(parsed_args)
@@ -597,7 +597,7 @@ class TestIdentityProviderSet(TestIdentityProvider):
             ('description', None),
             ('enable', False),
             ('disable', True),
-            ('remote_id', identity_fakes.idp_remote_ids),
+            ('remote_ids', identity_fakes.idp_remote_ids),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -637,7 +637,7 @@ class TestIdentityProviderSet(TestIdentityProvider):
             ('description', None),
             ('enable', True),
             ('disable', False),
-            ('remote_id', identity_fakes.idp_remote_ids),
+            ('remote_ids', identity_fakes.idp_remote_ids),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -675,7 +675,7 @@ class TestIdentityProviderSet(TestIdentityProvider):
             ('description', None),
             ('enable', True),
             ('disable', False),
-            ('remote_id', [self.new_remote_id]),
+            ('remote_ids', [self.new_remote_id]),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -756,7 +756,7 @@ class TestIdentityProviderSet(TestIdentityProvider):
             ('identity_provider', identity_fakes.idp_id),
             ('enable', False),
             ('disable', False),
-            ('remote_id', None),
+            ('remote_ids', None),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -776,7 +776,7 @@ class TestIdentityProviderSet(TestIdentityProvider):
             ('identity_provider', identity_fakes.idp_id),
             ('enable', False),
             ('disable', False),
-            ('remote_id', None),
+            ('remote_ids', None),
             ('authorization_ttl', 60),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -800,7 +800,7 @@ class TestIdentityProviderSet(TestIdentityProvider):
             ('identity_provider', identity_fakes.idp_id),
             ('enable', False),
             ('disable', False),
-            ('remote_id', None),
+            ('remote_ids', None),
             ('authorization_ttl', 0),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -816,7 +816,7 @@ class TestIdentityProviderSet(TestIdentityProvider):
             ('identity_provider', identity_fakes.idp_id),
             ('enable', False),
             ('disable', False),
-            ('remote_id', None),
+            ('remote_ids', None),
             ('authorization_ttl', -1),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)

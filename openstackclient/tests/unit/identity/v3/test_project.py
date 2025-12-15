@@ -1142,7 +1142,7 @@ class TestProjectSet(TestProject):
         verifylist = [
             ('enabled', None),
             ('project', self.project.name),
-            ('remove_tag', ['tag1', 'tag2']),
+            ('remove_tags', ['tag1', 'tag2']),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 

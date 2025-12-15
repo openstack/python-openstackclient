@@ -73,8 +73,8 @@ class CreateProject(command.ShowOne):
         parser.add_argument(
             '--property',
             metavar='<key=value>',
-            action=parseractions.KeyValueAction,
             dest='properties',
+            action=parseractions.KeyValueAction,
             help=_(
                 'Add a property to <name> '
                 '(repeat option to set multiple properties)'

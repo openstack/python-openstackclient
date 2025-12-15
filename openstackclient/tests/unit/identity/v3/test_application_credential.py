@@ -120,7 +120,7 @@ class TestApplicationCredentialCreate(identity_fakes.TestIdentityv3):
         verifylist = [
             ('name', self.application_credential.name),
             ('secret', 'moresecuresecret'),
-            ('role', [self.roles.id]),
+            ('roles', [self.roles.id]),
             ('expiration', '2024-01-01T00:00:00'),
             ('description', 'credential for testing'),
         ]

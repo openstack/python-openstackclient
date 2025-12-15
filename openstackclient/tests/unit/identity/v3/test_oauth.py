@@ -109,7 +109,7 @@ class TestRequestTokenAuthorize(TestOAuth1):
         ]
         verifylist = [
             ('request_key', identity_fakes.request_token_id),
-            ('role', [identity_fakes.role_name]),
+            ('roles', [identity_fakes.role_name]),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)

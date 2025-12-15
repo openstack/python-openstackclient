@@ -82,9 +82,9 @@ def _get_options_for_user(identity_client, parsed_args):
         options['multi_factor_auth_enabled'] = True
     if parsed_args.disable_multi_factor_auth:
         options['multi_factor_auth_enabled'] = False
-    if parsed_args.multi_factor_auth_rule:
+    if parsed_args.multi_factor_auth_rules:
         auth_rules = [
-            rule.split(",") for rule in parsed_args.multi_factor_auth_rule
+            rule.split(",") for rule in parsed_args.multi_factor_auth_rules
         ]
         if auth_rules:
             options['multi_factor_auth_rules'] = auth_rules
@@ -175,7 +175,8 @@ def _add_user_options(parser):
     parser.add_argument(
         '--multi-factor-auth-rule',
         metavar='<rule>',
-        action="append",
+        dest='multi_factor_auth_rules',
+        action='append',
         default=[],
         help=_(
             'Set multi-factor auth rules. For example, to set a rule '

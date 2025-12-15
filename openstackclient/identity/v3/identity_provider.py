@@ -41,6 +41,7 @@ class CreateIdentityProvider(command.ShowOne):
         identity_remote_id_provider.add_argument(
             '--remote-id',
             metavar='<remote-id>',
+            dest='remote_ids',
             action='append',
             help=_(
                 'Remote IDs to associate with the Identity Provider '
@@ -99,16 +100,15 @@ class CreateIdentityProvider(command.ShowOne):
 
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.identity
+        remote_ids: list[str] | None = None
         if parsed_args.remote_id_file:
             file_content = utils.read_blob_file_contents(
                 parsed_args.remote_id_file
             )
             remote_ids = file_content.splitlines()
             remote_ids = list(map(str.strip, remote_ids))
-        else:
-            remote_ids = (
-                parsed_args.remote_id if parsed_args.remote_id else None
-            )
+        elif parsed_args.remote_ids:
+            remote_ids = parsed_args.remote_ids
 
         domain_id = None
         if parsed_args.domain:
@@ -240,6 +240,7 @@ class SetIdentityProvider(command.Command):
         identity_remote_id_provider.add_argument(
             '--remote-id',
             metavar='<remote-id>',
+            dest='remote_ids',
             action='append',
             help=_(
                 'Remote IDs to associate with the Identity Provider '
@@ -287,8 +288,8 @@ class SetIdentityProvider(command.Command):
             )
             remote_ids = file_content.splitlines()
             remote_ids = list(map(str.strip, remote_ids))
-        elif parsed_args.remote_id:
-            remote_ids = parsed_args.remote_id
+        elif parsed_args.remote_ids:
+            remote_ids = parsed_args.remote_ids
 
         # Setup keyword args for the client
         kwargs = {}
@@ -298,7 +299,7 @@ class SetIdentityProvider(command.Command):
             kwargs['enabled'] = True
         if parsed_args.disable:
             kwargs['enabled'] = False
-        if parsed_args.remote_id_file or parsed_args.remote_id:
+        if parsed_args.remote_id_file or parsed_args.remote_ids:
             kwargs['remote_ids'] = remote_ids
 
         # TODO(pas-ha) actually check for 3.14 microversion

@@ -195,7 +195,7 @@ class TestProjectCreate(TestProject):
             self.fake_project.name,
         ]
         verifylist = [
-            ('property', {'fee': 'fi', 'fo': 'fum'}),
+            ('properties', {'fee': 'fi', 'fo': 'fum'}),
             ('name', self.fake_project.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -464,7 +464,7 @@ class TestProjectSet(TestProject):
             ('description', None),
             ('enable', False),
             ('disable', False),
-            ('property', None),
+            ('properties', None),
         ]
         self.projects_mock.get.side_effect = exceptions.NotFound(None)
         self.projects_mock.find.side_effect = exceptions.NotFound(None)
@@ -588,7 +588,7 @@ class TestProjectSet(TestProject):
             self.fake_project.name,
         ]
         verifylist = [
-            ('property', {'fee': 'fi', 'fo': 'fum'}),
+            ('properties', {'fee': 'fi', 'fo': 'fum'}),
             ('project', self.fake_project.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -683,7 +683,7 @@ class TestProjectUnset(TestProject):
             self.fake_proj.name,
         ]
         verifylist = [
-            ('property', ['fee', 'fo']),
+            ('properties', ['fee', 'fo']),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
