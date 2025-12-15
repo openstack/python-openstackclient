@@ -16,11 +16,11 @@ import logging
 
 from osc_lib.cli import format_columns
 from osc_lib.cli import identity as identity_utils
-from osc_lib.command import command
 from osc_lib import exceptions
 from osc_lib import utils as osc_utils
 from osc_lib.utils import columns as column_util
 
+from openstackclient import command
 from openstackclient.i18n import _
 from openstackclient.identity import common
 from openstackclient.network.v2.taas import tap_service
