@@ -19,6 +19,7 @@ import argparse
 import logging
 import os
 import sys
+import typing as ty
 
 from cliff import columns as cliff_columns
 from osc_lib.api import utils as api_utils
@@ -65,9 +66,6 @@ def _get_columns(item):
         column_map,
         hidden_columns,
     )
-
-
-_formatters = {}
 
 
 class HumanReadableSizeColumn(cliff_columns.FormattableColumn[int]):
@@ -340,9 +338,12 @@ class CreateImage(command.ShowOne):
 
         if image:
             display_columns, columns = _get_columns(image)
-            _formatters['properties'] = format_columns.DictColumn
             data = utils.get_item_properties(
-                image, columns, formatters=_formatters
+                image,
+                columns,
+                formatters={
+                    'properties': format_columns.DictColumn,
+                },
             )
             return (display_columns, data)
         elif info:
@@ -493,19 +494,19 @@ class ListImage(command.Lister):
             column_headers = columns
 
         # List of image data received
-        data = list(image_client.images(**kwargs))
+        images = list(image_client.images(**kwargs))
 
         if parsed_args.property:
             # NOTE(dtroyer): coerce to a list to subscript it in py3
             attr, value = list(parsed_args.property.items())[0]
             api_utils.simple_filter(
-                data,
+                images,
                 attr=attr,
                 value=value,
                 property_field='properties',
             )
 
-        data = utils.sort_items(data, parsed_args.sort)
+        data = utils.sort_items(images, parsed_args.sort)
 
         return (
             column_headers,
@@ -839,11 +840,13 @@ class ShowImage(command.ShowOne):
             parsed_args.image, ignore_missing=False
         )
 
+        formatters: dict[
+            str, type[cliff_columns.FormattableColumn[ty.Any]]
+        ] = {
+            'properties': format_columns.DictColumn,
+        }
         if parsed_args.human_readable:
-            _formatters['size'] = HumanReadableSizeColumn
+            formatters['size'] = HumanReadableSizeColumn
         display_columns, columns = _get_columns(image)
-        _formatters['properties'] = format_columns.DictColumn
-        data = utils.get_item_properties(
-            image, columns, formatters=_formatters
-        )
+        data = utils.get_item_properties(image, columns, formatters=formatters)
         return (display_columns, data)

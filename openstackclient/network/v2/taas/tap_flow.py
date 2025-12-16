@@ -25,13 +25,12 @@ from openstackclient.i18n import _
 from openstackclient.identity import common
 from openstackclient.network.v2.taas import tap_service
 
-
 LOG = logging.getLogger(__name__)
 
 TAP_FLOW = 'tap_flow'
 TAP_FLOWS = f'{TAP_FLOW}s'
 
-_attr_map = (
+_attr_map = [
     ('id', 'ID', column_util.LIST_BOTH),
     ('tenant_id', 'Tenant', column_util.LIST_LONG_ONLY),
     ('name', 'Name', column_util.LIST_BOTH),
@@ -39,7 +38,7 @@ _attr_map = (
     ('source_port', 'source_port', column_util.LIST_BOTH),
     ('tap_service_id', 'tap_service_id', column_util.LIST_BOTH),
     ('direction', 'Direction', column_util.LIST_BOTH),
-)
+]
 
 _formatters = {
     'vlan_filter': format_columns.ListColumn,

@@ -19,6 +19,7 @@
 import logging
 import typing as ty
 
+from cliff import columns
 from openstack import utils as sdk_utils
 from osc_lib.cli import format_columns
 from osc_lib.cli import parseractions
@@ -32,7 +33,7 @@ from openstackclient.i18n import _
 LOG = logging.getLogger(__name__)
 
 
-_aggregate_formatters = {
+_aggregate_formatters: dict[str, type[columns.FormattableColumn[ty.Any]]] = {
     'Hosts': format_columns.ListColumn,
     'Metadata': format_columns.DictColumn,
     'hosts': format_columns.ListColumn,

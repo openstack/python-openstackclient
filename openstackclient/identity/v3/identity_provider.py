@@ -137,8 +137,9 @@ class CreateIdentityProvider(command.ShowOne):
         )
 
         idp._info.pop('links', None)
-        remote_ids = format_columns.ListColumn(idp._info.pop('remote_ids', []))
-        idp._info['remote_ids'] = remote_ids
+        idp._info['remote_ids'] = format_columns.ListColumn(
+            idp._info.pop('remote_ids', [])
+        )
         return zip(*sorted(idp._info.items()))
 
 

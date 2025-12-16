@@ -44,7 +44,11 @@ class DeleteAccessRule(command.Command):
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.sdk_connection.identity
         conn = self.app.client_manager.sdk_connection
-        user_id = conn.config.get_auth().get_user_id(conn.identity)
+        auth = conn.config.get_auth()
+        if auth is None:
+            # this will never happen
+            raise exceptions.CommandError('invalid authentication info')
+        user_id = auth.get_user_id(conn.identity)
 
         errors = 0
         for ac in parsed_args.access_rule:
@@ -87,7 +91,11 @@ class ListAccessRule(command.Lister):
             ).id
         else:
             conn = self.app.client_manager.sdk_connection
-            user_id = conn.config.get_auth().get_user_id(conn.identity)
+            auth = conn.config.get_auth()
+            if auth is None:
+                # this will never happen
+                raise exceptions.CommandError('invalid authentication info')
+            user_id = auth.get_user_id(conn.identity)
 
         columns = ('ID', 'Service', 'Method', 'Path')
         data = identity_client.access_rules(user=user_id)
@@ -119,7 +127,11 @@ class ShowAccessRule(command.ShowOne):
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.sdk_connection.identity
         conn = self.app.client_manager.sdk_connection
-        user_id = conn.config.get_auth().get_user_id(conn.identity)
+        auth = conn.config.get_auth()
+        if auth is None:
+            # this will never happen
+            raise exceptions.CommandError('invalid authentication info')
+        user_id = auth.get_user_id(conn.identity)
 
         access_rule = identity_client.get_access_rule(
             user_id, parsed_args.access_rule

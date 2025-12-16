@@ -24,7 +24,6 @@ from osc_lib import exceptions
 from openstackclient import command
 from openstackclient.i18n import _
 from openstackclient.network import utils
-from openstackclient import shell
 
 
 LOG = logging.getLogger(__name__)
@@ -68,8 +67,6 @@ class NetDetectionMixin(metaclass=abc.ABCMeta):
     present the options for both network types, often qualified accordingly.
     """
 
-    app: shell.OpenStackShell
-
     @property
     def _network_type(self):
         """Discover whether the running cloud is using neutron or nova-network.
@@ -84,7 +81,7 @@ class NetDetectionMixin(metaclass=abc.ABCMeta):
         # Have we set it up yet for this command?
         if not hasattr(self, '_net_type'):
             try:
-                if self.app.client_manager.is_network_endpoint_enabled():
+                if self.app.client_manager.is_network_endpoint_enabled():  # type: ignore
                     net_type = _NET_TYPE_NEUTRON
                 else:
                     net_type = _NET_TYPE_COMPUTE
@@ -163,11 +160,13 @@ class NetDetectionMixin(metaclass=abc.ABCMeta):
     def take_action(self, parsed_args):
         if self.is_neutron:
             return self.take_action_network(
-                self.app.client_manager.network, parsed_args
+                self.app.client_manager.network,  # type: ignore
+                parsed_args,
             )
         elif self.is_nova_network:
             return self.take_action_compute(
-                self.app.client_manager.compute, parsed_args
+                self.app.client_manager.compute,  # type: ignore
+                parsed_args,
             )
 
     def take_action_network(self, client, parsed_args):

@@ -16,7 +16,9 @@
 """Compute v2 Server Group action implementations"""
 
 import logging
+import typing as ty
 
+from cliff import columns
 from openstack import utils as sdk_utils
 from osc_lib.cli import format_columns
 from osc_lib.cli import parseractions
@@ -30,7 +32,7 @@ from openstackclient.i18n import _
 LOG = logging.getLogger(__name__)
 
 
-_formatters = {
+_formatters: dict[str, type[columns.FormattableColumn[ty.Any]]] = {
     'member_ids': format_columns.ListColumn,
     'policies': format_columns.ListColumn,
     'rules': format_columns.DictColumn,

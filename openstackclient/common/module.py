@@ -48,7 +48,9 @@ class ListCommand(command.Lister):
         columns = ('Command Group', 'Commands')
 
         if parsed_args.group:
-            groups = (group for group in groups if parsed_args.group in group)
+            groups = sorted(
+                group for group in groups if parsed_args.group in group
+            )
 
         commands = []
         for group in groups:

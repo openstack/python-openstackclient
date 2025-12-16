@@ -64,13 +64,15 @@ class ShowConsoleLog(command.Command):
         output = compute_client.get_server_console_output(
             server.id, length=parsed_args.lines
         )
-        data = None
+        data: str | None = None
         if output:
             data = output.get('output', None)
 
         if data and data[-1] != '\n':
             data += '\n'
-        self.app.stdout.write(data)
+
+        if data:
+            self.app.stdout.write(data)
 
 
 class ShowConsoleURL(command.ShowOne):
