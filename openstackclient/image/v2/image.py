@@ -1393,7 +1393,10 @@ class SetImage(command.Command):
         if parsed_args.visibility is not None:
             kwargs['visibility'] = parsed_args.visibility
 
-        if parsed_args.project:
+        # Only set owner_id if --project is used WITHOUT membership flags
+        # When --project is used with --accept/--reject/--pending, it should
+        # only identify which member's status to update, not change ownership
+        if parsed_args.project and not parsed_args.membership:
             # We already did the project lookup above
             kwargs['owner_id'] = project_id
 

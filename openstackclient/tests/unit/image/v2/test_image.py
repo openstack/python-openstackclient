@@ -1295,6 +1295,117 @@ class TestImageSet(TestImage):
         # the 'update membership' route.
         self.image_client.update_image.assert_called_with(self._image.id)
 
+    def test_image_set_membership_accept_with_project_no_owner_change(self):
+        """Test that --project with --accept doesn't change image owner."""
+        membership = image_fakes.create_one_image_member(
+            attrs={
+                'image_id': '0f41529e-7c12-4de8-be2d-181abb825b3c',
+                'member_id': self.project.id,
+            }
+        )
+        self.image_client.update_member.return_value = membership
+
+        arglist = [
+            '--project',
+            self.project.name,
+            '--accept',
+            self._image.id,
+        ]
+        verifylist = [
+            ('project', self.project.name),
+            ('membership', 'accepted'),
+            ('image', self._image.id),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.cmd.take_action(parsed_args)
+
+        self.image_client.update_member.assert_called_once_with(
+            image=self._image.id,
+            member=self.project.id,
+            status='accepted',
+        )
+
+        self.image_client.update_image.assert_called()
+        call_args = self.image_client.update_image.call_args
+        if call_args:
+            args, kwargs = call_args
+            self.assertNotIn('owner_id', kwargs)
+
+    def test_image_set_membership_reject_with_project_no_owner_change(self):
+        """Test that --project with --reject doesn't change image owner."""
+        membership = image_fakes.create_one_image_member(
+            attrs={
+                'image_id': '0f41529e-7c12-4de8-be2d-181abb825b3c',
+                'member_id': self.project.id,
+            }
+        )
+        self.image_client.update_member.return_value = membership
+
+        arglist = [
+            '--project',
+            self.project.name,
+            '--reject',
+            self._image.id,
+        ]
+        verifylist = [
+            ('project', self.project.name),
+            ('membership', 'rejected'),
+            ('image', self._image.id),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.cmd.take_action(parsed_args)
+
+        self.image_client.update_member.assert_called_once_with(
+            image=self._image.id,
+            member=self.project.id,
+            status='rejected',
+        )
+
+        self.image_client.update_image.assert_called()
+        call_args = self.image_client.update_image.call_args
+        if call_args:
+            args, kwargs = call_args
+            self.assertNotIn('owner_id', kwargs)
+
+    def test_image_set_membership_pending_with_project_no_owner_change(self):
+        """Test that --project with --pending doesn't change image owner."""
+        membership = image_fakes.create_one_image_member(
+            attrs={
+                'image_id': '0f41529e-7c12-4de8-be2d-181abb825b3c',
+                'member_id': self.project.id,
+            }
+        )
+        self.image_client.update_member.return_value = membership
+
+        arglist = [
+            '--project',
+            self.project.name,
+            '--pending',
+            self._image.id,
+        ]
+        verifylist = [
+            ('project', self.project.name),
+            ('membership', 'pending'),
+            ('image', self._image.id),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.cmd.take_action(parsed_args)
+
+        self.image_client.update_member.assert_called_once_with(
+            image=self._image.id,
+            member=self.project.id,
+            status='pending',
+        )
+
+        self.image_client.update_image.assert_called()
+        call_args = self.image_client.update_image.call_args
+        if call_args:
+            args, kwargs = call_args
+            self.assertNotIn('owner_id', kwargs)
+
     def test_image_set_options(self):
         arglist = [
             '--name',

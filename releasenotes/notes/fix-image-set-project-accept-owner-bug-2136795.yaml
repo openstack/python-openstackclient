@@ -1,0 +1,10 @@
+---
+fixes:
+  - |
+    Fix a bug where using ``openstack image set --project <project>
+    --accept <image>`` incorrectly changed the image owner to the specified
+    project instead of only updating the member status. The ``--project``
+    parameter when used with ``--accept``, ``--reject``, or ``--pending``
+    should only identify which member's status to update, not change the
+    image ownership.
+    [Bug `2136795 <https://bugs.launchpad.net/python-openstackclient/+bug/2136795>`_]
