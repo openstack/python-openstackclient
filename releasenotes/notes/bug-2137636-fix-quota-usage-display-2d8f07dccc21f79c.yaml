@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    Fix ``openstack quota show --usage`` to correctly display resource usage
+    and reservation.

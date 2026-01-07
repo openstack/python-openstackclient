@@ -10,6 +10,7 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 
+import copy
 from unittest import mock
 
 from openstack.block_storage.v3 import quota_set as _volume_quota_set
@@ -1119,6 +1120,64 @@ class TestQuotaShow(TestQuota):
         self.network_client.get_quota.assert_called_once_with(
             self.projects[0].id,
             details=False,
+        )
+        self.assertNotCalled(self.network_client.get_quota_default)
+
+    def test_quota_show__with_network_and_usage(self):
+        # ensure we do not interfere with other tests
+        self._network_quota_details = copy.deepcopy(
+            self._network_quota_details
+        )
+        # set a couple of resources
+        self._network_quota_details["floating_ips"].update(
+            limit=30, reserved=20, used=7
+        )
+        self._network_quota_details["security_group_rules"].update(
+            limit=9, reserved=7, used=5
+        )
+
+        arglist = [
+            '--network',
+            '--usage',
+            self.projects[0].name,
+        ]
+        verifylist = [
+            ('service', 'network'),
+            ('project', self.projects[0].name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        headers, result_gen = self.cmd.take_action(parsed_args)
+
+        self.assertEqual(('Resource', 'Limit', 'In Use', 'Reserved'), headers)
+
+        result = sorted(result_gen)
+
+        self.assertEqual(
+            [
+                ('floating-ips', 30, 7, 20),
+                ('health_monitors', 0, 0, 0),
+                ('l7_policies', 0, 0, 0),
+                ('listeners', 0, 0, 0),
+                ('load_balancers', 0, 0, 0),
+                ('networks', 0, 0, 0),
+                ('pools', 0, 0, 0),
+                ('ports', 0, 0, 0),
+                ('rbac_policies', 0, 0, 0),
+                ('routers', 0, 0, 0),
+                ('secgroup-rules', 9, 5, 7),
+                ('secgroups', 0, 0, 0),
+                ('subnet_pools', 0, 0, 0),
+                ('subnets', 0, 0, 0),
+            ],
+            result,
+        )
+
+        self.compute_client.get_quota_set.assert_not_called()
+        self.volume_sdk_client.get_quota_set.assert_not_called()
+        self.network_client.get_quota.assert_called_once_with(
+            self.projects[0].id,
+            details=True,
         )
         self.assertNotCalled(self.network_client.get_quota_default)
 

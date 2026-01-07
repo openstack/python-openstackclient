@@ -797,20 +797,25 @@ and ``server-group-members`` output for a given quota class."""
         info.update(volume_quota_info)
         info.update(network_quota_info)
 
-        # Map the internal quota names to the external ones
-        # COMPUTE_QUOTAS and NETWORK_QUOTAS share floating-ips,
-        # secgroup-rules and secgroups as dict value, so when
-        # neutron is enabled, quotas of these three resources
-        # in nova will be replaced by neutron's.
-        for k, v in itertools.chain(
-            COMPUTE_QUOTAS.items(),
-            NOVA_NETWORK_QUOTAS.items(),
-            VOLUME_QUOTAS.items(),
-            NETWORK_QUOTAS.items(),
-        ):
-            if not k == v and info.get(k) is not None:
-                info[v] = info[k]
-                info.pop(k)
+        def _normalize_names(section: dict) -> None:
+            # Map the internal quota names to the external ones
+            # COMPUTE_QUOTAS and NETWORK_QUOTAS share floating-ips,
+            # secgroup-rules and secgroups as dict value, so when
+            # neutron is enabled, quotas of these three resources
+            # in nova will be replaced by neutron's.
+            for k, v in itertools.chain(
+                COMPUTE_QUOTAS.items(),
+                NOVA_NETWORK_QUOTAS.items(),
+                VOLUME_QUOTAS.items(),
+                NETWORK_QUOTAS.items(),
+            ):
+                if not k == v and section.get(k) is not None:
+                    section[v] = section.pop(k)
+
+        _normalize_names(info)
+        if parsed_args.usage:
+            _normalize_names(info["reservation"])
+            _normalize_names(info["usage"])
 
         # Remove the 'id' field since it's not very useful
         if 'id' in info:
