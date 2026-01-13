@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add ``--project-domain`` option for the ``limit list`` and ``limit create``
+    commands.

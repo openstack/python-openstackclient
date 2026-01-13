@@ -100,6 +100,53 @@ class LimitTestCase(common.IdentityTests):
         self.assert_show_fields(items, self.LIMIT_FIELDS)
         registered_limit_id = self._create_dummy_registered_limit()
 
+    def test_limit_create_with_project_domain(self):
+        registered_limit_id = self._create_dummy_registered_limit()
+        raw_output = self.openstack(
+            f'registered limit show {registered_limit_id}',
+            cloud=SYSTEM_CLOUD,
+        )
+        items = self.parse_show(raw_output)
+        service_id = self._extract_value_from_items('service_id', items)
+        resource_name = self._extract_value_from_items('resource_name', items)
+
+        raw_output = self.openstack(f'service show {service_id}')
+        items = self.parse_show(raw_output)
+        service_name = self._extract_value_from_items('name', items)
+
+        project_name = self._create_dummy_project()
+        raw_output = self.openstack(
+            f'project show {project_name}',
+            cloud=SYSTEM_CLOUD,
+        )
+        items = self.parse_show(raw_output)
+        domain_id = self._extract_value_from_items('domain_id', items)
+
+        params = {
+            'project_name': project_name,
+            'project_domain': domain_id,
+            'service_name': service_name,
+            'resource_name': resource_name,
+            'resource_limit': 15,
+        }
+        raw_output = self.openstack(
+            'limit create'
+            ' --project {project_name}'
+            ' --project-domain {project_domain}'
+            ' --service {service_name}'
+            ' --resource-limit {resource_limit}'
+            ' {resource_name}'.format(**params),
+            cloud=SYSTEM_CLOUD,
+        )
+        items = self.parse_show(raw_output)
+        limit_id = self._extract_value_from_items('id', items)
+        self.addCleanup(
+            self.openstack, f'limit delete {limit_id}', cloud=SYSTEM_CLOUD
+        )
+
+        self.assert_show_fields(items, self.LIMIT_FIELDS)
+        registered_limit_id = self._create_dummy_registered_limit()
+
     def test_limit_create_with_service_id(self):
         self._create_dummy_limit()
 

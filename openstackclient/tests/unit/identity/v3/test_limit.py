@@ -11,6 +11,7 @@
 #   under the License.
 
 from openstack import exceptions as sdk_exc
+from openstack.identity.v3 import domain as _domain
 from openstack.identity.v3 import limit as _limit
 from openstack.identity.v3 import project as _project
 from openstack.identity.v3 import region as _region
@@ -26,7 +27,10 @@ class TestLimitCreate(identity_fakes.TestIdentityv3):
     def setUp(self):
         super().setUp()
 
-        self.project = sdk_fakes.generate_fake_resource(_project.Project)
+        self.domain = sdk_fakes.generate_fake_resource(_domain.Domain)
+        self.project = sdk_fakes.generate_fake_resource(
+            _project.Project, domain_id=self.domain.id
+        )
         self.region = sdk_fakes.generate_fake_resource(_region.Region)
         self.service = sdk_fakes.generate_fake_resource(_service.Service)
 
@@ -35,6 +39,7 @@ class TestLimitCreate(identity_fakes.TestIdentityv3):
         self.identity_sdk_client.find_service.return_value = self.service
         self.identity_sdk_client.get_region.return_value = self.region
         self.identity_sdk_client.find_project.return_value = self.project
+        self.identity_sdk_client.find_domain.return_value = self.domain
 
         self.limit = sdk_fakes.generate_fake_resource(
             resource_type=_limit.Limit,
@@ -116,6 +121,8 @@ class TestLimitCreate(identity_fakes.TestIdentityv3):
         arglist = [
             '--project',
             self.project.id,
+            '--project-domain',
+            self.domain.name,
             '--service',
             self.service.id,
             '--resource-limit',
@@ -128,6 +135,7 @@ class TestLimitCreate(identity_fakes.TestIdentityv3):
         ]
         verifylist = [
             ('project', self.project.id),
+            ('project_domain', self.domain.name),
             ('service', self.service.id),
             ('resource_name', self.limit_with_options.resource_name),
             ('resource_limit', resource_limit),
