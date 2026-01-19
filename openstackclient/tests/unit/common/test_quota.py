@@ -1018,6 +1018,26 @@ class TestQuotaShow(TestQuota):
         )
         self.assertNotCalled(self.network_client.get_quota_default)
 
+    def test_quota_show__missing_services(self):
+        self.app.client_manager.compute_endpoint_enabled = False
+        self.app.client_manager.volume_endpoint_enabled = False
+        self.app.client_manager.network_endpoint_enabled = False
+
+        arglist = [
+            self.projects[0].name,
+        ]
+        verifylist = [
+            ('service', 'all'),
+            ('project', self.projects[0].name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+
+        self.compute_sdk_client.get_quota_set.assert_not_called()
+        self.volume_sdk_client.get_quota_set.assert_not_called()
+        self.network_client.get_quota.assert_not_called()
+
     def test_quota_show__with_compute(self):
         arglist = [
             '--compute',
