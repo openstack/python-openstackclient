@@ -4267,7 +4267,7 @@ release the new server and restart the old one."""
             metavar='<server>',
             help=_('Server (name or ID)'),
         )
-        phase_group = parser.add_mutually_exclusive_group()
+        phase_group = parser.add_mutually_exclusive_group(required=True)
         phase_group.add_argument(
             '--flavor',
             metavar='<flavor>',

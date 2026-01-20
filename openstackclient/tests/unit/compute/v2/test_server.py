@@ -7896,15 +7896,13 @@ class TestServerResize(compute_fakes.TestComputev2):
             ('server', self.server.id),
         ]
 
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        result = self.cmd.take_action(parsed_args)
-
-        self.compute_client.find_server.assert_called_once_with(
-            self.server.id, ignore_missing=False
+        self.assertRaises(
+            test_utils.ParserException,
+            self.check_parser,
+            self.cmd,
+            arglist,
+            verifylist,
         )
-        self.compute_client.find_flavor.assert_not_called()
-        self.compute_client.resize_server.assert_not_called()
-        self.assertIsNone(result)
 
     def test_server_resize(self):
         arglist = [
