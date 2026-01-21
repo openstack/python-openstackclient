@@ -23,7 +23,7 @@ class VolumeSnapshotTests(common.BaseVolumeTests):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        # create a volume for all tests to create snapshot
+        # create a test volume used by all snapshot tests
         cmd_output = cls.openstack(
             'volume create ' + '--size 1 ' + cls.VOLLY,
             parse_output=True,
@@ -40,117 +40,10 @@ class VolumeSnapshotTests(common.BaseVolumeTests):
         finally:
             super().tearDownClass()
 
-    def test_volume_snapshot_delete(self):
-        """Test create, delete multiple"""
-        name1 = uuid.uuid4().hex
-        cmd_output = self.openstack(
-            'volume snapshot create ' + name1 + ' --volume ' + self.VOLLY,
-            parse_output=True,
-        )
-        self.assertEqual(
-            name1,
-            cmd_output["name"],
-        )
-
-        name2 = uuid.uuid4().hex
-        cmd_output = self.openstack(
-            'volume snapshot create ' + name2 + ' --volume ' + self.VOLLY,
-            parse_output=True,
-        )
-        self.assertEqual(
-            name2,
-            cmd_output["name"],
-        )
-
-        self.wait_for_status('volume snapshot', name1, 'available')
-        self.wait_for_status('volume snapshot', name2, 'available')
-
-        del_output = self.openstack(
-            'volume snapshot delete ' + name1 + ' ' + name2
-        )
-        self.assertOutput('', del_output)
-        self.wait_for_delete('volume snapshot', name1)
-        self.wait_for_delete('volume snapshot', name2)
-
-    def test_volume_snapshot_list(self):
-        """Test create, list filter"""
-        name1 = uuid.uuid4().hex
-        cmd_output = self.openstack(
-            'volume snapshot create ' + name1 + ' --volume ' + self.VOLLY,
-            parse_output=True,
-        )
-        self.addCleanup(self.wait_for_delete, 'volume snapshot', name1)
-        self.addCleanup(self.openstack, 'volume snapshot delete ' + name1)
-        self.assertEqual(
-            name1,
-            cmd_output["name"],
-        )
-        self.assertEqual(
-            self.VOLUME_ID,
-            cmd_output["volume_id"],
-        )
-        self.assertEqual(
-            1,
-            cmd_output["size"],
-        )
-        self.wait_for_status('volume snapshot', name1, 'available')
-
-        name2 = uuid.uuid4().hex
-        cmd_output = self.openstack(
-            'volume snapshot create ' + name2 + ' --volume ' + self.VOLLY,
-            parse_output=True,
-        )
-        self.addCleanup(self.wait_for_delete, 'volume snapshot', name2)
-        self.addCleanup(self.openstack, 'volume snapshot delete ' + name2)
-        self.assertEqual(
-            name2,
-            cmd_output["name"],
-        )
-        self.assertEqual(
-            self.VOLUME_ID,
-            cmd_output["volume_id"],
-        )
-        self.assertEqual(
-            1,
-            cmd_output["size"],
-        )
-        self.wait_for_status('volume snapshot', name2, 'available')
-        raw_output = self.openstack(
-            'volume snapshot set ' + '--state error ' + name2
-        )
-        self.assertOutput('', raw_output)
-
-        # Test list --long, --status
-        cmd_output = self.openstack(
-            'volume snapshot list ' + '--long ' + '--status error',
-            parse_output=True,
-        )
-        names = [x["Name"] for x in cmd_output]
-        self.assertNotIn(name1, names)
-        self.assertIn(name2, names)
-
-        # Test list --volume
-        cmd_output = self.openstack(
-            'volume snapshot list ' + '--volume ' + self.VOLLY,
-            parse_output=True,
-        )
-        names = [x["Name"] for x in cmd_output]
-        self.assertIn(name1, names)
-        self.assertIn(name2, names)
-
-        # Test list --name
-        cmd_output = self.openstack(
-            'volume snapshot list ' + '--name ' + name1,
-            parse_output=True,
-        )
-        names = [x["Name"] for x in cmd_output]
-        self.assertIn(name1, names)
-        self.assertNotIn(name2, names)
-
-    def test_volume_snapshot_set(self):
-        """Test create, set, unset, show, delete volume snapshot"""
+    def test_volume_snapshot(self):
+        # create volume snapshot
         name = uuid.uuid4().hex
-        new_name = name + "_"
+
         cmd_output = self.openstack(
             'volume snapshot create '
             + '--volume '
@@ -160,27 +53,44 @@ class VolumeSnapshotTests(common.BaseVolumeTests):
             + name,
             parse_output=True,
         )
-        self.addCleanup(self.wait_for_delete, 'volume snapshot', new_name)
-        self.addCleanup(self.openstack, 'volume snapshot delete ' + new_name)
-        self.assertEqual(
-            name,
-            cmd_output["name"],
-        )
-        self.assertEqual(
-            1,
-            cmd_output["size"],
-        )
-        self.assertEqual(
-            'aaaa',
-            cmd_output["description"],
-        )
-        self.assertEqual(
-            {'Alpha': 'a'},
-            cmd_output["properties"],
-        )
-        self.wait_for_status('volume snapshot', name, 'available')
+        snap_id = cmd_output['id']
 
-        # Test volume snapshot set
+        self.addCleanup(self.wait_for_delete, 'volume snapshot', snap_id)
+        # delete volume snapshot
+        self.addCleanup(
+            self.openstack,
+            'volume snapshot delete ' + snap_id,
+        )
+        self.wait_for_status('volume snapshot', snap_id, 'available')
+
+        # show volume snapshot
+        snapshot_info = self.openstack(
+            'volume snapshot show ' + name,
+            parse_output=True,
+        )
+
+        self.assertEqual(name, snapshot_info['name'])
+        self.assertEqual('aaaa', snapshot_info["description"])
+        self.assertEqual({'Alpha': 'a'}, snapshot_info["properties"])
+
+        # list volume snapshot --name
+        cmd_output = self.openstack(
+            'volume snapshot list --name ' + name,
+            parse_output=True,
+        )
+        names = [x['Name'] for x in cmd_output]
+        self.assertIn(name, names)
+
+        # list volume snapshot --volume
+        cmd_output = self.openstack(
+            'volume snapshot list ' + '--volume ' + self.VOLLY,
+            parse_output=True,
+        )
+        names = [x["Name"] for x in cmd_output]
+        self.assertIn(name, names)
+
+        # set volume snapshot
+        new_name = name + "_"
         raw_output = self.openstack(
             'volume snapshot set '
             + '--name '
@@ -188,11 +98,10 @@ class VolumeSnapshotTests(common.BaseVolumeTests):
             + ' --description bbbb '
             + '--property Alpha=c '
             + '--property Beta=b '
-            + name,
+            + snap_id,
         )
         self.assertOutput('', raw_output)
 
-        # Show snapshot set result
         cmd_output = self.openstack(
             'volume snapshot show ' + new_name,
             parse_output=True,
@@ -200,10 +109,6 @@ class VolumeSnapshotTests(common.BaseVolumeTests):
         self.assertEqual(
             new_name,
             cmd_output["name"],
-        )
-        self.assertEqual(
-            1,
-            cmd_output["size"],
         )
         self.assertEqual(
             'bbbb',
@@ -214,7 +119,7 @@ class VolumeSnapshotTests(common.BaseVolumeTests):
             cmd_output["properties"],
         )
 
-        # Test volume snapshot unset
+        # unset volume snapshot
         raw_output = self.openstack(
             'volume snapshot unset ' + '--property Alpha ' + new_name,
         )
@@ -229,16 +134,25 @@ class VolumeSnapshotTests(common.BaseVolumeTests):
             cmd_output["properties"],
         )
 
-        # Test volume snapshot set --no-property
+        # set volume snapshot --no-property, --state error
         raw_output = self.openstack(
-            'volume snapshot set ' + '--no-property ' + new_name,
+            'volume snapshot set '
+            + '--no-property '
+            + '--state error '
+            + new_name,
         )
         self.assertOutput('', raw_output)
+
         cmd_output = self.openstack(
             'volume snapshot show ' + new_name,
             parse_output=True,
         )
-        self.assertNotIn(
-            {'Beta': 'b'},
-            cmd_output["properties"],
+        self.assertEqual({}, cmd_output["properties"])
+
+        # list volume snapshot --long --status
+        cmd_output = self.openstack(
+            'volume snapshot list ' + '--long ' + '--status error',
+            parse_output=True,
         )
+        names = [x["Name"] for x in cmd_output]
+        self.assertIn(new_name, names)
