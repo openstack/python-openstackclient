@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    The ``--all-stores`` of the ``image import`` command is now correctly
+    treated as a boolean flag.

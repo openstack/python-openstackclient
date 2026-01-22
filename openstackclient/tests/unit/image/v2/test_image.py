@@ -2085,7 +2085,7 @@ class TestImageImport(TestImage):
             remote_image_id=None,
             remote_service_interface=None,
             stores=None,
-            all_stores=None,
+            all_stores=False,
             all_stores_must_succeed=False,
         )
 
@@ -2115,7 +2115,7 @@ class TestImageImport(TestImage):
             remote_image_id=None,
             remote_service_interface=None,
             stores=None,
-            all_stores=None,
+            all_stores=False,
             all_stores_must_succeed=False,
         )
 
@@ -2253,7 +2253,7 @@ class TestImageImport(TestImage):
             remote_image_id=None,
             remote_service_interface=None,
             stores=['fast'],
-            all_stores=None,
+            all_stores=False,
             all_stores_must_succeed=False,
         )
 
@@ -2285,7 +2285,7 @@ class TestImageImport(TestImage):
             remote_image_id=None,
             remote_service_interface=None,
             stores=['fast'],
-            all_stores=None,
+            all_stores=False,
             all_stores_must_succeed=True,
         )
 
@@ -2320,7 +2320,7 @@ class TestImageImport(TestImage):
             remote_image_id='remote-image-id',
             remote_service_interface='private',
             stores=None,
-            all_stores=None,
+            all_stores=False,
             all_stores_must_succeed=False,
         )
 
