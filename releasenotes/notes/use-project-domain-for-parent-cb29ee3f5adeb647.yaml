@@ -1,0 +1,5 @@
+---
+upgrade:
+  - |
+    When creating or listing projects, parent project will now be searched from
+    the same domain as the child project.
