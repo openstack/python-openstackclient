@@ -1,0 +1,8 @@
+---
+fixes:
+  - |
+    The ``openstack server resize`` command now requires the ``--flavor``
+    option or one of the deprecated ``--confirm`` or ``--revert`` options
+    to be provided.
+    Previously, the command would silently exit successfully without
+    performing any action if no option was provided.
