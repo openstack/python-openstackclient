@@ -1719,6 +1719,7 @@ class ImportImage(command.ShowOne):
         )
         stores_group.add_argument(
             '--all-stores',
+            action='store_true',
             help=_(
                 "Make image available to all stores "
                 "(either '--store' or '--all-stores' required with the "
