@@ -78,7 +78,7 @@ def str2dict(strdict: str) -> dict[str, str]:
         else:
             kvlist[i - 1] = f"{kvlist[i - 1]};{kv}"
     for kv in kvlist:
-        key, sep, value = kv.partition(':')
+        key, value = kv.split(':', 1)
         result[key] = value
     return result
 
@@ -173,11 +173,15 @@ def is_ipv6_protocol(protocol):
     # However, while the OSC CLI doesn't document the protocol,
     # the code must still handle it. In addition, handle both
     # protocol names and numbers.
-    if (
-        protocol is not None
-        and protocol.startswith('ipv6-')
-        or protocol in ['icmpv6', '41', '43', '44', '58', '59', '60']
-    ):
+    if (protocol is not None and protocol.startswith('ipv6-')) or protocol in [
+        'icmpv6',
+        '41',
+        '43',
+        '44',
+        '58',
+        '59',
+        '60',
+    ]:
         return True
     else:
         return False

@@ -458,7 +458,7 @@ class TestQuotaSet(TestQuota):
             'floating_ips': floating_ip_num,
             'fixed_ips': fix_ip_num,
             'injected_files': injected_file_num,
-            'injected_file_content_bytes': injected_file_size_num,  # noqa: E501
+            'injected_file_content_bytes': injected_file_size_num,
             'injected_file_path_bytes': injected_path_size_num,
             'key_pairs': key_pair_num,
             'cores': core_num,
@@ -729,7 +729,7 @@ class TestQuotaSet(TestQuota):
 
         kwargs_compute = {
             'injected_files': injected_file_num,
-            'injected_file_content_bytes': injected_file_size_num,  # noqa: E501
+            'injected_file_content_bytes': injected_file_size_num,
             'injected_file_path_bytes': injected_path_size_num,
             'key_pairs': key_pair_num,
             'cores': core_num,
@@ -827,7 +827,7 @@ class TestQuotaSet(TestQuota):
 
         kwargs_compute = {
             'injected_files': injected_file_num,
-            'injected_file_content_bytes': injected_file_size_num,  # noqa: E501
+            'injected_file_content_bytes': injected_file_size_num,
             'injected_file_path_bytes': injected_path_size_num,
             'key_pairs': key_pair_num,
             'cores': core_num,

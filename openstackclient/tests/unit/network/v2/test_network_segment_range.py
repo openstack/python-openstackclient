@@ -333,7 +333,7 @@ class TestCreateNetworkSegmentRange(TestNetworkSegmentRange):
                 'shared': self._network_segment_range.shared,
                 'project_id': mock.ANY,
                 'network_type': self._network_segment_range.network_type,
-                'physical_network': self._network_segment_range.physical_network,  # noqa: E501
+                'physical_network': self._network_segment_range.physical_network,
                 'minimum': self._network_segment_range.minimum,
                 'maximum': self._network_segment_range.maximum,
                 'name': self._network_segment_range.name,
@@ -450,10 +450,7 @@ class TestListNetworkSegmentRange(TestNetworkSegmentRange):
         'Minimum ID',
         'Maximum ID',
     )
-    columns_long = columns + (
-        'Used',
-        'Available',
-    )
+    columns_long = (*columns, 'Used', 'Available')
 
     data = []
     for _network_segment_range in _network_segment_ranges:
@@ -544,11 +541,11 @@ class TestSetNetworkSegmentRange(TestNetworkSegmentRange):
     # The network segment range updated.
     minimum_updated = _network_segment_range.minimum - 5
     maximum_updated = _network_segment_range.maximum + 5
-    available_updated = (
-        list(range(minimum_updated, 104))
-        + [105]
-        + list(range(107, maximum_updated + 1))
-    )
+    available_updated = [
+        *list(range(minimum_updated, 104)),
+        105,
+        *list(range(107, maximum_updated + 1)),
+    ]
     _network_segment_range_updated = (
         network_fakes.create_one_network_segment_range(
             attrs={

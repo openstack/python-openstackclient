@@ -226,7 +226,7 @@ class TestCreateNetworkQosRuleMinimumPacketRate(TestNetworkQosRule):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network_client.create_qos_minimum_packet_rate_rule.assert_called_once_with(  # noqa: E501
+        self.network_client.create_qos_minimum_packet_rate_rule.assert_called_once_with(
             self.qos_policy.id,
             **{
                 'min_kpps': self.new_rule.min_kpps,
@@ -613,7 +613,7 @@ class TestDeleteNetworkQosRuleMinimumPacketRate(TestNetworkQosRule):
         self.network_client.find_qos_policy.assert_called_once_with(
             self.qos_policy.id, ignore_missing=False
         )
-        self.network_client.delete_qos_minimum_packet_rate_rule.assert_called_once_with(  # noqa: E501
+        self.network_client.delete_qos_minimum_packet_rate_rule.assert_called_once_with(
             self.new_rule.id, self.qos_policy.id
         )
         self.assertIsNone(result)

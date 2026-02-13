@@ -250,7 +250,7 @@ class TestListNetworkSegment(TestNetworkSegment):
         'Network Type',
         'Segment',
     )
-    columns_long = columns + ('Physical Network',)
+    columns_long = (*columns, 'Physical Network')
 
     data = []
     for _network_segment in _network_segments:

@@ -39,14 +39,14 @@ class TestFloatingIPPortForwarding(network_fakes.TestNetworkV2):
 class TestCreateFloatingIPPortForwarding(TestFloatingIPPortForwarding):
     def setUp(self):
         super().setUp()
-        self.new_port_forwarding = network_fakes.FakeFloatingIPPortForwarding.create_one_port_forwarding(  # noqa: E501
+        self.new_port_forwarding = network_fakes.FakeFloatingIPPortForwarding.create_one_port_forwarding(
             attrs={
                 'internal_port_id': self.port.id,
                 'floatingip_id': self.floating_ip.id,
             }
         )
 
-        self.new_port_forwarding_with_ranges = network_fakes.FakeFloatingIPPortForwarding.create_one_port_forwarding(  # noqa: E501
+        self.new_port_forwarding_with_ranges = network_fakes.FakeFloatingIPPortForwarding.create_one_port_forwarding(
             use_range=True,
             attrs={
                 'internal_port_id': self.port.id,
@@ -144,15 +144,15 @@ class TestCreateFloatingIPPortForwarding(TestFloatingIPPortForwarding):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network_client.create_floating_ip_port_forwarding.assert_called_once_with(  # noqa: E501
+        self.network_client.create_floating_ip_port_forwarding.assert_called_once_with(
             self.new_port_forwarding.floatingip_id,
             **{
-                'external_port_range': self.new_port_forwarding_with_ranges.external_port_range,  # noqa: E501
-                'internal_ip_address': self.new_port_forwarding_with_ranges.internal_ip_address,  # noqa: E501
-                'internal_port_range': self.new_port_forwarding_with_ranges.internal_port_range,  # noqa: E501
-                'internal_port_id': self.new_port_forwarding_with_ranges.internal_port_id,  # noqa: E501
+                'external_port_range': self.new_port_forwarding_with_ranges.external_port_range,
+                'internal_ip_address': self.new_port_forwarding_with_ranges.internal_ip_address,
+                'internal_port_range': self.new_port_forwarding_with_ranges.internal_port_range,
+                'internal_port_id': self.new_port_forwarding_with_ranges.internal_port_id,
                 'protocol': self.new_port_forwarding_with_ranges.protocol,
-                'description': self.new_port_forwarding_with_ranges.description,  # noqa: E501
+                'description': self.new_port_forwarding_with_ranges.description,
             },
         )
         self.assertEqual(self.columns, columns)
@@ -325,11 +325,11 @@ class TestCreateFloatingIPPortForwarding(TestFloatingIPPortForwarding):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.network_client.create_floating_ip_port_forwarding.assert_called_once_with(  # noqa: E501
+        self.network_client.create_floating_ip_port_forwarding.assert_called_once_with(
             self.new_port_forwarding.floatingip_id,
             **{
                 'external_port': self.new_port_forwarding.external_port,
-                'internal_ip_address': self.new_port_forwarding.internal_ip_address,  # noqa: E501
+                'internal_ip_address': self.new_port_forwarding.internal_ip_address,
                 'internal_port': self.new_port_forwarding.internal_port,
                 'internal_port_id': self.new_port_forwarding.internal_port_id,
                 'protocol': self.new_port_forwarding.protocol,
@@ -375,7 +375,7 @@ class TestDeleteFloatingIPPortForwarding(TestFloatingIPPortForwarding):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.network_client.delete_floating_ip_port_forwarding.assert_called_once_with(  # noqa: E501
+        self.network_client.delete_floating_ip_port_forwarding.assert_called_once_with(
             self.floating_ip.id,
             self._port_forwarding[0].id,
             ignore_missing=False,
@@ -553,7 +553,7 @@ class TestSetFloatingIPPortForwarding(TestFloatingIPPortForwarding):
     # The Port Forwarding to set.
     def setUp(self):
         super().setUp()
-        self._port_forwarding = network_fakes.FakeFloatingIPPortForwarding.create_one_port_forwarding(  # noqa: E501
+        self._port_forwarding = network_fakes.FakeFloatingIPPortForwarding.create_one_port_forwarding(
             attrs={
                 'floatingip_id': self.floating_ip.id,
             }
@@ -675,7 +675,7 @@ class TestShowFloatingIPPortForwarding(TestFloatingIPPortForwarding):
 
     def setUp(self):
         super().setUp()
-        self._port_forwarding = network_fakes.FakeFloatingIPPortForwarding.create_one_port_forwarding(  # noqa: E501
+        self._port_forwarding = network_fakes.FakeFloatingIPPortForwarding.create_one_port_forwarding(
             attrs={
                 'floatingip_id': self.floating_ip.id,
             }

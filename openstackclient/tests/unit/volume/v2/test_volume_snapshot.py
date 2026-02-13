@@ -297,7 +297,8 @@ class TestVolumeSnapshotList(volume_fakes.TestVolume):
         self.project_mock.get.return_value = self.project
 
         self.columns = ("ID", "Name", "Description", "Status", "Size")
-        self.columns_long = self.columns + (
+        self.columns_long = (
+            *self.columns,
             "Created At",
             "Volume",
             "Properties",

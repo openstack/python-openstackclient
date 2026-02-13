@@ -224,7 +224,7 @@ class TestCreateNetworkRBAC(TestNetworkRBAC):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        columns, data = self.cmd.take_action(parsed_args)
+        _columns, _data = self.cmd.take_action(parsed_args)
 
         self.network_client.create_rbac_policy.assert_called_with(
             **{

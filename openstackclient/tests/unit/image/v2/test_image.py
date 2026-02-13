@@ -305,7 +305,7 @@ class TestImageCreate(TestImage):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        columns, data = self.cmd.take_action(parsed_args)
+        self.cmd.take_action(parsed_args)
 
         self.image_client.create_image.assert_called_with(
             name=self.new_image.name,
@@ -336,7 +336,7 @@ class TestImageCreate(TestImage):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        columns, data = self.cmd.take_action(parsed_args)
+        self.cmd.take_action(parsed_args)
 
         self.volume_sdk_client.upload_volume_to_image.assert_called_once_with(
             volume.id,
@@ -397,7 +397,7 @@ class TestImageCreate(TestImage):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        columns, data = self.cmd.take_action(parsed_args)
+        self.cmd.take_action(parsed_args)
 
         self.volume_sdk_client.upload_volume_to_image.assert_called_once_with(
             volume.id,
@@ -946,7 +946,7 @@ class TestImageList(TestImage):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        columns, data = self.cmd.take_action(parsed_args)
+        self.cmd.take_action(parsed_args)
         self.image_client.images.assert_called_with(
             marker=self._image.id,
         )
@@ -966,7 +966,7 @@ class TestImageList(TestImage):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        columns, data = self.cmd.take_action(parsed_args)
+        self.cmd.take_action(parsed_args)
         self.image_client.images.assert_called_with(
             name='abc',
             # marker=self._image.id
@@ -982,7 +982,7 @@ class TestImageList(TestImage):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        columns, data = self.cmd.take_action(parsed_args)
+        self.cmd.take_action(parsed_args)
         self.image_client.images.assert_called_with(status='active')
 
     def test_image_list_hidden_option(self):
@@ -994,7 +994,7 @@ class TestImageList(TestImage):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        columns, data = self.cmd.take_action(parsed_args)
+        self.cmd.take_action(parsed_args)
         self.image_client.images.assert_called_with(is_hidden=True)
 
     def test_image_list_tag_option(self):
@@ -1004,7 +1004,7 @@ class TestImageList(TestImage):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        columns, data = self.cmd.take_action(parsed_args)
+        self.cmd.take_action(parsed_args)
         self.image_client.images.assert_called_with(tag=['abc', 'cba'])
 
 
@@ -1329,7 +1329,7 @@ class TestImageSet(TestImage):
         self.image_client.update_image.assert_called()
         call_args = self.image_client.update_image.call_args
         if call_args:
-            args, kwargs = call_args
+            _args, kwargs = call_args
             self.assertNotIn('owner_id', kwargs)
 
     def test_image_set_membership_reject_with_project_no_owner_change(self):
@@ -1366,7 +1366,7 @@ class TestImageSet(TestImage):
         self.image_client.update_image.assert_called()
         call_args = self.image_client.update_image.call_args
         if call_args:
-            args, kwargs = call_args
+            _args, kwargs = call_args
             self.assertNotIn('owner_id', kwargs)
 
     def test_image_set_membership_pending_with_project_no_owner_change(self):
@@ -1403,7 +1403,7 @@ class TestImageSet(TestImage):
         self.image_client.update_image.assert_called()
         call_args = self.image_client.update_image.call_args
         if call_args:
-            args, kwargs = call_args
+            _args, kwargs = call_args
             self.assertNotIn('owner_id', kwargs)
 
     def test_image_set_options(self):

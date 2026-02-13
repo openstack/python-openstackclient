@@ -494,7 +494,8 @@ class TestFlavorList(TestFlavor):
             'VCPUs',
             'Is Public',
         )
-        self.columns_long = self.columns + (
+        self.columns_long = (
+            *self.columns,
             'Swap',
             'RXTX Factor',
             'Properties',

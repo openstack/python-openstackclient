@@ -940,9 +940,9 @@ class NICAction(argparse.Action):
         }
 
         for kv_str in values.split(','):
-            k, sep, v = kv_str.partition('=')
+            k, _sep, v = kv_str.partition('=')
 
-            if k not in list(info) + ['tag'] or not v:
+            if k not in [*list(info), 'tag'] or not v:
                 msg = _(
                     "Invalid argument %s; argument must be of form "
                     "'net-id=net-uuid,port-id=port-uuid,v4-fixed-ip=ip-addr,"
@@ -975,7 +975,7 @@ class BDMLegacyAction(argparse.Action):
         if getattr(namespace, self.dest, None) is None:
             setattr(namespace, self.dest, [])
 
-        dev_name, sep, dev_map = values.partition('=')
+        dev_name, _sep, dev_map = values.partition('=')
         dev_map = dev_map.split(':') if dev_map else dev_map
         if not dev_name or not dev_map or len(dev_map) > 4:
             msg = _(
@@ -5017,7 +5017,7 @@ class SshServer(command.Command):
             ip_address_family,
         )
 
-        cmd = ' '.join(['ssh', ip_address] + args)
+        cmd = ' '.join(['ssh', ip_address, *args])
         LOG.debug('ssh command: %s', cmd)
         # we intentionally pass through user-provided arguments and run this in
         # the user's shell

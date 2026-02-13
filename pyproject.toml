@@ -758,7 +758,14 @@ quote-style = "preserve"
 docstring-code-format = true
 
 [tool.ruff.lint]
-select = ["E4", "E5", "E7", "E9", "F", "G", "S", "UP"]
+select = ["E4", "E5", "E7", "E9", "F", "G", "RUF", "S", "UP"]
+ignore = [
+    # the following are ignored because they don't provide enough value for the
+    # changes required
+    "RUF012",  # Mutable default value for class attribute
+]
+# don't remove hacking (H) or openstackclient (O) checks
+external = ["H", "O"]
 
 [tool.ruff.lint.per-file-ignores]
 "openstackclient/tests/*" = ["E501", "S"]

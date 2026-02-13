@@ -173,9 +173,9 @@ class VolumeTypeTests(common.BaseVolumeTests):
             'volume type list --encryption-type',
             parse_output=True,
         )
-        encryption_output = [
+        encryption_output = next(
             t['Encryption'] for t in cmd_output if t['Name'] == encryption_type
-        ][0]
+        )
         expected = {
             'provider': 'LuksEncryptor',
             'cipher': 'aes-xts-plain64',

@@ -180,7 +180,7 @@ def _get_token_resource(client, resource, parsed_name, parsed_domain=None):
             return parsed_name
         return obj['id'] if obj['name'] == parsed_name else parsed_name
     # diaper defense in case parsing the token fails
-    except Exception:  # noqa
+    except Exception:
         return parsed_name
 
 

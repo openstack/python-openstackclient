@@ -17,7 +17,7 @@ from osc_lib import exceptions
 from osc_lib import utils
 
 from openstackclient import command
-from openstackclient.i18n import _  # noqa
+from openstackclient.i18n import _
 
 
 class ListRoleAssignment(command.Lister):

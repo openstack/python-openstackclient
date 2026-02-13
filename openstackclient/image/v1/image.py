@@ -299,7 +299,7 @@ class CreateImage(command.ShowOne):
                     volume_client.volumes,
                     parsed_args.volume,
                 )
-                response, body = volume_client.volumes.upload_to_image(
+                _response, body = volume_client.volumes.upload_to_image(
                     source_volume.id,
                     parsed_args.force,
                     parsed_args.name,
@@ -498,7 +498,7 @@ class ListImage(command.Lister):
 
         if parsed_args.property:
             # NOTE(dtroyer): coerce to a list to subscript it in py3
-            attr, value = list(parsed_args.property.items())[0]
+            attr, value = next(iter(parsed_args.property.items()))
             api_utils.simple_filter(
                 images,
                 attr=attr,

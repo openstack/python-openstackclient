@@ -92,7 +92,7 @@ class TestCase(testtools.TestCase):
             format_args.append('-f json')
 
         output = execute(
-            ' '.join(['openstack'] + auth_args + [cmd] + format_args),
+            ' '.join(['openstack', *auth_args, cmd, *format_args]),
             fail_ok=fail_ok,
         )
 

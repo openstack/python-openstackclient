@@ -406,14 +406,21 @@ class ListNetworkSegmentRange(command.Lister):
         for s in data:
             props = utils.get_item_properties(s, columns)
             if (
-                parsed_args.available
-                and _is_prop_empty(columns, props, 'available')
-                or parsed_args.unavailable
-                and not _is_prop_empty(columns, props, 'available')
-                or parsed_args.used
-                and _is_prop_empty(columns, props, 'used')
-                or parsed_args.unused
-                and not _is_prop_empty(columns, props, 'used')
+                (
+                    parsed_args.available
+                    and _is_prop_empty(columns, props, 'available')
+                )
+                or (
+                    parsed_args.unavailable
+                    and not _is_prop_empty(columns, props, 'available')
+                )
+                or (
+                    parsed_args.used and _is_prop_empty(columns, props, 'used')
+                )
+                or (
+                    parsed_args.unused
+                    and not _is_prop_empty(columns, props, 'used')
+                )
             ):
                 continue
             if parsed_args.long:

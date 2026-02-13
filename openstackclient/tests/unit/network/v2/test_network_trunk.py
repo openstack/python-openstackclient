@@ -468,7 +468,7 @@ class TestListNetworkTrunk(TestNetworkTrunk):
     )
 
     columns = ('ID', 'Name', 'Parent Port', 'Description')
-    columns_long = columns + ('Status', 'State', 'Created At', 'Updated At')
+    columns_long = (*columns, 'Status', 'State', 'Created At', 'Updated At')
     data = []
     for t in new_trunks:
         data.append((t['id'], t['name'], t['port_id'], t['description']))
