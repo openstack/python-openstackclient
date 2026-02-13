@@ -68,6 +68,7 @@ class CreateLimit(command.ShowOne):
             required=True,
             help=_('Project to associate the resource limit to'),
         )
+        common_utils.add_project_domain_option_to_parser(parser)
         parser.add_argument(
             '--service',
             metavar='<service>',
@@ -98,12 +99,12 @@ class CreateLimit(command.ShowOne):
         if parsed_args.description:
             kwargs["description"] = parsed_args.description
 
-        # TODO(0weng): Add --project-domain option
-        # to support filtering project domain
-        kwargs["project_id"] = common_utils._find_sdk_id(
-            identity_client.find_project,
-            name_or_id=parsed_args.project,
+        kwargs["project_id"] = common_utils.find_project_id_sdk(
+            identity_client,
+            parsed_args.project,
+            domain_name_or_id=parsed_args.project_domain,
         )
+
         kwargs["service_id"] = common_utils.find_service_sdk(
             identity_client, parsed_args.service
         ).id
@@ -144,6 +145,8 @@ class ListLimit(command.Lister):
             metavar='<project>',
             help=_('List resource limits associated with project'),
         )
+        common_utils.add_project_domain_option_to_parser(parser)
+
         return parser
 
     def take_action(self, parsed_args):
@@ -160,12 +163,17 @@ class ListLimit(command.Lister):
                 parsed_args.region
             ).id
 
-        # TODO(0weng): Add --project-domain option
-        # to support filtering project domain
         if parsed_args.project:
+            project_domain_id = None
+            if parsed_args.project_domain:
+                project_domain_id = common_utils.find_domain_id_sdk(
+                    identity_client, parsed_args.project_domain
+                )
+
             kwargs["project_id"] = common_utils._find_sdk_id(
                 identity_client.find_project,
                 name_or_id=parsed_args.project,
+                domain_id=project_domain_id,
             )
 
         if parsed_args.resource_name:
