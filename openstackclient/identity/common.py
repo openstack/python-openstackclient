@@ -256,6 +256,37 @@ def find_project(identity_client, name_or_id, domain_name_or_id=None):
     )
 
 
+def find_project_id_sdk(
+    identity_client,
+    name_or_id,
+    domain_name_or_id=None,
+    *,
+    validate_actor_existence=True,
+    validate_domain_actor_existence=None,
+):
+    if domain_name_or_id is None:
+        return _find_sdk_id(
+            identity_client.find_project,
+            name_or_id=name_or_id,
+            validate_actor_existence=validate_actor_existence,
+        )
+
+    if validate_domain_actor_existence is None:
+        validate_domain_actor_existence = validate_actor_existence
+
+    domain_id = find_domain_id_sdk(
+        identity_client,
+        name_or_id=domain_name_or_id,
+        validate_actor_existence=validate_domain_actor_existence,
+    )
+    return _find_sdk_id(
+        identity_client.find_project,
+        name_or_id=name_or_id,
+        validate_actor_existence=validate_actor_existence,
+        domain_id=domain_id,
+    )
+
+
 def find_user(identity_client, name_or_id, domain_name_or_id=None):
     if domain_name_or_id is None:
         return _find_identity_resource(

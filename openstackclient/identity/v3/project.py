@@ -17,7 +17,7 @@
 
 import logging
 
-from keystoneauth1 import exceptions as ks_exc
+from openstack import exceptions as sdk_exc
 from osc_lib.cli import parseractions
 from osc_lib import exceptions
 from osc_lib import utils
@@ -28,6 +28,21 @@ from openstackclient.identity import common
 from openstackclient.identity.v3 import tag
 
 LOG = logging.getLogger(__name__)
+
+
+def _format_project(project):
+    # NOTE(0weng): Projects allow unknown attributes in the body, so extract
+    # the column names separately.
+    (column_headers, columns) = utils.get_osc_show_columns_for_sdk_resource(
+        project,
+        {'is_enabled': 'enabled'},
+        ['links', 'location', 'parents_as_ids', 'subtree_as_ids'],
+    )
+
+    return (
+        column_headers,
+        utils.get_item_properties(project, columns),
+    )
 
 
 class CreateProject(command.ShowOne):
@@ -90,22 +105,13 @@ class CreateProject(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.identity
-
-        domain = None
-        if parsed_args.domain:
-            domain = common.find_domain(identity_client, parsed_args.domain).id
-
-        parent = None
-        if parsed_args.parent:
-            parent = utils.find_resource(
-                identity_client.projects,
-                parsed_args.parent,
-            ).id
+        identity_client = self.app.client_manager.sdk_connection.identity
 
         kwargs = {}
+
         if parsed_args.properties:
             kwargs = parsed_args.properties.copy()
+
         if 'is_domain' in kwargs.keys():
             if kwargs['is_domain'].lower() == "true":
                 kwargs['is_domain'] = True
@@ -114,35 +120,54 @@ class CreateProject(command.ShowOne):
             elif kwargs['is_domain'].lower() == "none":
                 kwargs['is_domain'] = None
 
-        kwargs['tags'] = list(set(parsed_args.tags))
+        if parsed_args.description:
+            kwargs['description'] = parsed_args.description
 
-        options = {}
+        if parsed_args.name:
+            kwargs['name'] = parsed_args.name
+
+        domain = None
+        if parsed_args.domain:
+            domain = common.find_domain_id_sdk(
+                identity_client, parsed_args.domain
+            )
+            kwargs['domain_id'] = domain
+
+        if parsed_args.parent:
+            kwargs['parent_id'] = common.find_project_id_sdk(
+                identity_client,
+                parsed_args.parent,
+            )
+
+        kwargs['is_enabled'] = parsed_args.enabled
+
+        if parsed_args.tags:
+            kwargs['tags'] = list(set(parsed_args.tags))
+
         if parsed_args.immutable is not None:
-            options['immutable'] = parsed_args.immutable
+            kwargs['options'] = {'immutable': parsed_args.immutable}
 
         try:
-            project = identity_client.projects.create(
-                name=parsed_args.name,
-                domain=domain,
-                parent=parent,
-                description=parsed_args.description,
-                enabled=parsed_args.enabled,
-                options=options,
+            project = identity_client.create_project(
                 **kwargs,
             )
-        except ks_exc.Conflict:
+        except sdk_exc.ConflictException:
             if parsed_args.or_show:
-                project = utils.find_resource(
-                    identity_client.projects,
-                    parsed_args.name,
-                    domain_id=domain,
-                )
+                if parsed_args.domain:
+                    project = identity_client.find_project(
+                        parsed_args.name,
+                        domain_id=domain,
+                        ignore_missing=False,
+                    )
+                else:
+                    project = identity_client.find_project(
+                        parsed_args.name, ignore_missing=False
+                    )
                 LOG.info(_('Returning existing project %s'), project.name)
             else:
                 raise
 
-        project._info.pop('links')
-        return zip(*sorted(project._info.items()))
+        return _format_project(project)
 
 
 class DeleteProject(command.Command):
@@ -171,23 +196,19 @@ class DeleteProject(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.identity
+        identity_client = self.app.client_manager.sdk_connection.identity
 
-        domain = None
-        if parsed_args.domain:
-            domain = common.find_domain(identity_client, parsed_args.domain)
         errors = 0
         for project in parsed_args.projects:
             try:
-                if domain is not None:
-                    project_obj = utils.find_resource(
-                        identity_client.projects, project, domain_id=domain.id
-                    )
-                else:
-                    project_obj = utils.find_resource(
-                        identity_client.projects, project
-                    )
-                identity_client.projects.delete(project_obj.id)
+                project = common.find_project_id_sdk(
+                    identity_client,
+                    project,
+                    domain_name_or_id=parsed_args.domain,
+                    validate_actor_existence=True,
+                    validate_domain_actor_existence=False,
+                )
+                identity_client.delete_project(project)
             except Exception as e:
                 errors += 1
                 LOG.error(
@@ -268,38 +289,44 @@ class ListProject(command.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.identity
-        columns: tuple[str, ...] = ('ID', 'Name')
+        identity_client = self.app.client_manager.sdk_connection.identity
+
+        column_headers: tuple[str, ...] = ('ID', 'Name')
         if parsed_args.long:
-            columns += ('Domain ID', 'Description', 'Enabled')
+            column_headers += ('Domain ID', 'Description', 'Enabled')
+
+        columns: tuple[str, ...] = ('id', 'name')
+        if parsed_args.long:
+            columns += ('domain_id', 'description', 'is_enabled')
+
         kwargs = {}
 
         domain_id = None
         if parsed_args.domain:
-            domain_id = common.find_domain(
+            domain_id = common.find_domain_id_sdk(
                 identity_client, parsed_args.domain
-            ).id
-            kwargs['domain'] = domain_id
+            )
+            kwargs['domain_id'] = domain_id
 
         if parsed_args.parent:
-            parent_id = common.find_project(
+            parent_id = common.find_project_id_sdk(
                 identity_client, parsed_args.parent
-            ).id
-            kwargs['parent'] = parent_id
+            )
+            kwargs['parent_id'] = parent_id
 
+        user = None
         if parsed_args.user:
             if parsed_args.domain:
-                user_id = utils.find_resource(
-                    identity_client.users,
+                user = common.find_user_id_sdk(
+                    identity_client,
                     parsed_args.user,
-                    domain_id=domain_id,
-                ).id
+                    domain_name_or_id=domain_id,
+                )
             else:
-                user_id = utils.find_resource(
-                    identity_client.users, parsed_args.user
-                ).id
-
-            kwargs['user'] = user_id
+                user = common.find_user_id_sdk(
+                    identity_client,
+                    parsed_args.user,
+                )
 
         if parsed_args.is_enabled is not None:
             kwargs['is_enabled'] = parsed_args.is_enabled
@@ -308,32 +335,29 @@ class ListProject(command.Lister):
 
         if parsed_args.my_projects:
             # NOTE(adriant): my-projects supersedes all the other filters.
-            kwargs = {'user': self.app.client_manager.auth_ref.user_id}
+            kwargs = {}
+            user = self.app.client_manager.auth_ref.user_id
 
-        try:
-            data = identity_client.projects.list(**kwargs)
-        except ks_exc.Forbidden:
-            # NOTE(adriant): if no filters, assume a forbidden is non-admin
-            # wanting their own project list.
-            if not kwargs:
-                user = self.app.client_manager.auth_ref.user_id
-                data = identity_client.projects.list(user=user)
-            else:
-                raise
+        if user:
+            data = identity_client.user_projects(user, **kwargs)
+        else:
+            try:
+                data = identity_client.projects(**kwargs)
+            except sdk_exc.ForbiddenException:
+                # NOTE(adriant): if no filters, assume a forbidden is non-admin
+                # wanting their own project list.
+                if not kwargs:
+                    user = self.app.client_manager.auth_ref.user_id
+                    data = identity_client.user_projects(user)
+                else:
+                    raise
 
         if parsed_args.sort:
             data = utils.sort_items(data, parsed_args.sort)
 
         return (
-            columns,
-            (
-                utils.get_item_properties(
-                    s,
-                    columns,
-                    formatters={},
-                )
-                for s in data
-            ),
+            column_headers,
+            (utils.get_item_properties(s, columns) for s in data),
         )
 
 
@@ -392,11 +416,7 @@ class SetProject(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.identity
-
-        project = common.find_project(
-            identity_client, parsed_args.project, parsed_args.domain
-        )
+        identity_client = self.app.client_manager.sdk_connection.identity
 
         kwargs = {}
         if parsed_args.name:
@@ -409,9 +429,50 @@ class SetProject(command.Command):
             kwargs['options'] = {'immutable': parsed_args.immutable}
         if parsed_args.properties:
             kwargs.update(parsed_args.properties)
-        tag.update_tags_in_args(parsed_args, project, kwargs)
 
-        identity_client.projects.update(project.id, **kwargs)
+        if parsed_args.domain:
+            domain = common.find_domain_id_sdk(
+                identity_client,
+                parsed_args.domain,
+                validate_actor_existence=False,
+            )
+            project = identity_client.find_project(
+                parsed_args.project,
+                domain_id=domain,
+                ignore_missing=True,
+            )
+        else:
+            project = identity_client.find_project(
+                parsed_args.project,
+                ignore_missing=True,
+            )
+
+        if (
+            parsed_args.tags
+            or parsed_args.remove_tags
+            or parsed_args.clear_tags
+        ):
+            existing_tags = []
+            if project:
+                existing_tags = project.tags
+
+            if parsed_args.clear_tags:
+                kwargs['tags'] = []
+            else:
+                existing_tags_set = set(existing_tags)
+                if parsed_args.remove_tags:
+                    tags = sorted(
+                        existing_tags_set - set(parsed_args.remove_tags)
+                    )
+                if parsed_args.tags:
+                    tags = sorted(
+                        existing_tags_set.union(set(parsed_args.tags))
+                    )
+                kwargs['tags'] = tags
+
+        project_id = project.id if project else parsed_args.project
+
+        identity_client.update_project(project_id, **kwargs)
 
 
 class ShowProject(command.ShowOne):
@@ -444,31 +505,36 @@ class ShowProject(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.identity
+        identity_client = self.app.client_manager.sdk_connection.identity
 
-        project_str = common._get_token_resource(
-            identity_client, 'project', parsed_args.project, parsed_args.domain
+        kwargs = {}
+
+        domain = None
+        if parsed_args.domain:
+            domain = common.find_domain_id_sdk(
+                identity_client, parsed_args.domain
+            )
+
+            kwargs['domain_id'] = domain
+
+        # Get project id first; otherwise, find_project() can't find
+        # parents/children if only project name was given
+        project = common.find_project_id_sdk(
+            identity_client,
+            parsed_args.project,
+            domain_name_or_id=domain,
+            validate_actor_existence=False,
+            validate_domain_actor_existence=False,
         )
 
-        if parsed_args.domain:
-            domain = common.find_domain(identity_client, parsed_args.domain)
-            project = utils.find_resource(
-                identity_client.projects, project_str, domain_id=domain.id
-            )
-        else:
-            project = utils.find_resource(
-                identity_client.projects, project_str
-            )
+        # Include these options as query parameters if they are provided
+        if parsed_args.parents:
+            kwargs['parents_as_ids'] = True
+        if parsed_args.children:
+            kwargs['subtree_as_ids'] = True
 
-        if parsed_args.parents or parsed_args.children:
-            # NOTE(RuiChen): utils.find_resource() can't pass kwargs,
-            #                if id query hit the result at first, so call
-            #                identity manager.get() with kwargs directly.
-            project = identity_client.projects.get(
-                project.id,
-                parents_as_ids=parsed_args.parents,
-                subtree_as_ids=parsed_args.children,
-            )
+        project = identity_client.find_project(
+            project, **kwargs, ignore_missing=False
+        )
 
-        project._info.pop('links')
-        return zip(*sorted(project._info.items()))
+        return _format_project(project)
