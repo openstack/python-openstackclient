@@ -137,6 +137,7 @@ class CreateProject(command.ShowOne):
             kwargs['parent_id'] = common.find_project_id_sdk(
                 identity_client,
                 parsed_args.parent,
+                domain_name_or_id=domain,
             )
 
         kwargs['is_enabled'] = parsed_args.enabled
@@ -310,7 +311,9 @@ class ListProject(command.Lister):
 
         if parsed_args.parent:
             parent_id = common.find_project_id_sdk(
-                identity_client, parsed_args.parent
+                identity_client,
+                parsed_args.parent,
+                domain_name_or_id=domain_id,
             )
             kwargs['parent_id'] = parent_id
 
