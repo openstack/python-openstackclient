@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    Migrate ``identity provider`` commands from keystoneclient to SDK.
+upgrade:
+  - |
+    Filtering in ``identity provider`` commands is now case sensitive.

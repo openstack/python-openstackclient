@@ -56,7 +56,9 @@ class IdentityProviderTests(common.IdentityTests):
         raw_output = self.openstack(
             f'identity provider set '
             f'{identity_provider} '
-            f'--remote-id {new_remoteid}'
+            f'--authorization-ttl 7 '
+            f'--remote-id {new_remoteid} '
+            f'--remote-id {new_remoteid + "2nd"}'
         )
         self.assertEqual(0, len(raw_output))
         raw_output = self.openstack(
