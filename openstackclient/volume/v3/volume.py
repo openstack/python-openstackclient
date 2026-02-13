@@ -515,11 +515,18 @@ class DeleteVolume(command.Command):
             ),
         )
         group.add_argument(
-            "--purge",
+            "--cascade",
             action="store_true",
             help=_(
                 "Remove any snapshots along with volume(s) (defaults to False)"
             ),
+        )
+        group.add_argument(
+            # now called "cascade", accept old arg for compatibility
+            "--purge",
+            action="store_true",
+            help=argparse.SUPPRESS,
+            dest='cascade',
         )
         parser.add_argument(
             '--remote',
@@ -532,9 +539,9 @@ class DeleteVolume(command.Command):
         volume_client = self.app.client_manager.sdk_connection.volume
         result = 0
 
-        if parsed_args.remote and (parsed_args.force or parsed_args.purge):
+        if parsed_args.remote and (parsed_args.force or parsed_args.cascade):
             msg = _(
-                "The --force and --purge options are not "
+                "The --force and --cascade options are not "
                 "supported with the --remote parameter."
             )
             raise exceptions.CommandError(msg)
@@ -550,7 +557,7 @@ class DeleteVolume(command.Command):
                     volume_client.delete_volume(
                         volume_obj.id,
                         force=parsed_args.force,
-                        cascade=parsed_args.purge,
+                        cascade=parsed_args.cascade,
                     )
             except Exception as e:
                 result += 1
