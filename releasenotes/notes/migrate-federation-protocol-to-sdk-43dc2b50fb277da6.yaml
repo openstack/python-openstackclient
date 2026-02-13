@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    Migrate ``federation protocol`` commands from keystoneclient to SDK.
+upgrade:
+  - |
+    Filtering in ``federation protocol`` commands is now case sensitive.
