@@ -38,8 +38,8 @@ def _find_volumes(parsed_args_volumes, volume_client):
         except Exception as e:
             result += 1
             LOG.error(
-                _("Failed to find volume with name or ID '%(volume)s':%(e)s")
-                % {'volume': volume, 'e': e}
+                _("Failed to find volume with name or ID '%(volume)s':%(e)s"),
+                {'volume': volume, 'e': e},
             )
 
     return result, uuid
@@ -73,8 +73,8 @@ class AddVolumeToConsistencyGroup(command.Command):
         if result > 0:
             total = len(parsed_args.volumes)
             LOG.error(
-                _("%(result)s of %(total)s volumes failed to add.")
-                % {'result': result, 'total': total}
+                _("%(result)s of %(total)s volumes failed to add."),
+                {'result': result, 'total': total},
             )
 
         if add_uuid:
@@ -226,8 +226,8 @@ class DeleteConsistencyGroup(command.Command):
                     _(
                         "Failed to delete consistency group with "
                         "name or ID '%(consistency_group)s':%(e)s"
-                    )
-                    % {'consistency_group': i, 'e': e}
+                    ),
+                    {'consistency_group': i, 'e': e},
                 )
 
         if result > 0:
@@ -317,8 +317,8 @@ class RemoveVolumeFromConsistencyGroup(command.Command):
         if result > 0:
             total = len(parsed_args.volumes)
             LOG.error(
-                _("%(result)s of %(total)s volumes failed to remove.")
-                % {'result': result, 'total': total}
+                _("%(result)s of %(total)s volumes failed to remove."),
+                {'result': result, 'total': total},
             )
 
         if remove_uuid:

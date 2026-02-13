@@ -146,8 +146,8 @@ class DeleteQos(command.Command):
                     _(
                         "Failed to delete QoS specification with "
                         "name or ID '%(qos)s': %(e)s"
-                    )
-                    % {'qos': i, 'e': e}
+                    ),
+                    {'qos': i, 'e': e},
                 )
 
         if result > 0:

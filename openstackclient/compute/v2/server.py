@@ -5018,7 +5018,7 @@ class SshServer(command.Command):
         )
 
         cmd = ' '.join(['ssh', ip_address] + args)
-        LOG.debug(f"ssh command: {cmd}")
+        LOG.debug('ssh command: %s', cmd)
         # we intentionally pass through user-provided arguments and run this in
         # the user's shell
         os.system(cmd)  # noqa: S605

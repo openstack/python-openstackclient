@@ -264,7 +264,7 @@ def main(opts, run):
         if dump_stack_trace:
             _logger.error(traceback.format_exc(e))
         else:
-            _logger.error('Exception raised: ' + str(e))
+            _logger.error('Exception raised: %s', e)
         return 1
 
 

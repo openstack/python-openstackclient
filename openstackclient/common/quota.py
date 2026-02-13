@@ -272,7 +272,10 @@ class ListQuota(command.Lister):
                 sdk_exceptions.NotFoundException,
             ) as exc:
                 # Project not found, move on to next one
-                LOG.warning(f"Project {project_id} not found: {exc}")
+                LOG.warning(
+                    'Project %(project_id)s not found: %(exc)s',
+                    {'project_id': project_id, 'exc': exc},
+                )
                 continue
 
             project_result = _xform_get_quota(
@@ -334,7 +337,10 @@ class ListQuota(command.Lister):
                 sdk_exceptions.NotFoundException,
             ) as exc:
                 # Project not found, move on to next one
-                LOG.warning(f"Project {project_id} not found: {exc}")
+                LOG.warning(
+                    'Project %(project_id)s not found: %(exc)s',
+                    {'project_id': project_id, 'exc': exc},
+                )
                 continue
 
             project_result = _xform_get_quota(
@@ -389,7 +395,10 @@ class ListQuota(command.Lister):
                 sdk_exceptions.ForbiddenException,
             ) as exc:
                 # Project not found, move on to next one
-                LOG.warning(f"Project {project_id} not found: {exc}")
+                LOG.warning(
+                    'Project %(project_id)s not found: %(exc)s',
+                    {'project_id': project_id, 'exc': exc},
+                )
                 continue
 
             project_result = _xform_get_quota(

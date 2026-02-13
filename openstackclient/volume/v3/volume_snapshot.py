@@ -246,8 +246,8 @@ class DeleteVolumeSnapshot(command.Command):
                     _(
                         "Failed to delete snapshot with "
                         "name or ID '%(snapshot)s': %(e)s"
-                    )
-                    % {'snapshot': snapshot, 'e': e}
+                    ),
+                    {'snapshot': snapshot, 'e': e},
                 )
 
         if result > 0:

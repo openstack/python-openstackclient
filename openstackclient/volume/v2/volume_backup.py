@@ -175,8 +175,8 @@ class DeleteVolumeBackup(command.Command):
                     _(
                         "Failed to delete backup with "
                         "name or ID '%(backup)s': %(e)s"
-                    )
-                    % {'backup': backup, 'e': e}
+                    ),
+                    {'backup': backup, 'e': e},
                 )
 
         if result > 0:
