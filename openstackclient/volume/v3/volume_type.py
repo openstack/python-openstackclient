@@ -549,7 +549,7 @@ class ListVolumeType(command.Lister):
             _EncryptionInfoColumn = functools.partial(
                 EncryptionInfoColumn, encryption_data=encryption
             )
-            formatters['id'] = _EncryptionInfoColumn
+            formatters['id'] = _EncryptionInfoColumn  # type: ignore
 
         return (
             column_headers,

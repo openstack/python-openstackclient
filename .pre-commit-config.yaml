@@ -15,28 +15,14 @@ repos:
         files: .*\.(yaml|yml)$
         args: ['--unsafe']
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.14.0
+    rev: v0.15.1
     hooks:
       - id: ruff-check
         args: ['--fix', '--unsafe-fixes']
       - id: ruff-format
   - repo: https://opendev.org/openstack/hacking
-    rev: 7.0.0
+    rev: 8.0.0
     hooks:
       - id: hacking
         additional_dependencies: []
         exclude: '^(doc|releasenotes)/.*$'
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.18.2
-    hooks:
-      - id: mypy
-        additional_dependencies:
-          - types-requests
-        # keep this in-sync with '[tool.mypy] exclude' in 'pyproject.toml'
-        exclude: |
-          (?x)(
-            doc/.*
-            | examples/.*
-            | hacking/.*
-            | releasenotes/.*
-          )

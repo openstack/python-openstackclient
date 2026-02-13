@@ -61,7 +61,7 @@ class ListCommand(command.Lister):
                 # TODO(bapalm): Fix this when cliff properly supports
                 # handling the detection rather than using the hard-code below.
                 if parsed_args.formatter == 'table':
-                    command_names = utils.format_list(command_names, "\n")
+                    command_names = utils.format_list(command_names, "\n")  # type: ignore
 
                 commands.append((group, command_names))
 
