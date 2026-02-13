@@ -129,7 +129,10 @@ class TestConsistencyGroupAddVolume(TestConsistencyGroup):
             utils, 'find_resource', side_effect=find_mock_result
         ) as find_mock:
             result = self.cmd.take_action(parsed_args)
-            mock_error.assert_called_with("1 of 2 volumes failed to add.")
+            mock_error.assert_called_with(
+                '%(result)s of %(total)s volumes failed to add.',
+                {'result': 1, 'total': 2},
+            )
             self.assertIsNone(result)
             find_mock.assert_any_call(
                 self.consistencygroups_mock, self._consistency_group.id
@@ -602,7 +605,10 @@ class TestConsistencyGroupRemoveVolume(TestConsistencyGroup):
             utils, 'find_resource', side_effect=find_mock_result
         ) as find_mock:
             result = self.cmd.take_action(parsed_args)
-            mock_error.assert_called_with("1 of 2 volumes failed to remove.")
+            mock_error.assert_called_with(
+                '%(result)s of %(total)s volumes failed to remove.',
+                {'result': 1, 'total': 2},
+            )
             self.assertIsNone(result)
             find_mock.assert_any_call(
                 self.consistencygroups_mock, self._consistency_group.id

@@ -277,7 +277,7 @@ class CreateVolumeType(command.ShowOne):
                 msg = _(
                     "Failed to add project %(project)s access to type: %(e)s"
                 )
-                LOG.error(msg % {'project': parsed_args.project, 'e': e})
+                LOG.error(msg, {'project': parsed_args.project, 'e': e})
 
         properties = {}
         if parsed_args.properties:
@@ -358,8 +358,8 @@ class DeleteVolumeType(command.Command):
                     _(
                         "Failed to delete volume type with "
                         "name or ID '%(volume_type)s': %(e)s"
-                    )
-                    % {'volume_type': volume_type, 'e': e}
+                    ),
+                    {'volume_type': volume_type, 'e': e},
                 )
 
         if result > 0:
@@ -846,7 +846,7 @@ class ShowVolumeType(command.ShowOne):
                     'Failed to get access project list for volume type '
                     '%(type)s: %(e)s'
                 )
-                LOG.error(msg % {'type': volume_type.id, 'e': e})
+                LOG.error(msg, {'type': volume_type.id, 'e': e})
         volume_type._info.update({'access_project_ids': access_project_ids})
         if parsed_args.encryption_type:
             # show encryption type information for this volume type

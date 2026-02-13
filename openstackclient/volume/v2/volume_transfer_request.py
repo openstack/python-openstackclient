@@ -128,8 +128,8 @@ class DeleteTransferRequest(command.Command):
                     _(
                         "Failed to delete volume transfer request "
                         "with name or ID '%(transfer)s': %(e)s"
-                    )
-                    % {'transfer': t, 'e': e}
+                    ),
+                    {'transfer': t, 'e': e},
                 )
 
         if result > 0:

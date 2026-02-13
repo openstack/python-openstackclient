@@ -910,12 +910,12 @@ class SetVolume(command.Command):
         elif policy:
             # If the "--migration-policy" is specified without "--type"
             LOG.warning(
-                _("'%s' option will not work without '--type' option")
-                % (
+                _("'%s' option will not work without '--type' option"),
+                (
                     '--migration-policy'
                     if parsed_args.migration_policy
                     else '--retype-policy'
-                )
+                ),
             )
 
         kwargs = {}

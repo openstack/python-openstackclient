@@ -1618,7 +1618,8 @@ class TestVolumeSet(TestVolume):
         result = self.cmd.take_action(parsed_args)
         self.volumes_mock.retype.assert_not_called()
         mock_warning.assert_called_with(
-            "'--retype-policy' option will not work without '--type' option"
+            "'%s' option will not work without '--type' option",
+            '--retype-policy',
         )
         self.assertIsNone(result)
 

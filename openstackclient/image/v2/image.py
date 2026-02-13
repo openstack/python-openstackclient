@@ -622,7 +622,7 @@ class CreateImage(command.ShowOne):
                 )
                 # TODO(stephenfin): These should be an error in a future
                 # version
-                LOG.warning(msg % opt_name)
+                LOG.warning(msg, opt_name)
 
         source_volume = volume_client.find_volume(
             parsed_args.volume, ignore_missing=False
