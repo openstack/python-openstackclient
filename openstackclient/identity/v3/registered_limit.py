@@ -25,6 +25,29 @@ from openstackclient.identity import common as common_utils
 LOG = logging.getLogger(__name__)
 
 
+def _format_registered_limit(registered_limit):
+    columns = (
+        'default_limit',
+        'description',
+        'id',
+        'region_id',
+        'resource_name',
+        'service_id',
+    )
+    column_headers = (
+        'default_limit',
+        'description',
+        'id',
+        'region_id',
+        'resource_name',
+        'service_id',
+    )
+    return (
+        column_headers,
+        utils.get_item_properties(registered_limit, columns),
+    )
+
+
 class CreateRegisteredLimit(command.ShowOne):
     _description = _("Create a registered limit")
 
@@ -64,43 +87,28 @@ class CreateRegisteredLimit(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.identity
+        identity_client = self.app.client_manager.sdk_connection.identity
 
-        service = utils.find_resource(
-            identity_client.services, parsed_args.service
-        )
-        region = None
+        kwargs = {}
+
+        if parsed_args.description:
+            kwargs["description"] = parsed_args.description
+
+        kwargs["service_id"] = common_utils.find_service_sdk(
+            identity_client, parsed_args.service
+        ).id
+
         if parsed_args.region:
-            if 'None' not in parsed_args.region:
-                # NOTE (vishakha): Due to bug #1799153 and for any another
-                # related case where GET resource API does not support the
-                # filter by name, osc_lib.utils.find_resource() method cannot
-                # be used because that method try to fall back to list all the
-                # resource if requested resource cannot be get via name. Which
-                # ends up with NoUniqueMatch error.
-                # So osc_lib.utils.find_resource() function cannot be used for
-                # 'regions', using common_utils.get_resource() instead.
-                region = common_utils.get_resource(
-                    identity_client.regions, parsed_args.region
-                )
-            else:
-                self.log.warning(
-                    _(
-                        "Passing 'None' to indicate no region is deprecated. "
-                        "Instead, don't pass --region."
-                    )
-                )
+            kwargs["region_id"] = identity_client.get_region(
+                parsed_args.region
+            ).id
 
-        registered_limit = identity_client.registered_limits.create(
-            service,
-            parsed_args.resource_name,
-            parsed_args.default_limit,
-            description=parsed_args.description,
-            region=region,
-        )
+        kwargs["resource_name"] = parsed_args.resource_name
+        kwargs["default_limit"] = parsed_args.default_limit
 
-        registered_limit._info.pop('links', None)
-        return zip(*sorted(registered_limit._info.items()))
+        registered_limit = identity_client.create_registered_limit(**kwargs)
+
+        return _format_registered_limit(registered_limit)
 
 
 class DeleteRegisteredLimit(command.Command):
@@ -112,17 +120,22 @@ class DeleteRegisteredLimit(command.Command):
             'registered_limits',
             metavar='<registered-limits>',
             nargs="+",
-            help=_('Registered limit(s) to delete (ID)'),
+            help=_(
+                'Registered limit(s) to delete (ID) '
+                '(repeat option to remove multiple registered limits)'
+            ),
         )
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.identity
+        identity_client = self.app.client_manager.sdk_connection.identity
 
         errors = 0
         for registered_limit_id in parsed_args.registered_limits:
             try:
-                identity_client.registered_limits.delete(registered_limit_id)
+                identity_client.delete_registered_limit(
+                    registered_limit_id, ignore_missing=False
+                )
             except Exception as e:
                 errors += 1
                 from pprint import pprint
@@ -170,40 +183,22 @@ class ListRegisteredLimit(command.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.identity
+        identity_client = self.app.client_manager.sdk_connection.identity
 
-        service = None
+        kwargs = {}
         if parsed_args.service:
-            service = common_utils.find_service(
+            kwargs["service_id"] = common_utils.find_service_sdk(
                 identity_client, parsed_args.service
-            )
-        region = None
+            ).id
         if parsed_args.region:
-            if 'None' not in parsed_args.region:
-                # NOTE (vishakha): Due to bug #1799153 and for any another
-                # related case where GET resource API does not support the
-                # filter by name, osc_lib.utils.find_resource() method cannot
-                # be used because that method try to fall back to list all the
-                # resource if requested resource cannot be get via name. Which
-                # ends up with NoUniqueMatch error.
-                # So osc_lib.utils.find_resource() function cannot be used for
-                # 'regions', using common_utils.get_resource() instead.
-                region = common_utils.get_resource(
-                    identity_client.regions, parsed_args.region
-                )
-            else:
-                self.log.warning(
-                    _(
-                        "Passing 'None' to indicate no region is deprecated. "
-                        "Instead, don't pass --region."
-                    )
-                )
+            kwargs["region_id"] = identity_client.get_region(
+                parsed_args.region
+            ).id
 
-        registered_limits = identity_client.registered_limits.list(
-            service=service,
-            resource_name=parsed_args.resource_name,
-            region=region,
-        )
+        if parsed_args.resource_name:
+            kwargs["resource_name"] = parsed_args.resource_name
+
+        registered_limits = identity_client.registered_limits(**kwargs)
 
         columns = (
             'ID',
@@ -273,44 +268,33 @@ class SetRegisteredLimit(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.identity
+        identity_client = self.app.client_manager.sdk_connection.identity
 
-        service = None
+        kwargs = {}
         if parsed_args.service:
-            service = common_utils.find_service(
+            kwargs["service_id"] = common_utils.find_service_sdk(
                 identity_client, parsed_args.service
-            )
+            ).id
 
-        region = None
+        if parsed_args.resource_name:
+            kwargs["resource_name"] = parsed_args.resource_name
+
+        if parsed_args.default_limit:
+            kwargs["default_limit"] = parsed_args.default_limit
+
+        if parsed_args.description:
+            kwargs["description"] = parsed_args.description
+
         if parsed_args.region:
-            if 'None' not in parsed_args.region:
-                # NOTE (vishakha): Due to bug #1799153 and for any another
-                # related case where GET resource API does not support the
-                # filter by name, osc_lib.utils.find_resource() method cannot
-                # be used because that method try to fall back to list all the
-                # resource if requested resource cannot be get via name. Which
-                # ends up with NoUniqueMatch error.
-                # So osc_lib.utils.find_resource() function cannot be used for
-                # 'regions', using common_utils.get_resource() instead.
-                region = common_utils.get_resource(
-                    identity_client.regions, parsed_args.region
-                )
-            else:
-                self.log.warning(
-                    _("Passing 'None' to indicate no region is deprecated.")
-                )
+            kwargs["region_id"] = identity_client.get_region(
+                parsed_args.region
+            ).id
 
-        registered_limit = identity_client.registered_limits.update(
-            parsed_args.registered_limit_id,
-            service=service,
-            resource_name=parsed_args.resource_name,
-            default_limit=parsed_args.default_limit,
-            description=parsed_args.description,
-            region=region,
+        registered_limit = identity_client.update_registered_limit(
+            parsed_args.registered_limit_id, **kwargs
         )
 
-        registered_limit._info.pop('links', None)
-        return zip(*sorted(registered_limit._info.items()))
+        return _format_registered_limit(registered_limit)
 
 
 class ShowRegisteredLimit(command.ShowOne):
@@ -326,9 +310,8 @@ class ShowRegisteredLimit(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.identity
-        registered_limit = identity_client.registered_limits.get(
+        identity_client = self.app.client_manager.sdk_connection.identity
+        registered_limit = identity_client.get_registered_limit(
             parsed_args.registered_limit_id
         )
-        registered_limit._info.pop('links', None)
-        return zip(*sorted(registered_limit._info.items()))
+        return _format_registered_limit(registered_limit)

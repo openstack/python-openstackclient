@@ -1,0 +1,10 @@
+---
+features:
+  - |
+    Migrate ``registered limit`` commands from keystoneclient to SDK.
+upgrade:
+  - |
+    Filtering in ``registered limit`` commands is now case sensitive.
+  - |
+    Specifying ``--region None`` is no longer supported for ``registered limit``
+    commands.
