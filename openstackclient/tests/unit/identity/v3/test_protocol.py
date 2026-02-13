@@ -12,202 +12,211 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 
-import copy
-
+from openstack.identity.v3 import federation_protocol as _federation_protocol
+from openstack.identity.v3 import mapping as _mapping
+from openstack.test import fakes as sdk_fakes
 from openstackclient.identity.v3 import federation_protocol
-from openstackclient.tests.unit import fakes
 from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 
 
-class TestProtocol(identity_fakes.TestFederatedIdentity):
+class TestProtocolCreate(identity_fakes.TestFederatedIdentity):
     def setUp(self):
         super().setUp()
 
-        federation_lib = self.identity_client.federation
-        self.protocols_mock = federation_lib.protocols
-        self.protocols_mock.reset_mock()
-
-
-class TestProtocolCreate(TestProtocol):
-    def setUp(self):
-        super().setUp()
-
-        proto = copy.deepcopy(identity_fakes.PROTOCOL_OUTPUT)
-        resource = fakes.FakeResource(None, proto, loaded=True)
-        self.protocols_mock.create.return_value = resource
+        self.proto = sdk_fakes.generate_fake_resource(
+            _federation_protocol.FederationProtocol
+        )
+        self.identity_sdk_client.create_federation_protocol.return_value = (
+            self.proto
+        )
         self.cmd = federation_protocol.CreateProtocol(self.app, None)
 
     def test_create_protocol(self):
         argslist = [
-            identity_fakes.protocol_id,
+            self.proto.name,
             '--identity-provider',
-            identity_fakes.idp_id,
+            self.proto.idp_id,
             '--mapping',
-            identity_fakes.mapping_id,
+            self.proto.mapping_id,
         ]
 
         verifylist = [
-            ('federation_protocol', identity_fakes.protocol_id),
-            ('identity_provider', identity_fakes.idp_id),
-            ('mapping', identity_fakes.mapping_id),
+            ('federation_protocol', self.proto.name),
+            ('identity_provider', self.proto.idp_id),
+            ('mapping', self.proto.mapping_id),
         ]
         parsed_args = self.check_parser(self.cmd, argslist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
-        self.protocols_mock.create.assert_called_with(
-            protocol_id=identity_fakes.protocol_id,
-            identity_provider=identity_fakes.idp_id,
-            mapping=identity_fakes.mapping_id,
+        self.identity_sdk_client.create_federation_protocol.assert_called_with(
+            name=self.proto.id,
+            idp_id=self.proto.idp_id,
+            mapping_id=self.proto.mapping_id,
         )
 
         collist = ('id', 'identity_provider', 'mapping')
         self.assertEqual(collist, columns)
 
         datalist = (
-            identity_fakes.protocol_id,
-            identity_fakes.idp_id,
-            identity_fakes.mapping_id,
+            self.proto.id,
+            self.proto.idp_id,
+            self.proto.mapping_id,
         )
         self.assertEqual(datalist, data)
 
 
-class TestProtocolDelete(TestProtocol):
+class TestProtocolDelete(identity_fakes.TestFederatedIdentity):
     def setUp(self):
         super().setUp()
 
-        # This is the return value for utils.find_resource()
-        self.protocols_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy(identity_fakes.PROTOCOL_OUTPUT),
-            loaded=True,
+        self.proto = sdk_fakes.generate_fake_resource(
+            _federation_protocol.FederationProtocol
         )
-
-        self.protocols_mock.delete.return_value = None
+        self.identity_sdk_client.delete_federation_protocol.return_value = None
         self.cmd = federation_protocol.DeleteProtocol(self.app, None)
 
-    def test_delete_identity_provider(self):
+    def test_delete_protocol(self):
         arglist = [
             '--identity-provider',
-            identity_fakes.idp_id,
-            identity_fakes.protocol_id,
+            self.proto.idp_id,
+            self.proto.name,
         ]
         verifylist = [
-            ('federation_protocol', [identity_fakes.protocol_id]),
-            ('identity_provider', identity_fakes.idp_id),
+            ('federation_protocol', [self.proto.id]),
+            ('identity_provider', self.proto.idp_id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
 
-        self.protocols_mock.delete.assert_called_with(
-            identity_fakes.idp_id, identity_fakes.protocol_id
+        self.identity_sdk_client.delete_federation_protocol.assert_called_with(
+            idp_id=self.proto.idp_id,
+            protocol=self.proto.id,
+            ignore_missing=False,
         )
         self.assertIsNone(result)
 
 
-class TestProtocolList(TestProtocol):
+class TestProtocolList(identity_fakes.TestFederatedIdentity):
     def setUp(self):
         super().setUp()
 
-        self.protocols_mock.get.return_value = fakes.FakeResource(
-            None, identity_fakes.PROTOCOL_ID_MAPPING, loaded=True
+        self.proto1 = sdk_fakes.generate_fake_resource(
+            _federation_protocol.FederationProtocol
         )
-
-        self.protocols_mock.list.return_value = [
-            fakes.FakeResource(
-                None, identity_fakes.PROTOCOL_ID_MAPPING, loaded=True
-            )
+        self.proto2 = sdk_fakes.generate_fake_resource(
+            _federation_protocol.FederationProtocol, idp_id=self.proto1
+        )
+        self.identity_sdk_client.federation_protocols.return_value = [
+            self.proto1,
+            self.proto2,
         ]
-
         self.cmd = federation_protocol.ListProtocols(self.app, None)
 
     def test_list_protocols(self):
-        arglist = ['--identity-provider', identity_fakes.idp_id]
-        verifylist = [('identity_provider', identity_fakes.idp_id)]
+        arglist = ['--identity-provider', self.proto1.idp_id]
+        verifylist = [('identity_provider', self.proto1.idp_id)]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.protocols_mock.list.assert_called_with(identity_fakes.idp_id)
+        self.identity_sdk_client.federation_protocols.assert_called_with(
+            self.proto1.idp_id
+        )
+
+        self.assertEqual(columns, ('id', 'mapping'))
+        datalist = (
+            (
+                self.proto1.name,
+                self.proto1.mapping_id,
+            ),
+            (
+                self.proto2.name,
+                self.proto2.mapping_id,
+            ),
+        )
+        self.assertEqual(datalist, tuple(data))
 
 
-class TestProtocolSet(TestProtocol):
+class TestProtocolSet(identity_fakes.TestFederatedIdentity):
     def setUp(self):
         super().setUp()
-        self.protocols_mock.get.return_value = fakes.FakeResource(
-            None, identity_fakes.PROTOCOL_OUTPUT, loaded=True
+        self.proto = sdk_fakes.generate_fake_resource(
+            _federation_protocol.FederationProtocol
         )
-        self.protocols_mock.update.return_value = fakes.FakeResource(
-            None, identity_fakes.PROTOCOL_OUTPUT_UPDATED, loaded=True
+        self.mapping = sdk_fakes.generate_fake_resource(_mapping.Mapping)
+        self.identity_sdk_client.update_federation_protocol.return_value = (
+            self.proto
         )
-
         self.cmd = federation_protocol.SetProtocol(self.app, None)
 
     def test_set_new_mapping(self):
         arglist = [
-            identity_fakes.protocol_id,
+            self.proto.name,
             '--identity-provider',
-            identity_fakes.idp_id,
+            self.proto.idp_id,
             '--mapping',
-            identity_fakes.mapping_id,
+            self.mapping.name,
         ]
         verifylist = [
-            ('identity_provider', identity_fakes.idp_id),
-            ('federation_protocol', identity_fakes.protocol_id),
-            ('mapping', identity_fakes.mapping_id),
+            ('identity_provider', self.proto.idp_id),
+            ('federation_protocol', self.proto.name),
+            ('mapping', self.mapping.name),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.protocols_mock.update.assert_called_with(
-            identity_fakes.idp_id,
-            identity_fakes.protocol_id,
-            identity_fakes.mapping_id,
+        self.identity_sdk_client.update_federation_protocol.assert_called_with(
+            idp_id=self.proto.idp_id,
+            name=self.proto.name,
+            mapping_id=self.mapping.id,
         )
 
         collist = ('id', 'identity_provider', 'mapping')
         self.assertEqual(collist, columns)
 
         datalist = (
-            identity_fakes.protocol_id,
-            identity_fakes.idp_id,
-            identity_fakes.mapping_id_updated,
+            self.proto.name,
+            self.proto.idp_id,
+            self.proto.mapping_id,
         )
         self.assertEqual(datalist, data)
 
 
-class TestProtocolShow(TestProtocol):
+class TestProtocolShow(identity_fakes.TestFederatedIdentity):
     def setUp(self):
         super().setUp()
-        self.protocols_mock.get.return_value = fakes.FakeResource(
-            None, identity_fakes.PROTOCOL_OUTPUT, loaded=False
+        self.proto = sdk_fakes.generate_fake_resource(
+            _federation_protocol.FederationProtocol
         )
-
+        self.identity_sdk_client.get_federation_protocol.return_value = (
+            self.proto
+        )
         self.cmd = federation_protocol.ShowProtocol(self.app, None)
 
     def test_show_protocol(self):
         arglist = [
-            identity_fakes.protocol_id,
+            self.proto.name,
             '--identity-provider',
-            identity_fakes.idp_id,
+            self.proto.idp_id,
         ]
         verifylist = [
-            ('federation_protocol', identity_fakes.protocol_id),
-            ('identity_provider', identity_fakes.idp_id),
+            ('federation_protocol', self.proto.name),
+            ('identity_provider', self.proto.idp_id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        self.protocols_mock.get.assert_called_with(
-            identity_fakes.idp_id, identity_fakes.protocol_id
+        self.identity_sdk_client.get_federation_protocol.assert_called_with(
+            idp_id=self.proto.idp_id, protocol=self.proto.name
         )
 
         collist = ('id', 'identity_provider', 'mapping')
         self.assertEqual(collist, columns)
 
         datalist = (
-            identity_fakes.protocol_id,
-            identity_fakes.idp_id,
-            identity_fakes.mapping_id,
+            self.proto.name,
+            self.proto.idp_id,
+            self.proto.mapping_id,
         )
         self.assertEqual(datalist, data)

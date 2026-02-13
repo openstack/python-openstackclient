@@ -26,6 +26,15 @@ from openstackclient.i18n import _
 LOG = logging.getLogger(__name__)
 
 
+def _format_protocol(protocol):
+    columns = ('name', 'idp_id', 'mapping_id')
+    column_headers = ('id', 'identity_provider', 'mapping')
+    return (
+        column_headers,
+        utils.get_item_properties(protocol, columns),
+    )
+
+
 class CreateProtocol(command.ShowOne):
     _description = _("Create new federation protocol")
 
@@ -58,21 +67,15 @@ class CreateProtocol(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.identity
-        protocol = identity_client.federation.protocols.create(
-            protocol_id=parsed_args.federation_protocol,
-            identity_provider=parsed_args.identity_provider,
-            mapping=parsed_args.mapping,
+        identity_client = self.app.client_manager.sdk_connection.identity
+
+        protocol = identity_client.create_federation_protocol(
+            name=parsed_args.federation_protocol,
+            idp_id=parsed_args.identity_provider,
+            mapping_id=parsed_args.mapping,
         )
-        info = dict(protocol._info)
-        # NOTE(marek-denis): Identity provider is not included in a response
-        # from Keystone, however it should be listed to the user. Add it
-        # manually to the output list, simply reusing value provided by the
-        # user.
-        info['identity_provider'] = parsed_args.identity_provider
-        info['mapping'] = info.pop('mapping_id')
-        info.pop('links', None)
-        return zip(*sorted(info.items()))
+
+        return _format_protocol(protocol)
 
 
 class DeleteProtocol(command.Command):
@@ -99,12 +102,15 @@ class DeleteProtocol(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.identity
+        identity_client = self.app.client_manager.sdk_connection.identity
+
         result = 0
         for i in parsed_args.federation_protocol:
             try:
-                identity_client.federation.protocols.delete(
-                    parsed_args.identity_provider, i
+                identity_client.delete_federation_protocol(
+                    idp_id=parsed_args.identity_provider,
+                    protocol=i,
+                    ignore_missing=False,
                 )
             except Exception as e:
                 result += 1
@@ -140,9 +146,9 @@ class ListProtocols(command.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.identity
+        identity_client = self.app.client_manager.sdk_connection.identity
 
-        protocols = identity_client.federation.protocols.list(
+        protocols = identity_client.federation_protocols(
             parsed_args.identity_provider
         )
         columns = ('id', 'mapping')
@@ -181,21 +187,16 @@ class SetProtocol(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.identity
+        identity_client = self.app.client_manager.sdk_connection.identity
 
-        protocol = identity_client.federation.protocols.update(
-            parsed_args.identity_provider,
-            parsed_args.federation_protocol,
-            parsed_args.mapping,
-        )
-        info = dict(protocol._info)
-        # NOTE(marek-denis): Identity provider is not included in a response
-        # from Keystone, however it should be listed to the user. Add it
-        # manually to the output list, simply reusing value provided by the
-        # user.
-        info['identity_provider'] = parsed_args.identity_provider
-        info['mapping'] = info.pop('mapping_id')
-        return zip(*sorted(info.items()))
+        kwargs = {'idp_id': parsed_args.identity_provider}
+        if parsed_args.federation_protocol:
+            kwargs['name'] = parsed_args.federation_protocol
+        if parsed_args.mapping:
+            kwargs['mapping_id'] = parsed_args.mapping
+
+        protocol = identity_client.update_federation_protocol(**kwargs)
+        return _format_protocol(protocol)
 
 
 class ShowProtocol(command.ShowOne):
@@ -220,12 +221,10 @@ class ShowProtocol(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.identity
+        identity_client = self.app.client_manager.sdk_connection.identity
 
-        protocol = identity_client.federation.protocols.get(
-            parsed_args.identity_provider, parsed_args.federation_protocol
+        protocol = identity_client.get_federation_protocol(
+            idp_id=parsed_args.identity_provider,
+            protocol=parsed_args.federation_protocol,
         )
-        info = dict(protocol._info)
-        info['mapping'] = info.pop('mapping_id')
-        info.pop('links', None)
-        return zip(*sorted(info.items()))
+        return _format_protocol(protocol)
