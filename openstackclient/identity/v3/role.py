@@ -416,8 +416,10 @@ class ListRole(command.Lister):
             return (
                 ('ID', 'Name', 'Domain'),
                 (
-                    utils.get_item_properties(s, ('id', 'name'))
-                    + (domain.name,)
+                    (
+                        *utils.get_item_properties(s, ('id', 'name')),
+                        domain.name,
+                    )
                     for s in data
                 ),
             )

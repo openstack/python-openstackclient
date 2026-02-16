@@ -411,7 +411,8 @@ class TestListSecurityGroupRuleCompute(compute_fakes.TestComputev2):
         'Direction',
         'Remote Security Group',
     )
-    expected_columns_no_group = expected_columns_with_group + (
+    expected_columns_no_group = (
+        *expected_columns_with_group,
         'Security Group',
     )
 
@@ -429,7 +430,8 @@ class TestListSecurityGroupRuleCompute(compute_fakes.TestComputev2):
             rule['port_range'],
             rule['remote_security_group'],
         )
-        expected_rule_no_group = expected_rule_with_group + (
+        expected_rule_no_group = (
+            *expected_rule_with_group,
             _security_group_rule['parent_group_id'],
         )
         expected_data_with_group.append(expected_rule_with_group)

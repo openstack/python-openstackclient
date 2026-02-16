@@ -827,13 +827,11 @@ and ``server-group-members`` output for a given quota class."""
             _normalize_names(info["usage"])
 
         # Remove the 'id' field since it's not very useful
-        if 'id' in info:
-            del info['id']
+        info.pop('id', None)
 
         # Remove the sdk-derived fields
         for field in ('location', 'name', 'force'):
-            if field in info:
-                del info[field]
+            info.pop(field, None)
 
         if not parsed_args.usage:
             result = [{'resource': k, 'limit': v} for k, v in info.items()]

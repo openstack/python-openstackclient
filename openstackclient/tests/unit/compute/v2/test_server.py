@@ -4865,7 +4865,7 @@ class TestServerList(_TestServerList):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        columns, data = self.cmd.take_action(parsed_args)
+        columns, _data = self.cmd.take_action(parsed_args)
 
         self.compute_client.servers.assert_called_with(**self.kwargs)
         self.assertIn('Project ID', columns)
@@ -5329,7 +5329,7 @@ class TestServerList(_TestServerList):
         ]
 
         # Add the expected host_status column and data.
-        columns_long = self.columns_long + ('Host Status',)
+        columns_long = (*self.columns_long, 'Host Status')
         self.data2 = tuple(
             (
                 s.id,
@@ -5560,7 +5560,7 @@ class TestServerListV273(_TestServerList):
         }
         fake_server = _server.Server(**server_dict)
         self.servers.append(fake_server)
-        columns, data = self.cmd.take_action(parsed_args)
+        _columns, data = self.cmd.take_action(parsed_args)
         # get the first three servers out since our interest is in the partial
         # server.
         next(data)
@@ -5708,7 +5708,7 @@ class TestServerListV296(_TestServerList):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        columns, data = self.cmd.take_action(parsed_args)
+        columns, _data = self.cmd.take_action(parsed_args)
 
         self.compute_client.servers.assert_called_with(**self.kwargs)
         self.assertIn('Project ID', columns)
@@ -5860,7 +5860,7 @@ class TestServerListV2100(_TestServerList):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        columns, data = self.cmd.take_action(parsed_args)
+        columns, _data = self.cmd.take_action(parsed_args)
 
         self.compute_client.servers.assert_called_with(**self.kwargs)
         self.assertIn('Project ID', columns)
@@ -8896,7 +8896,7 @@ class TestServerShow(TestServer):
             None,  # OS-EXT-SRV-ATTR:user_data
             server.PowerStateColumn(
                 self.server.power_state
-            ),  # OS-EXT-STS:power_state  # noqa: E501
+            ),  # OS-EXT-STS:power_state
             None,  # OS-EXT-STS:task_state
             None,  # OS-EXT-STS:vm_state
             None,  # OS-SRV-USG:launched_at

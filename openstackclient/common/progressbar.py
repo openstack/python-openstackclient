@@ -40,7 +40,7 @@ class _ProgressBarBase:
             # Output something like this: [==========>             ] 49%
             sys.stdout.write(
                 '\r[{:<30}] {:.0%}'.format(
-                    '=' * int(round(self._percent * 29)) + '>', self._percent
+                    '=' * round(self._percent * 29) + '>', self._percent
                 )
             )
             sys.stdout.flush()

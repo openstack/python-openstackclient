@@ -519,7 +519,7 @@ class TestUnsetAddressGroup(TestAddressGroup):
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
-        self.network_client.remove_addresses_from_address_group.assert_called_once_with(  # noqa: E501
+        self.network_client.remove_addresses_from_address_group.assert_called_once_with(
             self._address_group, ['10.0.0.2/32']
         )
         self.assertIsNone(result)
@@ -539,7 +539,7 @@ class TestUnsetAddressGroup(TestAddressGroup):
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
-        self.network_client.remove_addresses_from_address_group.assert_called_once_with(  # noqa: E501
+        self.network_client.remove_addresses_from_address_group.assert_called_once_with(
             self._address_group, ['10.0.0.2/32', '2001::/16']
         )
         self.assertIsNone(result)

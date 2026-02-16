@@ -471,7 +471,8 @@ class TestListSubnetPool(TestSubnetPool):
         'Name',
         'Prefixes',
     )
-    columns_long = columns + (
+    columns_long = (
+        *columns,
         'Default Prefix Length',
         'Address Scope',
         'Default Subnet Pool',

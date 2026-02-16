@@ -332,7 +332,7 @@ class TestTypeList(TestType):
         "Name",
         "Is Public",
     ]
-    columns_long = columns + ["Description"]
+    columns_long = [*columns, "Description"]
     data_with_default_type = [(volume_types[0].id, volume_types[0].name, True)]
     data = []
     for t in volume_types:
@@ -436,9 +436,7 @@ class TestTypeList(TestType):
             'key_size': None,
             'control_location': 'front-end',
         }
-        encryption_columns = self.columns + [
-            "Encryption",
-        ]
+        encryption_columns = [*self.columns, "Encryption"]
         encryption_data = []
         encryption_data.append(
             (

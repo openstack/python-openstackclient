@@ -167,7 +167,7 @@ class TestValidateAutoAllocatedTopology(TestAutoAllocatedTopology):
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        columns, data = self.cmd.take_action(parsed_args)
+        _columns, _data = self.cmd.take_action(parsed_args)
 
         self.network_client.validate_auto_allocated_topology.assert_called_with(
             None
@@ -185,7 +185,7 @@ class TestValidateAutoAllocatedTopology(TestAutoAllocatedTopology):
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        columns, data = self.cmd.take_action(parsed_args)
+        _columns, _data = self.cmd.take_action(parsed_args)
 
         self.network_client.validate_auto_allocated_topology.assert_called_with(
             self.project.id
@@ -206,7 +206,7 @@ class TestValidateAutoAllocatedTopology(TestAutoAllocatedTopology):
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        columns, data = self.cmd.take_action(parsed_args)
+        _columns, _data = self.cmd.take_action(parsed_args)
 
         self.network_client.validate_auto_allocated_topology.assert_called_with(
             self.project.id

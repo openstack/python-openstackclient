@@ -254,7 +254,7 @@ class BaseAPI(KeystoneSession):
         items = self.list(path)
         if isinstance(items, dict):
             # strip off the enclosing dict
-            key = list(items.keys())[0]
+            key = next(iter(items.keys()))
             items = items[key]
 
         ret = []

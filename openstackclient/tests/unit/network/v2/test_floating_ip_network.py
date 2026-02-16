@@ -425,7 +425,8 @@ class TestListFloatingIPNetwork(TestFloatingIPNetwork):
         'Floating Network',
         'Project',
     )
-    columns_long = columns + (
+    columns_long = (
+        *columns,
         'Router',
         'Status',
         'Description',

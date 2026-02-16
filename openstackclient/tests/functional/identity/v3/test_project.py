@@ -105,6 +105,6 @@ class ProjectTests(common.IdentityTests):
             f'{self.project_name}',
             parse_output=True,
         )
-        for attr_name in self.PROJECT_FIELDS + ['parents', 'subtree']:
+        for attr_name in [*self.PROJECT_FIELDS, 'parents', 'subtree']:
             self.assertIn(attr_name, output)
         self.assertEqual(self.project_name, output.get('name'))

@@ -798,7 +798,8 @@ class TestListSubnet(TestSubnet):
         'Network',
         'Subnet',
     )
-    columns_long = columns + (
+    columns_long = (
+        *columns,
         'Project',
         'DHCP',
         'Name Servers',

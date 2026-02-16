@@ -188,13 +188,13 @@ class ListIdentityProvider(command.Lister):
         parser.add_argument(
             '--id',
             metavar='<id>',
-            help=_('The Identity Providers’ ID attribute'),
+            help=_('Filter identity providers by ID'),
         )
         parser.add_argument(
             '--enabled',
             dest='enabled',
             action='store_true',
-            help=_('The Identity Providers that are enabled will be returned'),
+            help=_('List only enabled identity providers'),
         )
         return parser
 

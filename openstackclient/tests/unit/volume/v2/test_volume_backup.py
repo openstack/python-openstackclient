@@ -220,11 +220,7 @@ class TestBackupList(volume_fakes.TestVolume):
         'Incremental',
         'Created At',
     )
-    columns_long = columns + (
-        'Availability Zone',
-        'Volume',
-        'Container',
-    )
+    columns_long = (*columns, 'Availability Zone', 'Volume', 'Container')
 
     def setUp(self):
         super().setUp()

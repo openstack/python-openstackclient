@@ -84,7 +84,7 @@ class NetworkTagTests(NetworkTests):
             parse_output=True,
         )
         for name, tags in expected:
-            net = [n for n in cmd_output if n['Name'] == name][0]
+            net = next(n for n in cmd_output if n['Name'] == name)
             self.assertEqual(set(tags), set(net['Tags']))
 
     def _create_resource_for_tag_test(self, name, args):

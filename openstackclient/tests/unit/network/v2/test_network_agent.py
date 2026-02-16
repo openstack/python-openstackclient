@@ -340,8 +340,8 @@ class TestListNetworkAgent(TestNetworkAgent):
         )
 
         # Add a column 'HA State' and corresponding data.
-        router_agent_columns = self.columns + ('HA State',)
-        router_agent_data = [d + ('',) for d in self.data]
+        router_agent_columns = (*self.columns, 'HA State')
+        router_agent_data = [(*d, '') for d in self.data]
 
         self.assertEqual(router_agent_columns, columns)
         self.assertEqual(len(router_agent_data), len(list(data)))

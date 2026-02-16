@@ -71,7 +71,7 @@ class TestAddNetworkFlavorToProfile(TestNetworkFlavor):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.cmd.take_action(parsed_args)
 
-        self.network_client.associate_flavor_with_service_profile.assert_called_once_with(  # noqa: E501
+        self.network_client.associate_flavor_with_service_profile.assert_called_once_with(
             self.network_flavor, self.service_profile
         )
 
@@ -377,7 +377,7 @@ class TestRemoveNetworkFlavorFromProfile(TestNetworkFlavor):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         self.cmd.take_action(parsed_args)
 
-        self.network_client.disassociate_flavor_from_service_profile.assert_called_once_with(  # noqa: E501
+        self.network_client.disassociate_flavor_from_service_profile.assert_called_once_with(
             self.network_flavor, self.service_profile
         )
 
