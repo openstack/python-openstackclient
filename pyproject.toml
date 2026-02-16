@@ -11,7 +11,6 @@ authors = [
 readme = {file = "README.rst", content-type = "text/x-rst"}
 license = {text = "Apache-2.0"}
 dynamic = ["version", "dependencies"]
-# dependencies = [ ]
 requires-python = ">=3.10"
 classifiers = [
   "Environment :: OpenStack",
@@ -26,10 +25,6 @@ classifiers = [
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
 ]
-
-# [project.optional-dependencies]
-# test = [
-# ]
 
 [project.urls]
 Homepage = "https://docs.openstack.org/python-openstackclient/"
@@ -540,7 +535,7 @@ subnet_pool_set = "openstackclient.network.v2.subnet_pool:SetSubnetPool"
 subnet_pool_show = "openstackclient.network.v2.subnet_pool:ShowSubnetPool"
 subnet_pool_unset = "openstackclient.network.v2.subnet_pool:UnsetSubnetPool"
 
-# Tap-as-a-Service
+[project.entry-points."openstack.network.v2.taas"]
 tap_flow_create = "openstackclient.network.v2.taas.tap_flow:CreateTapFlow"
 tap_flow_delete = "openstackclient.network.v2.taas.tap_flow:DeleteTapFlow"
 tap_flow_list = "openstackclient.network.v2.taas.tap_flow:ListTapFlow"

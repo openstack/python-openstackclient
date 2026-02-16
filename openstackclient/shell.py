@@ -128,14 +128,41 @@ class OpenStackShell(shell.OpenStackShell):
                             },
                         )
 
-                # Command groups deal only with major versions
-                version = '.v' + version_opt.replace('.', '_').split('_')[0]
-                cmd_group = 'openstack.' + api.replace('-', '_') + version
+                # Build our command group which we expect to look like:
+                #
+                #   openstack.<service>.vN
+                #
+                # Note that command groups deal only with major versions
+                cmd_group = '.'.join(
+                    [
+                        'openstack',
+                        api.replace('-', '_'),
+                        'v' + version_opt.replace('.', '_').split('_')[0],
+                    ]
+                )
                 self.command_manager.add_command_group(cmd_group)
                 self.log.debug(
                     '%(name)s API version %(version)s, cmd group %(group)s',
                     {'name': api, 'version': version_opt, 'group': cmd_group},
                 )
+
+                mod_extensions = getattr(mod, 'API_EXTENSIONS', None)
+                if not mod_extensions:
+                    continue
+
+                for extension in mod_extensions:
+                    extension_cmd_group = '.'.join([cmd_group, extension])
+                    self.command_manager.add_command_group(extension_cmd_group)
+                    self.log.debug(
+                        '%(name)s API version %(version)s '
+                        '(%(extension)s extension), cmd group %(group)s',
+                        {
+                            'name': api,
+                            'version': version_opt,
+                            'extension': extension,
+                            'group': cmd_group,
+                        },
+                    )
 
     def _load_commands(self):
         """Load commands via cliff/stevedore
