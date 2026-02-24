@@ -1,0 +1,10 @@
+---
+features:
+  - |
+    ``bgpvpn`` OSC commands were moved from ``python-neutronclient``. The
+    following commands are included:
+
+    - ``bgpvpn create|delete|list|show|set|unset``
+    - ``bgpvpn network association create|delete|list}show``
+    - ``bgpvpn router association create|delete|list|show|set|unset``
+    - ``bgpvpn port association create|delete|list|show|set|unset``
