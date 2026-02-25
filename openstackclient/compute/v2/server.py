@@ -1462,9 +1462,14 @@ class CreateServer(command.ShowOne):
             ),
         )
         parser.add_argument(
-            '--key-name',
+            '--keypair',
             metavar='<key-name>',
+            dest='key_name',
             help=_('Keypair to inject into this server'),
+        )
+        parser.add_argument(
+            '--key-name',
+            help=argparse.SUPPRESS,
         )
         parser.add_argument(
             '--property',
@@ -2558,10 +2563,16 @@ class ListServer(command.Lister):
             ),
         )
         parser.add_argument(
-            '--key-name',
+            '--keypair',
+            metavar='<key-name>',
+            dest='key_name',
             help=_(
                 'Search by keypair name (admin only before microversion 2.83)'
             ),
+        )
+        parser.add_argument(
+            '--key-name',
+            help=argparse.SUPPRESS,
         )
         config_drive_group = parser.add_mutually_exclusive_group()
         config_drive_group.add_argument(
@@ -3658,7 +3669,8 @@ class RebuildServer(command.ShowOne):
         )
         key_group = parser.add_mutually_exclusive_group()
         key_group.add_argument(
-            '--key-name',
+            '--keypair',
+            dest='key_name',
             metavar='<key-name>',
             help=_(
                 'Set the key name of key pair on the rebuilt server. '
@@ -3667,14 +3679,23 @@ class RebuildServer(command.ShowOne):
             ),
         )
         key_group.add_argument(
-            '--no-key-name',
+            '--key-name',
+            help=argparse.SUPPRESS,
+        )
+        key_group.add_argument(
+            '--no-keypair',
             action='store_true',
             dest='no_key_name',
             help=_(
                 'Unset the key name of key pair on the rebuilt server. '
-                'Cannot be specified with the --key-name option. '
+                'Cannot be specified with the --keypair option. '
                 '(supported by --os-compute-api-version 2.54 or above)'
             ),
+        )
+        key_group.add_argument(
+            '--no-key-name',
+            action='store_true',
+            help=argparse.SUPPRESS,
         )
         # TODO(stephenfin): Remove this in a future major version bump
         key_group.add_argument(
@@ -3830,7 +3851,7 @@ class RebuildServer(command.ShowOne):
             if not sdk_utils.supports_microversion(compute_client, '2.54'):
                 msg = _(
                     '--os-compute-api-version 2.54 or greater is required to '
-                    'support the --key-name option'
+                    'support the --keypair / --key-name option'
                 )
                 raise exceptions.CommandError(msg)
 

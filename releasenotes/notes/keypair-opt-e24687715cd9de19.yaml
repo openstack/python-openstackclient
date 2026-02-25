@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    The ``--key-name`` option to the ``server create``, ``server list`` and
+    ``server set`` commands has been renamed to ``--keypair``. An alias is
+    provided for backwards compatibility.
