@@ -28,7 +28,7 @@ class GroupTests(common.IdentityTests):
 
     def test_group_list_with_domain(self):
         group_name = self._create_dummy_group()
-        raw_output = self.openstack(f'group list --domain {self.domain_name}')
+        raw_output = self.openstack(f'group list --domain {self.DOMAIN_NAME}')
         items = self.parse_listing(raw_output)
         self.assert_table_structure(items, common.BASIC_LIST_HEADERS)
         self.assertIn(group_name, raw_output)
@@ -36,14 +36,14 @@ class GroupTests(common.IdentityTests):
     def test_group_delete(self):
         group_name = self._create_dummy_group(add_clean_up=False)
         raw_output = self.openstack(
-            f'group delete --domain {self.domain_name} {group_name}'
+            f'group delete --domain {self.DOMAIN_NAME} {group_name}'
         )
         self.assertEqual(0, len(raw_output))
 
     def test_group_show(self):
         group_name = self._create_dummy_group()
         raw_output = self.openstack(
-            f'group show --domain {self.domain_name} {group_name}'
+            f'group show --domain {self.DOMAIN_NAME} {group_name}'
         )
         items = self.parse_show(raw_output)
         self.assert_show_fields(items, self.GROUP_FIELDS)
@@ -53,20 +53,20 @@ class GroupTests(common.IdentityTests):
         new_group_name = data_utils.rand_name('NewTestGroup')
         raw_output = self.openstack(
             'group set '
-            f'--domain {self.domain_name} '
+            f'--domain {self.DOMAIN_NAME} '
             f'--name {new_group_name} '
             f'{group_name}'
         )
         self.assertEqual(0, len(raw_output))
         raw_output = self.openstack(
-            f'group show --domain {self.domain_name} {new_group_name}'
+            f'group show --domain {self.DOMAIN_NAME} {new_group_name}'
         )
         group = self.parse_show_as_object(raw_output)
         self.assertEqual(new_group_name, group['name'])
         # reset group name to make sure it will be cleaned up
         raw_output = self.openstack(
             'group set '
-            f'--domain {self.domain_name} '
+            f'--domain {self.DOMAIN_NAME} '
             f'--name {group_name} '
             f'{new_group_name}'
         )
@@ -77,15 +77,15 @@ class GroupTests(common.IdentityTests):
         username = self._create_dummy_user()
         raw_output = self.openstack(
             'group add user '
-            f'--group-domain {self.domain_name} '
-            f'--user-domain {self.domain_name} '
+            f'--group-domain {self.DOMAIN_NAME} '
+            f'--user-domain {self.DOMAIN_NAME} '
             f'{group_name} {username}'
         )
         self.addCleanup(
             self.openstack,
             'group remove user '
-            f'--group-domain {self.domain_name} '
-            f'--user-domain {self.domain_name} '
+            f'--group-domain {self.DOMAIN_NAME} '
+            f'--user-domain {self.DOMAIN_NAME} '
             f'{group_name} {username}',
         )
         self.assertOutput('', raw_output)
@@ -95,22 +95,22 @@ class GroupTests(common.IdentityTests):
         username = self._create_dummy_user()
         raw_output = self.openstack(
             'group add user '
-            f'--group-domain {self.domain_name} '
-            f'--user-domain {self.domain_name} '
+            f'--group-domain {self.DOMAIN_NAME} '
+            f'--user-domain {self.DOMAIN_NAME} '
             f'{group_name} {username}'
         )
         self.addCleanup(
             self.openstack,
             'group remove user '
-            f'--group-domain {self.domain_name} '
-            f'--user-domain {self.domain_name} '
+            f'--group-domain {self.DOMAIN_NAME} '
+            f'--user-domain {self.DOMAIN_NAME} '
             f'{group_name} {username}',
         )
         self.assertOutput('', raw_output)
         raw_output = self.openstack(
             'group contains user '
-            f'--group-domain {self.domain_name} '
-            f'--user-domain {self.domain_name} '
+            f'--group-domain {self.DOMAIN_NAME} '
+            f'--user-domain {self.DOMAIN_NAME} '
             f'{group_name} {username}'
         )
         self.assertEqual(
@@ -123,14 +123,14 @@ class GroupTests(common.IdentityTests):
         username = self._create_dummy_user()
         add_raw_output = self.openstack(
             'group add user '
-            f'--group-domain {self.domain_name} '
-            f'--user-domain {self.domain_name} '
+            f'--group-domain {self.DOMAIN_NAME} '
+            f'--user-domain {self.DOMAIN_NAME} '
             f'{group_name} {username}'
         )
         remove_raw_output = self.openstack(
             'group remove user '
-            f'--group-domain {self.domain_name} '
-            f'--user-domain {self.domain_name} '
+            f'--group-domain {self.DOMAIN_NAME} '
+            f'--user-domain {self.DOMAIN_NAME} '
             f'{group_name} {username}'
         )
         self.assertOutput('', add_raw_output)

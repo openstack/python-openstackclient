@@ -58,22 +58,22 @@ class IdentityTests(base.TestCase):
     CATALOG_LIST_HEADERS = ['Name', 'Type', 'Endpoints']
     ENDPOINT_LIST_HEADERS = ['ID', 'Region', 'Service Name', 'Service Type']
 
-    project_name: ClassVar[str]
-    project_description: ClassVar[str]
+    PROJECT_NAME: ClassVar[str]
+    PROJECT_DESCRIPTION: ClassVar[str]
 
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
         # create dummy project
-        cls.project_name = data_utils.rand_name('TestProject')
-        cls.project_description = data_utils.rand_name('description')
+        cls.PROJECT_NAME = data_utils.rand_name('TestProject')
+        cls.PROJECT_DESCRIPTION = data_utils.rand_name('description')
         try:
             cls.openstack(
                 '--os-identity-api-version 2 '
                 'project create '
-                f'--description {cls.project_description} '
+                f'--description {cls.PROJECT_DESCRIPTION} '
                 '--enable '
-                f'{cls.project_name}'
+                f'{cls.PROJECT_NAME}'
             )
         except tempest_exceptions.CommandFailed:
             # Good chance this is due to Identity v2 admin not being enabled
@@ -87,7 +87,7 @@ class IdentityTests(base.TestCase):
         try:
             cls.openstack(
                 '--os-identity-api-version 2 '
-                f'project delete {cls.project_name}'
+                f'project delete {cls.PROJECT_NAME}'
             )
         finally:
             super().tearDownClass()
@@ -129,7 +129,7 @@ class IdentityTests(base.TestCase):
         email = data_utils.rand_name() + '@example.com'
         raw_output = self.openstack(
             'user create '
-            f'--project {self.project_name} '
+            f'--project {self.PROJECT_NAME} '
             f'--password {password} '
             f'--email {email} '
             '--enable '

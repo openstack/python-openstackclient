@@ -22,7 +22,7 @@ class UserTests(common.IdentityTests):
     def test_user_delete(self):
         username = self._create_dummy_user(add_clean_up=False)
         raw_output = self.openstack(
-            f'user delete --domain {self.domain_name} {username}'
+            f'user delete --domain {self.DOMAIN_NAME} {username}'
         )
         self.assertEqual(0, len(raw_output))
 
@@ -34,7 +34,7 @@ class UserTests(common.IdentityTests):
     def test_user_set(self):
         username = self._create_dummy_user()
         raw_output = self.openstack(
-            f'user show --domain {self.domain_name} {username}'
+            f'user show --domain {self.DOMAIN_NAME} {username}'
         )
         user = self.parse_show_as_object(raw_output)
         new_username = data_utils.rand_name('NewTestUser')
@@ -46,7 +46,7 @@ class UserTests(common.IdentityTests):
         )
         self.assertEqual(0, len(raw_output))
         raw_output = self.openstack(
-            f'user show --domain {self.domain_name} {new_username}'
+            f'user show --domain {self.DOMAIN_NAME} {new_username}'
         )
         updated_user = self.parse_show_as_object(raw_output)
         self.assertEqual(user['id'], updated_user['id'])
@@ -57,7 +57,7 @@ class UserTests(common.IdentityTests):
         project_name = self._create_dummy_project()
         # get original user details
         raw_output = self.openstack(
-            f'user show --domain {self.domain_name} {username}'
+            f'user show --domain {self.DOMAIN_NAME} {username}'
         )
         user = self.parse_show_as_object(raw_output)
         # update user
@@ -67,19 +67,19 @@ class UserTests(common.IdentityTests):
             '--project-domain {project_domain} '
             '{id}'.format(
                 project=project_name,
-                project_domain=self.domain_name,
+                project_domain=self.DOMAIN_NAME,
                 id=user['id'],
             )
         )
         self.assertEqual(0, len(raw_output))
         # get updated user details
         raw_output = self.openstack(
-            f'user show --domain {self.domain_name} {username}'
+            f'user show --domain {self.DOMAIN_NAME} {username}'
         )
         updated_user = self.parse_show_as_object(raw_output)
         # get project details
         raw_output = self.openstack(
-            f'project show --domain {self.domain_name} {project_name}'
+            f'project show --domain {self.DOMAIN_NAME} {project_name}'
         )
         project = self.parse_show_as_object(raw_output)
         # check updated user details
@@ -89,7 +89,7 @@ class UserTests(common.IdentityTests):
     def test_user_show(self):
         username = self._create_dummy_user()
         raw_output = self.openstack(
-            f'user show --domain {self.domain_name} {username}'
+            f'user show --domain {self.DOMAIN_NAME} {username}'
         )
         items = self.parse_show(raw_output)
         self.assert_show_fields(items, self.USER_FIELDS)

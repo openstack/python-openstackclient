@@ -39,14 +39,14 @@ class RoleTests(common.IdentityTests):
         username = self._create_dummy_user()
         raw_output = self.openstack(
             'role add '
-            f'--project {self.project_name} '
+            f'--project {self.PROJECT_NAME} '
             f'--user {username} '
             f'{role_name}'
         )
         self.addCleanup(
             self.openstack,
             'role remove '
-            f'--project {self.project_name} '
+            f'--project {self.PROJECT_NAME} '
             f'--user {username} '
             f'{role_name}',
         )
@@ -58,13 +58,13 @@ class RoleTests(common.IdentityTests):
         username = self._create_dummy_user()
         add_raw_output = self.openstack(
             'role add '
-            f'--project {self.project_name} '
+            f'--project {self.PROJECT_NAME} '
             f'--user {username} '
             f'{role_name}'
         )
         del_raw_output = self.openstack(
             'role remove '
-            f'--project {self.project_name} '
+            f'--project {self.PROJECT_NAME} '
             f'--user {username} '
             f'{role_name}'
         )

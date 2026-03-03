@@ -21,7 +21,7 @@ class ProjectTests(common.IdentityTests):
         description = data_utils.rand_name('description')
         raw_output = self.openstack(
             'project create '
-            f'--domain {self.domain_name} '
+            f'--domain {self.DOMAIN_NAME} '
             f'--description {description} '
             '--enable '
             '--property k1=v1 '
@@ -30,7 +30,7 @@ class ProjectTests(common.IdentityTests):
         )
         self.addCleanup(
             self.openstack,
-            f'project delete --domain {self.domain_name} {project_name}',
+            f'project delete --domain {self.DOMAIN_NAME} {project_name}',
         )
         items = self.parse_show(raw_output)
         show_fields = list(self.PROJECT_FIELDS)
@@ -43,7 +43,7 @@ class ProjectTests(common.IdentityTests):
     def test_project_delete(self):
         project_name = self._create_dummy_project(add_clean_up=False)
         raw_output = self.openstack(
-            f'project delete --domain {self.domain_name} {project_name}'
+            f'project delete --domain {self.DOMAIN_NAME} {project_name}'
         )
         self.assertEqual(0, len(raw_output))
 
@@ -55,7 +55,7 @@ class ProjectTests(common.IdentityTests):
     def test_project_list_with_domain(self):
         project_name = self._create_dummy_project()
         raw_output = self.openstack(
-            f'project list --domain {self.domain_name}'
+            f'project list --domain {self.DOMAIN_NAME}'
         )
         items = self.parse_listing(raw_output)
         self.assert_table_structure(items, common.BASIC_LIST_HEADERS)
@@ -75,7 +75,7 @@ class ProjectTests(common.IdentityTests):
         self.assertEqual(0, len(raw_output))
         # check project details
         raw_output = self.openstack(
-            f'project show --domain {self.domain_name} {new_project_name}'
+            f'project show --domain {self.DOMAIN_NAME} {new_project_name}'
         )
         items = self.parse_show(raw_output)
         fields = list(self.PROJECT_FIELDS)
@@ -92,7 +92,7 @@ class ProjectTests(common.IdentityTests):
 
     def test_project_show(self):
         raw_output = self.openstack(
-            f'project show --domain {self.domain_name} {self.project_name}'
+            f'project show --domain {self.DOMAIN_NAME} {self.PROJECT_NAME}'
         )
         items = self.parse_show(raw_output)
         self.assert_show_fields(items, self.PROJECT_FIELDS)
@@ -101,10 +101,10 @@ class ProjectTests(common.IdentityTests):
         output = self.openstack(
             'project show '
             '--parents --children '
-            f'--domain {self.domain_name} '
-            f'{self.project_name}',
+            f'--domain {self.DOMAIN_NAME} '
+            f'{self.PROJECT_NAME}',
             parse_output=True,
         )
         for attr_name in [*self.PROJECT_FIELDS, 'parents', 'subtree']:
             self.assertIn(attr_name, output)
-        self.assertEqual(self.project_name, output.get('name'))
+        self.assertEqual(self.PROJECT_NAME, output.get('name'))

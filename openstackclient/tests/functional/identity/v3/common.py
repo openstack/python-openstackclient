@@ -148,35 +148,35 @@ class IdentityTests(base.TestCase):
         'Region ID',
     ]
 
-    domain_name: ClassVar[str]
-    domain_description: ClassVar[str]
-    project_name: ClassVar[str]
-    project_description: ClassVar[str]
+    DOMAIN_NAME: ClassVar[str]
+    DOMAIN_DESCRIPTION: ClassVar[str]
+    PROJECT_NAME: ClassVar[str]
+    PROJECT_DESCRIPTION: ClassVar[str]
 
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
         # create dummy domain
-        cls.domain_name = data_utils.rand_name('TestDomain')
-        cls.domain_description = data_utils.rand_name('description')
+        cls.DOMAIN_NAME = data_utils.rand_name('TestDomain')
+        cls.DOMAIN_DESCRIPTION = data_utils.rand_name('description')
         cls.openstack(
             '--os-identity-api-version 3 '
             'domain create '
-            f'--description {cls.domain_description} '
+            f'--description {cls.DOMAIN_DESCRIPTION} '
             '--enable '
-            f'{cls.domain_name}'
+            f'{cls.DOMAIN_NAME}'
         )
 
         # create dummy project
-        cls.project_name = data_utils.rand_name('TestProject')
-        cls.project_description = data_utils.rand_name('description')
+        cls.PROJECT_NAME = data_utils.rand_name('TestProject')
+        cls.PROJECT_DESCRIPTION = data_utils.rand_name('description')
         cls.openstack(
             '--os-identity-api-version 3 '
             'project create '
-            f'--domain {cls.domain_name} '
-            f'--description {cls.project_description} '
+            f'--domain {cls.DOMAIN_NAME} '
+            f'--description {cls.PROJECT_DESCRIPTION} '
             '--enable '
-            f'{cls.project_name}'
+            f'{cls.PROJECT_NAME}'
         )
 
     @classmethod
@@ -185,15 +185,15 @@ class IdentityTests(base.TestCase):
             # delete dummy project
             cls.openstack(
                 '--os-identity-api-version 3 '
-                f'project delete {cls.project_name}'
+                f'project delete {cls.PROJECT_NAME}'
             )
             # disable and delete dummy domain
             cls.openstack(
                 '--os-identity-api-version 3 '
-                f'domain set --disable {cls.domain_name}'
+                f'domain set --disable {cls.DOMAIN_NAME}'
             )
             cls.openstack(
-                f'--os-identity-api-version 3 domain delete {cls.domain_name}'
+                f'--os-identity-api-version 3 domain delete {cls.DOMAIN_NAME}'
             )
         finally:
             super().tearDownClass()
@@ -219,9 +219,9 @@ class IdentityTests(base.TestCase):
         description = data_utils.rand_name('description')
         raw_output = self.openstack(
             'user create '
-            f'--domain {self.domain_name} '
-            f'--project {self.project_name} '
-            f'--project-domain {self.domain_name} '
+            f'--domain {self.DOMAIN_NAME} '
+            f'--project {self.PROJECT_NAME} '
+            f'--project-domain {self.DOMAIN_NAME} '
             f'--password {password} '
             f'--email {email} '
             f'--description {description} '
@@ -268,14 +268,14 @@ class IdentityTests(base.TestCase):
         description = data_utils.rand_name('description')
         raw_output = self.openstack(
             'group create '
-            f'--domain {self.domain_name} '
+            f'--domain {self.DOMAIN_NAME} '
             f'--description {description} '
             f'{group_name}'
         )
         if add_clean_up:
             self.addCleanup(
                 self.openstack,
-                f'group delete --domain {self.domain_name} {group_name}',
+                f'group delete --domain {self.DOMAIN_NAME} {group_name}',
             )
         items = self.parse_show(raw_output)
         self.assert_show_fields(items, self.GROUP_FIELDS)
@@ -301,14 +301,14 @@ class IdentityTests(base.TestCase):
         project_description = data_utils.rand_name('description')
         self.openstack(
             'project create '
-            f'--domain {self.domain_name} '
+            f'--domain {self.DOMAIN_NAME} '
             f'--description {project_description} '
             f'--enable {project_name}'
         )
         if add_clean_up:
             self.addCleanup(
                 self.openstack,
-                f'project delete --domain {self.domain_name} {project_name}',
+                f'project delete --domain {self.DOMAIN_NAME} {project_name}',
             )
         return project_name
 

@@ -79,14 +79,14 @@ class RoleAssignmentTests(common.IdentityTests):
         )
         raw_output = self.openstack(
             'role add '
-            f'--project {self.project_name} '
+            f'--project {self.PROJECT_NAME} '
             f'--group {group_name} --group-domain {domain_name_A} '
             f'{role_name}'
         )
         self.addCleanup(
             self.openstack,
             'role remove '
-            f'--project {self.project_name} '
+            f'--project {self.PROJECT_NAME} '
             f'--group {group_name} --group-domain {domain_name_A} '
             f'{role_name}',
         )
@@ -108,20 +108,20 @@ class RoleAssignmentTests(common.IdentityTests):
         username = self._create_dummy_user()
         raw_output = self.openstack(
             'role add '
-            f'--domain {self.domain_name} '
+            f'--domain {self.DOMAIN_NAME} '
             f'--user {username} '
             f'{role_name}'
         )
         self.addCleanup(
             self.openstack,
             'role remove '
-            f'--domain {self.domain_name} '
+            f'--domain {self.DOMAIN_NAME} '
             f'--user {username} '
             f'{role_name}',
         )
         self.assertEqual(0, len(raw_output))
         raw_output = self.openstack(
-            f'role assignment list --domain {self.domain_name} '
+            f'role assignment list --domain {self.DOMAIN_NAME} '
         )
         items = self.parse_listing(raw_output)
         self.assert_table_structure(items, self.ROLE_ASSIGNMENT_LIST_HEADERS)
@@ -141,14 +141,14 @@ class RoleAssignmentTests(common.IdentityTests):
         )
         raw_output = self.openstack(
             'role add '
-            f'--project {self.project_name} '
+            f'--project {self.PROJECT_NAME} '
             f'--user {username} --user-domain {domain_name_A} '
             f'{role_name}'
         )
         self.addCleanup(
             self.openstack,
             'role remove '
-            f'--project {self.project_name} '
+            f'--project {self.PROJECT_NAME} '
             f'--user {username} --user-domain {domain_name_A} '
             f'{role_name}',
         )
@@ -214,20 +214,20 @@ class RoleAssignmentTests(common.IdentityTests):
         username = self._create_dummy_user()
         raw_output = self.openstack(
             'role add '
-            f'--project {self.project_name} '
+            f'--project {self.PROJECT_NAME} '
             f'--user {username} '
             f'{role_name}'
         )
         self.addCleanup(
             self.openstack,
             'role remove '
-            f'--project {self.project_name} '
+            f'--project {self.PROJECT_NAME} '
             f'--user {username} '
             f'{role_name}',
         )
         self.assertEqual(0, len(raw_output))
         raw_output = self.openstack(
-            f'role assignment list --project {self.project_name} '
+            f'role assignment list --project {self.PROJECT_NAME} '
         )
         items = self.parse_listing(raw_output)
         self.assert_table_structure(items, self.ROLE_ASSIGNMENT_LIST_HEADERS)
@@ -302,7 +302,7 @@ class RoleAssignmentTests(common.IdentityTests):
         username = self._create_dummy_user()
         raw_output = self.openstack(
             'role add '
-            f'--project {self.project_name} '
+            f'--project {self.PROJECT_NAME} '
             f'--user {username} '
             '--inherited '
             f'{role_name}'
@@ -310,7 +310,7 @@ class RoleAssignmentTests(common.IdentityTests):
         self.addCleanup(
             self.openstack,
             'role remove '
-            f'--project {self.project_name} '
+            f'--project {self.PROJECT_NAME} '
             f'--user {username} '
             '--inherited '
             f'{role_name}',
