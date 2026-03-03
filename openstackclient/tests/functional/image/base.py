@@ -10,21 +10,10 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from typing import ClassVar
-
 from openstackclient.tests.functional import base
 
 
 class BaseImageTests(base.TestCase):
     """Functional tests for Image commands"""
 
-    # TODO(stephenfin): Nothing sets this to true any more. We should remove it
-    # along with any dependent tests.
-    haz_v1_api: ClassVar[bool]
-
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        # TODO(dtroyer): maybe do image API discovery here to determine
-        #                what is available, it isn't in the service catalog
-        cls.haz_v1_api = False
+    ...
