@@ -11,6 +11,7 @@
 #    under the License.
 
 import random
+from typing import ClassVar
 import uuid
 
 from openstackclient.tests.functional.network.v2 import common
@@ -18,6 +19,11 @@ from openstackclient.tests.functional.network.v2 import common
 
 class FloatingIpTests(common.NetworkTests):
     """Functional tests for floating ip"""
+
+    EXTERNAL_NETWORK_NAME: ClassVar[str]
+    PRIVATE_NETWORK_NAME: ClassVar[str]
+    external_network_id: ClassVar[str]
+    private_network_id: ClassVar[str]
 
     @classmethod
     def setUpClass(cls):

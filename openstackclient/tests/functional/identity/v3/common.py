@@ -11,6 +11,7 @@
 #    under the License.
 
 import os
+from typing import ClassVar
 
 import fixtures
 from tempest.lib.common.utils import data_utils
@@ -146,6 +147,11 @@ class IdentityTests(base.TestCase):
         'Description',
         'Region ID',
     ]
+
+    domain_name: ClassVar[str]
+    domain_description: ClassVar[str]
+    project_name: ClassVar[str]
+    project_description: ClassVar[str]
 
     @classmethod
     def setUpClass(cls):

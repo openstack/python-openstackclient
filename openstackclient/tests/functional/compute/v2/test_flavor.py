@@ -10,6 +10,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from typing import ClassVar
 import uuid
 
 from openstackclient.tests.functional import base
@@ -19,6 +20,7 @@ class FlavorTests(base.TestCase):
     """Functional tests for flavor."""
 
     PROJECT_NAME = uuid.uuid4().hex
+    PROJECT_ID: ClassVar[str]
 
     @classmethod
     def setUpClass(cls):
@@ -28,7 +30,7 @@ class FlavorTests(base.TestCase):
             "project create --enable " + cls.PROJECT_NAME,
             parse_output=True,
         )
-        cls.project_id = cmd_output["id"]
+        cls.PROJECT_ID = cmd_output["id"]
 
     @classmethod
     def tearDownClass(cls):

@@ -10,6 +10,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from typing import ClassVar
 import uuid
 
 from openstackclient.tests.functional.network.v2 import common
@@ -17,6 +18,10 @@ from openstackclient.tests.functional.network.v2 import common
 
 class NetworkSegmentTests(common.NetworkTests):
     """Functional tests for network segment"""
+
+    NETWORK_NAME: ClassVar[str]
+    NETWORK_ID: ClassVar[str]
+    PHYSICAL_NETWORK_NAME: ClassVar[str]
 
     @classmethod
     def setUpClass(cls):

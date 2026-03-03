@@ -13,6 +13,7 @@
 import itertools
 import json
 import time
+from typing import ClassVar
 import uuid
 
 from tempest.lib import exceptions
@@ -24,6 +25,8 @@ from openstackclient.tests.functional.volume.v2 import common as volume_common
 
 class ServerTests(common.ComputeTestCase):
     """Functional tests for openstack server commands"""
+
+    haz_network: ClassVar[bool]
 
     @classmethod
     def setUpClass(cls):

@@ -11,6 +11,7 @@
 #    under the License.
 
 import os
+from typing import ClassVar
 import unittest
 
 import fixtures
@@ -56,6 +57,9 @@ class IdentityTests(base.TestCase):
     ]
     CATALOG_LIST_HEADERS = ['Name', 'Type', 'Endpoints']
     ENDPOINT_LIST_HEADERS = ['ID', 'Region', 'Service Name', 'Service Type']
+
+    project_name: ClassVar[str]
+    project_description: ClassVar[str]
 
     @classmethod
     def setUpClass(cls):

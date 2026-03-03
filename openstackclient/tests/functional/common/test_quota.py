@@ -10,6 +10,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from typing import ClassVar
 import uuid
 
 from tempest.lib.common.utils import data_utils
@@ -25,7 +26,8 @@ class QuotaTests(base.TestCase):
     test runs as these may run in parallel and otherwise step on each other.
     """
 
-    PROJECT_NAME: str
+    haz_network: ClassVar[bool]
+    PROJECT_NAME: ClassVar[str]
 
     @classmethod
     def setUpClass(cls):
