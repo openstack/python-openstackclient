@@ -11,6 +11,7 @@
 #    under the License.
 
 import random
+from typing import ClassVar
 import uuid
 
 from openstackclient.tests.functional.network.v2 import common
@@ -21,19 +22,22 @@ class SubnetTests(common.NetworkTagTests):
 
     base_command = 'subnet'
 
+    NETWORK_NAME: ClassVar[str]
+    NETWORK_ID: ClassVar[str]
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        if cls.haz_network:
-            cls.NETWORK_NAME = uuid.uuid4().hex
 
-            # Create a network for the all subnet tests
-            cmd_output = cls.openstack(
-                'network create ' + cls.NETWORK_NAME,
-                parse_output=True,
-            )
-            # Get network_id for assertEqual
-            cls.NETWORK_ID = cmd_output["id"]
+        cls.NETWORK_NAME = uuid.uuid4().hex
+
+        # Create a network for the all subnet tests
+        cmd_output = cls.openstack(
+            'network create ' + cls.NETWORK_NAME,
+            parse_output=True,
+        )
+        # Get network_id for assertEqual
+        cls.NETWORK_ID = cmd_output["id"]
 
     @classmethod
     def tearDownClass(cls):

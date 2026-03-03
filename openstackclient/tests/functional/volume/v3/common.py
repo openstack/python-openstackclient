@@ -10,6 +10,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from typing import ClassVar
+
 import fixtures
 
 from openstackclient.tests.functional.volume import base
@@ -17,6 +19,8 @@ from openstackclient.tests.functional.volume import base
 
 class BaseVolumeTests(base.BaseVolumeTests):
     """Base class for Volume functional tests."""
+
+    haz_volume_v3: ClassVar[bool]
 
     @classmethod
     def setUpClass(cls):

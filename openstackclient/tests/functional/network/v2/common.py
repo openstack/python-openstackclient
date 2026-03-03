@@ -10,6 +10,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from typing import ClassVar
 import uuid
 
 from openstackclient.tests.functional import base
@@ -17,6 +18,8 @@ from openstackclient.tests.functional import base
 
 class NetworkTests(base.TestCase):
     """Functional tests for Network commands"""
+
+    haz_network: ClassVar[bool]
 
     @classmethod
     def setUpClass(cls):
@@ -33,7 +36,7 @@ class NetworkTests(base.TestCase):
 class NetworkTagTests(NetworkTests):
     """Functional tests with tag operation"""
 
-    base_command: str
+    base_command: ClassVar[str]
 
     def test_tag_operation(self):
         # Get project IDs

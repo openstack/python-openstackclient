@@ -13,6 +13,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from typing import ClassVar
+
 from tempest.lib import exceptions as tempest_exc
 
 from openstackclient.tests.functional import base
@@ -20,6 +22,8 @@ from openstackclient.tests.functional import base
 
 class ExtensionTests(base.TestCase):
     """Functional tests for extension"""
+
+    haz_network: ClassVar[bool]
 
     @classmethod
     def setUpClass(cls):
