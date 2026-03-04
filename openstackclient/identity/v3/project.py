@@ -342,21 +342,21 @@ class ListProject(command.Lister):
             user = self.app.client_manager.auth_ref.user_id
 
         if user:
-            data = identity_client.user_projects(user, **kwargs)
+            data = list(identity_client.user_projects(user, **kwargs))
         else:
             try:
-                data = identity_client.projects(**kwargs)
+                data = list(identity_client.projects(**kwargs))
             except sdk_exc.ForbiddenException:
                 # NOTE(adriant): if no filters, assume a forbidden is non-admin
                 # wanting their own project list.
                 if not kwargs:
                     user = self.app.client_manager.auth_ref.user_id
-                    data = identity_client.user_projects(user)
+                    data = list(identity_client.user_projects(user))
                 else:
                     raise
 
         if parsed_args.sort:
-            data = utils.sort_items(data, parsed_args.sort)
+            data = list(utils.sort_items(data, parsed_args.sort))
 
         return (
             column_headers,
