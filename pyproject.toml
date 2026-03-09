@@ -9,14 +9,13 @@ authors = [
     {name = "OpenStack", email = "openstack-discuss@lists.openstack.org"},
 ]
 readme = {file = "README.rst", content-type = "text/x-rst"}
-license = {text = "Apache-2.0"}
+license = "Apache-2.0"
 dynamic = ["version", "dependencies"]
 requires-python = ">=3.10"
 classifiers = [
   "Environment :: OpenStack",
   "Intended Audience :: Information Technology",
   "Intended Audience :: System Administrators",
-  "License :: OSI Approved :: Apache Software License",
   "Operating System :: POSIX :: Linux",
   "Programming Language :: Python",
   "Programming Language :: Python :: 3",
@@ -725,10 +724,8 @@ volume_transfer_request_show = "openstackclient.volume.v3.volume_transfer_reques
 volume_summary = "openstackclient.volume.v3.volume:VolumeSummary"
 volume_revert = "openstackclient.volume.v3.volume:VolumeRevertToSnapshot"
 
-[tool.setuptools]
-packages = [
-    "openstackclient"
-]
+[tool.setuptools.packages.find]
+include = ["openstackclient"]
 
 [tool.mypy]
 python_version = "3.10"
@@ -739,7 +736,7 @@ follow_imports = "normal"
 incremental = true
 check_untyped_defs = true
 warn_unused_ignores = true
-exclude = '(?x)(doc | examples | hacking | releasenotes)'
+exclude = "(?x)(doc | examples | hacking | releasenotes)"
 
 [[tool.mypy.overrides]]
 module = ["openstackclient.tests.unit.*"]
