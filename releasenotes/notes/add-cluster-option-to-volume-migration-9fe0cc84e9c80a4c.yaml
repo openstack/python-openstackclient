@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    The ``volume migration`` command now supports the ``--cluster``
+    optional argument, allowing volumes to be migrated to a destination
+    cluster. This feature requires Cinder API microversion 3.16 or
+    higher and is mutually exclusive with the ``--host`` option.

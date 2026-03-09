@@ -743,12 +743,20 @@ class MigrateVolume(command.Command):
             metavar="<volume>",
             help=_("Volume to migrate (name or ID)"),
         )
-        parser.add_argument(
+        destination_group = parser.add_mutually_exclusive_group(required=True)
+        destination_group.add_argument(
             '--host',
             metavar="<host>",
-            required=True,
             help=_(
                 "Destination host (takes the form: host@backend-name#pool)"
+            ),
+        )
+        destination_group.add_argument(
+            '--cluster',
+            metavar="<cluster>",
+            help=_(
+                "Destination cluster to migrate the volume to "
+                "(requires --os-volume-api-version 3.16 or higher)"
             ),
         )
         parser.add_argument(
@@ -768,7 +776,6 @@ class MigrateVolume(command.Command):
                 "(possibly by another operation)"
             ),
         )
-        # TODO(stephenfin): Add --cluster argument
         return parser
 
     def take_action(self, parsed_args):
@@ -776,11 +783,22 @@ class MigrateVolume(command.Command):
         volume = volume_client.find_volume(
             parsed_args.volume, ignore_missing=False
         )
+
+        if parsed_args.cluster and not sdk_utils.supports_microversion(
+            volume_client, '3.16'
+        ):
+            msg = _(
+                "--os-volume-api-version 3.16 or greater is required to "
+                "support the volume migration with cluster"
+            )
+            raise exceptions.CommandError(msg)
+
         volume_client.migrate_volume(
             volume.id,
             host=parsed_args.host,
             force_host_copy=parsed_args.force_host_copy,
             lock_volume=parsed_args.lock_volume,
+            cluster=parsed_args.cluster,
         )
 
 

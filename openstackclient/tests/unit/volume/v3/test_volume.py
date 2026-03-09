@@ -1723,9 +1723,10 @@ class TestVolumeMigrate(volume_fakes.TestVolume):
             host="host@backend-name#pool",
             force_host_copy=False,
             lock_volume=False,
+            cluster=None,
         )
 
-    def test_volume_migrate_with_option(self):
+    def test_volume_migrate_with_host(self):
         arglist = [
             "--force-host-copy",
             "--lock-volume",
@@ -1752,9 +1753,66 @@ class TestVolumeMigrate(volume_fakes.TestVolume):
             host="host@backend-name#pool",
             force_host_copy=True,
             lock_volume=True,
+            cluster=None,
         )
 
-    def test_volume_migrate_without_host(self):
+    def test_volume_migrate_with_cluster(self):
+        self.set_volume_api_version('3.16')
+        arglist = [
+            "--cluster",
+            "cluster@backend-name#pool",
+            self.volume.id,
+        ]
+        verifylist = [
+            (
+                "cluster",
+                "cluster@backend-name#pool",
+            ),
+            ("volume", self.volume.id),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+        self.assertIsNone(result)
+
+        self.volume_sdk_client.find_volume.assert_called_with(
+            self.volume.id, ignore_missing=False
+        )
+        self.volume_sdk_client.migrate_volume.assert_called_once_with(
+            self.volume.id,
+            host=None,
+            force_host_copy=False,
+            lock_volume=False,
+            cluster="cluster@backend-name#pool",
+        )
+
+    def test_volume_migrate_with_cluster_pre_v316(self):
+        self.set_volume_api_version('3.15')
+        arglist = [
+            "--cluster",
+            "cluster@backend-name#pool",
+            self.volume.id,
+        ]
+        verifylist = [
+            (
+                "cluster",
+                "cluster@backend-name#pool",
+            ),
+            ("volume", self.volume.id),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args,
+        )
+
+        self.volume_sdk_client.migrate_volume.assert_not_called()
+
+    def test_volume_migrate_without_host_and_cluster(self):
         arglist = [
             self.volume.id,
         ]
@@ -1771,7 +1829,6 @@ class TestVolumeMigrate(volume_fakes.TestVolume):
             arglist,
             verifylist,
         )
-
         self.volume_sdk_client.find_volume.assert_not_called()
         self.volume_sdk_client.migrate_volume.assert_not_called()
 
