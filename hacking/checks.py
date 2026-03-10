@@ -177,3 +177,20 @@ def assert_find_ignore_missing_kwargs(logical_line, filename):
             'O403: Calls to find_* proxy methods must explicitly set '
             'ignore_missing',
         )
+
+
+@core.flake8ext
+def assert_use_of_osc_command(logical_line, filename):
+    """Ensure we use openstackclient.command instead of osc_lib.command.
+
+    O404
+    """
+    if filename == 'openstackclient/command.py':
+        return
+
+    if re.match(r'^from osc_lib\.command import command$', logical_line):
+        yield (
+            0,
+            'O404: Import Command classes from openstackclient.command, not '
+            'osc_lib.command.command',
+        )
