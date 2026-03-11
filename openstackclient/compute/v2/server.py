@@ -3189,13 +3189,22 @@ class MigrateServer(command.Command):
     _description = _(
         """Migrate server to different host.
 
-A migrate operation is implemented as a resize operation using the same flavor
-as the old server. This means that, like resize, migrate works by creating a
-new server using the same flavor and copying the contents of the original disk
-into a new one. As with resize, the migrate operation is a two-step process for
-the user: the first step is to perform the migrate, and the second step is to
-either confirm (verify) success and release the old server, or to declare a
-revert to release the new server and restart the old one."""
+There are two types of migration operation: a cold migration and a live
+migration.
+
+A cold migration operation is implemented as a resize operation
+using the same flavor as the old server. This means that, like resize, migrate
+works by shutting down the original server, creating a new server using the
+same flavor and copying the contents of the original disk into a new one.
+As with resize, the migrate operation is a two-step process for the user:
+the first step is to perform the migrate, and the second step is to either
+confirm (verify) success and release the old server, or to declare a revert
+to release the new server and restart the old one.
+
+By comparison, a live migration operation does not involve shutting the server
+down, and is a one-step process that does not require a confirmation or revert
+to finish.
+"""
     )
 
     def get_parser(self, prog_name):
