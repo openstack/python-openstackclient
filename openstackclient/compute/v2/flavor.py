@@ -102,8 +102,7 @@ class CreateFlavor(command.ShowOne):
             "--rxtx-factor",
             type=float,
             metavar="<factor>",
-            default=1.0,
-            help=_("RX/TX factor (default 1.0)"),
+            help=_("RX/TX factor"),
         )
         public_group = parser.add_mutually_exclusive_group()
         public_group.add_argument(
@@ -177,9 +176,18 @@ class CreateFlavor(command.ShowOne):
             'id': flavor_id,
             'ephemeral': parsed_args.ephemeral,
             'swap': parsed_args.swap,
-            'rxtx_factor': parsed_args.rxtx_factor,
             'is_public': parsed_args.public,
         }
+
+        if parsed_args.rxtx_factor:
+            if sdk_utils.supports_microversion(compute_client, '2.102'):
+                msg = _(
+                    'The --rxtx-factor parameter is only supported until '
+                    'API microversion 2.101'
+                )
+                raise exceptions.CommandError(msg)
+
+            args['rxtx_factor'] = parsed_args.rxtx_factor
 
         if parsed_args.description:
             if not sdk_utils.supports_microversion(compute_client, '2.55'):
@@ -206,6 +214,7 @@ class CreateFlavor(command.ShowOne):
                     "Failed to add project %(project)s access to flavor: %(e)s"
                 )
                 LOG.error(msg, {'project': parsed_args.project, 'e': e})
+
         if parsed_args.properties:
             try:
                 flavor = compute_client.create_flavor_extra_specs(

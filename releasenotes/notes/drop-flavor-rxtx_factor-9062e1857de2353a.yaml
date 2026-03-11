@@ -1,0 +1,7 @@
+---
+upgrade:
+  - |
+    The ``flavor create`` command will no longer provide a default value for
+    ``rxtx_factor``, following the removal of this field in Nova API
+    microversion v2.102. This field was a no-op for all supported virt
+    drivers so this should not affect any users.
