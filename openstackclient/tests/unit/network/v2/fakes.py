@@ -58,6 +58,8 @@ from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 from openstackclient.tests.unit import utils
 
 
+PVLAN_TYPE_COMMUNITY = 'community'
+PVLAN_COMMUNITY_NAME = 'community_1'
 RULE_TYPE_BANDWIDTH_LIMIT = 'bandwidth-limit'
 RULE_TYPE_DSCP_MARKING = 'dscp-marking'
 RULE_TYPE_MINIMUM_BANDWIDTH = 'minimum-bandwidth'
@@ -951,6 +953,7 @@ def create_one_network(attrs=None):
         'provider:network_type': 'vlan',
         'provider:physical_network': 'physnet1',
         'provider:segmentation_id': "400",
+        'pvlan': "False",
         'router:external': True,
         'availability_zones': [],
         'availability_zone_hints': [],
@@ -1211,6 +1214,8 @@ def create_one_port(attrs=None):
         'security_group_ids': [],
         'status': 'ACTIVE',
         'project_id': 'project-id-' + uuid.uuid4().hex,
+        'pvlan_type': PVLAN_TYPE_COMMUNITY,
+        'pvlan_community': PVLAN_COMMUNITY_NAME,
         'qos_network_policy_id': 'qos-policy-id-' + uuid.uuid4().hex,
         'qos_policy_id': 'qos-policy-id-' + uuid.uuid4().hex,
         'tags': [],

@@ -72,6 +72,8 @@ class TestPort(network_fakes.TestNetworkV2):
             'port_security_enabled',
             'project_id',
             'propagate_uplink_status',
+            'pvlan_type',
+            'pvlan_community',
             'resource_request',
             'revision_number',
             'qos_network_policy_id',
@@ -114,6 +116,8 @@ class TestPort(network_fakes.TestNetworkV2):
             fake_port.is_port_security_enabled,
             fake_port.project_id,
             fake_port.propagate_uplink_status,
+            fake_port.pvlan_type,
+            fake_port.pvlan_community,
             fake_port.resource_request,
             fake_port.revision_number,
             fake_port.qos_network_policy_id,
@@ -207,6 +211,10 @@ class TestCreatePort(TestPort):
             '--dns-name',
             '8.8.8.8',
             'test-port',
+            '--pvlan-type',
+            network_fakes.PVLAN_TYPE_COMMUNITY,
+            '--pvlan-community',
+            network_fakes.PVLAN_COMMUNITY_NAME,
         ]
         verifylist = [
             ('mac_address', 'aa:aa:aa:aa:aa:aa'),
@@ -224,6 +232,8 @@ class TestCreatePort(TestPort):
             ('dns_domain', 'example.org'),
             ('dns_name', '8.8.8.8'),
             ('name', 'test-port'),
+            ('pvlan_type', network_fakes.PVLAN_TYPE_COMMUNITY),
+            ('pvlan_community', network_fakes.PVLAN_COMMUNITY_NAME),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
@@ -247,6 +257,8 @@ class TestCreatePort(TestPort):
                 'network_id': self._port.network_id,
                 'dns_domain': 'example.org',
                 'dns_name': '8.8.8.8',
+                'pvlan_type': network_fakes.PVLAN_TYPE_COMMUNITY,
+                'pvlan_community': network_fakes.PVLAN_COMMUNITY_NAME,
                 'name': 'test-port',
             }
         )
@@ -1155,6 +1167,78 @@ class TestCreatePort(TestPort):
 
     def test_create_with_trusted_false(self):
         self._test_create_with_trusted_field(False)
+
+    def test_create_pvlan_community_without_name(self):
+        arglist = [
+            '--network',
+            self._port.network_id,
+            '--pvlan-type',
+            'community',
+            'test-port',
+        ]
+        verifylist = [
+            ('network', self._port.network_id),
+            ('enable', True),
+            ('pvlan_type', 'community'),
+            ('name', 'test-port'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args,
+        )
+
+    def test_create_pvlan_with_port_security_disabled(self):
+        arglist = [
+            '--network',
+            self._port.network_id,
+            '--disable-port-security',
+            '--pvlan-type',
+            'isolated',
+            'test-port',
+        ]
+        verifylist = [
+            ('network', self._port.network_id),
+            ('enable', True),
+            ('disable_port_security', True),
+            ('pvlan_type', 'isolated'),
+            ('name', 'test-port'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args,
+        )
+
+    def test_create_pvlan_on_non_pvlan_network(self):
+        fake_net = network_fakes.create_one_network(
+            {'id': self._port.network_id, 'pvlan': False}
+        )
+        self.network_client.find_network.return_value = fake_net
+        arglist = [
+            '--network',
+            self._port.network_id,
+            '--pvlan-type',
+            'isolated',
+            'test-port',
+        ]
+        verifylist = [
+            ('network', self._port.network_id),
+            ('enable', True),
+            ('pvlan_type', 'isolated'),
+            ('name', 'test-port'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args,
+        )
 
 
 class TestDeletePort(TestPort):
@@ -2652,6 +2736,66 @@ class TestSetPort(TestPort):
 
     def test_set_uplink_status_propagation_false(self):
         self._test_set_uplink_status_propagation(False)
+
+    def test_set_pvlan_community_without_name(self):
+        arglist = [
+            '--pvlan-type',
+            'community',
+            self._port.name,
+        ]
+        verifylist = [
+            ('pvlan_type', 'community'),
+            ('port', self._port.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args,
+        )
+
+    def test_set_pvlan_with_port_security_disabled(self):
+        arglist = [
+            '--disable-port-security',
+            '--pvlan-type',
+            'isolated',
+            self._port.name,
+        ]
+        verifylist = [
+            ('disable_port_security', True),
+            ('pvlan_type', 'isolated'),
+            ('port', self._port.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args,
+        )
+
+    def test_set_pvlan_on_non_pvlan_network(self):
+        fake_net = network_fakes.create_one_network(
+            {'id': self._port.network_id, 'pvlan': False}
+        )
+        self.network_client.find_network.return_value = fake_net
+        arglist = [
+            '--pvlan-type',
+            'isolated',
+            self._port.name,
+        ]
+        verifylist = [
+            ('pvlan_type', 'isolated'),
+            ('port', self._port.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args,
+        )
 
 
 class TestShowPort(TestPort):

@@ -105,6 +105,8 @@ def _get_columns(item: Any) -> tuple[tuple[str, ...], tuple[str, ...]]:
         'port_security_enabled': 'is_port_security_enabled',
         'project_id': 'project_id',
         'propagate_uplink_status': 'propagate_uplink_status',
+        'pvlan_type': 'pvlan_type',
+        'pvlan_community': 'pvlan_community',
         'resource_request': 'resource_request',
         'revision_number': 'revision_number',
         'qos_network_policy_id': 'qos_network_policy_id',
@@ -256,7 +258,46 @@ def _get_attrs(
     if parsed_args.trusted:
         attrs['trusted'] = True
 
+    if 'pvlan_type' in parsed_args and parsed_args.pvlan_type is not None:
+        attrs['pvlan_type'] = parsed_args.pvlan_type
+    if (
+        'pvlan_community' in parsed_args
+        and parsed_args.pvlan_community is not None
+    ):
+        attrs['pvlan_community'] = parsed_args.pvlan_community
+
+    _validate_pvlan_port(attrs)
+
     return attrs
+
+
+def _validate_pvlan_port(attrs: dict[str, Any]) -> None:
+    if (attrs.get('pvlan_type') or attrs.get('pvlan_community')) and attrs.get(
+        'port_security_enabled'
+    ) is False:
+        msg = _(
+            "PVLAN attributes cannot be set when port security is disabled."
+        )
+        raise exceptions.CommandError(msg)
+
+    if attrs.get('pvlan_type') == 'community' and not attrs.get(
+        'pvlan_community'
+    ):
+        msg = _(
+            "--pvlan-community is required when --pvlan-type is 'community'."
+        )
+        raise exceptions.CommandError(msg)
+
+
+def _validate_pvlan_network_port(attrs: dict[str, Any], network: Any) -> None:
+    if not (attrs.get('pvlan_type') or attrs.get('pvlan_community')):
+        return
+    if not network.pvlan:
+        msg = _(
+            "PVLAN attributes cannot be set on a port whose "
+            "network does not have PVLAN enabled."
+        )
+        raise exceptions.CommandError(msg)
 
 
 def _prepare_fixed_ips(
@@ -443,6 +484,26 @@ def _add_updatable_args(
             "Set port to be not trusted. This will be populated into the "
             "'binding:profile' dictionary and passed to the services "
             "which expect it in this dictionary (for example, Nova)."
+        ),
+    )
+    parser.add_argument(
+        '--pvlan-type',
+        metavar='<type>',
+        choices=['promiscuous', 'isolated', 'community'],
+        dest='pvlan_type',
+        help=_(
+            "Set Private VLAN type for this port. Requires PVLAN service "
+            "plugin. Default: promiscuous."
+        ),
+    )
+    parser.add_argument(
+        '--pvlan-community',
+        metavar='<community>',
+        dest='pvlan_community',
+        help=_(
+            "Set PVLAN community name for this port. "
+            "Only applies when pvlan-type is 'community'. "
+            "Requires PVLAN service plugin. Default: None."
         ),
     )
 
@@ -731,6 +792,8 @@ class CreatePort(command.ShowOne, common.NeutronCommandWithExtraArgs):
         attrs.update(
             self._parse_extra_properties(parsed_args.extra_properties)
         )
+
+        _validate_pvlan_network_port(attrs, network)
 
         with common.check_missing_extension_if_error(network_client, attrs):
             obj = network_client.create_port(**attrs)
@@ -1232,6 +1295,10 @@ class SetPort(common.NeutronCommandWithExtraArgs):
             self._parse_extra_properties(parsed_args.extra_properties)
         )
 
+        if attrs.get('pvlan_type') or attrs.get('pvlan_community'):
+            network = client.find_network(obj.network_id, ignore_missing=False)
+            _validate_pvlan_network_port(attrs, network)
+
         if attrs:
             with common.check_missing_extension_if_error(
                 self.app.client_manager.network, attrs
@@ -1355,6 +1422,13 @@ class UnsetPort(common.NeutronUnsetCommandWithExtraArgs):
             default=False,
             help=_("Clear device owner for the port."),
         )
+        parser.add_argument(
+            '--pvlan-community',
+            action='store_true',
+            default=False,
+            dest='pvlan_community',
+            help=_("Clear PVLAN community name for the port."),
+        )
         _tag.add_tag_option_to_parser_for_unset(parser, _('port'))
         parser.add_argument(
             'port',
@@ -1425,6 +1499,8 @@ class UnsetPort(common.NeutronUnsetCommandWithExtraArgs):
             attrs['device_id'] = ''
         if parsed_args.device_owner:
             attrs['device_owner'] = ''
+        if parsed_args.pvlan_community:
+            attrs['pvlan_community'] = None
 
         attrs.update(
             self._parse_extra_properties(parsed_args.extra_properties)

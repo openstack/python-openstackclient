@@ -1,0 +1,10 @@
+---
+features:
+  - |
+    Adds attributes of Private VLAN (PVLAN) parameters to the networking
+    service. Users can now create and set ``--pvlan`` in a network, and the
+    same with ``--pvlan-type`` and ``--pvlan-community`` properties when
+    managing Neutron ports. Networks cannot have pvlan enabled if port security
+    is disabled. Ports cannot have pvlan properties if port security is
+    disabled. pvlan-community can only be set if pvlan-type is community.
+    Enabling PVLAN service plugin is required for using these parameters.
