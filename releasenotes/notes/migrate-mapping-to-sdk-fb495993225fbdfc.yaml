@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    Migrate ``mapping`` commands from keystoneclient to SDK.
+upgrade:
+  - |
+    Filtering in ``mapping`` commands is now case sensitive.

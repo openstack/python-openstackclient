@@ -10,7 +10,9 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import json
 import os
+import tempfile
 from typing import ClassVar
 
 import fixtures
@@ -74,6 +76,10 @@ class IdentityTests(base.TestCase):
         'URL',
     ]
     ENDPOINT_LIST_PROJECT_HEADERS = ['ID', 'Name']
+
+    MAPPING_FIELDS = ['id', 'rules', 'schema_version']
+
+    MAPPING_LIST_HEADERS = ['ID', 'schema_version']
 
     IDENTITY_PROVIDER_FIELDS = [
         'description',
@@ -370,6 +376,34 @@ class IdentityTests(base.TestCase):
         items = self.parse_show(raw_output)
         self.assert_show_fields(items, self.ENDPOINT_FIELDS)
         return endpoint['id']
+
+    def _create_dummy_mapping(self, add_clean_up=True):
+        mapping = data_utils.rand_name('Mapping')
+        # Create rules file
+        with tempfile.NamedTemporaryFile(mode='w+') as f:
+            RULES = [
+                {
+                    "local": [{"group": {"id": "85a868"}}],
+                    "remote": [
+                        {"type": "orgPersonType", "any_one_of": ["Employee"]},
+                        {"type": "sn", "any_one_of": ["Young"]},
+                    ],
+                }
+            ]
+            f.write(json.dumps(RULES))
+            f.flush()
+            raw_output = self.openstack(
+                f'mapping create {mapping} --rules {f.name} --schema-version 1.0'
+            )
+
+        if add_clean_up:
+            self.addCleanup(
+                self.openstack,
+                f'mapping delete {mapping}',
+            )
+        items = self.parse_show(raw_output)
+        self.assert_show_fields(items, self.MAPPING_FIELDS)
+        return mapping
 
     def _create_dummy_idp(self, add_clean_up=True):
         identity_provider = data_utils.rand_name('IdentityProvider')

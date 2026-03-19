@@ -21,6 +21,7 @@ import json
 import logging
 from typing import Any
 
+from openstack import utils as sdk_utils
 from osc_lib import exceptions
 from osc_lib import utils
 
@@ -29,6 +30,15 @@ from openstackclient.i18n import _
 
 
 LOG = logging.getLogger(__name__)
+
+
+def _format_mapping(mapping):
+    columns = ('id', 'rules', 'schema_version')
+    column_headers = ('id', 'rules', 'schema_version')
+    return (
+        column_headers,
+        utils.get_item_properties(mapping, columns),
+    )
 
 
 class _RulesReader:
@@ -124,18 +134,18 @@ class CreateMapping(command.ShowOne, _RulesReader):
     def take_action(
         self, parsed_args: argparse.Namespace
     ) -> tuple[Sequence[str], Iterable[Any]]:
-        identity_client = self.app.client_manager.identity
+        identity_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.identity, '3'
+        )
 
         rules = self._read_rules(parsed_args.rules)
-        mapping = identity_client.federation.mappings.create(
-            mapping_id=parsed_args.mapping,
+        mapping = identity_client.create_mapping(
+            id=parsed_args.mapping,
             rules=rules,
             schema_version=parsed_args.schema_version,
         )
 
-        mapping._info.pop('links', None)
-        col_headers, col_data = zip(*sorted(mapping._info.items()))
-        return col_headers, col_data
+        return _format_mapping(mapping)
 
 
 class DeleteMapping(command.Command):
@@ -152,11 +162,13 @@ class DeleteMapping(command.Command):
         return parser
 
     def take_action(self, parsed_args: argparse.Namespace) -> None:
-        identity_client = self.app.client_manager.identity
+        identity_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.identity, '3'
+        )
         result = 0
         for i in parsed_args.mapping:
             try:
-                identity_client.federation.mappings.delete(i)
+                identity_client.delete_mapping(i, ignore_missing=False)
             except Exception as e:
                 result += 1
                 LOG.error(
@@ -185,8 +197,10 @@ class ListMapping(command.Lister):
         # NOTE(marek-denis): Since rules can be long and tedious I have decided
         # to only list ids of the mappings. If somebody wants to check the
         # rules, (s)he should show specific ones.
-        identity_client = self.app.client_manager.identity
-        data = identity_client.federation.mappings.list()
+        identity_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.identity, '3'
+        )
+        data = identity_client.mappings()
         columns = ('ID', 'schema_version')
         items = [utils.get_item_properties(s, columns) for s in data]
         return (columns, items)
@@ -212,17 +226,17 @@ class SetMapping(command.Command, _RulesReader):
         return parser
 
     def take_action(self, parsed_args: argparse.Namespace) -> None:
-        identity_client = self.app.client_manager.identity
+        identity_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.identity, '3'
+        )
 
         rules = self._read_rules(parsed_args.rules)
 
-        mapping = identity_client.federation.mappings.update(
+        identity_client.update_mapping(
             mapping=parsed_args.mapping,
             rules=rules,
             schema_version=parsed_args.schema_version,
         )
-
-        mapping._info.pop('links', None)
 
 
 class ShowMapping(command.ShowOne):
@@ -240,10 +254,10 @@ class ShowMapping(command.ShowOne):
     def take_action(
         self, parsed_args: argparse.Namespace
     ) -> tuple[Sequence[str], Iterable[Any]]:
-        identity_client = self.app.client_manager.identity
+        identity_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.identity, '3'
+        )
 
-        mapping = identity_client.federation.mappings.get(parsed_args.mapping)
+        mapping = identity_client.get_mapping(parsed_args.mapping)
 
-        mapping._info.pop('links', None)
-        col_headers, col_data = zip(*sorted(mapping._info.items()))
-        return col_headers, col_data
+        return _format_mapping(mapping)
