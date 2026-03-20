@@ -172,10 +172,11 @@ multiple ``delete_network()`` calls.
 
 .. code-block:: python
 
-    class DeleteNetwork(common.NetworkAndComputeCommand):
+    class DeleteNetwork(common.NetworkDelete):
         """Delete network(s)"""
 
-        def update_parser_common(self, parser):
+        def get_parser(self, prog_name):
+            parser = super().get_parser(prog_name)
             parser.add_argument(
                 'network',
                 metavar="<network>",
@@ -184,20 +185,7 @@ multiple ``delete_network()`` calls.
             )
             return parser
 
-        def take_action(self, client, parsed_args):
-            ret = 0
-
-            for network in parsed_args.network:
-                try:
-                    obj = client.find_network(network, ignore_missing=False)
-                    client.delete_network(obj)
-                except Exception:
-                    LOG.error(_("Failed to delete network with name "
-                                "or ID %s."), network)
-                    ret += 1
-
-            if ret > 0:
-                total = len(parsed_args.network)
-                msg = (_("Failed to delete %(ret)s of %(total)s networks.")
-                       % {"ret": ret, "total": total})
-                raise exceptions.CommandError(msg)
+        def take_action_delete(self, parsed_args):
+            client = self.app.client_manager.network
+            obj = client.find_network(network, ignore_missing=False)
+            client.delete_network(obj)

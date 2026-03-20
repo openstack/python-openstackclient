@@ -171,22 +171,6 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
         parsed_args = self.check_parser(self.cmd, arglist, [])
         self.assertEqual('IPv6', parsed_args.ethertype)
 
-    def test_create_all_protocol_options(self):
-        arglist = [
-            '--protocol',
-            'tcp',
-            '--proto',
-            'tcp',
-            self._security_group.id,
-        ]
-        self.assertRaises(
-            tests_utils.ParserException,
-            self.check_parser,
-            self.cmd,
-            arglist,
-            [],
-        )
-
     def test_create_all_port_range_options(self):
         arglist = [
             '--dst-port',
@@ -251,7 +235,7 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
         self.assertEqual(self.expected_columns, columns)
         self.assertEqual(self.expected_data, data)
 
-    def test_create_proto_option(self):
+    def test_create_protocol_option(self):
         self._setup_security_group_rule(
             {
                 'protocol': 'icmp',
@@ -259,15 +243,14 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
             }
         )
         arglist = [
-            '--proto',
+            '--protocol',
             self._security_group_rule.protocol,
             '--remote-ip',
             self._security_group_rule.remote_ip_prefix,
             self._security_group.id,
         ]
         verifylist = [
-            ('proto', self._security_group_rule.protocol),
-            ('protocol', None),
+            ('protocol', self._security_group_rule.protocol),
             ('remote_ip', self._security_group_rule.remote_ip_prefix),
             ('group', self._security_group.id),
         ]
@@ -295,15 +278,14 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
             }
         )
         arglist = [
-            '--proto',
+            '--protocol',
             'any',
             '--remote-ip',
             self._security_group_rule.remote_ip_prefix,
             self._security_group.id,
         ]
         verifylist = [
-            ('proto', 'any'),
-            ('protocol', None),
+            ('protocol', 'any'),
             ('remote_ip', self._security_group_rule.remote_ip_prefix),
             ('group', self._security_group.id),
         ]
@@ -1172,22 +1154,6 @@ class TestListSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
         )
         self.assertEqual(self.expected_columns_with_group, columns)
         self.assertEqual(self.expected_data_with_group, list(data))
-
-    def test_list_with_ignored_options(self):
-        self._security_group_rule_tcp.port_range_min = 80
-        arglist = [
-            '--all-projects',
-        ]
-        verifylist = [
-            ('all_projects', True),
-        ]
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        columns, data = self.cmd.take_action(parsed_args)
-
-        self.network_client.security_group_rules.assert_called_once_with(**{})
-        self.assertEqual(self.expected_columns_no_group, columns)
-        self.assertEqual(self.expected_data_no_group, list(data))
 
     def test_list_with_protocol(self):
         self._security_group_rule_tcp.port_range_min = 80

@@ -1,0 +1,8 @@
+---
+upgrade:
+  - |
+    Nova network support has been removed from the networking commands.
+    As Neutron has been the preferred networking solution in
+    Openstack for close to ten years, the old Nova network
+    code was finally removed. All networking API calls are still
+    supported, but they will only use the Neutron API endpoint.
