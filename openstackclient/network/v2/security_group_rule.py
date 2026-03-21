@@ -524,7 +524,6 @@ class ListSecurityGroupRule(common.NetworkAndComputeLister):
                 parsed_args.project,
                 parsed_args.project_domain,
             ).id
-            query['tenant_id'] = project_id
             query['project_id'] = project_id
 
         rules = [
