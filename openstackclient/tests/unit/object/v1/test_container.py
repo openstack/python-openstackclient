@@ -14,48 +14,21 @@
 #
 
 import copy
-from unittest import mock
 
-from openstackclient.api import object_store_v1 as object_store
 from openstackclient.object.v1 import container
 from openstackclient.tests.unit.object.v1 import fakes as object_fakes
 
 
-AUTH_TOKEN = "foobar"
-AUTH_URL = "http://0.0.0.0"
-
-
-class FakeClient:
-    def __init__(self, endpoint=None, **kwargs):
-        self.endpoint = AUTH_URL
-        self.token = AUTH_TOKEN
-
-
-class TestContainer(object_fakes.TestObjectv1):
-    columns = ('Name',)
-
+class TestContainerDelete(object_fakes.TestObjectV1):
     def setUp(self):
         super().setUp()
-        self.app.client_manager.object_store = object_store.APIv1(
-            session=mock.Mock(),
-            service_type="object-store",
-        )
-        self.api = self.app.client_manager.object_store
 
-
-@mock.patch('openstackclient.api.object_store_v1.APIv1.object_delete')
-@mock.patch('openstackclient.api.object_store_v1.APIv1.object_list')
-@mock.patch('openstackclient.api.object_store_v1.APIv1.container_delete')
-class TestContainerDelete(TestContainer):
-    def setUp(self):
-        super().setUp()
+        self.object_store_client.container_delete.return_value = None
 
         # Get the command object to test
         self.cmd = container.DeleteContainer(self.app, None)
 
-    def test_container_delete(self, c_mock, o_list_mock, o_delete_mock):
-        c_mock.return_value = None
-
+    def test_container_delete(self):
         arglist = [
             object_fakes.container_name,
         ]
@@ -68,16 +41,17 @@ class TestContainerDelete(TestContainer):
         self.assertIsNone(self.cmd.take_action(parsed_args))
 
         kwargs = {}
-        c_mock.assert_called_with(
+        self.object_store_client.container_delete.assert_called_with(
             container=object_fakes.container_name, **kwargs
         )
-        self.assertFalse(o_list_mock.called)
-        self.assertFalse(o_delete_mock.called)
+        self.object_store_client.object_list.assert_not_called()
+        self.object_store_client.object_delete.assert_not_called()
 
-    def test_recursive_delete(self, c_mock, o_list_mock, o_delete_mock):
-        c_mock.return_value = None
-        o_list_mock.return_value = [object_fakes.OBJECT]
-        o_delete_mock.return_value = None
+    def test_recursive_delete(self):
+        self.object_store_client.object_delete.return_value = None
+        self.object_store_client.object_list.return_value = [
+            object_fakes.OBJECT
+        ]
 
         arglist = [
             '--recursive',
@@ -91,20 +65,22 @@ class TestContainerDelete(TestContainer):
 
         self.assertIsNone(self.cmd.take_action(parsed_args))
 
-        kwargs = {}
-        c_mock.assert_called_with(
-            container=object_fakes.container_name, **kwargs
+        self.object_store_client.container_delete.assert_called_with(
+            container=object_fakes.container_name
         )
-        o_list_mock.assert_called_with(container=object_fakes.container_name)
-        o_delete_mock.assert_called_with(
+        self.object_store_client.object_list.assert_called_with(
+            container=object_fakes.container_name
+        )
+        self.object_store_client.object_delete.assert_called_with(
             container=object_fakes.container_name,
             object=object_fakes.OBJECT['name'],
         )
 
-    def test_r_delete(self, c_mock, o_list_mock, o_delete_mock):
-        c_mock.return_value = None
-        o_list_mock.return_value = [object_fakes.OBJECT]
-        o_delete_mock.return_value = None
+    def test_r_delete(self):
+        self.object_store_client.object_delete.return_value = None
+        self.object_store_client.object_list.return_value = [
+            object_fakes.OBJECT
+        ]
 
         arglist = [
             '-r',
@@ -118,27 +94,29 @@ class TestContainerDelete(TestContainer):
 
         self.assertIsNone(self.cmd.take_action(parsed_args))
 
-        kwargs = {}
-        c_mock.assert_called_with(
-            container=object_fakes.container_name, **kwargs
+        self.object_store_client.container_delete.assert_called_with(
+            container=object_fakes.container_name
         )
-        o_list_mock.assert_called_with(container=object_fakes.container_name)
-        o_delete_mock.assert_called_with(
+        self.object_store_client.object_list.assert_called_with(
+            container=object_fakes.container_name
+        )
+        self.object_store_client.object_delete.assert_called_with(
             container=object_fakes.container_name,
             object=object_fakes.OBJECT['name'],
         )
 
 
-@mock.patch('openstackclient.api.object_store_v1.APIv1.container_list')
-class TestContainerList(TestContainer):
+class TestContainerList(object_fakes.TestObjectV1):
+    columns = ('Name',)
+
     def setUp(self):
         super().setUp()
 
         # Get the command object to test
         self.cmd = container.ListContainer(self.app, None)
 
-    def test_object_list_containers_no_options(self, c_mock):
-        c_mock.return_value = [
+    def test_object_list_containers_no_options(self):
+        self.object_store_client.container_list.return_value = [
             copy.deepcopy(object_fakes.CONTAINER),
             copy.deepcopy(object_fakes.CONTAINER_3),
             copy.deepcopy(object_fakes.CONTAINER_2),
@@ -153,9 +131,7 @@ class TestContainerList(TestContainer):
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
 
-        # Set expected values
-        kwargs = {}
-        c_mock.assert_called_with(**kwargs)
+        self.object_store_client.container_list.assert_called_with()
 
         self.assertEqual(self.columns, columns)
         datalist = (
@@ -165,8 +141,8 @@ class TestContainerList(TestContainer):
         )
         self.assertEqual(datalist, tuple(data))
 
-    def test_object_list_containers_prefix(self, c_mock):
-        c_mock.return_value = [
+    def test_object_list_containers_prefix(self):
+        self.object_store_client.container_list.return_value = [
             copy.deepcopy(object_fakes.CONTAINER),
             copy.deepcopy(object_fakes.CONTAINER_3),
         ]
@@ -185,11 +161,9 @@ class TestContainerList(TestContainer):
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
 
-        # Set expected values
-        kwargs = {
-            'prefix': 'bit',
-        }
-        c_mock.assert_called_with(**kwargs)
+        self.object_store_client.container_list.assert_called_with(
+            prefix='bit',
+        )
 
         self.assertEqual(self.columns, columns)
         datalist = (
@@ -198,8 +172,8 @@ class TestContainerList(TestContainer):
         )
         self.assertEqual(datalist, tuple(data))
 
-    def test_object_list_containers_marker(self, c_mock):
-        c_mock.return_value = [
+    def test_object_list_containers_marker(self):
+        self.object_store_client.container_list.return_value = [
             copy.deepcopy(object_fakes.CONTAINER),
             copy.deepcopy(object_fakes.CONTAINER_3),
         ]
@@ -221,12 +195,10 @@ class TestContainerList(TestContainer):
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
 
-        # Set expected values
-        kwargs = {
-            'marker': object_fakes.container_name,
-            'end_marker': object_fakes.container_name_3,
-        }
-        c_mock.assert_called_with(**kwargs)
+        self.object_store_client.container_list.assert_called_with(
+            marker=object_fakes.container_name,
+            end_marker=object_fakes.container_name_3,
+        )
 
         self.assertEqual(self.columns, columns)
         datalist = (
@@ -235,8 +207,8 @@ class TestContainerList(TestContainer):
         )
         self.assertEqual(datalist, tuple(data))
 
-    def test_object_list_containers_limit(self, c_mock):
-        c_mock.return_value = [
+    def test_object_list_containers_limit(self):
+        self.object_store_client.container_list.return_value = [
             copy.deepcopy(object_fakes.CONTAINER),
             copy.deepcopy(object_fakes.CONTAINER_3),
         ]
@@ -255,11 +227,9 @@ class TestContainerList(TestContainer):
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
 
-        # Set expected values
-        kwargs = {
-            'limit': 2,
-        }
-        c_mock.assert_called_with(**kwargs)
+        self.object_store_client.container_list.assert_called_with(
+            limit=2,
+        )
 
         self.assertEqual(self.columns, columns)
         datalist = (
@@ -268,8 +238,8 @@ class TestContainerList(TestContainer):
         )
         self.assertEqual(datalist, tuple(data))
 
-    def test_object_list_containers_long(self, c_mock):
-        c_mock.return_value = [
+    def test_object_list_containers_long(self):
+        self.object_store_client.container_list.return_value = [
             copy.deepcopy(object_fakes.CONTAINER),
             copy.deepcopy(object_fakes.CONTAINER_3),
         ]
@@ -287,9 +257,7 @@ class TestContainerList(TestContainer):
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
 
-        # Set expected values
-        kwargs = {}
-        c_mock.assert_called_with(**kwargs)
+        self.object_store_client.container_list.assert_called_with()
 
         collist = ('Name', 'Bytes', 'Count')
         self.assertEqual(collist, columns)
@@ -307,8 +275,8 @@ class TestContainerList(TestContainer):
         )
         self.assertEqual(datalist, tuple(data))
 
-    def test_object_list_containers_all(self, c_mock):
-        c_mock.return_value = [
+    def test_object_list_containers_all(self):
+        self.object_store_client.container_list.return_value = [
             copy.deepcopy(object_fakes.CONTAINER),
             copy.deepcopy(object_fakes.CONTAINER_2),
             copy.deepcopy(object_fakes.CONTAINER_3),
@@ -327,11 +295,9 @@ class TestContainerList(TestContainer):
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
 
-        # Set expected values
-        kwargs = {
-            'full_listing': True,
-        }
-        c_mock.assert_called_with(**kwargs)
+        self.object_store_client.container_list.assert_called_with(
+            full_listing=True,
+        )
 
         self.assertEqual(self.columns, columns)
         datalist = (
@@ -342,16 +308,17 @@ class TestContainerList(TestContainer):
         self.assertEqual(datalist, tuple(data))
 
 
-@mock.patch('openstackclient.api.object_store_v1.APIv1.container_show')
-class TestContainerShow(TestContainer):
+class TestContainerShow(object_fakes.TestObjectV1):
     def setUp(self):
         super().setUp()
 
         # Get the command object to test
         self.cmd = container.ShowContainer(self.app, None)
 
-    def test_container_show(self, c_mock):
-        c_mock.return_value = copy.deepcopy(object_fakes.CONTAINER)
+    def test_container_show(self):
+        self.object_store_client.container_show.return_value = copy.deepcopy(
+            object_fakes.CONTAINER
+        )
 
         arglist = [
             object_fakes.container_name,
@@ -366,11 +333,8 @@ class TestContainerShow(TestContainer):
         # data to be shown.
         columns, data = self.cmd.take_action(parsed_args)
 
-        # Set expected values
-        kwargs = {}
-        # lib.container.show_container(api, url, container)
-        c_mock.assert_called_with(
-            container=object_fakes.container_name, **kwargs
+        self.object_store_client.container_show.assert_called_with(
+            container=object_fakes.container_name,
         )
 
         collist = ('bytes', 'count', 'name')

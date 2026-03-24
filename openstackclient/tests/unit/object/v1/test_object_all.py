@@ -15,18 +15,25 @@ import copy
 import io
 from unittest import mock
 
+from keystoneauth1 import session
 from osc_lib import exceptions
 from requests_mock.contrib import fixture
 
+from openstackclient.api import object_store_v1 as object_store
 from openstackclient.object.v1 import object as object_cmds
 from openstackclient.tests.unit.object.v1 import fakes as object_fakes
 
 
-class TestObjectAll(object_fakes.TestObjectv1):
+class TestObjectAll(object_fakes.TestObjectV1):
     def setUp(self):
         super().setUp()
 
+        # these tests require a "real" client since we mock requests
         self.requests_mock = self.useFixture(fixture.Fixture())
+        self.app.client_manager.object_store = object_store.APIv1(
+            session=session.Session(),
+            endpoint=object_fakes.ENDPOINT,
+        )
 
 
 class TestObjectCreate(TestObjectAll):

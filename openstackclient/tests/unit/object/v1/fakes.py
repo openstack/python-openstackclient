@@ -11,9 +11,8 @@
 #   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #   License for the specific language governing permissions and limitations
 #   under the License.
-#
 
-from keystoneauth1 import session
+from unittest import mock
 
 from openstackclient.api import object_store_v1 as object_store
 from openstackclient.tests.unit import utils
@@ -80,12 +79,14 @@ OBJECT_2 = {
 object_upload_name = 'test-object-name'
 
 
-class TestObjectv1(utils.TestCommand):
+class FakeClientMixin:
     def setUp(self):
         super().setUp()
 
-        self.app.client_manager.session = session.Session()
-        self.app.client_manager.object_store = object_store.APIv1(
-            session=self.app.client_manager.session,
-            endpoint=ENDPOINT,
+        self.app.client_manager.object_store = mock.Mock(
+            spec=object_store.APIv1
         )
+        self.object_store_client = self.app.client_manager.object_store
+
+
+class TestObjectV1(FakeClientMixin, utils.TestCommand): ...

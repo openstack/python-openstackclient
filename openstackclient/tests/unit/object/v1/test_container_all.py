@@ -13,17 +13,24 @@
 
 import copy
 
+from keystoneauth1 import session
 from requests_mock.contrib import fixture
 
+from openstackclient.api import object_store_v1 as object_store
 from openstackclient.object.v1 import container as container_cmds
 from openstackclient.tests.unit.object.v1 import fakes as object_fakes
 
 
-class TestContainerAll(object_fakes.TestObjectv1):
+class TestContainerAll(object_fakes.TestObjectV1):
     def setUp(self):
         super().setUp()
 
+        # these tests require a "real" client since we mock requests
         self.requests_mock = self.useFixture(fixture.Fixture())
+        self.app.client_manager.object_store = object_store.APIv1(
+            session=session.Session(),
+            endpoint=object_fakes.ENDPOINT,
+        )
 
 
 class TestContainerCreate(TestContainerAll):
