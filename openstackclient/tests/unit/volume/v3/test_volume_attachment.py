@@ -23,7 +23,7 @@ class TestVolumeAttachment(volume_fakes.TestVolume):
     def setUp(self):
         super().setUp()
 
-        self.projects_mock = self.app.client_manager.identity.projects
+        self.projects_mock = self.identity_client.projects
 
 
 class TestVolumeAttachmentCreate(TestVolumeAttachment):

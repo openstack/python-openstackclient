@@ -28,7 +28,7 @@ class TestQosPolicy(network_fakes.TestNetworkV2):
     def setUp(self):
         super().setUp()
         # Get a shortcut to the ProjectManager Mock
-        self.projects_mock = self.app.client_manager.identity.projects
+        self.projects_mock = self.identity_client.projects
 
 
 class TestCreateNetworkQosPolicy(TestQosPolicy):

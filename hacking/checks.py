@@ -55,7 +55,7 @@ def assert_no_duplicated_setup(logical_line, filename):
 
     if os.path.basename(filename) != 'fakes.py':
         if re.match(
-            r'self.[a-z_]+_client = self.app.client_manager.*', logical_line
+            r'self.[a-zA-Z0-9_]+ = self.app.client_manager.*', logical_line
         ):
             yield (
                 0,
