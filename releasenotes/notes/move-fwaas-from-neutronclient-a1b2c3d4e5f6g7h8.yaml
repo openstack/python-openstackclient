@@ -1,0 +1,27 @@
+---
+features:
+  - |
+    Firewall as a Service (FWaaS) v2 commands have been migrated from
+    ``python-neutronclient`` to ``python-openstackclient``. The following
+    commands are now available natively in OSC:
+
+    * ``firewall group create``
+    * ``firewall group delete``
+    * ``firewall group list``
+    * ``firewall group set``
+    * ``firewall group show``
+    * ``firewall group unset``
+    * ``firewall group policy create``
+    * ``firewall group policy delete``
+    * ``firewall group policy add rule``
+    * ``firewall group policy remove rule``
+    * ``firewall group policy list``
+    * ``firewall group policy set``
+    * ``firewall group policy show``
+    * ``firewall group policy unset``
+    * ``firewall group rule create``
+    * ``firewall group rule delete``
+    * ``firewall group rule list``
+    * ``firewall group rule set``
+    * ``firewall group rule show``
+    * ``firewall group rule unset``
