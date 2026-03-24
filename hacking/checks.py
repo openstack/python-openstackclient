@@ -77,7 +77,7 @@ def assert_no_duplicated_setup(logical_line, filename):
 
 
 @core.flake8ext
-def assert_use_of_client_aliases(logical_line):
+def assert_use_of_client_aliases(logical_line, filename):
     """Ensure we use $service_client instead of $sdk_connection.service.
 
     O402
@@ -89,6 +89,21 @@ def assert_use_of_client_aliases(logical_line):
     ):
         service = match.group(1)
         yield (0, f"O402: prefer {service}_client to sdk_connection.{service}")
+
+    # everything from here down only affects unit tests
+    if os.path.join('openstackclient', 'tests', 'unit') not in filename:
+        return
+
+    if match := re.match(
+        r'(self\.app\.client_manager\.(compute|network|image)+\.[a-z_]+)\.(return_value|side_effect) = ',  # noqa: E501
+        logical_line,
+    ):
+        service = match.group(1)
+        yield (
+            0,
+            f"O402: prefer {service}_client to "
+            f"self.app.client_manager.{service}",
+        )
 
     if match := re.match(
         r'(self\.app\.client_manager\.(compute|network|image)+\.[a-z_]+) = mock.Mock',  # noqa: E501
