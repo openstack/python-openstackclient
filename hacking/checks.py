@@ -32,8 +32,10 @@ def assert_no_oslo(logical_line):
 
     O400
     """
-    if re.match(r'(from|import) oslo_.*', logical_line):
-        yield (0, "0400: oslo libraries should not be used in SDK projects")
+    if match := re.match(r'(from|import) (oslo_.*)', logical_line):
+        if match.group(2) == 'oslo_i18n':
+            return
+        yield (0, "O400: oslo libraries should not be used in SDK projects")
 
 
 @core.flake8ext
@@ -86,7 +88,7 @@ def assert_use_of_client_aliases(logical_line):
         logical_line,
     ):
         service = match.group(1)
-        yield (0, f"0402: prefer {service}_client to sdk_connection.{service}")
+        yield (0, f"O402: prefer {service}_client to sdk_connection.{service}")
 
     if match := re.match(
         r'(self\.app\.client_manager\.(compute|network|image)+\.[a-z_]+) = mock.Mock',  # noqa: E501
