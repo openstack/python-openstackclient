@@ -64,11 +64,9 @@ class TestCreateTapMirror(network_fakes.TestNetworkV2):
         fake_tap_mirror = sdk_fakes.generate_fake_resource(
             tap_mirror.TapMirror, **{'port_id': port_id, 'directions': 'IN=99'}
         )
-        self.app.client_manager.network.create_tap_mirror.return_value = (
-            fake_tap_mirror
-        )
-        self.app.client_manager.network.find_port.return_value = fake_port
-        self.app.client_manager.network.find_tap_mirror.side_effect = (
+        self.network_client.create_tap_mirror.return_value = fake_tap_mirror
+        self.network_client.find_port.return_value = fake_port
+        self.network_client.find_tap_mirror.side_effect = (
             lambda _, name_or_id: {'id': name_or_id}
         )
         arg_list = [
@@ -96,13 +94,10 @@ class TestCreateTapMirror(network_fakes.TestNetworkV2):
         ]
 
         parsed_args = self.check_parser(self.cmd, arg_list, verify_list)
-        self.app.client_manager.network.find_tap_mirror.return_value = (
-            fake_tap_mirror
-        )
+        self.network_client.find_tap_mirror.return_value = fake_tap_mirror
 
         columns, data = self.cmd.take_action(parsed_args)
-        create_tap_m_mock = self.app.client_manager.network.create_tap_mirror
-        create_tap_m_mock.assert_called_once_with(
+        self.network_client.create_tap_mirror.assert_called_once_with(
             **{
                 'name': fake_tap_mirror['name'],
                 'port_id': fake_tap_mirror['port_id'],
@@ -128,9 +123,7 @@ class TestListTapMirror(network_fakes.TestNetworkV2):
         fake_tap_mirrors = list(
             sdk_fakes.generate_fake_resources(tap_mirror.TapMirror, count=4)
         )
-        self.app.client_manager.network.tap_mirrors.return_value = (
-            fake_tap_mirrors
-        )
+        self.network_client.tap_mirrors.return_value = fake_tap_mirrors
 
         arg_list = []
         verify_list = []
@@ -139,7 +132,7 @@ class TestListTapMirror(network_fakes.TestNetworkV2):
 
         headers, data = self.cmd.take_action(parsed_args)
 
-        self.app.client_manager.network.tap_mirrors.assert_called_once()
+        self.network_client.tap_mirrors.assert_called_once()
         self.assertEqual(headers, list(headers_long))
         self.assertCountEqual(
             list(data),
@@ -153,7 +146,7 @@ class TestListTapMirror(network_fakes.TestNetworkV2):
 class TestDeleteTapMirror(network_fakes.TestNetworkV2):
     def setUp(self):
         super().setUp()
-        self.app.client_manager.network.find_tap_mirror.side_effect = (
+        self.network_client.find_tap_mirror.side_effect = (
             lambda name_or_id, ignore_missing: tap_mirror.TapMirror(
                 id=name_or_id
             )
@@ -177,8 +170,9 @@ class TestDeleteTapMirror(network_fakes.TestNetworkV2):
         parsed_args = self.check_parser(self.cmd, arg_list, verify_list)
         result = self.cmd.take_action(parsed_args)
 
-        mock_delete_tap_m = self.app.client_manager.network.delete_tap_mirror
-        mock_delete_tap_m.assert_called_once_with(fake_tap_mirror['id'])
+        self.network_client.delete_tap_mirror.assert_called_once_with(
+            fake_tap_mirror['id']
+        )
         self.assertIsNone(result)
 
 
@@ -196,7 +190,7 @@ class TestShowTapMirror(network_fakes.TestNetworkV2):
 
     def setUp(self):
         super().setUp()
-        self.app.client_manager.network.find_tap_mirror.side_effect = (
+        self.network_client.find_tap_mirror.side_effect = (
             lambda name_or_id, ignore_missing: tap_mirror.TapMirror(
                 id=name_or_id
             )
@@ -209,9 +203,7 @@ class TestShowTapMirror(network_fakes.TestNetworkV2):
         fake_tap_mirror = sdk_fakes.generate_fake_resource(
             tap_mirror.TapMirror
         )
-        self.app.client_manager.network.get_tap_mirror.return_value = (
-            fake_tap_mirror
-        )
+        self.network_client.get_tap_mirror.return_value = fake_tap_mirror
         arg_list = [
             fake_tap_mirror['id'],
         ]
@@ -223,8 +215,9 @@ class TestShowTapMirror(network_fakes.TestNetworkV2):
 
         headers, data = self.cmd.take_action(parsed_args)
 
-        mock_get_tap_m = self.app.client_manager.network.get_tap_mirror
-        mock_get_tap_m.assert_called_once_with(fake_tap_mirror['id'])
+        self.network_client.get_tap_mirror.assert_called_once_with(
+            fake_tap_mirror['id']
+        )
         self.assertEqual(self.columns, headers)
         fake_data = _get_data(
             fake_tap_mirror, osc_tap_mirror._get_columns(fake_tap_mirror)[1]
@@ -248,7 +241,7 @@ class TestUpdateTapMirror(network_fakes.TestNetworkV2):
     def setUp(self):
         super().setUp()
         self.cmd = osc_tap_mirror.UpdateTapMirror(self.app, None)
-        self.app.client_manager.network.find_tap_mirror.side_effect = (
+        self.network_client.find_tap_mirror.side_effect = (
             lambda name_or_id, ignore_missing: tap_mirror.TapMirror(
                 id=name_or_id
             )
@@ -262,9 +255,7 @@ class TestUpdateTapMirror(network_fakes.TestNetworkV2):
         new_tap_mirror = copy.deepcopy(fake_tap_mirror)
         new_tap_mirror['name'] = self._new_name
 
-        self.app.client_manager.network.update_tap_mirror.return_value = (
-            new_tap_mirror
-        )
+        self.network_client.update_tap_mirror.return_value = new_tap_mirror
 
         arg_list = [
             fake_tap_mirror['id'],
@@ -277,8 +268,7 @@ class TestUpdateTapMirror(network_fakes.TestNetworkV2):
         columns, data = self.cmd.take_action(parsed_args)
         attrs = {'name': self._new_name}
 
-        mock_update_tap_m = self.app.client_manager.network.update_tap_mirror
-        mock_update_tap_m.assert_called_once_with(
+        self.network_client.update_tap_mirror.assert_called_once_with(
             fake_tap_mirror['id'], **attrs
         )
         self.assertEqual(self.columns, columns)

@@ -1608,8 +1608,8 @@ class TestServerCreate(TestServer):
                 port_port2.id: port_port2,
             }[name_or_id]
 
-        self.app.client_manager.network.find_network.side_effect = find_network
-        self.app.client_manager.network.find_port.side_effect = find_port
+        self.network_client.find_network.side_effect = find_network
+        self.network_client.find_port.side_effect = find_port
 
         arglist = [
             '--image',
@@ -1728,7 +1728,7 @@ class TestServerCreate(TestServer):
         self.set_compute_api_version('2.43')
 
         network = network_fakes.create_one_network()
-        self.app.client_manager.network.find_network.return_value = network
+        self.network_client.find_network.return_value = network
 
         arglist = [
             '--image',

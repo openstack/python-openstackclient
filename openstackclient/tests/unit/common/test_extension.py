@@ -294,7 +294,7 @@ class TestExtensionShow(TestExtension):
 
         self.cmd = extension.ShowExtension(self.app, None)
 
-        self.app.client_manager.network.find_extension.return_value = (
+        self.network_client.find_extension.return_value = (
             self.extension_details
         )
 
@@ -322,7 +322,7 @@ class TestExtensionShow(TestExtension):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.app.client_manager.network.find_extension.assert_called_with(
+        self.network_client.find_extension.assert_called_with(
             self.extension_details.alias, ignore_missing=False
         )
 

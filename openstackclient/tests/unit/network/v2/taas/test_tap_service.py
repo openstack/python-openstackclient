@@ -65,11 +65,9 @@ class TestCreateTapService(network_fakes.TestNetworkV2):
         fake_tap_service = sdk_fakes.generate_fake_resource(
             tap_service.TapService, **{'port_id': port_id}
         )
-        self.app.client_manager.network.create_tap_service.return_value = (
-            fake_tap_service
-        )
-        self.app.client_manager.network.find_port.return_value = fake_port
-        self.app.client_manager.network.find_tap_service.side_effect = (
+        self.network_client.create_tap_service.return_value = fake_tap_service
+        self.network_client.find_port.return_value = fake_port
+        self.network_client.find_tap_service.side_effect = (
             lambda _, name_or_id: {'id': name_or_id}
         )
         arg_list = [
@@ -85,13 +83,10 @@ class TestCreateTapService(network_fakes.TestNetworkV2):
         ]
 
         parsed_args = self.check_parser(self.cmd, arg_list, verify_list)
-        self.app.client_manager.network.find_tap_service.return_value = (
-            fake_tap_service
-        )
+        self.network_client.find_tap_service.return_value = fake_tap_service
 
         columns, data = self.cmd.take_action(parsed_args)
-        create_tap_s_mock = self.app.client_manager.network.create_tap_service
-        create_tap_s_mock.assert_called_once_with(
+        self.network_client.create_tap_service.assert_called_once_with(
             **{
                 'name': fake_tap_service['name'],
                 'port_id': fake_tap_service['port_id'],
@@ -114,9 +109,7 @@ class TestListTapService(network_fakes.TestNetworkV2):
         fake_tap_services = list(
             sdk_fakes.generate_fake_resources(tap_service.TapService, count=4)
         )
-        self.app.client_manager.network.tap_services.return_value = (
-            fake_tap_services
-        )
+        self.network_client.tap_services.return_value = fake_tap_services
 
         arg_list = []
         verify_list = []
@@ -125,7 +118,7 @@ class TestListTapService(network_fakes.TestNetworkV2):
 
         headers, data = self.cmd.take_action(parsed_args)
 
-        self.app.client_manager.network.tap_services.assert_called_once()
+        self.network_client.tap_services.assert_called_once()
         self.assertEqual(headers, list(headers_long))
         self.assertCountEqual(
             list(data),
@@ -139,7 +132,7 @@ class TestListTapService(network_fakes.TestNetworkV2):
 class TestDeleteTapService(network_fakes.TestNetworkV2):
     def setUp(self):
         super().setUp()
-        self.app.client_manager.network.find_tap_service.side_effect = (
+        self.network_client.find_tap_service.side_effect = (
             lambda name_or_id, ignore_missing: tap_service.TapService(
                 id=name_or_id
             )
@@ -163,8 +156,9 @@ class TestDeleteTapService(network_fakes.TestNetworkV2):
         parsed_args = self.check_parser(self.cmd, arg_list, verify_list)
         result = self.cmd.take_action(parsed_args)
 
-        mock_delete_tap_s = self.app.client_manager.network.delete_tap_service
-        mock_delete_tap_s.assert_called_once_with(fake_tap_service['id'])
+        self.network_client.delete_tap_service.assert_called_once_with(
+            fake_tap_service['id']
+        )
         self.assertIsNone(result)
 
 
@@ -180,7 +174,7 @@ class TestShowTapService(network_fakes.TestNetworkV2):
 
     def setUp(self):
         super().setUp()
-        self.app.client_manager.network.find_tap_service.side_effect = (
+        self.network_client.find_tap_service.side_effect = (
             lambda name_or_id, ignore_missing: tap_service.TapService(
                 id=name_or_id
             )
@@ -193,9 +187,7 @@ class TestShowTapService(network_fakes.TestNetworkV2):
         fake_tap_service = sdk_fakes.generate_fake_resource(
             tap_service.TapService
         )
-        self.app.client_manager.network.get_tap_service.return_value = (
-            fake_tap_service
-        )
+        self.network_client.get_tap_service.return_value = fake_tap_service
         arg_list = [
             fake_tap_service['id'],
         ]
@@ -207,8 +199,9 @@ class TestShowTapService(network_fakes.TestNetworkV2):
 
         headers, data = self.cmd.take_action(parsed_args)
 
-        mock_get_tap_s = self.app.client_manager.network.get_tap_service
-        mock_get_tap_s.assert_called_once_with(fake_tap_service['id'])
+        self.network_client.get_tap_service.assert_called_once_with(
+            fake_tap_service['id']
+        )
         self.assertEqual(self.columns, headers)
         fake_data = _get_data(
             fake_tap_service, osc_tap_service._get_columns(fake_tap_service)[1]
@@ -231,7 +224,7 @@ class TestUpdateTapService(network_fakes.TestNetworkV2):
     def setUp(self):
         super().setUp()
         self.cmd = osc_tap_service.UpdateTapService(self.app, None)
-        self.app.client_manager.network.find_tap_service.side_effect = (
+        self.network_client.find_tap_service.side_effect = (
             lambda name_or_id, ignore_missing: tap_service.TapService(
                 id=name_or_id
             )
@@ -245,9 +238,7 @@ class TestUpdateTapService(network_fakes.TestNetworkV2):
         new_tap_service = copy.deepcopy(fake_tap_service)
         new_tap_service['name'] = self._new_name
 
-        self.app.client_manager.network.update_tap_service.return_value = (
-            new_tap_service
-        )
+        self.network_client.update_tap_service.return_value = new_tap_service
 
         arg_list = [
             fake_tap_service['id'],
@@ -260,8 +251,7 @@ class TestUpdateTapService(network_fakes.TestNetworkV2):
         columns, data = self.cmd.take_action(parsed_args)
         attrs = {'name': self._new_name}
 
-        mock_update_tap_s = self.app.client_manager.network.update_tap_service
-        mock_update_tap_s.assert_called_once_with(
+        self.network_client.update_tap_service.assert_called_once_with(
             fake_tap_service['id'], **attrs
         )
         self.assertEqual(self.columns, columns)

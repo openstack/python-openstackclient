@@ -77,13 +77,9 @@ class TestCreateTapFlow(network_fakes.TestNetworkV2):
                 'direction': 'BOTH',
             },
         )
-        self.app.client_manager.network.create_tap_flow.return_value = (
-            fake_tap_flow
-        )
-        self.app.client_manager.network.find_port.return_value = fake_port
-        self.app.client_manager.network.find_tap_service.return_value = (
-            fake_tap_service
-        )
+        self.network_client.create_tap_flow.return_value = fake_tap_flow
+        self.network_client.find_port.return_value = fake_port
+        self.network_client.find_tap_service.return_value = fake_tap_service
         arg_list = [
             '--name',
             fake_tap_flow['name'],
@@ -103,8 +99,7 @@ class TestCreateTapFlow(network_fakes.TestNetworkV2):
 
         parsed_args = self.check_parser(self.cmd, arg_list, verify_list)
         columns, data = self.cmd.take_action(parsed_args)
-        mock_create_t_f = self.app.client_manager.network.create_tap_flow
-        mock_create_t_f.assert_called_once_with(
+        self.network_client.create_tap_flow.assert_called_once_with(
             **{
                 'name': fake_tap_flow['name'],
                 'source_port': fake_tap_flow['source_port'],
@@ -129,7 +124,7 @@ class TestListTapFlow(network_fakes.TestNetworkV2):
         fake_tap_flows = list(
             sdk_fakes.generate_fake_resources(_tap_flow.TapFlow, count=2)
         )
-        self.app.client_manager.network.tap_flows.return_value = fake_tap_flows
+        self.network_client.tap_flows.return_value = fake_tap_flows
         arg_list = []
         verify_list = []
 
@@ -137,7 +132,7 @@ class TestListTapFlow(network_fakes.TestNetworkV2):
 
         headers, data = self.cmd.take_action(parsed_args)
 
-        self.app.client_manager.network.tap_flows.assert_called_once()
+        self.network_client.tap_flows.assert_called_once()
         self.assertEqual(headers, list(headers_long))
         self.assertCountEqual(
             list(data),
@@ -151,7 +146,7 @@ class TestListTapFlow(network_fakes.TestNetworkV2):
 class TestDeleteTapFlow(network_fakes.TestNetworkV2):
     def setUp(self):
         super().setUp()
-        self.app.client_manager.network.find_tap_flow.side_effect = (
+        self.network_client.find_tap_flow.side_effect = (
             lambda name_or_id, ignore_missing: _tap_flow.TapFlow(id=name_or_id)
         )
         self.cmd = osc_tap_flow.DeleteTapFlow(self.app, None)
@@ -171,8 +166,9 @@ class TestDeleteTapFlow(network_fakes.TestNetworkV2):
 
         result = self.cmd.take_action(parsed_args)
 
-        mock_delete_tap_flow = self.app.client_manager.network.delete_tap_flow
-        mock_delete_tap_flow.assert_called_once_with(fake_tap_flow['id'])
+        self.network_client.delete_tap_flow.assert_called_once_with(
+            fake_tap_flow['id']
+        )
         self.assertIsNone(result)
 
 
@@ -190,7 +186,7 @@ class TestShowTapFlow(network_fakes.TestNetworkV2):
 
     def setUp(self):
         super().setUp()
-        self.app.client_manager.network.find_tap_flow.side_effect = (
+        self.network_client.find_tap_flow.side_effect = (
             lambda name_or_id, ignore_missing: _tap_flow.TapFlow(id=name_or_id)
         )
         self.cmd = osc_tap_flow.ShowTapFlow(self.app, None)
@@ -198,9 +194,7 @@ class TestShowTapFlow(network_fakes.TestNetworkV2):
     def test_show_tap_flow(self):
         """Test Show tap flow."""
         fake_tap_flow = sdk_fakes.generate_fake_resource(_tap_flow.TapFlow)
-        self.app.client_manager.network.get_tap_flow.return_value = (
-            fake_tap_flow
-        )
+        self.network_client.get_tap_flow.return_value = fake_tap_flow
         arg_list = [
             fake_tap_flow['id'],
         ]
@@ -212,7 +206,7 @@ class TestShowTapFlow(network_fakes.TestNetworkV2):
 
         headers, data = self.cmd.take_action(parsed_args)
 
-        self.app.client_manager.network.get_tap_flow.assert_called_once_with(
+        self.network_client.get_tap_flow.assert_called_once_with(
             fake_tap_flow['id']
         )
         self.assertEqual(self.columns, headers)
@@ -245,7 +239,7 @@ class TestUpdateTapFlow(network_fakes.TestNetworkV2):
     def setUp(self):
         super().setUp()
         self.cmd = osc_tap_flow.UpdateTapFlow(self.app, None)
-        self.app.client_manager.network.find_tap_flow.side_effect = (
+        self.network_client.find_tap_flow.side_effect = (
             lambda name_or_id, ignore_missing: _tap_flow.TapFlow(id=name_or_id)
         )
 
@@ -255,9 +249,7 @@ class TestUpdateTapFlow(network_fakes.TestNetworkV2):
         new_tap_flow = copy.deepcopy(fake_tap_flow)
         new_tap_flow['name'] = self._new_name
 
-        self.app.client_manager.network.update_tap_flow.return_value = (
-            new_tap_flow
-        )
+        self.network_client.update_tap_flow.return_value = new_tap_flow
 
         arg_list = [
             fake_tap_flow['id'],
@@ -270,7 +262,8 @@ class TestUpdateTapFlow(network_fakes.TestNetworkV2):
         columns, data = self.cmd.take_action(parsed_args)
         attrs = {'name': self._new_name}
 
-        mock_update_t_f = self.app.client_manager.network.update_tap_flow
-        mock_update_t_f.assert_called_once_with(new_tap_flow['id'], **attrs)
+        self.network_client.update_tap_flow.assert_called_once_with(
+            new_tap_flow['id'], **attrs
+        )
         self.assertEqual(self.columns, columns)
         self.assertEqual(_get_data(new_tap_flow, self.columns), data)
