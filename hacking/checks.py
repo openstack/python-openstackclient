@@ -30,7 +30,10 @@ Guidelines for writing new hacking checks
 def assert_no_oslo(logical_line):
     """Check for use of oslo libraries.
 
-    O400
+    Okay: import os
+    Okay: from os import path
+    O400: import oslo_messaging
+    O400: from oslo_log import log
     """
     if match := re.match(r'(from|import) (oslo_.*)', logical_line):
         if match.group(2) == 'oslo_i18n':
@@ -42,7 +45,13 @@ def assert_no_oslo(logical_line):
 def assert_no_duplicated_setup(logical_line, filename):
     """Check for use of various unnecessary test duplications.
 
-    O401
+    This check only applies to files under openstackclient/tests/unit/.
+
+    Okay: self.app = fakes.FakeShell()
+    Okay: self.app.client_manager.auth_ref = mock.Mock()
+    O401: self.app = Namespace(self.app, self.namespace)
+    O401: self.network_client = self.app.client_manager.network
+    O401: self.app.client_manager.network = mock.Mock()
     """
     if os.path.join('openstackclient', 'tests', 'unit') not in filename:
         return
@@ -80,7 +89,14 @@ def assert_no_duplicated_setup(logical_line, filename):
 def assert_use_of_client_aliases(logical_line, filename):
     """Ensure we use $service_client instead of $sdk_connection.service.
 
-    O402
+    Okay: self.compute_client.find_server(foo)
+    O402: self.app.client_manager.sdk_connnection.compute.find_server(foo)
+
+    The following checks only apply to files under openstackclient/tests/unit/:
+
+    O402: self.app.client_manager.compute.find_server.return_value = server
+    O402: self.app.client_manager.compute.find_server = mock.Mock()
+    O402: self.compute_client.find_server = mock.Mock()
     """
     # we should expand the list of services as we drop legacy clients
     if match := re.match(
@@ -205,7 +221,9 @@ def assert_find_ignore_missing_kwargs(logical_line, filename):
 def assert_use_of_osc_command(logical_line, filename):
     """Ensure we use openstackclient.command instead of osc_lib.command.
 
-    O404
+    Okay: from openstackclient.command import command
+    Okay: import openstackclient.command
+    O404: from osc_lib.command import command
     """
     if filename == 'openstackclient/command.py':
         return
