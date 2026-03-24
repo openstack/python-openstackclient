@@ -155,6 +155,11 @@ class SDKProxyFindChecker(ast.NodeVisitor):
                 and node.func.value.id.endswith('client')
             )
             or (
+                # handle calls like 'self.compute_client.find_server'
+                isinstance(node.func.value, ast.Attribute)
+                and node.func.value.attr.endswith('_client')
+            )
+            or (
                 # handle calls like 'self.app.client_manager.image.find_image'
                 isinstance(node.func.value, ast.Attribute)
                 and node.func.value.attr
