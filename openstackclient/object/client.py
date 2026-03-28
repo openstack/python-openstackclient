@@ -15,6 +15,9 @@
 
 """Object client"""
 
+import argparse
+from typing import Any
+
 from osc_lib import utils
 
 from openstackclient.api import object_store_v1
@@ -26,7 +29,7 @@ API_NAME = 'object_store'
 API_VERSIONS = ('1',)
 
 
-def make_client(instance):
+def make_client(instance: Any) -> object_store_v1.APIv1:
     """Returns an object-store API client."""
 
     endpoint = instance.get_endpoint_for_service_type(
@@ -43,7 +46,9 @@ def make_client(instance):
     return client
 
 
-def build_option_parser(parser):
+def build_option_parser(
+    parser: argparse.ArgumentParser,
+) -> argparse.ArgumentParser:
     """Hook to add global options"""
     parser.add_argument(
         '--os-object-api-version',

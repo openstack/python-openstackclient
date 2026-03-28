@@ -15,7 +15,10 @@
 
 """Object v1 action implementations"""
 
+import argparse
 import logging
+from collections.abc import Iterable, Sequence
+from typing import Any
 
 from osc_lib.cli import format_columns
 from osc_lib.cli import parseractions
@@ -33,7 +36,7 @@ LOG = logging.getLogger(__name__)
 class CreateObject(command.Lister):
     _description = _("Upload object to container")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'container',
@@ -56,7 +59,9 @@ class CreateObject(command.Lister):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[tuple[Any, ...]]]:
         if parsed_args.name:
             if len(parsed_args.objects) > 1:
                 msg = _(
@@ -98,7 +103,7 @@ class CreateObject(command.Lister):
 class DeleteObject(command.Command):
     _description = _("Delete object from container")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'container',
@@ -113,7 +118,7 @@ class DeleteObject(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         for obj in parsed_args.objects:
             self.app.client_manager.object_store.object_delete(
                 container=parsed_args.container,
@@ -124,7 +129,7 @@ class DeleteObject(command.Command):
 class ListObject(command.Lister):
     _description = _("List objects")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             "container",
@@ -161,7 +166,9 @@ class ListObject(command.Lister):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[tuple[Any, ...]]]:
         columns: tuple[str, ...] = ('Name',)
         if parsed_args.long:
             columns += ('Bytes', 'Hash', 'Content Type', 'Last Modified')
@@ -200,7 +207,7 @@ class ListObject(command.Lister):
 class SaveObject(command.Command):
     _description = _("Save object locally")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             "--file",
@@ -222,7 +229,7 @@ class SaveObject(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         self.app.client_manager.object_store.object_save(
             container=parsed_args.container,
             object=parsed_args.object,
@@ -233,7 +240,7 @@ class SaveObject(command.Command):
 class SetObject(command.Command):
     _description = _("Set object properties")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'container',
@@ -257,7 +264,7 @@ class SetObject(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         self.app.client_manager.object_store.object_set(
             parsed_args.container,
             parsed_args.object,
@@ -268,7 +275,7 @@ class SetObject(command.Command):
 class ShowObject(command.ShowOne):
     _description = _("Display object details")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'container',
@@ -282,7 +289,9 @@ class ShowObject(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         data = self.app.client_manager.object_store.object_show(
             container=parsed_args.container,
             object=parsed_args.object,
@@ -290,13 +299,14 @@ class ShowObject(command.ShowOne):
         if 'properties' in data:
             data['properties'] = format_columns.DictColumn(data['properties'])
 
-        return zip(*sorted(data.items()))
+        col_headers, col_data = zip(*sorted(data.items()))
+        return col_headers, col_data
 
 
 class UnsetObject(command.Command):
     _description = _("Unset object properties")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'container',
@@ -321,7 +331,7 @@ class UnsetObject(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         self.app.client_manager.object_store.object_unset(
             parsed_args.container,
             parsed_args.object,

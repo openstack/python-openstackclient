@@ -13,6 +13,10 @@
 
 """Account v1 action implementations"""
 
+import argparse
+from collections.abc import Iterable, Sequence
+from typing import Any
+
 from osc_lib.cli import format_columns
 from osc_lib.cli import parseractions
 
@@ -23,7 +27,7 @@ from openstackclient.i18n import _
 class SetAccount(command.Command):
     _description = _("Set account properties")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             "--property",
@@ -37,7 +41,7 @@ class SetAccount(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         self.app.client_manager.object_store.account_set(
             properties=parsed_args.property,
         )
@@ -46,19 +50,22 @@ class SetAccount(command.Command):
 class ShowAccount(command.ShowOne):
     _description = _("Display account details")
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         data = self.app.client_manager.object_store.account_show()
         if 'properties' in data:
             data['properties'] = format_columns.DictColumn(
                 data.pop('properties')
             )
-        return zip(*sorted(data.items()))
+        col_headers, col_data = zip(*sorted(data.items()))
+        return col_headers, col_data
 
 
 class UnsetAccount(command.Command):
     _description = _("Unset account properties")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             '--property',
@@ -73,7 +80,7 @@ class UnsetAccount(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         self.app.client_manager.object_store.account_unset(
             properties=parsed_args.property,
         )
