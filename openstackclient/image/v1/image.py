@@ -19,6 +19,7 @@ import argparse
 import logging
 import os
 import sys
+from collections.abc import Iterable, Sequence
 from typing import Any
 
 from cliff import columns as cliff_columns
@@ -51,7 +52,7 @@ DISK_CHOICES = [
 LOG = logging.getLogger(__name__)
 
 
-def _get_columns(item):
+def _get_columns(item: Any) -> tuple[tuple[str, ...], tuple[str, ...]]:
     column_map = {'is_protected': 'protected', 'owner_id': 'owner'}
     hidden_columns = [
         'location',
@@ -69,7 +70,7 @@ def _get_columns(item):
 
 
 class HumanReadableSizeColumn(cliff_columns.FormattableColumn[int]):
-    def human_readable(self):
+    def human_readable(self) -> str:
         """Return a formatted visibility string
 
         :rtype:
@@ -83,7 +84,7 @@ class HumanReadableSizeColumn(cliff_columns.FormattableColumn[int]):
 
 
 class VisibilityColumn(cliff_columns.FormattableColumn[bool]):
-    def human_readable(self):
+    def human_readable(self) -> str:
         """Return a formatted visibility string
 
         :rtype:
@@ -99,7 +100,7 @@ class VisibilityColumn(cliff_columns.FormattableColumn[bool]):
 class CreateImage(command.ShowOne):
     _description = _("Create/upload an image")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             "name",
@@ -239,7 +240,9 @@ class CreateImage(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         image_client = self.app.client_manager.image
 
         # Build an attribute dict from the parsed args, only include
@@ -351,13 +354,15 @@ class CreateImage(command.ShowOne):
             info['properties'] = format_columns.DictColumn(
                 info.get('properties', {})
             )
-            return zip(*sorted(info.items()))
+            col_headers, col_data = zip(*sorted(info.items()))
+            return col_headers, col_data
+        return ((), ())
 
 
 class DeleteImage(command.Command):
     _description = _("Delete image(s)")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             "images",
@@ -367,7 +372,7 @@ class DeleteImage(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         result = 0
         image_client = self.app.client_manager.image
         for image in parsed_args.images:
@@ -396,7 +401,7 @@ class DeleteImage(command.Command):
 class ListImage(command.Lister):
     _description = _("List available images")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         public_group = parser.add_mutually_exclusive_group()
         public_group.add_argument(
@@ -453,7 +458,9 @@ class ListImage(command.Lister):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[tuple[Any, ...]]]:
         image_client = self.app.client_manager.image
 
         kwargs = {}
@@ -527,7 +534,7 @@ class ListImage(command.Lister):
 class SaveImage(command.Command):
     _description = _("Save an image locally")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             "--chunk-size",
@@ -551,7 +558,7 @@ class SaveImage(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         image_client = self.app.client_manager.image
         image = image_client.find_image(
             parsed_args.image, ignore_missing=False
@@ -572,7 +579,7 @@ class SaveImage(command.Command):
 class SetImage(command.Command):
     _description = _("Set image properties")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             "image",
@@ -702,7 +709,7 @@ class SetImage(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         image_client = self.app.client_manager.image
 
         kwargs = {}
@@ -819,7 +826,7 @@ class SetImage(command.Command):
 class ShowImage(command.ShowOne):
     _description = _("Display image details")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             "--human-readable",
@@ -834,7 +841,9 @@ class ShowImage(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         image_client = self.app.client_manager.image
         image = image_client.find_image(
             parsed_args.image, ignore_missing=False

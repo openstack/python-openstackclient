@@ -12,7 +12,9 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 
+import argparse
 import logging
+from typing import Any
 
 from osc_lib import utils
 
@@ -27,7 +29,7 @@ API_NAME = 'image'
 API_VERSIONS = ('1', '2')
 
 
-def make_client(instance):
+def make_client(instance: Any) -> Any:
     """Returns an image service client."""
     LOG.debug(
         'Image client initialized using OpenStack SDK: %s',
@@ -36,7 +38,9 @@ def make_client(instance):
     return instance.sdk_connection.image
 
 
-def build_option_parser(parser):
+def build_option_parser(
+    parser: argparse.ArgumentParser,
+) -> argparse.ArgumentParser:
     """Hook to add global options"""
     parser.add_argument(
         '--os-image-api-version',
@@ -48,6 +52,6 @@ def build_option_parser(parser):
     return parser
 
 
-def check_api_version(check_version):
+def check_api_version(check_version: str) -> bool:
     # SDK supports auto-negotiation for us: always return True
     return True

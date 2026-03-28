@@ -17,6 +17,7 @@
 
 import argparse
 from base64 import b64encode
+from collections.abc import Iterable, Sequence
 import copy
 import logging
 import os
@@ -73,7 +74,7 @@ MEMBER_STATUS_CHOICES = ["accepted", "pending", "rejected", "all"]
 LOG = logging.getLogger(__name__)
 
 
-def _format_image(image, human_readable=False):
+def _format_image(image: Any, human_readable: bool = False) -> dict[str, Any]:
     """Format an image to make it more consistent with OSC operations."""
 
     info = {}
@@ -137,7 +138,7 @@ _formatters = {
 }
 
 
-def _get_member_columns(item):
+def _get_member_columns(item: Any) -> tuple[tuple[str, ...], tuple[str, ...]]:
     column_map = {'image_id': 'image_id'}
     hidden_columns = ['id', 'location', 'name']
     return utils.get_osc_show_columns_for_sdk_resource(
@@ -147,7 +148,7 @@ def _get_member_columns(item):
     )
 
 
-def get_data_from_stdin():
+def get_data_from_stdin() -> Any:
     # distinguish cases where:
     # (1) stdin is not valid (as in cron jobs):
     #    openstack ... <&-
@@ -177,7 +178,7 @@ def get_data_from_stdin():
         return None
 
 
-def _add_is_protected_args(parser):
+def _add_is_protected_args(parser: argparse.ArgumentParser) -> None:
     protected_group = parser.add_mutually_exclusive_group()
     protected_group.add_argument(
         "--protected",
@@ -195,7 +196,7 @@ def _add_is_protected_args(parser):
     )
 
 
-def _add_visibility_args(parser):
+def _add_visibility_args(parser: argparse.ArgumentParser) -> None:
     public_group = parser.add_mutually_exclusive_group()
     public_group.add_argument(
         "--public",
@@ -241,7 +242,7 @@ def _add_visibility_args(parser):
 class AddProjectToImage(command.ShowOne):
     _description = _("Associate project with image")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             "image",
@@ -256,7 +257,9 @@ class AddProjectToImage(command.ShowOne):
         identity_common.add_project_domain_option_to_parser(parser)
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         image_client = self.app.client_manager.image
         identity_client = self.app.client_manager.identity
 
@@ -287,7 +290,7 @@ class CreateImage(command.ShowOne):
 
     deadopts = ('size', 'location', 'copy-from', 'checksum', 'store')
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         # TODO(bunting): There are additional arguments that v1 supported
         # that v2 either doesn't support or supports weirdly.
@@ -440,7 +443,9 @@ class CreateImage(command.ShowOne):
             )
         return parser
 
-    def _take_action_image(self, parsed_args):
+    def _take_action_image(
+        self, parsed_args: argparse.Namespace
+    ) -> dict[str, Any]:
         identity_client = self.app.client_manager.identity
         image_client = self.app.client_manager.image
 
@@ -592,7 +597,9 @@ class CreateImage(command.ShowOne):
         image = image_client.get_image(image)
         return _format_image(image)
 
-    def _take_action_volume(self, parsed_args):
+    def _take_action_volume(
+        self, parsed_args: argparse.Namespace
+    ) -> dict[str, Any]:
         volume_client = sdk_utils.ensure_service_version(
             self.app.client_manager.sdk_connection.volume, '3'
         )
@@ -645,7 +652,7 @@ class CreateImage(command.ShowOne):
             kwargs['visibility'] = parsed_args.visibility or 'private'
             kwargs['protected'] = parsed_args.is_protected or False
 
-        response = volume_client.upload_volume_to_image(
+        response: dict[str, Any] = volume_client.upload_volume_to_image(
             source_volume.id,
             parsed_args.name,
             force=parsed_args.force,
@@ -661,7 +668,9 @@ class CreateImage(command.ShowOne):
 
         return info
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         for deadopt in self.deadopts:
             if getattr(parsed_args, deadopt.replace('-', '_'), None):
                 msg = _(
@@ -675,13 +684,14 @@ class CreateImage(command.ShowOne):
         else:
             info = self._take_action_image(parsed_args)
 
-        return zip(*sorted(info.items()))
+        col_headers, col_data = zip(*sorted(info.items()))
+        return col_headers, col_data
 
 
 class DeleteImage(command.Command):
     _description = _("Delete image(s)")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             "images",
@@ -698,7 +708,7 @@ class DeleteImage(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         result = 0
         image_client = self.app.client_manager.image
         for image in parsed_args.images:
@@ -734,7 +744,7 @@ class DeleteImage(command.Command):
 class ListImage(command.Lister):
     _description = _("List available images")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         public_group = parser.add_mutually_exclusive_group()
         public_group.add_argument(
@@ -863,7 +873,9 @@ class ListImage(command.Lister):
         pagination.add_marker_pagination_option_to_parser(parser)
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
         identity_client = self.app.client_manager.identity
         image_client = self.app.client_manager.image
 
@@ -964,7 +976,7 @@ class ListImage(command.Lister):
 class ListImageProjects(command.Lister):
     _description = _("List projects associated with image")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             "image",
@@ -974,7 +986,9 @@ class ListImageProjects(command.Lister):
         identity_common.add_project_domain_option_to_parser(parser)
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
         image_client = self.app.client_manager.image
         columns: tuple[str, ...] = ("Image ID", "Member ID", "Status")
 
@@ -1000,7 +1014,7 @@ class ListImageProjects(command.Lister):
 class RemoveProjectImage(command.Command):
     _description = _("Disassociate project with image")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             "image",
@@ -1015,7 +1029,7 @@ class RemoveProjectImage(command.Command):
         identity_common.add_project_domain_option_to_parser(parser)
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         image_client = self.app.client_manager.image
         identity_client = self.app.client_manager.identity
 
@@ -1036,7 +1050,7 @@ class RemoveProjectImage(command.Command):
 class ShowProjectImage(command.ShowOne):
     _description = _("Show a particular project associated with image")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             "image",
@@ -1051,7 +1065,9 @@ class ShowProjectImage(command.ShowOne):
         identity_common.add_project_domain_option_to_parser(parser)
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         image_client = self.app.client_manager.image
 
         image = image_client.find_image(
@@ -1073,7 +1089,7 @@ class ShowProjectImage(command.ShowOne):
 class SaveImage(command.Command):
     _description = _("Save an image locally")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             "--chunk-size",
@@ -1098,7 +1114,7 @@ class SaveImage(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         image_client = self.app.client_manager.image
         image = image_client.find_image(
             parsed_args.image,
@@ -1122,7 +1138,7 @@ class SetImage(command.Command):
 
     deadopts = ('visibility',)
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         # TODO(bunting): There are additional arguments that v1 supported
         # --size - does not exist in v2
@@ -1298,7 +1314,7 @@ class SetImage(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         identity_client = self.app.client_manager.identity
         image_client = self.app.client_manager.image
 
@@ -1423,7 +1439,7 @@ class SetImage(command.Command):
 class ShowImage(command.ShowOne):
     _description = _("Display image details")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             "--human-readable",
@@ -1438,7 +1454,9 @@ class ShowImage(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         image_client = self.app.client_manager.image
 
         image = image_client.find_image(
@@ -1447,13 +1465,14 @@ class ShowImage(command.ShowOne):
         )
 
         info = _format_image(image, parsed_args.human_readable)
-        return zip(*sorted(info.items()))
+        col_headers, col_data = zip(*sorted(info.items()))
+        return col_headers, col_data
 
 
 class UnsetImage(command.Command):
     _description = _("Unset image tags and properties")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             "image",
@@ -1484,7 +1503,7 @@ class UnsetImage(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         image_client = self.app.client_manager.image
         image = image_client.find_image(
             parsed_args.image,
@@ -1571,7 +1590,7 @@ class StageImage(command.Command):
         "(Glance 16.0.0 (Queens))"
     )
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
 
         parser.add_argument(
@@ -1601,7 +1620,7 @@ class StageImage(command.Command):
 
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         image_client = self.app.client_manager.image
 
         image = image_client.find_image(
@@ -1647,7 +1666,7 @@ class ImportImage(command.ShowOne):
         "(Glance 16.0.0 (Queens))"
     )
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
 
         parser.add_argument(
@@ -1758,7 +1777,9 @@ class ImportImage(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         image_client = self.app.client_manager.image
 
         try:
@@ -1888,7 +1909,8 @@ class ImportImage(command.ShowOne):
         )
 
         info = _format_image(image)
-        return zip(*sorted(info.items()))
+        col_headers, col_data = zip(*sorted(info.items()))
+        return col_headers, col_data
 
 
 class StoresInfo(command.Lister):
@@ -1896,7 +1918,7 @@ class StoresInfo(command.Lister):
         "Get available backends (only valid with Multi-Backend support)"
     )
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             "--detail",
@@ -1909,7 +1931,9 @@ class StoresInfo(command.Lister):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
         image_client = self.app.client_manager.image
         try:
             columns: tuple[str, ...] = ("id", "description", "is_default")

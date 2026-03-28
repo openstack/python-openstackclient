@@ -10,7 +10,10 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 
+import argparse
+from collections.abc import Iterable, Sequence
 import logging
+from typing import Any
 
 from osc_lib import exceptions
 from osc_lib import utils
@@ -21,7 +24,7 @@ from openstackclient.i18n import _
 LOG = logging.getLogger(__name__)
 
 
-def _get_columns(item):
+def _get_columns(item: Any) -> tuple[tuple[str, ...], tuple[str, ...]]:
     hidden_columns = ['location']
     return utils.get_osc_show_columns_for_sdk_resource(
         item, {}, hidden_columns
@@ -31,7 +34,7 @@ def _get_columns(item):
 class CreateMetadefResourceTypeAssociation(command.ShowOne):
     _description = _("Create metadef resource type association")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             "namespace",
@@ -56,7 +59,9 @@ class CreateMetadefResourceTypeAssociation(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         image_client = self.app.client_manager.image
         kwargs = {}
 
@@ -79,7 +84,7 @@ class CreateMetadefResourceTypeAssociation(command.ShowOne):
 class DeleteMetadefResourceTypeAssociation(command.Command):
     _description = _("Delete metadef resource type association")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             "metadef_namespace",
@@ -107,7 +112,7 @@ class DeleteMetadefResourceTypeAssociation(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         image_client = self.app.client_manager.image
 
         result = 0
@@ -160,7 +165,7 @@ class DeleteMetadefResourceTypeAssociation(command.Command):
 class ListMetadefResourceTypeAssociations(command.Lister):
     _description = _("List metadef resource type associations")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             "metadef_namespace",
@@ -169,7 +174,9 @@ class ListMetadefResourceTypeAssociations(command.Lister):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         image_client = self.app.client_manager.image
         data = image_client.metadef_resource_type_associations(
             parsed_args.metadef_namespace,

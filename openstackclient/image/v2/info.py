@@ -11,6 +11,10 @@
 # under the License.
 
 
+import argparse
+from collections.abc import Iterable, Sequence
+from typing import Any
+
 from osc_lib.cli import format_columns
 
 from openstackclient import command
@@ -20,7 +24,9 @@ from openstackclient.i18n import _
 class ImportInfo(command.ShowOne):
     _description = _("Show available import methods")
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         image_client = self.app.client_manager.image
 
         import_info = image_client.get_import_info()

@@ -12,6 +12,10 @@
 
 """Image V2 Action Implementations"""
 
+import argparse
+from collections.abc import Iterable, Sequence
+from typing import Any
+
 from osc_lib import utils
 
 from openstackclient import command
@@ -21,7 +25,9 @@ from openstackclient.i18n import _
 class ListMetadefResourceTypes(command.Lister):
     _description = _("List metadef resource types")
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[tuple[Any, ...]]]:
         image_client = self.app.client_manager.image
         data = image_client.metadef_resource_types()
         columns = ['Name']

@@ -12,8 +12,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import argparse
+from collections.abc import Iterable, Sequence
 import json
 import logging
+from typing import Any
 
 from osc_lib import exceptions
 from osc_lib import utils
@@ -25,7 +28,7 @@ from openstackclient.i18n import _
 LOG = logging.getLogger(__name__)
 
 
-def _format_property(prop):
+def _format_property(prop: Any) -> dict[str, Any]:
     prop = prop.to_dict(ignore_none=True, original_names=True)
     return {
         key: prop[key]
@@ -57,7 +60,7 @@ def _format_property(prop):
 class CreateMetadefProperty(command.ShowOne):
     _description = _("Create a metadef property")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             "--name",
@@ -85,7 +88,9 @@ class CreateMetadefProperty(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         image_client = self.app.client_manager.image
 
         kwargs = {
@@ -108,13 +113,14 @@ class CreateMetadefProperty(command.ShowOne):
         )
         info = _format_property(data)
 
-        return zip(*sorted(info.items()))
+        col_headers, col_data = zip(*sorted(info.items()))
+        return col_headers, col_data
 
 
 class DeleteMetadefProperty(command.Command):
     _description = _("Delete metadef propert(ies)")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             "namespace",
@@ -133,7 +139,7 @@ class DeleteMetadefProperty(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         image_client = self.app.client_manager.image
 
         if not parsed_args.properties:
@@ -174,7 +180,7 @@ class DeleteMetadefProperty(command.Command):
 class ListMetadefProperties(command.Lister):
     _description = _("List metadef properties")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             "namespace",
@@ -183,7 +189,9 @@ class ListMetadefProperties(command.Lister):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[tuple[Any, ...]]]:
         image_client = self.app.client_manager.image
         props = image_client.metadef_properties(parsed_args.namespace)
         columns = ['name', 'title', 'type']
@@ -202,7 +210,7 @@ class ListMetadefProperties(command.Lister):
 class SetMetadefProperty(command.Command):
     _description = _("Update metadef namespace property")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             "--name",
@@ -230,7 +238,7 @@ class SetMetadefProperty(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         image_client = self.app.client_manager.image
 
         # We need to pass the values for *all* attributes as kwargs to
@@ -267,7 +275,7 @@ class SetMetadefProperty(command.Command):
 class ShowMetadefProperty(command.ShowOne):
     _description = _("Show a particular metadef property")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             "namespace",
@@ -281,7 +289,9 @@ class ShowMetadefProperty(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         image_client = self.app.client_manager.image
         data = image_client.get_metadef_property(
             parsed_args.property,
@@ -289,4 +299,5 @@ class ShowMetadefProperty(command.ShowOne):
         )
         info = _format_property(data)
 
-        return zip(*sorted(info.items()))
+        col_headers, col_data = zip(*sorted(info.items()))
+        return col_headers, col_data

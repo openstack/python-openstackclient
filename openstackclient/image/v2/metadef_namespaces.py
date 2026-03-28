@@ -15,7 +15,10 @@
 
 """Image V2 Action Implementations"""
 
+import argparse
+from collections.abc import Iterable, Sequence
 import logging
+from typing import Any
 
 from osc_lib.cli import format_columns
 from osc_lib import exceptions
@@ -31,7 +34,7 @@ _formatters = {
 LOG = logging.getLogger(__name__)
 
 
-def _format_namespace(namespace):
+def _format_namespace(namespace: Any) -> dict[str, Any]:
     info = {}
 
     fields_to_show = [
@@ -65,7 +68,7 @@ def _format_namespace(namespace):
 class CreateMetadefNamespace(command.ShowOne):
     _description = _("Create a metadef namespace")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             "namespace",
@@ -114,7 +117,9 @@ class CreateMetadefNamespace(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         image_client = self.app.client_manager.image
         filter_keys = ['namespace', 'display_name', 'description']
         kwargs = {}
@@ -133,13 +138,14 @@ class CreateMetadefNamespace(command.ShowOne):
         data = image_client.create_metadef_namespace(**kwargs)
         info = _format_namespace(data)
 
-        return zip(*sorted(info.items()))
+        col_headers, col_data = zip(*sorted(info.items()))
+        return col_headers, col_data
 
 
 class DeleteMetadefNamespace(command.Command):
     _description = _("Delete metadef namespace")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             "namespace",
@@ -149,7 +155,7 @@ class DeleteMetadefNamespace(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         image_client = self.app.client_manager.image
 
         result = 0
@@ -179,7 +185,7 @@ class DeleteMetadefNamespace(command.Command):
 class ListMetadefNamespace(command.Lister):
     _description = _("List metadef namespaces")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             "--resource-types",
@@ -193,7 +199,9 @@ class ListMetadefNamespace(command.Lister):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[tuple[Any, ...]]]:
         image_client = self.app.client_manager.image
         filter_keys = ['resource_types', 'visibility']
         kwargs = {}
@@ -221,7 +229,7 @@ class ListMetadefNamespace(command.Lister):
 class SetMetadefNamespace(command.Command):
     _description = _("Set metadef namespace properties")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             "namespace",
@@ -272,7 +280,7 @@ class SetMetadefNamespace(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         image_client = self.app.client_manager.image
 
         namespace = parsed_args.namespace
@@ -297,7 +305,7 @@ class SetMetadefNamespace(command.Command):
 class ShowMetadefNamespace(command.ShowOne):
     _description = _("Show a metadef namespace")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             "namespace",
@@ -306,7 +314,9 @@ class ShowMetadefNamespace(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         image_client = self.app.client_manager.image
 
         namespace = parsed_args.namespace
@@ -314,4 +324,5 @@ class ShowMetadefNamespace(command.ShowOne):
         data = image_client.get_metadef_namespace(namespace)
         info = _format_namespace(data)
 
-        return zip(*sorted(info.items()))
+        col_headers, col_data = zip(*sorted(info.items()))
+        return col_headers, col_data

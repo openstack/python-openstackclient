@@ -10,6 +10,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import argparse
+from collections.abc import Iterable, Sequence
+from typing import Any
+
 from osc_lib.cli import format_columns
 from osc_lib import utils
 
@@ -21,7 +25,7 @@ _formatters = {
 }
 
 
-def _format_task(task):
+def _format_task(task: Any) -> dict[str, Any]:
     """Format an task to make it more consistent with OSC operations."""
 
     info = {}
@@ -63,7 +67,7 @@ def _format_task(task):
 class ShowTask(command.ShowOne):
     _description = _('Display task details')
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
 
         parser.add_argument(
@@ -74,19 +78,22 @@ class ShowTask(command.ShowOne):
 
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         image_client = self.app.client_manager.image
 
         task = image_client.get_task(parsed_args.task)
         info = _format_task(task)
 
-        return zip(*sorted(info.items()))
+        col_headers, col_data = zip(*sorted(info.items()))
+        return col_headers, col_data
 
 
 class ListTask(command.Lister):
     _description = _('List tasks')
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
 
         parser.add_argument(
@@ -146,7 +153,9 @@ class ListTask(command.Lister):
 
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
         image_client = self.app.client_manager.image
 
         columns = ('id', 'type', 'status', 'owner_id')

@@ -13,9 +13,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import argparse
+from collections.abc import Iterable, Sequence
 import copy
 import datetime
 import logging
+from typing import Any
 
 from osc_lib import exceptions
 from osc_lib import utils
@@ -27,7 +30,7 @@ from openstackclient.i18n import _
 LOG = logging.getLogger(__name__)
 
 
-def _format_image_cache(cached_images):
+def _format_image_cache(cached_images: dict[str, Any]) -> list[dict[str, Any]]:
     """Format image cache to make it more consistent with OSC operations."""
 
     image_list = []
@@ -70,11 +73,13 @@ def _format_image_cache(cached_images):
 class ListCachedImage(command.Lister):
     _description = _("Get Cache State")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[tuple[Any, ...]]]:
         image_client = self.app.client_manager.image
 
         # List of Cache data received
@@ -111,7 +116,7 @@ class ListCachedImage(command.Lister):
 class QueueCachedImage(command.Command):
     _description = _("Queue image(s) for caching.")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             "images",
@@ -121,7 +126,7 @@ class QueueCachedImage(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         image_client = self.app.client_manager.image
 
         failures = 0
@@ -151,7 +156,7 @@ class QueueCachedImage(command.Command):
 class DeleteCachedImage(command.Command):
     _description = _("Delete image(s) from cache")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             "images",
@@ -161,7 +166,7 @@ class DeleteCachedImage(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         failures = 0
         image_client = self.app.client_manager.image
         for image in parsed_args.images:
@@ -190,7 +195,7 @@ class DeleteCachedImage(command.Command):
 class ClearCachedImage(command.Command):
     _description = _("Clear all images from cache, queue or both")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             "--cache",
@@ -210,7 +215,7 @@ class ClearCachedImage(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         image_client = self.app.client_manager.image
 
         target = parsed_args.target
