@@ -10,11 +10,13 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from collections.abc import Iterable, Mapping, Sequence
 import json
 import logging
 import os
 import shlex
 import subprocess
+from typing import Any, Literal, cast, overload
 
 from tempest.lib.cli import output_parser
 from tempest.lib import exceptions
@@ -24,7 +26,7 @@ ADMIN_CLOUD = os.environ.get('OS_ADMIN_CLOUD', 'devstack-admin')
 LOG = logging.getLogger(__name__)
 
 
-def execute(cmd, *, fail_ok=False):
+def execute(cmd: str, *, fail_ok: bool = False) -> str:
     """Executes specified command for the given action."""
     LOG.debug('Executing: %s', cmd)
     cmdlist = shlex.split(cmd)
@@ -53,15 +55,37 @@ def execute(cmd, *, fail_ok=False):
 
 
 class TestCase(testtools.TestCase):
+    @overload
     @classmethod
     def openstack(
         cls,
-        cmd,
+        cmd: str,
         *,
-        cloud=ADMIN_CLOUD,
-        fail_ok=False,
-        parse_output=False,
-    ):
+        cloud: str | None = ADMIN_CLOUD,
+        fail_ok: bool = False,
+        parse_output: Literal[False] = False,
+    ) -> str: ...
+
+    @overload
+    @classmethod
+    def openstack(
+        cls,
+        cmd: str,
+        *,
+        cloud: str | None = ADMIN_CLOUD,
+        fail_ok: bool = False,
+        parse_output: Literal[True] = ...,
+    ) -> Any: ...
+
+    @classmethod
+    def openstack(
+        cls,
+        cmd: str,
+        *,
+        cloud: str | None = ADMIN_CLOUD,
+        fail_ok: bool = False,
+        parse_output: bool = False,
+    ) -> str | Any:
         """Executes openstackclient command for the given action
 
         :param cmd: A string representation of the command to execute.
@@ -106,7 +130,9 @@ class TestCase(testtools.TestCase):
             return output
 
     @classmethod
-    def is_service_enabled(cls, service, version=None):
+    def is_service_enabled(
+        cls, service: str, version: str | None = None
+    ) -> bool:
         """Ask client cloud if service is available
 
         :param service: The service name or type. This should be either an
@@ -126,7 +152,9 @@ class TestCase(testtools.TestCase):
         return bool(ret)
 
     @classmethod
-    def is_extension_enabled(cls, alias, *, service='network'):
+    def is_extension_enabled(
+        cls, alias: str, *, service: str = 'network'
+    ) -> bool:
         """Ask client cloud if extension is enabled"""
         extensions = cls.openstack(
             f'extension list --{service}',
@@ -135,38 +163,44 @@ class TestCase(testtools.TestCase):
         return alias in [x['Alias'] for x in extensions]
 
     @classmethod
-    def get_openstack_configuration_value(cls, configuration):
+    def get_openstack_configuration_value(cls, configuration: str) -> str:
         opts = cls.get_opts([configuration])
         return cls.openstack('configuration show ' + opts)
 
     @classmethod
-    def get_opts(cls, fields, output_format='value'):
+    def get_opts(cls, fields: list[str], output_format: str = 'value') -> str:
         return ' -f {} {}'.format(
             output_format, ' '.join(['-c ' + it for it in fields])
         )
 
     @classmethod
-    def assertOutput(cls, expected, actual):
+    def assertOutput(cls, expected: str, actual: str) -> None:
         if expected != actual:
             raise Exception(expected + ' != ' + actual)
 
     @classmethod
-    def assertInOutput(cls, expected, actual):
+    def assertInOutput(cls, expected: str, actual: str) -> None:
         if expected not in actual:
             raise Exception(expected + ' not in ' + actual)
 
     @classmethod
-    def assertsOutputNotNone(cls, observed):
+    def assertsOutputNotNone(cls, observed: Any) -> None:
         if observed is None:
             raise Exception('No output observed')
 
-    def assert_table_structure(self, items, field_names):
+    def assert_table_structure(
+        self, items: Iterable[Mapping[str, Any]], field_names: Sequence[str]
+    ) -> None:
         """Verify that all items have keys listed in field_names."""
         for item in items:
             for field in field_names:
                 self.assertIn(field, item)
 
-    def assert_show_fields(self, show_output, field_names):
+    def assert_show_fields(
+        self,
+        show_output: Iterable[Mapping[str, Any]],
+        field_names: Sequence[str],
+    ) -> None:
         """Verify that all items have keys listed in field_names."""
 
         # field_names = ['name', 'description']
@@ -186,17 +220,18 @@ class TestCase(testtools.TestCase):
             o.update(item)
         return o
 
-    def parse_show(self, raw_output):
+    def parse_show(self, raw_output: str) -> list[dict[str, Any]]:
         """Return list of dicts with item values parsed from cli output."""
 
         items = []
         table_ = output_parser.table(raw_output)
         for row in table_['values']:
             item = {}
-            item[row[0]] = row[1]
+            item[str(row[0])] = row[1]
             items.append(item)
         return items
 
-    def parse_listing(self, raw_output):
+    def parse_listing(self, raw_output: str) -> list[dict[str, Any]]:
         """Return list of dicts with basic item parsed from cli output."""
-        return output_parser.listing(raw_output)
+        # need to add hints to tempest
+        return cast(list[dict[str, Any]], output_parser.listing(raw_output))

@@ -12,6 +12,7 @@
 #
 
 import time
+from typing import cast
 import uuid
 
 from tempest.lib import exceptions
@@ -35,18 +36,18 @@ class ComputeTestCase(base.TestCase):
 
     @classmethod
     def get_flavor(cls) -> str:
+        valid_flavors = ['m1.tiny', 'cirros256']
         # NOTE(rtheis): Get cirros256 or m1.tiny flavors since functional
         #               tests may create other flavors.
         flavors = cls.openstack("flavor list", parse_output=True)
-        server_flavor = None
         for flavor in flavors:
             if flavor['Name'] in ['m1.tiny', 'cirros256']:
-                server_flavor = flavor['Name']
-                break
+                return cast(str, flavor['Name'])
 
-        assert server_flavor is not None
-
-        return server_flavor
+        raise Exception(
+            f'Failed to find a suitable flavor. Required one of: '
+            f'{", ".join(valid_flavors)}'
+        )
 
     @classmethod
     def get_image(cls) -> str:
@@ -54,18 +55,17 @@ class ComputeTestCase(base.TestCase):
         #               create other images.  Image may be named '-uec' or
         #               '-disk'.
         images = cls.openstack("image list", parse_output=True)
-        server_image = None
         for image in images:
             if image['Name'].startswith('cirros-') and (
                 image['Name'].endswith('-uec')
                 or image['Name'].endswith('-disk')
             ):
-                server_image = image['Name']
-                break
+                return cast(str, image['Name'])
 
-        assert server_image is not None
-
-        return server_image
+        raise Exception(
+            'Failed to find a suitable image. Required one matching one of '
+            'the following patterns: cirros-*-uec, cirros-*-disk'
+        )
 
     @classmethod
     def get_network(cls) -> str:
@@ -78,7 +78,8 @@ class ComputeTestCase(base.TestCase):
             )
         except exceptions.CommandFailed:
             return ''
-        return '--nic net-id=' + cmd_output['id']
+
+        return '='.join(('--nic net-id', cmd_output['id']))
 
     def server_create(self, name=None, cleanup=True):
         """Create server, with cleanup"""
