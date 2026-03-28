@@ -15,7 +15,10 @@
 
 """Extension action implementations"""
 
+import argparse
 import logging
+from collections.abc import Iterable, Sequence
+from typing import Any
 
 from osc_lib import utils
 
@@ -25,7 +28,9 @@ from openstackclient.i18n import _
 LOG = logging.getLogger(__name__)
 
 
-def _get_extension_columns(item):
+def _get_extension_columns(
+    item: Any,
+) -> tuple[tuple[str, ...], tuple[str, ...]]:
     column_map = {
         'updated': 'updated_at',
     }
@@ -38,7 +43,7 @@ def _get_extension_columns(item):
 class ListExtension(command.Lister):
     _description = _("List API extensions")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             '--compute',
@@ -72,7 +77,9 @@ class ListExtension(command.Lister):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[tuple[Any, ...]]]:
         columns: tuple[str, ...] = ('Name', 'Alias', 'Description')
         if parsed_args.long:
             columns += ('Namespace', 'Updated At', 'Links')
@@ -139,7 +146,7 @@ class ListExtension(command.Lister):
 class ShowExtension(command.ShowOne):
     _description = _("Show API extension")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'extension',
@@ -152,7 +159,9 @@ class ShowExtension(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         client = self.app.client_manager.network
 
         extension = client.find_extension(

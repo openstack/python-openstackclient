@@ -15,7 +15,10 @@
 
 """Limits Action Implementation"""
 
+import argparse
 import itertools
+from collections.abc import Iterable, Sequence
+from typing import Any
 
 from osc_lib import utils
 
@@ -24,8 +27,8 @@ from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
 
 
-def _format_absolute_limit(absolute_limits):
-    info = {}
+def _format_absolute_limit(absolute_limits: Any) -> dict[str, Any]:
+    info: dict[str, Any] = {}
 
     for key in set(absolute_limits):
         if key in ('id', 'name', 'location'):
@@ -36,7 +39,7 @@ def _format_absolute_limit(absolute_limits):
     return info
 
 
-def _format_rate_limit(rate_limits):
+def _format_rate_limit(rate_limits: Any) -> Any:
     # flatten this:
     #
     #   {'uri': '<uri>', 'limit': [{'value': '<value>', ...], ...}
@@ -52,7 +55,7 @@ def _format_rate_limit(rate_limits):
 class ShowLimits(command.Lister):
     _description = _("Show compute and block storage limits")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         type_group = parser.add_mutually_exclusive_group(required=True)
         type_group.add_argument(
@@ -100,7 +103,9 @@ class ShowLimits(command.Lister):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[tuple[Any, ...]]]:
         project_id = None
         if parsed_args.project is not None:
             identity_client = self.app.client_manager.identity

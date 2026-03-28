@@ -14,6 +14,10 @@
 
 """Versions Action Implementation"""
 
+import argparse
+from collections.abc import Iterable, Sequence
+from typing import Any
+
 from openstackclient import command
 from openstackclient.i18n import _
 
@@ -21,7 +25,7 @@ from openstackclient.i18n import _
 class ShowVersions(command.Lister):
     _description = _("Show available versions of services")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         interface_group = parser.add_mutually_exclusive_group()
         interface_group.add_argument(
@@ -67,7 +71,9 @@ class ShowVersions(command.Lister):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[tuple[Any, ...]]]:
         interface = parsed_args.interface
         if parsed_args.is_all_interfaces:
             interface = None

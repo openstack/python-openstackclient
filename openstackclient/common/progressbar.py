@@ -14,6 +14,7 @@
 #    under the License.
 
 import sys
+from typing import Any
 
 
 class _ProgressBarBase:
@@ -28,13 +29,13 @@ class _ProgressBarBase:
     :note: The progress will be displayed only if sys.stdout is a tty.
     """
 
-    def __init__(self, wrapped, totalsize):
+    def __init__(self, wrapped: Any, totalsize: int) -> None:
         self._wrapped = wrapped
         self._totalsize = float(totalsize)
         self._show_progress = sys.stdout.isatty() and self._totalsize != 0
-        self._percent = 0
+        self._percent = 0.0
 
-    def _display_progress_bar(self, size_read):
+    def _display_progress_bar(self, size_read: int) -> None:
         if self._show_progress:
             self._percent += size_read / self._totalsize
             # Output something like this: [==========>             ] 49%
@@ -45,7 +46,7 @@ class _ProgressBarBase:
             )
             sys.stdout.flush()
 
-    def __getattr__(self, attr):
+    def __getattr__(self, attr: str) -> Any:
         # Forward other attribute access to the wrapped object.
         return getattr(self._wrapped, attr)
 
@@ -57,7 +58,7 @@ class VerboseFileWrapper(_ProgressBarBase):
     wrapped file's read method is called.
     """
 
-    def read(self, *args, **kwargs):
+    def read(self, *args: Any, **kwargs: Any) -> Any:
         data = self._wrapped.read(*args, **kwargs)
         if data:
             self._display_progress_bar(len(data))

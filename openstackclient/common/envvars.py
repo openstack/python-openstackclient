@@ -15,7 +15,7 @@ import os
 from openstackclient.i18n import _
 
 
-def bool_from_str(value, strict=False):
+def bool_from_str(value: bool | str, strict: bool = False) -> bool:
     true_strings = ('1', 't', 'true', 'on', 'y', 'yes')
     false_strings = ('0', 'f', 'false', 'off', 'n', 'no')
 
@@ -39,7 +39,7 @@ def bool_from_str(value, strict=False):
     raise ValueError(msg)
 
 
-def boolenv(*vars, default=False):
+def boolenv(*vars: str, default: bool = False) -> bool:
     """Search for the first defined of possibly many bool-like env vars.
 
     Returns the first environment variable defined in vars, or returns the

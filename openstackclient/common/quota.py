@@ -18,6 +18,7 @@ import argparse
 import itertools
 import logging
 import sys
+from collections.abc import Iterable, Sequence
 from typing import Any
 
 from openstack import exceptions as sdk_exceptions
@@ -94,9 +95,13 @@ NETWORK_KEYS = [
 ]
 
 
-def _xform_get_quota(data, value, keys):
-    res = []
-    res_info = {}
+def _xform_get_quota(
+    data: Any,
+    value: str,
+    keys: Any,
+) -> list[dict[str, Any]]:
+    res: list[dict[str, Any]] = []
+    res_info: dict[str, Any] = {}
     for key in keys:
         res_info[key] = getattr(data, key, '')
 
@@ -105,19 +110,21 @@ def _xform_get_quota(data, value, keys):
     return res
 
 
-def get_project(app, project):
+def get_project(app: Any, project: str | None) -> dict[str, str | None]:
     if project is not None:
         identity_client = sdk_utils.ensure_service_version(
             app.client_manager.sdk_connection.identity, '3'
         )
-        project = identity_client.find_project(project, ignore_missing=False)
-        project_id = project.id
-        project_name = project.name
+        found_project = identity_client.find_project(
+            project, ignore_missing=False
+        )
+        project_id = found_project.id
+        project_name = found_project.name
     elif app.client_manager.auth_ref:
         # Get the project from the current auth
-        project = app.client_manager.auth_ref
-        project_id = project.project_id
-        project_name = project.project_name
+        auth_ref = app.client_manager.auth_ref
+        project_id = auth_ref.project_id
+        project_name = auth_ref.project_name
     else:
         project_id = None
         project_name = None
@@ -129,12 +136,12 @@ def get_project(app, project):
 
 
 def get_compute_quotas(
-    app,
-    project_id,
+    app: Any,
+    project_id: str | None,
     *,
-    detail=False,
-    default=False,
-):
+    detail: bool = False,
+    default: bool = False,
+) -> dict[str, Any]:
     try:
         client = app.client_manager.compute
         if default:
@@ -143,7 +150,7 @@ def get_compute_quotas(
             quota = client.get_quota_set(project_id, usage=detail)
     except sdk_exceptions.EndpointNotFound:
         return {}
-    data = quota.to_dict()
+    data: dict[str, Any] = quota.to_dict()
     if not detail:
         del data['usage']
         del data['reservation']
@@ -151,12 +158,12 @@ def get_compute_quotas(
 
 
 def get_volume_quotas(
-    app,
-    project_id,
+    app: Any,
+    project_id: str | None,
     *,
-    detail=False,
-    default=False,
-):
+    detail: bool = False,
+    default: bool = False,
+) -> dict[str, Any]:
     try:
         client = app.client_manager.sdk_connection.volume
         if default:
@@ -165,7 +172,7 @@ def get_volume_quotas(
             quota = client.get_quota_set(project_id, usage=detail)
     except sdk_exceptions.EndpointNotFound:
         return {}
-    data = quota.to_dict()
+    data: dict[str, Any] = quota.to_dict()
     if not detail:
         del data['usage']
         del data['reservation']
@@ -173,17 +180,19 @@ def get_volume_quotas(
 
 
 def get_network_quotas(
-    app,
-    project_id,
+    app: Any,
+    project_id: str | None,
     *,
-    detail=False,
-    default=False,
-):
-    def _network_quota_to_dict(network_quota, detail=False):
-        dict_quota = network_quota.to_dict(computed=False)
+    detail: bool = False,
+    default: bool = False,
+) -> dict[str, Any]:
+    def _network_quota_to_dict(
+        network_quota: Any, detail: bool = False
+    ) -> dict[str, Any]:
+        data: dict[str, Any] = network_quota.to_dict(computed=False)
 
         if not detail:
-            return dict_quota
+            return data
 
         # Neutron returns quota details in dict which is in format like:
         # {'resource_name': {'in_use': X, 'limit': Y, 'reserved': Z},
@@ -204,7 +213,7 @@ def get_network_quotas(
         # so we need to make conversion to have data in same format from
         # all of the services
         result: dict[str, Any] = {"usage": {}, "reservation": {}}
-        for key, values in dict_quota.items():
+        for key, values in data.items():
             if values is None:
                 continue
             if isinstance(values, dict):
@@ -235,7 +244,7 @@ class ListQuota(command.Lister):
     inspected with 'openstack quota show --default'.
     """
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         option = parser.add_mutually_exclusive_group(required=True)
         option.add_argument(
@@ -258,7 +267,11 @@ class ListQuota(command.Lister):
         )
         return parser
 
-    def _list_quota_compute(self, parsed_args, project_ids):
+    def _list_quota_compute(
+        self,
+        parsed_args: argparse.Namespace,
+        project_ids: list[str],
+    ) -> tuple[tuple[str, ...], Any]:
         compute_client = self.app.client_manager.compute
         result = []
 
@@ -328,7 +341,11 @@ class ListQuota(command.Lister):
             (utils.get_dict_properties(s, columns) for s in result),
         )
 
-    def _list_quota_volume(self, parsed_args, project_ids):
+    def _list_quota_volume(
+        self,
+        parsed_args: argparse.Namespace,
+        project_ids: list[str],
+    ) -> tuple[tuple[str, ...], Any]:
         volume_client = self.app.client_manager.sdk_connection.volume
         result = []
 
@@ -386,7 +403,11 @@ class ListQuota(command.Lister):
             (utils.get_dict_properties(s, columns) for s in result),
         )
 
-    def _list_quota_network(self, parsed_args, project_ids):
+    def _list_quota_network(
+        self,
+        parsed_args: argparse.Namespace,
+        project_ids: list[str],
+    ) -> tuple[tuple[str, ...], Any]:
         network_client = self.app.client_manager.network
         result = []
 
@@ -450,7 +471,9 @@ class ListQuota(command.Lister):
             (utils.get_dict_properties(s, columns) for s in result),
         )
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[tuple[Any, ...]]]:
         identity_client = sdk_utils.ensure_service_version(
             self.app.client_manager.sdk_connection.identity, '3'
         )
@@ -470,7 +493,7 @@ class ListQuota(command.Lister):
 class SetQuota(common.NetDetectionMixin, command.Command):
     _description = _("Set quotas for project or class")
 
-    def _build_options_list(self):
+    def _build_options_list(self) -> list[tuple[str, str, str]]:
         help_fmt = _('New value for the %s quota')
         # Compute and volume quota options are always the same
         rets = [
@@ -504,7 +527,7 @@ class SetQuota(common.NetDetectionMixin, command.Command):
             )
         return rets
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'project',
@@ -579,7 +602,7 @@ class SetQuota(common.NetDetectionMixin, command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         if parsed_args.quota_class:
             msg = _(
                 "The '--class' option has been deprecated. Quota classes were "
@@ -684,7 +707,7 @@ Specify ``--os-compute-api-version 2.50`` or higher to see ``server-groups``
 and ``server-group-members`` output for a given quota class."""
     )
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'project',
@@ -746,7 +769,9 @@ and ``server-group-members`` output for a given quota class."""
 
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[tuple[Any, ...]]]:
         project_info = get_project(self.app, parsed_args.project)
         project = project_info['id']
 
@@ -810,7 +835,7 @@ and ``server-group-members`` output for a given quota class."""
         info.update(volume_quota_info)
         info.update(network_quota_info)
 
-        def _normalize_names(section: dict) -> None:
+        def _normalize_names(section: dict[str, Any]) -> None:
             # Map the internal quota names to the external ones
             # COMPUTE_QUOTAS and NETWORK_QUOTAS share floating-ips,
             # secgroup-rules and secgroups as dict value, so when
@@ -881,7 +906,7 @@ class DeleteQuota(command.Command):
         "Delete configured quota for a project and revert to defaults."
     )
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'project',
@@ -926,7 +951,7 @@ class DeleteQuota(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         identity_client = sdk_utils.ensure_service_version(
             self.app.client_manager.sdk_connection.identity, '3'
         )

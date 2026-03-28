@@ -70,10 +70,10 @@ class ClientManager(clientmanager.ClientManager):
 
     def __init__(
         self,
-        cli_options=None,
-        api_version=None,
-        pw_func=None,
-    ):
+        cli_options: Any = None,
+        api_version: Any = None,
+        pw_func: Any = None,
+    ) -> None:
         super().__init__(
             cli_options=cli_options,
             api_version=api_version,
@@ -89,7 +89,7 @@ class ClientManager(clientmanager.ClientManager):
         # store original auth_type
         self._original_auth_type = cli_options.auth_type
 
-    def setup_auth(self):
+    def setup_auth(self) -> None:
         """Set up authentication"""
 
         if self._auth_setup_completed:
@@ -125,7 +125,7 @@ class ClientManager(clientmanager.ClientManager):
 
         return super().setup_auth()
 
-    def _fallback_load_auth_plugin(self, e):
+    def _fallback_load_auth_plugin(self, e: Exception) -> None:
         # NOTES(RuiChen): Hack to avoid auth plugins choking on data they don't
         #                 expect, delete fake token and endpoint, then try to
         #                 load auth plugin again with user specified options.
@@ -150,7 +150,7 @@ class ClientManager(clientmanager.ClientManager):
         else:
             raise e
 
-    def is_network_endpoint_enabled(self):
+    def is_network_endpoint_enabled(self) -> bool:
         """Check if the network endpoint is enabled"""
         # NOTE(dtroyer): is_service_available() can also return None if
         #                there is no Service Catalog, callers here are
@@ -158,12 +158,12 @@ class ClientManager(clientmanager.ClientManager):
         #                use Network API by default
         return self.is_service_available('network') is not False
 
-    def is_compute_endpoint_enabled(self):
+    def is_compute_endpoint_enabled(self) -> bool:
         """Check if Compute endpoint is enabled"""
         return self.is_service_available('compute') is not False
 
     # TODO(stephenfin): Drop volume_client argument in OSC 8.0 or later.
-    def is_volume_endpoint_enabled(self, volume_client=None):
+    def is_volume_endpoint_enabled(self, volume_client: Any = None) -> bool:
         """Check if volume endpoint is enabled"""
         # We check against the service type and all aliases defined by the
         # Service Types Authority
@@ -195,7 +195,7 @@ class PluginModule(Protocol):
 
 
 def _on_load_failure_callback(
-    manager: stevedore.ExtensionManager,
+    manager: stevedore.ExtensionManager[PluginModule],
     ep: importlib.metadata.EntryPoint,
     err: BaseException,
 ) -> None:
@@ -204,7 +204,7 @@ def _on_load_failure_callback(
     )
 
 
-def get_plugin_modules(group):
+def get_plugin_modules(group: str) -> list[Any]:
     """Find plugin entry points"""
     mod_list = []
     mgr: stevedore.ExtensionManager[PluginModule]
@@ -238,7 +238,9 @@ def get_plugin_modules(group):
     return mod_list
 
 
-def build_plugin_option_parser(parser):
+def build_plugin_option_parser(
+    parser: ArgumentParserT,
+) -> ArgumentParserT:
     """Add plugin options to the parser"""
 
     # Loop through extensions to get parser additions

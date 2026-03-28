@@ -15,7 +15,10 @@
 
 """Module action implementation"""
 
+import argparse
 import sys
+from collections.abc import Iterable, Sequence
+from typing import Any
 
 from osc_lib import utils
 
@@ -28,7 +31,7 @@ class ListCommand(command.Lister):
 
     auth_required = False
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             '--group',
@@ -41,7 +44,9 @@ class ListCommand(command.Lister):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[tuple[Any, ...]]]:
         cm = self.app.command_manager
         groups = cm.get_command_groups()
         groups = sorted(groups)
@@ -73,7 +78,7 @@ class ListModule(command.ShowOne):
 
     auth_required = False
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             '--all',
@@ -83,7 +88,9 @@ class ListModule(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         data = {}
         # Get module versions
         mods = sys.modules
@@ -117,4 +124,5 @@ class ListModule(command.ShowOne):
                         # Catch all exceptions, just skip it
                         pass
 
-        return zip(*sorted(data.items()))
+        col_headers, col_data = zip(*sorted(data.items()))
+        return col_headers, col_data

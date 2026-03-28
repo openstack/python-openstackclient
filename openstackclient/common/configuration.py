@@ -13,6 +13,10 @@
 
 """Configuration action implementations"""
 
+import argparse
+from collections.abc import Iterable, Sequence
+from typing import Any
+
 from keystoneauth1.loading import base
 
 from openstackclient import command
@@ -26,7 +30,7 @@ class ShowConfiguration(command.ShowOne):
 
     auth_required = False
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         mask_group = parser.add_mutually_exclusive_group()
         mask_group.add_argument(
@@ -44,7 +48,9 @@ class ShowConfiguration(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         info = self.app.client_manager.get_configuration()
 
         # Assume a default secret list in case we do not have an auth_plugin
@@ -68,4 +74,5 @@ class ShowConfiguration(command.ShowOne):
                 if secret_opt in info:
                     info[secret_opt] = REDACTED
 
-        return zip(*sorted(info.items()))
+        col_headers, col_data = zip(*sorted(info.items()))
+        return col_headers, col_data
