@@ -17,6 +17,7 @@
 
 import argparse
 import base64
+from collections.abc import Iterable, Sequence
 import getpass
 import json
 import logging
@@ -59,7 +60,7 @@ class PowerStateColumn(cliff_columns.FormattableColumn[int]):
         'Suspended',  # 0x07
     ]
 
-    def human_readable(self):
+    def human_readable(self) -> str:
         try:
             return self.power_states[self._value]
         except Exception:
@@ -69,18 +70,21 @@ class PowerStateColumn(cliff_columns.FormattableColumn[int]):
 class AddressesColumn(cliff_columns.FormattableColumn[Any]):
     """Generate a formatted string of a server's addresses."""
 
-    def human_readable(self):
+    def human_readable(self) -> str:
         try:
-            return utils.format_dict_of_list(
-                {
-                    k: [i['addr'] for i in v if 'addr' in i]
-                    for k, v in self._value.items()
-                }
+            return (
+                utils.format_dict_of_list(
+                    {
+                        k: [i['addr'] for i in v if 'addr' in i]
+                        for k, v in self._value.items()
+                    }
+                )
+                or ''
             )
         except Exception:
             return 'N/A'
 
-    def machine_readable(self):
+    def machine_readable(self) -> Any:
         return {
             k: [i['addr'] for i in v if 'addr' in i]
             for k, v in (self._value.items() if self._value else [])
@@ -90,14 +94,16 @@ class AddressesColumn(cliff_columns.FormattableColumn[Any]):
 class HostColumn(cliff_columns.FormattableColumn[str | None]):
     """Generate a formatted string of a hostname."""
 
-    def human_readable(self):
+    def human_readable(self) -> str:
         if self._value is None:
             return ''
 
         return self._value
 
 
-def _get_ip_address(addresses, address_type, ip_address_family):
+def _get_ip_address(
+    addresses: Any, address_type: str, ip_address_family: list[int]
+) -> Any:
     # Old style addresses
     if address_type in addresses:
         for addy in addresses[address_type]:
@@ -130,7 +136,13 @@ def _get_ip_address(addresses, address_type, ip_address_family):
     )
 
 
-def _prep_server_detail(compute_client, image_client, server, *, refresh=True):
+def _prep_server_detail(
+    compute_client: Any,
+    image_client: Any,
+    server: Any,
+    *,
+    refresh: bool = True,
+) -> dict[str, Any]:
     """Prepare the detailed server dict for printing
 
     :param compute_client: a compute client instance
@@ -352,7 +364,7 @@ def _prep_server_detail(compute_client, image_client, server, *, refresh=True):
 class AddFixedIP(command.ShowOne):
     _description = _("Add fixed IP address to server")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             "server",
@@ -381,7 +393,9 @@ class AddFixedIP(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         compute_client = self.app.client_manager.compute
         server = compute_client.find_server(
             parsed_args.server, ignore_missing=False
@@ -450,7 +464,9 @@ class AddFixedIP(command.ShowOne):
 class AddFloatingIP(network_common.NetworkAndComputeCommand):
     _description = _("Add floating IP address to server")
 
-    def update_parser_common(self, parser):
+    def update_parser_common(
+        self, parser: argparse.ArgumentParser
+    ) -> argparse.ArgumentParser:
         parser.add_argument(
             "server",
             metavar="<server>",
@@ -475,7 +491,9 @@ class AddFloatingIP(network_common.NetworkAndComputeCommand):
         )
         return parser
 
-    def take_action_network(self, client, parsed_args):
+    def take_action_network(
+        self, client: Any, parsed_args: argparse.Namespace
+    ) -> None:
         compute_client = self.app.client_manager.compute
 
         attrs = {}
@@ -534,7 +552,9 @@ class AddFloatingIP(network_common.NetworkAndComputeCommand):
             if error:
                 raise error
 
-    def take_action_compute(self, client, parsed_args):
+    def take_action_compute(
+        self, client: Any, parsed_args: argparse.Namespace
+    ) -> None:
         server = client.find_server(parsed_args.server, ignore_missing=False)
         client.add_floating_ip_to_server(
             server,
@@ -546,7 +566,7 @@ class AddFloatingIP(network_common.NetworkAndComputeCommand):
 class AddPort(command.Command):
     _description = _("Add port to server")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             "server",
@@ -568,7 +588,7 @@ class AddPort(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         compute_client = self.app.client_manager.compute
 
         server = compute_client.find_server(
@@ -600,7 +620,7 @@ class AddPort(command.Command):
 class AddNetwork(command.Command):
     _description = _("Add network to server")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             "server",
@@ -622,7 +642,7 @@ class AddNetwork(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         compute_client = self.app.client_manager.compute
 
         server = compute_client.find_server(
@@ -655,7 +675,7 @@ class AddNetwork(command.Command):
 class AddServerSecurityGroup(command.Command):
     _description = _("Add security group(s) to server")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'server',
@@ -673,7 +693,7 @@ class AddServerSecurityGroup(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         compute_client = self.app.client_manager.compute
 
         server = compute_client.find_server(
@@ -729,7 +749,7 @@ Specify ``--os-compute-api-version 2.20`` or higher to add a volume to a server
 with status ``SHELVED`` or ``SHELVED_OFFLOADED``."""
     )
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'server',
@@ -775,7 +795,9 @@ with status ``SHELVED`` or ``SHELVED_OFFLOADED``."""
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         compute_client = self.app.client_manager.compute
         volume_client = self.app.client_manager.sdk_connection.volume
 
@@ -849,7 +871,12 @@ with status ``SHELVED`` or ``SHELVED_OFFLOADED``."""
 
 
 class NoneNICAction(argparse.Action):
-    def __init__(self, option_strings, dest, help=None):
+    def __init__(
+        self,
+        option_strings: list[str],
+        dest: str,
+        help: str | None = None,
+    ) -> None:
         super().__init__(
             option_strings=option_strings,
             dest=dest,
@@ -859,7 +886,13 @@ class NoneNICAction(argparse.Action):
             help=help,
         )
 
-    def __call__(self, parser, namespace, values, option_string=None):
+    def __call__(
+        self,
+        parser: argparse.ArgumentParser,
+        namespace: argparse.Namespace,
+        values: Any,
+        option_string: str | None = None,
+    ) -> None:
         # Make sure we have an empty dict rather than None
         if getattr(namespace, self.dest, None) is None:
             setattr(namespace, self.dest, [])
@@ -868,7 +901,12 @@ class NoneNICAction(argparse.Action):
 
 
 class AutoNICAction(argparse.Action):
-    def __init__(self, option_strings, dest, help=None):
+    def __init__(
+        self,
+        option_strings: list[str],
+        dest: str,
+        help: str | None = None,
+    ) -> None:
         super().__init__(
             option_strings=option_strings,
             dest=dest,
@@ -878,7 +916,13 @@ class AutoNICAction(argparse.Action):
             help=help,
         )
 
-    def __call__(self, parser, namespace, values, option_string=None):
+    def __call__(
+        self,
+        parser: argparse.ArgumentParser,
+        namespace: argparse.Namespace,
+        values: Any,
+        option_string: str | None = None,
+    ) -> None:
         # Make sure we have an empty dict rather than None
         if getattr(namespace, self.dest, None) is None:
             setattr(namespace, self.dest, [])
@@ -889,12 +933,12 @@ class AutoNICAction(argparse.Action):
 class NICAction(argparse.Action):
     def __init__(
         self,
-        option_strings,
-        dest,
-        help=None,
-        metavar=None,
-        key=None,
-    ):
+        option_strings: list[str],
+        dest: str,
+        help: str | None = None,
+        metavar: str | None = None,
+        key: str | None = None,
+    ) -> None:
         self.key = key
         super().__init__(
             option_strings=option_strings,
@@ -909,7 +953,13 @@ class NICAction(argparse.Action):
             metavar=metavar,
         )
 
-    def __call__(self, parser, namespace, values, option_string=None):
+    def __call__(
+        self,
+        parser: argparse.ArgumentParser,
+        namespace: argparse.Namespace,
+        values: Any,
+        option_string: str | None = None,
+    ) -> None:
         # Make sure we have an empty dict rather than None
         if getattr(namespace, self.dest, None) is None:
             setattr(namespace, self.dest, [])
@@ -970,7 +1020,13 @@ class NICAction(argparse.Action):
 
 
 class BDMLegacyAction(argparse.Action):
-    def __call__(self, parser, namespace, values, option_string=None):
+    def __call__(
+        self,
+        parser: argparse.ArgumentParser,
+        namespace: argparse.Namespace,
+        values: Any,
+        option_string: str | None = None,
+    ) -> None:
         # Make sure we have an empty list rather than None
         if getattr(namespace, self.dest, None) is None:
             setattr(namespace, self.dest, [])
@@ -1014,7 +1070,9 @@ class BDMLegacyAction(argparse.Action):
 
 
 class BDMAction(parseractions.MultiKeyValueAction):
-    def __init__(self, option_strings, dest, **kwargs):
+    def __init__(
+        self, option_strings: list[str], dest: str, **kwargs: Any
+    ) -> None:
         optional_keys = [
             'uuid',
             'source_type',
@@ -1039,7 +1097,7 @@ class BDMAction(parseractions.MultiKeyValueAction):
 
     # TODO(stephenfin): Remove once I549d0897ef3704b7f47000f867d6731ad15d3f2b
     # or similar lands in a release
-    def validate_keys(self, keys):
+    def validate_keys(self, keys: Sequence[str]) -> None:
         """Validate the provided keys.
 
         :param keys: A list of keys to validate.
@@ -1075,7 +1133,13 @@ class BDMAction(parseractions.MultiKeyValueAction):
                 },
             )
 
-    def __call__(self, parser, namespace, values, option_string=None):
+    def __call__(
+        self,
+        parser: argparse.ArgumentParser,
+        namespace: argparse.Namespace,
+        values: Any,
+        option_string: str | None = None,
+    ) -> None:
         if getattr(namespace, self.dest, None) is None:
             setattr(namespace, self.dest, [])
 
@@ -1094,7 +1158,7 @@ class BDMAction(parseractions.MultiKeyValueAction):
 class CreateServer(command.ShowOne):
     _description = _("Create a new server")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'server_name',
@@ -1535,8 +1599,10 @@ class CreateServer(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
-        def _show_progress(progress):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
+        def _show_progress(progress: int | None) -> None:
             if progress:
                 self.app.stdout.write(f'\rProgress: {progress}')
                 self.app.stdout.flush()
@@ -1554,7 +1620,7 @@ class CreateServer(command.ShowOne):
 
         if not image and parsed_args.image_properties:
 
-            def _match_image(image_api, wanted_properties):
+            def _match_image(image_api: Any, wanted_properties: Any) -> Any:
                 image_list = image_api.images()
                 images_matched = []
                 for img in image_list:
@@ -2155,7 +2221,8 @@ class CreateServer(command.ShowOne):
                 raise exceptions.CommandError(msg)
 
         data = _prep_server_detail(compute_client, image_client, server)
-        return zip(*sorted(data.items()))
+        col_headers, col_data = zip(*sorted(data.items()))
+        return col_headers, col_data
 
 
 class CreateServerDump(command.Command):
@@ -2170,7 +2237,7 @@ class CreateServerDump(command.Command):
     This command requires ``--os-compute-api-version`` 2.17 or greater.
     """
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'server',
@@ -2180,7 +2247,7 @@ class CreateServerDump(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         compute_client = self.app.client_manager.compute
         for name_or_id in parsed_args.server:
             server = compute_client.find_server(
@@ -2192,7 +2259,7 @@ class CreateServerDump(command.Command):
 class DeleteServer(command.Command):
     _description = _("Delete server(s)")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'server',
@@ -2221,8 +2288,8 @@ class DeleteServer(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
-        def _show_progress(progress):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
+        def _show_progress(progress: int | None) -> None:
             if progress:
                 self.app.stdout.write(f'\rProgress: {progress}')
                 self.app.stdout.flush()
@@ -2275,17 +2342,17 @@ class DeleteServer(command.Command):
 class PercentAction(argparse.Action):
     def __init__(
         self,
-        option_strings,
-        dest,
-        nargs=None,
-        const=None,
-        default=None,
-        type=None,
-        choices=None,
-        required=False,
-        help=None,
-        metavar=None,
-    ):
+        option_strings: list[str],
+        dest: str,
+        nargs: int | str | None = None,
+        const: Any = None,
+        default: Any = None,
+        type: Any = None,
+        choices: Any = None,
+        required: bool = False,
+        help: str | None = None,
+        metavar: str | tuple[str, ...] | None = None,
+    ) -> None:
         if nargs == 0:
             raise ValueError(
                 'nargs for store actions must be != 0; if you '
@@ -2309,7 +2376,13 @@ class PercentAction(argparse.Action):
             metavar=metavar,
         )
 
-    def __call__(self, parser, namespace, values, option_string=None):
+    def __call__(
+        self,
+        parser: argparse.ArgumentParser,
+        namespace: argparse.Namespace,
+        values: Any,
+        option_string: str | None = None,
+    ) -> None:
         x = int(values)
         if not 0 < x <= 100:
             raise argparse.ArgumentError(self, "Must be between 0 and 100")
@@ -2319,7 +2392,7 @@ class PercentAction(argparse.Action):
 class ListServer(command.Lister):
     _description = _("List servers")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             '--reservation-id',
@@ -2659,7 +2732,9 @@ class ListServer(command.Lister):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
         compute_client = self.app.client_manager.compute
         identity_client = self.app.client_manager.identity
         image_client = self.app.client_manager.image
@@ -3136,7 +3211,7 @@ class LockServer(command.Command):
 A non-admin user will not be able to execute actions."""
     )
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'server',
@@ -3155,7 +3230,7 @@ A non-admin user will not be able to execute actions."""
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         compute_client = self.app.client_manager.compute
 
         kwargs = {}
@@ -3209,7 +3284,7 @@ to finish.
 """
     )
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'server',
@@ -3283,8 +3358,8 @@ to finish.
         )
         return parser
 
-    def take_action(self, parsed_args):
-        def _show_progress(progress):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
+        def _show_progress(progress: int | None) -> None:
             if progress:
                 self.app.stdout.write(f'\rProgress: {progress}')
                 self.app.stdout.flush()
@@ -3381,7 +3456,7 @@ to finish.
 class PauseServer(command.Command):
     _description = _("Pause server(s)")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'server',
@@ -3391,7 +3466,7 @@ class PauseServer(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         compute_client = self.app.client_manager.compute
         for server in parsed_args.server:
             server_id = compute_client.find_server(
@@ -3404,7 +3479,7 @@ class PauseServer(command.Command):
 class RebootServer(command.Command):
     _description = _("Perform a hard or soft server reboot")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'server',
@@ -3435,8 +3510,8 @@ class RebootServer(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
-        def _show_progress(progress):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
+        def _show_progress(progress: int | None) -> None:
             if progress:
                 self.app.stdout.write(f'\rProgress: {progress}')
                 self.app.stdout.flush()
@@ -3464,7 +3539,7 @@ class RebootServer(command.Command):
 class RebuildServer(command.ShowOne):
     _description = _("Rebuild server")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'server',
@@ -3640,8 +3715,10 @@ class RebuildServer(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
-        def _show_progress(progress):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
+        def _show_progress(progress: int | None) -> None:
             if progress:
                 self.app.stdout.write(f'\rProgress: {progress}')
                 self.app.stdout.flush()
@@ -3833,7 +3910,8 @@ class RebuildServer(command.ShowOne):
         data = _prep_server_detail(
             compute_client, image_client, server, refresh=False
         )
-        return zip(*sorted(data.items()))
+        col_headers, col_data = zip(*sorted(data.items()))
+        return col_headers, col_data
 
 
 class EvacuateServer(command.ShowOne):
@@ -3854,7 +3932,7 @@ root disk will be preserved and reused for the evacuated instance on the new
 host."""
     )
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'server',
@@ -3901,8 +3979,10 @@ host."""
         )
         return parser
 
-    def take_action(self, parsed_args):
-        def _show_progress(progress):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
+        def _show_progress(progress: int | None) -> None:
             if progress:
                 self.app.stdout.write(f'\rProgress: {progress}')
                 self.app.stdout.flush()
@@ -3957,13 +4037,14 @@ host."""
                 raise exceptions.CommandError(msg)
 
         data = _prep_server_detail(compute_client, image_client, server)
-        return zip(*sorted(data.items()))
+        col_headers, col_data = zip(*sorted(data.items()))
+        return col_headers, col_data
 
 
 class RemoveFixedIP(command.Command):
     _description = _("Remove fixed IP address from server")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             "server",
@@ -3977,7 +4058,7 @@ class RemoveFixedIP(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         compute_client = self.app.client_manager.compute
 
         server = compute_client.find_server(
@@ -3991,7 +4072,9 @@ class RemoveFixedIP(command.Command):
 class RemoveFloatingIP(network_common.NetworkAndComputeCommand):
     _description = _("Remove floating IP address from server")
 
-    def update_parser_common(self, parser):
+    def update_parser_common(
+        self, parser: argparse.ArgumentParser
+    ) -> argparse.ArgumentParser:
         parser.add_argument(
             "server",
             metavar="<server>",
@@ -4006,7 +4089,9 @@ class RemoveFloatingIP(network_common.NetworkAndComputeCommand):
         )
         return parser
 
-    def take_action_network(self, client, parsed_args):
+    def take_action_network(
+        self, client: Any, parsed_args: argparse.Namespace
+    ) -> None:
         obj = client.find_ip(
             parsed_args.ip_address,
             ignore_missing=False,
@@ -4014,7 +4099,9 @@ class RemoveFloatingIP(network_common.NetworkAndComputeCommand):
 
         client.update_ip(obj, port_id=None)
 
-    def take_action_compute(self, client, parsed_args):
+    def take_action_compute(
+        self, client: Any, parsed_args: argparse.Namespace
+    ) -> None:
         server = client.find_server(parsed_args.server, ignore_missing=False)
         client.remove_floating_ip_from_server(server, parsed_args.ip_address)
 
@@ -4022,7 +4109,7 @@ class RemoveFloatingIP(network_common.NetworkAndComputeCommand):
 class RemovePort(command.Command):
     _description = _("Remove port from server")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             "server",
@@ -4036,7 +4123,7 @@ class RemovePort(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         compute_client = self.app.client_manager.compute
 
         server = compute_client.find_server(
@@ -4061,7 +4148,7 @@ class RemovePort(command.Command):
 class RemoveNetwork(command.Command):
     _description = _("Remove all ports of a network from server")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             "server",
@@ -4075,7 +4162,7 @@ class RemoveNetwork(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         compute_client = self.app.client_manager.compute
 
         server = compute_client.find_server(
@@ -4101,7 +4188,7 @@ class RemoveNetwork(command.Command):
 class RemoveServerSecurityGroup(command.Command):
     _description = _("Remove security group from server")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'server',
@@ -4119,7 +4206,7 @@ class RemoveServerSecurityGroup(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         compute_client = self.app.client_manager.compute
 
         server = compute_client.find_server(
@@ -4175,7 +4262,7 @@ Specify ``--os-compute-api-version 2.20`` or higher to remove a
 volume from a server with status ``SHELVED`` or ``SHELVED_OFFLOADED``."""
     )
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'server',
@@ -4189,7 +4276,7 @@ volume from a server with status ``SHELVED`` or ``SHELVED_OFFLOADED``."""
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         compute_client = self.app.client_manager.compute
         volume_client = self.app.client_manager.sdk_connection.volume
 
@@ -4217,7 +4304,7 @@ Specify ``--os-compute-api-version 2.87`` or higher to rescue a
 server booted from a volume."""
     )
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'server',
@@ -4242,7 +4329,7 @@ server booted from a volume."""
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         compute_client = self.app.client_manager.compute
         image_client = self.app.client_manager.image
 
@@ -4271,7 +4358,7 @@ confirm (verify) success and release the old server or to declare a revert to
 release the new server and restart the old one."""
     )
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'server',
@@ -4309,8 +4396,8 @@ release the new server and restart the old one."""
         )
         return parser
 
-    def take_action(self, parsed_args):
-        def _show_progress(progress):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
+        def _show_progress(progress: int | None) -> None:
             if progress:
                 self.app.stdout.write(f'\rProgress: {progress}')
                 self.app.stdout.flush()
@@ -4367,7 +4454,7 @@ class ResizeConfirm(command.Command):
 Confirm (verify) success of resize operation and release the old server."""
     )
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'server',
@@ -4376,7 +4463,7 @@ Confirm (verify) success of resize operation and release the old server."""
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         compute_client = self.app.client_manager.compute
         server = compute_client.find_server(
             parsed_args.server, ignore_missing=False
@@ -4388,7 +4475,7 @@ Confirm (verify) success of resize operation and release the old server."""
 class MigrateConfirm(ResizeConfirm):
     _description = _("DEPRECATED: Use 'server migration confirm' instead.")
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         msg = _(
             "The 'server migrate confirm' command has been deprecated in "
             "favour of the 'server migration confirm' command."
@@ -4415,7 +4502,7 @@ Revert the resize operation. Release the new server and restart the old
 one."""
     )
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'server',
@@ -4424,7 +4511,7 @@ one."""
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         compute_client = self.app.client_manager.compute
         server = compute_client.find_server(
             parsed_args.server, ignore_missing=False
@@ -4436,7 +4523,7 @@ one."""
 class MigrateRevert(ResizeRevert):
     _description = _("DEPRECATED: Use 'server migration revert' instead.")
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         msg = _(
             "The 'server migrate revert' command has been deprecated in "
             "favour of the 'server migration revert' command."
@@ -4458,7 +4545,7 @@ one."""
 class RestoreServer(command.Command):
     _description = _("Restore server(s)")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'server',
@@ -4468,7 +4555,7 @@ class RestoreServer(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         compute_client = self.app.client_manager.compute
         for server in parsed_args.server:
             server_id = compute_client.find_server(
@@ -4481,7 +4568,7 @@ class RestoreServer(command.Command):
 class ResumeServer(command.Command):
     _description = _("Resume server(s)")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'server',
@@ -4491,7 +4578,7 @@ class ResumeServer(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         compute_client = self.app.client_manager.compute
         for server in parsed_args.server:
             server_id = compute_client.find_server(
@@ -4504,7 +4591,7 @@ class ResumeServer(command.Command):
 class SetServer(command.Command):
     _description = _("Set server properties")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'server',
@@ -4604,7 +4691,7 @@ class SetServer(command.Command):
         return parser
 
     @staticmethod
-    def ask_user_yesno(msg):
+    def ask_user_yesno(msg: str) -> bool:
         """Ask user Y/N question
 
         :param str msg: question text
@@ -4617,7 +4704,7 @@ class SetServer(command.Command):
             elif answer in ('n', 'N', 'no'):
                 return False
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         compute_client = self.app.client_manager.compute
         server = compute_client.find_server(
             parsed_args.server, ignore_missing=False
@@ -4715,7 +4802,7 @@ class ShelveServer(command.Command):
     specified. This is an admin-only operation by default.
     """
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'servers',
@@ -4741,8 +4828,8 @@ class ShelveServer(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
-        def _show_progress(progress):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
+        def _show_progress(progress: int | None) -> None:
             if progress:
                 self.app.stdout.write(f'\rProgress: {progress}')
                 self.app.stdout.flush()
@@ -4815,7 +4902,7 @@ Specify ``--os-compute-api-version 2.47`` or higher to see the embedded flavor
 information for the server."""
     )
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'server',
@@ -4841,7 +4928,9 @@ information for the server."""
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         compute_client = self.app.client_manager.compute
         image_client = self.app.client_manager.image
 
@@ -4853,7 +4942,8 @@ information for the server."""
 
         if parsed_args.diagnostics:
             data = compute_client.get_server_diagnostics(server)
-            return zip(*sorted(data.items()))
+            col_headers, col_data = zip(*sorted(data.items()))
+            return col_headers, col_data
 
         topology = None
         if parsed_args.topology:
@@ -4871,13 +4961,14 @@ information for the server."""
         )
         if topology:
             data['topology'] = format_columns.DictColumn(topology)
-        return zip(*sorted(data.items()))
+        col_headers, col_data = zip(*sorted(data.items()))
+        return col_headers, col_data
 
 
 class SshServer(command.Command):
     _description = _("SSH to server")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'server',
@@ -4971,7 +5062,7 @@ class SshServer(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         compute_client = self.app.client_manager.compute
 
         server = compute_client.find_server(
@@ -5038,7 +5129,7 @@ class SshServer(command.Command):
 class StartServer(command.Command):
     _description = _("Start server(s)")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'server',
@@ -5057,7 +5148,7 @@ class StartServer(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         compute_client = self.app.client_manager.compute
         for server in parsed_args.server:
             server_id = compute_client.find_server(
@@ -5073,7 +5164,7 @@ class StartServer(command.Command):
 class StopServer(command.Command):
     _description = _("Stop server(s)")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'server',
@@ -5092,7 +5183,7 @@ class StopServer(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         compute_client = self.app.client_manager.compute
         for server in parsed_args.server:
             server_id = compute_client.find_server(
@@ -5107,7 +5198,7 @@ class StopServer(command.Command):
 class SuspendServer(command.Command):
     _description = _("Suspend server(s)")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'server',
@@ -5117,7 +5208,7 @@ class SuspendServer(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         compute_client = self.app.client_manager.compute
         for server in parsed_args.server:
             server_id = compute_client.find_server(
@@ -5130,7 +5221,7 @@ class SuspendServer(command.Command):
 class UnlockServer(command.Command):
     _description = _("Unlock server(s)")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'server',
@@ -5140,7 +5231,7 @@ class UnlockServer(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         compute_client = self.app.client_manager.compute
         for server in parsed_args.server:
             server_id = compute_client.find_server(
@@ -5153,7 +5244,7 @@ class UnlockServer(command.Command):
 class UnpauseServer(command.Command):
     _description = _("Unpause server(s)")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'server',
@@ -5163,7 +5254,7 @@ class UnpauseServer(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         compute_client = self.app.client_manager.compute
         for server in parsed_args.server:
             server_id = compute_client.find_server(
@@ -5176,7 +5267,7 @@ class UnpauseServer(command.Command):
 class UnrescueServer(command.Command):
     _description = _("Restore server from rescue mode")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'server',
@@ -5185,7 +5276,7 @@ class UnrescueServer(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         compute_client = self.app.client_manager.compute
         server = compute_client.find_server(
             parsed_args.server, ignore_missing=False
@@ -5196,7 +5287,7 @@ class UnrescueServer(command.Command):
 class UnsetServer(command.Command):
     _description = _("Unset server properties and tags")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'server',
@@ -5252,7 +5343,7 @@ class UnsetServer(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         compute_client = self.app.client_manager.compute
 
         server = compute_client.find_server(
@@ -5292,7 +5383,7 @@ class UnsetServer(command.Command):
 class UnshelveServer(command.Command):
     _description = _("Unshelve server(s)")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'server',
@@ -5338,8 +5429,8 @@ class UnshelveServer(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
-        def _show_progress(progress):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
+        def _show_progress(progress: int | None) -> None:
             if progress:
                 self.app.stdout.write(f'\rProgress: {progress}')
                 self.app.stdout.flush()

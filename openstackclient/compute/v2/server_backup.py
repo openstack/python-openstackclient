@@ -15,7 +15,10 @@
 
 """Compute v2 Server action implementations"""
 
+import argparse
+from collections.abc import Iterable, Sequence
 import importlib
+from typing import Any
 
 from osc_lib import exceptions
 from osc_lib import utils
@@ -32,7 +35,7 @@ class CreateServerBackup(command.ShowOne):
         "2": "openstackclient.image.v2.image",
     }
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'server',
@@ -65,8 +68,10 @@ class CreateServerBackup(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
-        def _show_progress(progress):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
+        def _show_progress(progress: int | None) -> None:
             if progress:
                 self.app.stderr.write(f'\rProgress: {progress}')
                 self.app.stderr.flush()
@@ -124,4 +129,5 @@ class CreateServerBackup(command.ShowOne):
                 ]
             )
             info = image_module._format_image(image)
-        return zip(*sorted(info.items()))
+        col_headers, col_data = zip(*sorted(info.items()))
+        return col_headers, col_data

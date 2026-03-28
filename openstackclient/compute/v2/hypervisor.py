@@ -15,8 +15,11 @@
 
 """Hypervisor action implementations"""
 
+import argparse
+from collections.abc import Iterable, Sequence
 import json
 import re
+from typing import Any
 
 from openstack import exceptions as sdk_exceptions
 from openstack import utils as sdk_utils
@@ -29,7 +32,9 @@ from openstackclient.common import pagination
 from openstackclient.i18n import _
 
 
-def _get_hypervisor_columns(item, client):
+def _get_hypervisor_columns(
+    item: Any, client: Any
+) -> tuple[tuple[str, ...], tuple[str, ...]]:
     column_map = {'name': 'hypervisor_hostname'}
     hidden_columns = ['location', 'servers']
 
@@ -70,7 +75,7 @@ def _get_hypervisor_columns(item, client):
 class ListHypervisor(command.Lister):
     _description = _("List hypervisors")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             '--matching',
@@ -89,7 +94,9 @@ class ListHypervisor(command.Lister):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
         compute_client = self.app.client_manager.compute
 
         list_opts = {}
@@ -160,7 +167,7 @@ class ListHypervisor(command.Lister):
 class ShowHypervisor(command.ShowOne):
     _description = _("Display hypervisor details")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             "hypervisor",
@@ -169,7 +176,9 @@ class ShowHypervisor(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         compute_client = self.app.client_manager.compute
 
         hypervisor_id = compute_client.find_hypervisor(

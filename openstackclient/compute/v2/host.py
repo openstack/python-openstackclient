@@ -15,6 +15,10 @@
 
 """Host action implementations"""
 
+import argparse
+from collections.abc import Iterable
+from typing import Any
+
 from openstack import exceptions as sdk_exceptions
 from osc_lib import utils
 
@@ -25,7 +29,7 @@ from openstackclient.i18n import _
 class ListHost(command.Lister):
     _description = _("DEPRECATED: List hosts")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             "--zone",
@@ -34,7 +38,9 @@ class ListHost(command.Lister):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
         compute_client = self.app.client_manager.compute
 
         self.log.warning(
@@ -57,7 +63,7 @@ class ListHost(command.Lister):
 class SetHost(command.Command):
     _description = _("DEPRECATED: Set host properties")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             "host", metavar="<host>", help=_("Host to modify (name only)")
@@ -82,7 +88,7 @@ class SetHost(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         compute_client = self.app.client_manager.compute
 
         self.log.warning(
@@ -115,12 +121,14 @@ class SetHost(command.Command):
 class ShowHost(command.Lister):
     _description = _("DEPRECATED: Display host details")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument("host", metavar="<host>", help=_("Name of host"))
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
         compute_client = self.app.client_manager.compute
 
         self.log.warning(

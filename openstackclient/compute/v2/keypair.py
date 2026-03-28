@@ -11,16 +11,19 @@
 #   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #   License for the specific language governing permissions and limitations
 #   under the License.
-#
 
 """Keypair action implementations"""
 
+import argparse
 import collections
+from collections.abc import Iterable, Sequence
 import logging
 import os
+from typing import Any
 
 from cryptography.hazmat.primitives.asymmetric import ed25519
 from cryptography.hazmat.primitives import serialization
+from openstack import resource
 from openstack import utils as sdk_utils
 from osc_lib import exceptions
 from osc_lib import utils
@@ -35,7 +38,7 @@ LOG = logging.getLogger(__name__)
 Keypair = collections.namedtuple('Keypair', 'private_key public_key')
 
 
-def _generate_keypair():
+def _generate_keypair() -> Keypair:
     """Generate a Ed25519 keypair in OpenSSH format.
 
     :returns: A `Keypair` named tuple with the generated private and public
@@ -58,7 +61,11 @@ def _generate_keypair():
     return Keypair(private_key, public_key)
 
 
-def _get_keypair_columns(item, hide_pub_key=False, hide_priv_key=False):
+def _get_keypair_columns(
+    item: resource.Resource,
+    hide_pub_key: bool = False,
+    hide_priv_key: bool = False,
+) -> tuple[tuple[str, ...], tuple[str, ...]]:
     # To maintain backwards compatibility we need to rename sdk props to
     # whatever OSC was using before
     hidden_columns = ['links', 'location']
@@ -74,7 +81,7 @@ def _get_keypair_columns(item, hide_pub_key=False, hide_priv_key=False):
 class CreateKeypair(command.ShowOne):
     _description = _("Create new public or private key for server ssh access")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'name', metavar='<name>', help=_("New public or private key name")
@@ -119,7 +126,9 @@ class CreateKeypair(command.ShowOne):
         identity_common.add_user_domain_option_to_parser(parser)
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         compute_client = self.app.client_manager.compute
         identity_client = self.app.client_manager.identity
 
@@ -202,13 +211,13 @@ class CreateKeypair(command.ShowOne):
             return (display_columns, data)
         else:
             self.app.stdout.write(generated_keypair.private_key)
-            return ({}, {})
+            return ((), ())
 
 
 class DeleteKeypair(command.Command):
     _description = _("Delete public or private key(s)")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'name',
@@ -227,7 +236,7 @@ class DeleteKeypair(command.Command):
         identity_common.add_user_domain_option_to_parser(parser)
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> Any:
         compute_client = self.app.client_manager.compute
         identity_client = self.app.client_manager.identity
 
@@ -272,7 +281,7 @@ class DeleteKeypair(command.Command):
 class ListKeypair(command.Lister):
     _description = _("List key fingerprints")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         user_group = parser.add_mutually_exclusive_group()
         user_group.add_argument(
@@ -297,7 +306,9 @@ class ListKeypair(command.Lister):
         pagination.add_marker_pagination_option_to_parser(parser)
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         compute_client = self.app.client_manager.compute
         identity_client = self.app.client_manager.identity
         identity_sdk_client = sdk_utils.ensure_service_version(
@@ -393,7 +404,7 @@ class ListKeypair(command.Lister):
 class ShowKeypair(command.ShowOne):
     _description = _("Display key details")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'name',
@@ -417,7 +428,9 @@ class ShowKeypair(command.ShowOne):
         identity_common.add_user_domain_option_to_parser(parser)
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         compute_client = self.app.client_manager.compute
         identity_client = self.app.client_manager.identity
 
@@ -449,4 +462,4 @@ class ShowKeypair(command.ShowOne):
             return (display_columns, data)
         else:
             self.app.stdout.write(keypair.public_key)
-            return ({}, {})
+            return ((), ())

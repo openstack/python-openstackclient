@@ -15,6 +15,10 @@
 
 """Compute v2 Console action implementations"""
 
+import argparse
+from collections.abc import Iterable, Sequence
+from typing import Any
+
 from osc_lib.cli import parseractions
 from osc_lib import utils
 
@@ -22,7 +26,7 @@ from openstackclient import command
 from openstackclient.i18n import _
 
 
-def _get_console_columns(item):
+def _get_console_columns(item: Any) -> tuple[tuple[str, ...], tuple[str, ...]]:
     # To maintain backwards compatibility we need to rename sdk props to
     # whatever OSC was using before
     hidden_columns = ['id', 'links', 'location', 'name']
@@ -34,7 +38,7 @@ def _get_console_columns(item):
 class ShowConsoleLog(command.Command):
     _description = _("Show server's console output")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'server',
@@ -54,7 +58,7 @@ class ShowConsoleLog(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         compute_client = self.app.client_manager.compute
 
         server = compute_client.find_server(
@@ -78,7 +82,7 @@ class ShowConsoleLog(command.Command):
 class ShowConsoleURL(command.ShowOne):
     _description = _("Show server's remote console URL")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'server',
@@ -138,7 +142,9 @@ class ShowConsoleURL(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         compute_client = self.app.client_manager.compute
         server = compute_client.find_server(
             parsed_args.server, ignore_missing=False

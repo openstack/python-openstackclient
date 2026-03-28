@@ -13,13 +13,19 @@
 
 """Hypervisor Stats action implementations"""
 
+import argparse
+from collections.abc import Iterable, Sequence
+from typing import Any
+
 from osc_lib import utils
 
 from openstackclient import command
 from openstackclient.i18n import _
 
 
-def _get_hypervisor_stat_columns(item):
+def _get_hypervisor_stat_columns(
+    item: Any,
+) -> tuple[tuple[str, ...], tuple[str, ...]]:
     column_map = {
         # NOTE(gtema): If we decide to use SDK names - empty this
         'disk_available': 'disk_available_least',
@@ -39,7 +45,9 @@ def _get_hypervisor_stat_columns(item):
 class ShowHypervisorStats(command.ShowOne):
     _description = _("Display hypervisor stats details")
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         # The command is deprecated since it is being dropped in Nova.
         self.log.warning(_("This command is deprecated."))
         compute_client = self.app.client_manager.compute

@@ -14,6 +14,10 @@
 
 """Compute v2 Server action implementations"""
 
+import argparse
+from collections.abc import Iterable, Sequence
+from typing import Any
+
 from openstack import utils as sdk_utils
 from osc_lib import exceptions
 from osc_lib import utils
@@ -22,7 +26,9 @@ from openstackclient import command
 from openstackclient.i18n import _
 
 
-def _get_server_share_columns(item):
+def _get_server_share_columns(
+    item: Any,
+) -> tuple[tuple[str, ...], tuple[str, ...]]:
     # Non admin cannot see uuid and export location, so hide them
     if item.uuid is None:
         column_map = {
@@ -59,7 +65,7 @@ class ListServerShare(command.Lister):
     Requires ``--os-compute-api-version 2.97`` or later.
     """
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'server',
@@ -68,7 +74,9 @@ class ListServerShare(command.Lister):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
         compute_client = self.app.client_manager.compute
 
         if not sdk_utils.supports_microversion(compute_client, '2.97'):
@@ -107,7 +115,7 @@ class ShowServerShare(command.ShowOne):
     Requires ``--os-compute-api-version 2.97`` or later.
     """
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'server',
@@ -121,7 +129,9 @@ class ShowServerShare(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         compute_client = self.app.client_manager.compute
         shared_file_system_client = (
             self.app.client_manager.sdk_connection.shared_file_system
@@ -159,7 +169,7 @@ class AddServerShare(command.ShowOne):
     Requires ``--os-compute-api-version 2.97`` or later.
     """
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'server',
@@ -181,7 +191,9 @@ class AddServerShare(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         compute_client = self.app.client_manager.compute
         shared_file_system_client = (
             self.app.client_manager.sdk_connection.shared_file_system
@@ -203,7 +215,7 @@ class AddServerShare(command.ShowOne):
             ignore_missing=False,
         )
 
-        kwargs = {}
+        kwargs: dict[str, Any] = {}
         if parsed_args.tag:
             kwargs['tag'] = parsed_args.tag
 
@@ -224,7 +236,7 @@ class RemoveServerShare(command.Command):
     Requires ``--os-compute-api-version 2.97`` or later.
     """
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'server',
@@ -238,7 +250,7 @@ class RemoveServerShare(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         compute_client = self.app.client_manager.compute
         shared_file_system_client = (
             self.app.client_manager.sdk_connection.shared_file_system

@@ -15,7 +15,10 @@
 
 """Flavor action implementations"""
 
+import argparse
+from collections.abc import Iterable, Sequence
 import logging
+from typing import Any
 
 from openstack import exceptions as sdk_exceptions
 from openstack import utils as sdk_utils
@@ -39,7 +42,7 @@ _formatters = {
 }
 
 
-def _get_flavor_columns(item):
+def _get_flavor_columns(item: Any) -> tuple[tuple[str, ...], tuple[str, ...]]:
     # To maintain backwards compatibility we need to rename sdk props to
     # whatever OSC was using before
     column_map = {
@@ -57,7 +60,7 @@ def _get_flavor_columns(item):
 class CreateFlavor(command.ShowOne):
     _description = _("Create new flavor")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             "name", metavar="<flavor-name>", help=_("New flavor name")
@@ -147,7 +150,9 @@ class CreateFlavor(command.ShowOne):
         identity_common.add_project_domain_option_to_parser(parser)
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         compute_client = self.app.client_manager.compute
         identity_client = self.app.client_manager.identity
 
@@ -234,7 +239,7 @@ class CreateFlavor(command.ShowOne):
 class DeleteFlavor(command.Command):
     _description = _("Delete flavor(s)")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             "flavor",
@@ -244,7 +249,7 @@ class DeleteFlavor(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         compute_client = self.app.client_manager.compute
         result = 0
         for f in parsed_args.flavor:
@@ -273,7 +278,7 @@ class DeleteFlavor(command.Command):
 class ListFlavor(command.Lister):
     _description = _("List flavors")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         public_group = parser.add_mutually_exclusive_group()
         public_group.add_argument(
@@ -317,7 +322,9 @@ class ListFlavor(command.Lister):
         pagination.add_marker_pagination_option_to_parser(parser)
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
         compute_client = self.app.client_manager.compute
         # is_public is ternary - None means give all flavors,
         # True is public only and False is private only
@@ -395,7 +402,7 @@ class ListFlavor(command.Lister):
 class SetFlavor(command.Command):
     _description = _("Set flavor properties")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             "flavor",
@@ -439,7 +446,7 @@ class SetFlavor(command.Command):
 
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         compute_client = self.app.client_manager.compute
         identity_client = self.app.client_manager.identity
 
@@ -509,7 +516,7 @@ class SetFlavor(command.Command):
 class ShowFlavor(command.ShowOne):
     _description = _("Display flavor details")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             "flavor",
@@ -518,7 +525,9 @@ class ShowFlavor(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         compute_client = self.app.client_manager.compute
         flavor = compute_client.find_flavor(
             parsed_args.flavor, get_extra_specs=True, ignore_missing=False
@@ -558,7 +567,7 @@ class ShowFlavor(command.ShowOne):
 class UnsetFlavor(command.Command):
     _description = _("Unset flavor properties")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             "flavor",
@@ -586,7 +595,7 @@ class UnsetFlavor(command.Command):
 
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         compute_client = self.app.client_manager.compute
         identity_client = self.app.client_manager.identity
 

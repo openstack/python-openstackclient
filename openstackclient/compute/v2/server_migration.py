@@ -12,6 +12,9 @@
 
 """Compute v2 Server Migration action implementations"""
 
+import argparse
+from collections.abc import Iterable, Sequence
+from typing import Any
 import uuid
 
 from openstack import utils as sdk_utils
@@ -27,7 +30,7 @@ from openstackclient.identity import common as identity_common
 class ListMigration(command.Lister):
     _description = _("""List server migrations""")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             '--server',
@@ -98,7 +101,12 @@ class ListMigration(command.Lister):
         identity_common.add_user_domain_option_to_parser(parser)
         return parser
 
-    def print_migrations(self, parsed_args, compute_client, migrations):
+    def print_migrations(
+        self,
+        parsed_args: argparse.Namespace,
+        compute_client: Any,
+        migrations: Any,
+    ) -> tuple[list[str], Iterable[tuple[Any, ...]]]:
         column_headers = [
             'Source Node',
             'Dest Node',
@@ -153,7 +161,9 @@ class ListMigration(command.Lister):
             (utils.get_item_properties(mig, columns) for mig in migrations),
         )
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[list[str], Iterable[tuple[Any, ...]]]:
         compute_client = self.app.client_manager.compute
         identity_client = self.app.client_manager.identity
 
@@ -248,7 +258,9 @@ class ListMigration(command.Lister):
         return self.print_migrations(parsed_args, compute_client, migrations)
 
 
-def _get_migration_by_uuid(compute_client, server_id, migration_uuid):
+def _get_migration_by_uuid(
+    compute_client: Any, server_id: str, migration_uuid: str
+) -> Any:
     for migration in compute_client.server_migrations(server_id):
         if migration.uuid == migration_uuid:
             return migration
@@ -274,7 +286,7 @@ class ShowMigration(command.ShowOne):
     these.
     """
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'server',
@@ -288,7 +300,9 @@ class ShowMigration(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         compute_client = self.app.client_manager.compute
 
         if not sdk_utils.supports_microversion(compute_client, '2.24'):
@@ -389,7 +403,7 @@ class AbortMigration(command.Command):
     This command requires ``--os-compute-api-version`` 2.24 or greater.
     """
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'server',
@@ -403,7 +417,7 @@ class AbortMigration(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         compute_client = self.app.client_manager.compute
 
         if not sdk_utils.supports_microversion(compute_client, '2.24'):
@@ -456,7 +470,7 @@ class ForceCompleteMigration(command.Command):
     This command requires ``--os-compute-api-version`` 2.22 or greater.
     """
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'server',
@@ -468,7 +482,7 @@ class ForceCompleteMigration(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         compute_client = self.app.client_manager.compute
 
         if not sdk_utils.supports_microversion(compute_client, '2.22'):

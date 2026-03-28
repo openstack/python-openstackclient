@@ -14,6 +14,10 @@
 
 """Compute v2 Server action implementations"""
 
+import argparse
+from collections.abc import Iterable
+from typing import Any
+
 from openstack import utils as sdk_utils
 from osc_lib import exceptions
 from osc_lib import utils
@@ -25,7 +29,7 @@ from openstackclient.i18n import _
 class ListServerVolume(command.Lister):
     """List all the volumes attached to a server."""
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'server',
@@ -33,7 +37,9 @@ class ListServerVolume(command.Lister):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
         compute_client = self.app.client_manager.compute
 
         server = compute_client.find_server(
@@ -81,7 +87,7 @@ class ListServerVolume(command.Lister):
 class SetServerVolume(command.Command):
     """Update a volume attachment on the server."""
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'server',
@@ -113,7 +119,7 @@ class SetServerVolume(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         compute_client = self.app.client_manager.compute
         volume_client = self.app.client_manager.sdk_connection.volume
 

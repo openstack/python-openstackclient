@@ -15,7 +15,10 @@
 
 """Service action implementations"""
 
+import argparse
+from collections.abc import Iterable
 import logging
+from typing import Any
 
 from openstack import utils as sdk_utils
 from osc_lib import exceptions
@@ -31,7 +34,7 @@ LOG = logging.getLogger(__name__)
 class DeleteService(command.Command):
     _description = _("Delete compute service(s)")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             "service",
@@ -51,7 +54,7 @@ class DeleteService(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         compute_client = self.app.client_manager.compute
         result = 0
         for s in parsed_args.service:
@@ -84,7 +87,7 @@ value which can be used to uniquely identify the service in a multi-cell
 deployment."""
     )
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             "--host",
@@ -107,7 +110,9 @@ deployment."""
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
         compute_client = self.app.client_manager.compute
         columns: tuple[str, ...] = (
             "id",
@@ -146,7 +151,7 @@ deployment."""
 class SetService(command.Command):
     _description = _("Set compute service properties")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument("host", metavar="<host>", help=_("Name of host"))
         parser.add_argument(
@@ -192,7 +197,9 @@ class SetService(command.Command):
         return parser
 
     @staticmethod
-    def _find_service_by_host_and_binary(compute_client, host, binary):
+    def _find_service_by_host_and_binary(
+        compute_client: Any, host: str, binary: str
+    ) -> Any:
         """Utility method to find a compute service by host and binary
 
         :param host: the name of the compute service host
@@ -220,7 +227,7 @@ class SetService(command.Command):
             raise exceptions.CommandError(msg)
         return services[0]
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         compute_client = self.app.client_manager.compute
 
         if (

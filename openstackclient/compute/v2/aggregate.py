@@ -16,6 +16,8 @@
 
 """Compute v2 Aggregate action implementations"""
 
+import argparse
+from collections.abc import Iterable, Sequence
 import logging
 from typing import Any
 
@@ -41,7 +43,9 @@ _aggregate_formatters: dict[str, type[columns.FormattableColumn[Any]]] = {
 }
 
 
-def _get_aggregate_columns(item):
+def _get_aggregate_columns(
+    item: Any,
+) -> tuple[tuple[str, ...], tuple[str, ...]]:
     # To maintain backwards compatibility we need to rename sdk props to
     # whatever OSC was using before
     column_map = {
@@ -56,7 +60,7 @@ def _get_aggregate_columns(item):
 class AddAggregateHost(command.ShowOne):
     _description = _("Add host to aggregate")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'aggregate',
@@ -68,7 +72,9 @@ class AddAggregateHost(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         compute_client = self.app.client_manager.compute
 
         aggregate = compute_client.find_aggregate(
@@ -89,7 +95,7 @@ class AddAggregateHost(command.ShowOne):
 class CreateAggregate(command.ShowOne):
     _description = _("Create a new aggregate")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             "name", metavar="<name>", help=_("New aggregate name")
@@ -111,7 +117,9 @@ class CreateAggregate(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         compute_client = self.app.client_manager.compute
 
         attrs = {'name': parsed_args.name}
@@ -137,7 +145,7 @@ class CreateAggregate(command.ShowOne):
 class DeleteAggregate(command.Command):
     _description = _("Delete existing aggregate(s)")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'aggregate',
@@ -147,7 +155,7 @@ class DeleteAggregate(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         compute_client = self.app.client_manager.compute
         result = 0
         for a in parsed_args.aggregate:
@@ -180,7 +188,7 @@ class DeleteAggregate(command.Command):
 class ListAggregate(command.Lister):
     _description = _("List all aggregates")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             '--long',
@@ -190,7 +198,9 @@ class ListAggregate(command.Lister):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
         compute_client = self.app.client_manager.compute
 
         aggregates = list(compute_client.aggregates())
@@ -240,7 +250,7 @@ class ListAggregate(command.Lister):
 class RemoveAggregateHost(command.ShowOne):
     _description = _("Remove host from aggregate")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'aggregate',
@@ -252,7 +262,9 @@ class RemoveAggregateHost(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         compute_client = self.app.client_manager.compute
 
         aggregate = compute_client.find_aggregate(
@@ -273,7 +285,7 @@ class RemoveAggregateHost(command.ShowOne):
 class SetAggregate(command.Command):
     _description = _("Set aggregate properties")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'aggregate',
@@ -309,7 +321,7 @@ class SetAggregate(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         compute_client = self.app.client_manager.compute
         aggregate = compute_client.find_aggregate(
             parsed_args.aggregate, ignore_missing=False
@@ -345,7 +357,7 @@ class SetAggregate(command.Command):
 class ShowAggregate(command.ShowOne):
     _description = _("Display aggregate details")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'aggregate',
@@ -354,7 +366,9 @@ class ShowAggregate(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         compute_client = self.app.client_manager.compute
         aggregate = compute_client.find_aggregate(
             parsed_args.aggregate, ignore_missing=False
@@ -374,7 +388,7 @@ class ShowAggregate(command.ShowOne):
 class UnsetAggregate(command.Command):
     _description = _("Unset aggregate properties")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             "aggregate",
@@ -394,7 +408,7 @@ class UnsetAggregate(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         compute_client = self.app.client_manager.compute
         aggregate = compute_client.find_aggregate(
             parsed_args.aggregate, ignore_missing=False
@@ -411,7 +425,7 @@ class CacheImageForAggregate(command.Command):
     # NOTE(gtema): According to stephenfin and dansmith there is no and will
     # not be anything to return.
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'aggregate',
@@ -429,7 +443,7 @@ class CacheImageForAggregate(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         compute_client = self.app.client_manager.compute
 
         if not sdk_utils.supports_microversion(compute_client, '2.81'):

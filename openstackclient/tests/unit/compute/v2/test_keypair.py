@@ -90,8 +90,8 @@ class TestKeypairCreate(TestKeypair):
             public_key=mock_generate.return_value.public_key,
         )
 
-        self.assertEqual({}, columns)
-        self.assertEqual({}, data)
+        self.assertEqual((), columns)
+        self.assertEqual((), data)
 
     def test_keypair_create_public_key(self):
         self.data = (
@@ -279,8 +279,8 @@ class TestKeypairCreate(TestKeypair):
             public_key=mock_generate.return_value.public_key,
         )
 
-        self.assertEqual({}, columns)
-        self.assertEqual({}, data)
+        self.assertEqual((), columns)
+        self.assertEqual((), data)
 
     def test_key_pair_create_with_user_pre_v210(self):
         self.set_compute_api_version('2.9')
@@ -740,8 +740,8 @@ class TestKeypairShow(TestKeypair):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.assertEqual({}, columns)
-        self.assertEqual({}, data)
+        self.assertEqual((), columns)
+        self.assertEqual((), data)
 
     def test_keypair_show_with_user(self):
         self.set_compute_api_version('2.10')

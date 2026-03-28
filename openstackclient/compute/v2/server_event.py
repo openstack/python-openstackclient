@@ -15,7 +15,10 @@
 
 """Compute v2 Server operation event implementations"""
 
+import argparse
+from collections.abc import Iterable, Sequence
 import logging
+from typing import Any
 import uuid
 
 from cliff import columns
@@ -34,7 +37,7 @@ LOG = logging.getLogger(__name__)
 
 # TODO(stephenfin): Move this to osc_lib since it's useful elsewhere (e.g.
 # glance)
-def is_uuid_like(value) -> bool:
+def is_uuid_like(value: str) -> bool:
     """Returns validation of a value as a UUID.
 
     :param val: Value to verify
@@ -57,14 +60,14 @@ def is_uuid_like(value) -> bool:
         return False
 
 
-class ServerActionEventColumn(columns.FormattableColumn):
+class ServerActionEventColumn(columns.FormattableColumn[Any]):
     """Custom formatter for server action events.
 
     Format the :class:`~openstack.compute.v2.server_action.ServerActionEvent`
     objects as we'd like.
     """
 
-    def _format_event(self, event):
+    def _format_event(self, event: Any) -> dict[str, Any]:
         hidden_columns = ['id', 'name', 'location']
         _, columns = utils.get_osc_show_columns_for_sdk_resource(
             event, {}, hidden_columns
@@ -72,16 +75,18 @@ class ServerActionEventColumn(columns.FormattableColumn):
         data = utils.get_item_properties(event, columns)
         return dict(zip(columns, data))
 
-    def human_readable(self):
+    def human_readable(self) -> str:
         events = [self._format_event(event) for event in self._value]
-        return utils.format_list_of_dicts(events)
+        return utils.format_list_of_dicts(events) or ""
 
-    def machine_readable(self):
+    def machine_readable(self) -> Any:
         events = [self._format_event(event) for event in self._value]
         return events
 
 
-def _get_server_event_columns(item, client):
+def _get_server_event_columns(
+    item: Any, client: Any
+) -> tuple[tuple[str, ...], tuple[str, ...]]:
     hidden_columns = ['name', 'server_id', 'links', 'location']
 
     if not sdk_utils.supports_microversion(client, '2.58'):
@@ -100,7 +105,7 @@ class ListServerEvent(command.Lister):
     deleted server, specified by ID only.
     """
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'server',
@@ -138,7 +143,9 @@ class ListServerEvent(command.Lister):
         pagination.add_marker_pagination_option_to_parser(parser)
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
         compute_client = self.app.client_manager.compute
 
         kwargs = {}
@@ -251,7 +258,7 @@ class ShowServerEvent(command.ShowOne):
     non-admin users.
     """
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'server',
@@ -265,7 +272,9 @@ class ShowServerEvent(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         compute_client = self.app.client_manager.compute
 
         try:

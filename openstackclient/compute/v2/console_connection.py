@@ -13,13 +13,19 @@
 
 """Compute v2 Console auth token implementations."""
 
+import argparse
+from collections.abc import Iterable, Sequence
+from typing import Any
+
 from osc_lib import utils
 
 from openstackclient import command
 from openstackclient.i18n import _
 
 
-def _get_console_connection_columns(item):
+def _get_console_connection_columns(
+    item: Any,
+) -> tuple[tuple[str, ...], tuple[str, ...]]:
     column_map: dict[str, str] = {}
     hidden_columns = ['id', 'location', 'name']
     return utils.get_osc_show_columns_for_sdk_resource(
@@ -30,7 +36,7 @@ def _get_console_connection_columns(item):
 class ShowConsoleConnectionInformation(command.ShowOne):
     _description = _("Show server's remote console connection information")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'token',
@@ -39,7 +45,9 @@ class ShowConsoleConnectionInformation(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         compute_client = self.app.client_manager.compute
         data = compute_client.validate_console_auth_token(parsed_args.token)
         display_columns, columns = _get_console_connection_columns(data)

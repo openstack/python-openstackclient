@@ -15,6 +15,8 @@
 
 """Compute v2 Server Group action implementations"""
 
+import argparse
+from collections.abc import Iterable, Sequence
 import logging
 from typing import Any
 
@@ -39,7 +41,9 @@ _formatters: dict[str, type[columns.FormattableColumn[Any]]] = {
 }
 
 
-def _get_server_group_columns(item, client):
+def _get_server_group_columns(
+    item: Any, client: Any
+) -> tuple[tuple[str, ...], tuple[str, ...]]:
     column_map = {'member_ids': 'members'}
     hidden_columns = ['metadata', 'location']
 
@@ -57,7 +61,7 @@ def _get_server_group_columns(item, client):
 class CreateServerGroup(command.ShowOne):
     _description = _("Create a new server group.")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'name',
@@ -94,7 +98,9 @@ class CreateServerGroup(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         compute_client = self.app.client_manager.compute
 
         if parsed_args.policy in ('soft-affinity', 'soft-anti-affinity'):
@@ -144,7 +150,7 @@ class CreateServerGroup(command.ShowOne):
 class DeleteServerGroup(command.Command):
     _description = _("Delete existing server group(s).")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'server_group',
@@ -154,7 +160,7 @@ class DeleteServerGroup(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         compute_client = self.app.client_manager.compute
         result = 0
         for group in parsed_args.server_group:
@@ -179,7 +185,7 @@ class DeleteServerGroup(command.Command):
 class ListServerGroup(command.Lister):
     _description = _("List all server groups.")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             '--all-projects',
@@ -198,7 +204,9 @@ class ListServerGroup(command.Lister):
         pagination.add_offset_pagination_option_to_parser(parser)
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
         compute_client = self.app.client_manager.compute
 
         kwargs = {}
@@ -256,7 +264,7 @@ class ListServerGroup(command.Lister):
 class ShowServerGroup(command.ShowOne):
     _description = _("Display server group details.")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'server_group',
@@ -265,7 +273,9 @@ class ShowServerGroup(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         compute_client = self.app.client_manager.compute
         group = compute_client.find_server_group(
             parsed_args.server_group, ignore_missing=False

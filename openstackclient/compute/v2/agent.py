@@ -11,11 +11,13 @@
 #   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #   License for the specific language governing permissions and limitations
 #   under the License.
-#
 
 """Agent action implementations"""
 
+import argparse
+from collections.abc import Iterable, Sequence
 import logging
+from typing import Any
 
 from openstack import exceptions as sdk_exceptions
 from osc_lib import exceptions
@@ -36,7 +38,7 @@ class CreateAgent(command.ShowOne):
     23.0.0 (Wallaby) release.
     """
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument("os", metavar="<os>", help=_("Type of OS"))
         parser.add_argument(
@@ -55,7 +57,9 @@ class CreateAgent(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         compute_client = self.app.client_manager.compute
 
         # doing this since openstacksdk has decided not to support this
@@ -76,7 +80,8 @@ class CreateAgent(command.ShowOne):
         sdk_exceptions.raise_from_response(response)
         agent = response.json().get('agent')
 
-        return zip(*sorted(agent.items()))
+        col_headers, col_data = zip(*sorted(agent.items()))
+        return col_headers, col_data
 
 
 class DeleteAgent(command.Command):
@@ -87,14 +92,14 @@ class DeleteAgent(command.Command):
     23.0.0 (Wallaby) release.
     """
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             "id", metavar="<id>", nargs='+', help=_("ID of agent(s) to delete")
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         compute_client = self.app.client_manager.compute
         result = 0
         for id in parsed_args.id:
@@ -129,7 +134,7 @@ class ListAgent(command.Lister):
     23.0.0 (Wallaby) release.
     """
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             "--hypervisor",
@@ -138,7 +143,9 @@ class ListAgent(command.Lister):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
         compute_client = self.app.client_manager.compute
         columns = (
             "Agent ID",
@@ -171,7 +178,7 @@ class SetAgent(command.Command):
     23.0.0 (Wallaby) release.
     """
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             "id",
@@ -193,7 +200,7 @@ class SetAgent(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         compute_client = self.app.client_manager.compute
 
         response = compute_client.get('/os-agents', microversion='2.1')

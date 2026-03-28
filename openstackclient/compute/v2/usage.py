@@ -15,10 +15,11 @@
 
 """Usage action implementations"""
 
-from collections.abc import Collection
+import argparse
+from collections.abc import Collection, Iterable, Sequence
 import datetime
 import functools
-from typing import Any
+from typing import Any, cast
 
 from cliff import columns as cliff_columns
 from osc_lib import utils
@@ -40,32 +41,32 @@ class ProjectColumn(cliff_columns.FormattableColumn[str]):
     project_cache)`` to use this.
     """
 
-    def __init__(self, value, project_cache=None):
+    def __init__(self, value: str, project_cache: Any = None) -> None:
         super().__init__(value)
         self.project_cache = project_cache or {}
 
-    def human_readable(self):
+    def human_readable(self) -> str:
         project = self._value
         if not project:
             return ''
 
         if project in self.project_cache.keys():
-            return self.project_cache[project].name
+            return cast(str, self.project_cache[project].name)
 
         return project
 
 
 class CountColumn(cliff_columns.FormattableColumn[Collection[Any]]):
-    def human_readable(self):
-        return len(self._value) if self._value is not None else None
+    def human_readable(self) -> str:
+        return str(len(self._value)) if self._value is not None else ""
 
 
 class FloatColumn(cliff_columns.FormattableColumn[float]):
-    def human_readable(self):
-        return float(f"{self._value:.2f}")
+    def human_readable(self) -> str:
+        return f"{self._value:.2f}"
 
 
-def _formatters(project_cache):
+def _formatters(project_cache: Any) -> dict[str, Any]:
     return {
         'project_id': functools.partial(
             ProjectColumn, project_cache=project_cache
@@ -77,21 +78,21 @@ def _formatters(project_cache):
     }
 
 
-def _get_usage_marker(usage):
+def _get_usage_marker(usage: Any) -> str | None:
     marker = None
     if hasattr(usage, 'server_usages') and usage.server_usages:
         marker = usage.server_usages[-1]['instance_id']
     return marker
 
 
-def _get_usage_list_marker(usage_list):
+def _get_usage_list_marker(usage_list: Any) -> str | None:
     marker = None
     if usage_list:
         marker = _get_usage_marker(usage_list[-1])
     return marker
 
 
-def _merge_usage(usage, next_usage):
+def _merge_usage(usage: Any, next_usage: Any) -> None:
     usage.server_usages.extend(next_usage.server_usages)
     usage.total_hours += next_usage.total_hours
     usage.total_memory_mb_usage += next_usage.total_memory_mb_usage
@@ -99,7 +100,7 @@ def _merge_usage(usage, next_usage):
     usage.total_local_gb_usage += next_usage.total_local_gb_usage
 
 
-def _merge_usage_list(usages, next_usage_list):
+def _merge_usage_list(usages: Any, next_usage_list: Any) -> None:
     for next_usage in next_usage_list:
         if next_usage.project_id in usages:
             _merge_usage(usages[next_usage.project_id], next_usage)
@@ -110,7 +111,7 @@ def _merge_usage_list(usages, next_usage_list):
 class ListUsage(command.Lister):
     _description = _("List resource usage per project")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             "--start",
@@ -128,12 +129,14 @@ class ListUsage(command.Lister):
         )
         return parser
 
-    def take_action(self, parsed_args):
-        def _format_project(project):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
+        def _format_project(project: str) -> str:
             if not project:
                 return ""
             if project in project_cache.keys():
-                return project_cache[project].name
+                return cast(str, project_cache[project].name)
             else:
                 return project
 
@@ -210,7 +213,7 @@ class ListUsage(command.Lister):
 class ShowUsage(command.ShowOne):
     _description = _("Show resource usage for a single project")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             "--project",
@@ -234,7 +237,9 @@ class ShowUsage(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         identity_client = self.app.client_manager.identity
         compute_client = self.app.client_manager.compute
         date_cli_format = "%Y-%m-%d"
