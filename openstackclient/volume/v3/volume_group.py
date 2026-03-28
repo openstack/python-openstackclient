@@ -11,6 +11,8 @@
 # under the License.
 
 import argparse
+from collections.abc import Iterable, Sequence
+from typing import Any
 
 from cinderclient import api_versions
 from osc_lib import exceptions
@@ -21,7 +23,7 @@ from openstackclient.common import envvars
 from openstackclient.i18n import _
 
 
-def _format_group(group):
+def _format_group(group: Any) -> tuple[Sequence[str], Iterable[Any]]:
     columns = (
         'id',
         'status',
@@ -79,7 +81,7 @@ class CreateVolumeGroup(command.ShowOne):
     This command requires ``--os-volume-api-version`` 3.13 or greater.
     """
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         # This is a bit complicated. We accept two patterns: a legacy pattern
         #
@@ -168,7 +170,9 @@ class CreateVolumeGroup(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         volume_client = self.app.client_manager.volume
 
         if parsed_args.volume_group_type_legacy:
@@ -276,7 +280,7 @@ class DeleteVolumeGroup(command.Command):
     This command requires ``--os-volume-api-version`` 3.13 or greater.
     """
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'group',
@@ -294,7 +298,7 @@ class DeleteVolumeGroup(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         volume_client = self.app.client_manager.volume
 
         if volume_client.api_version < api_versions.APIVersion('3.13'):
@@ -318,7 +322,7 @@ class SetVolumeGroup(command.ShowOne):
     This command requires ``--os-volume-api-version`` 3.13 or greater.
     """
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'group',
@@ -356,7 +360,9 @@ class SetVolumeGroup(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         volume_client = self.app.client_manager.volume
 
         if volume_client.api_version < api_versions.APIVersion('3.13'):
@@ -405,7 +411,7 @@ class ListVolumeGroup(command.Lister):
     This command requires ``--os-volume-api-version`` 3.13 or greater.
     """
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             '--all-projects',
@@ -430,7 +436,9 @@ class ListVolumeGroup(command.Lister):
         # )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
         volume_client = self.app.client_manager.volume
 
         if volume_client.api_version < api_versions.APIVersion('3.13'):
@@ -469,7 +477,7 @@ class ShowVolumeGroup(command.ShowOne):
     This command requires ``--os-volume-api-version`` 3.13 or greater.
     """
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'group',
@@ -517,7 +525,9 @@ class ShowVolumeGroup(command.ShowOne):
 
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         volume_client = self.app.client_manager.volume
 
         if volume_client.api_version < api_versions.APIVersion('3.13'):
@@ -571,7 +581,7 @@ class FailoverVolumeGroup(command.Command):
     This command requires ``--os-volume-api-version`` 3.38 or greater.
     """
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'group',
@@ -599,7 +609,7 @@ class FailoverVolumeGroup(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         volume_client = self.app.client_manager.volume
 
         if volume_client.api_version < api_versions.APIVersion('3.38'):

@@ -14,6 +14,9 @@
 
 """Block Storage Service action implementations"""
 
+import argparse
+from typing import Any
+
 from openstack import utils as sdk_utils
 from osc_lib import exceptions
 
@@ -27,7 +30,7 @@ class BlockStorageLogLevelList(command.Lister):
     Supported by --os-volume-api-version 3.32 or greater.
     """
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             "--host",
@@ -63,7 +66,9 @@ class BlockStorageLogLevelList(command.Lister):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[list[str], list[tuple[Any, ...]]]:
         volume_client = sdk_utils.ensure_service_version(
             self.app.client_manager.sdk_connection.volume, '3'
         )
@@ -100,7 +105,7 @@ class BlockStorageLogLevelSet(command.Command):
     Supported by --os-volume-api-version 3.32 or greater.
     """
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             "level",
@@ -143,7 +148,7 @@ class BlockStorageLogLevelSet(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         volume_client = sdk_utils.ensure_service_version(
             self.app.client_manager.sdk_connection.volume, '3'
         )

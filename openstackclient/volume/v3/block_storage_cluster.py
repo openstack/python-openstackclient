@@ -10,6 +10,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import argparse
+from collections.abc import Iterable, Sequence
+from typing import Any
+
 from cinderclient import api_versions
 from osc_lib import exceptions
 from osc_lib import utils
@@ -18,7 +22,9 @@ from openstackclient import command
 from openstackclient.i18n import _
 
 
-def _format_cluster(cluster, detailed=False):
+def _format_cluster(
+    cluster: Any, detailed: bool = False
+) -> tuple[Sequence[str], Iterable[Any]]:
     columns: tuple[str, ...] = (
         'name',
         'binary',
@@ -73,7 +79,7 @@ class ListBlockStorageCluster(command.Lister):
     This command requires ``--os-volume-api-version`` 3.7 or greater.
     """
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             '--cluster',
@@ -137,7 +143,9 @@ class ListBlockStorageCluster(command.Lister):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
         volume_client = self.app.client_manager.volume
 
         if volume_client.api_version < api_versions.APIVersion('3.7'):
@@ -180,7 +188,7 @@ class SetBlockStorageCluster(command.Command):
     This command requires ``--os-volume-api-version`` 3.7 or greater.
     """
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'cluster',
@@ -221,7 +229,9 @@ class SetBlockStorageCluster(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         volume_client = self.app.client_manager.volume
 
         if volume_client.api_version < api_versions.APIVersion('3.7'):
@@ -251,7 +261,7 @@ class ShowBlockStorageCluster(command.ShowOne):
     This command requires ``--os-volume-api-version`` 3.7 or greater.
     """
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'cluster',
@@ -265,7 +275,9 @@ class ShowBlockStorageCluster(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         volume_client = self.app.client_manager.volume
 
         if volume_client.api_version < api_versions.APIVersion('3.7'):

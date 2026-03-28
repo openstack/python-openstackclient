@@ -14,6 +14,10 @@
 
 """Storage backend action implementations"""
 
+import argparse
+from collections.abc import Iterable, Sequence
+from typing import Any
+
 from osc_lib.cli import format_columns
 from osc_lib import utils
 
@@ -24,7 +28,7 @@ from openstackclient.i18n import _
 class ShowCapability(command.Lister):
     _description = _("Show capability command")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             "host",
@@ -33,7 +37,9 @@ class ShowCapability(command.Lister):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[tuple[Any, ...]]]:
         volume_client = self.app.client_manager.sdk_connection.volume
 
         columns = [
@@ -71,7 +77,7 @@ class ShowCapability(command.Lister):
 class ListPool(command.Lister):
     _description = _("List pool command")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             "--long",
@@ -83,7 +89,9 @@ class ListPool(command.Lister):
         # able to pass in --filters with a <key>=<value> pair to filter on.
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[tuple[Any, ...]]]:
         volume_client = self.app.client_manager.sdk_connection.volume
 
         if parsed_args.long:

@@ -14,7 +14,10 @@
 
 """Volume V3 Messages implementations"""
 
+import argparse
+from collections.abc import Iterable, Sequence
 import logging as LOG
+from typing import Any
 
 from cinderclient import api_versions
 from osc_lib import exceptions
@@ -29,7 +32,7 @@ from openstackclient.identity import common as identity_common
 class DeleteMessage(command.Command):
     _description = _('Delete a volume failure message')
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'message_ids',
@@ -40,7 +43,7 @@ class DeleteMessage(command.Command):
 
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         volume_client = self.app.client_manager.volume
 
         if volume_client.api_version < api_versions.APIVersion('3.3'):
@@ -70,7 +73,7 @@ class DeleteMessage(command.Command):
 class ListMessages(command.Lister):
     _description = _('List volume failure messages')
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
 
         parser.add_argument(
@@ -83,7 +86,9 @@ class ListMessages(command.Lister):
 
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
         volume_client = self.app.client_manager.volume
         identity_client = self.app.client_manager.identity
 
@@ -132,7 +137,7 @@ class ListMessages(command.Lister):
 class ShowMessage(command.ShowOne):
     _description = _('Show a volume failure message')
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'message_id',
@@ -142,7 +147,9 @@ class ShowMessage(command.ShowOne):
 
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         volume_client = self.app.client_manager.volume
 
         if volume_client.api_version < api_versions.APIVersion('3.3'):
@@ -154,4 +161,5 @@ class ShowMessage(command.ShowOne):
 
         message = volume_client.messages.get(parsed_args.message_id)
 
-        return zip(*sorted(message._info.items()))
+        col_headers, col_data = zip(*sorted(message._info.items()))
+        return col_headers, col_data

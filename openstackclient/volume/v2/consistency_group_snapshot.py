@@ -14,7 +14,10 @@
 
 """Volume v2 consistency group snapshot action implementations"""
 
+import argparse
 import logging
+from collections.abc import Iterable, Sequence
+from typing import Any
 
 from osc_lib import exceptions
 from osc_lib import utils
@@ -29,7 +32,7 @@ LOG = logging.getLogger(__name__)
 class CreateConsistencyGroupSnapshot(command.ShowOne):
     _description = _("Create new consistency group snapshot.")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             "snapshot_name",
@@ -52,7 +55,9 @@ class CreateConsistencyGroupSnapshot(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         volume_client = self.app.client_manager.volume
         consistency_group = parsed_args.consistency_group
         if not parsed_args.consistency_group:
@@ -68,13 +73,16 @@ class CreateConsistencyGroupSnapshot(command.ShowOne):
             description=parsed_args.description,
         )
 
-        return zip(*sorted(consistency_group_snapshot._info.items()))
+        col_headers, col_data = zip(
+            *sorted(consistency_group_snapshot._info.items())
+        )
+        return col_headers, col_data
 
 
 class DeleteConsistencyGroupSnapshot(command.Command):
     _description = _("Delete consistency group snapshot(s).")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             "consistency_group_snapshot",
@@ -84,7 +92,7 @@ class DeleteConsistencyGroupSnapshot(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         volume_client = self.app.client_manager.volume
         result = 0
 
@@ -117,7 +125,7 @@ class DeleteConsistencyGroupSnapshot(command.Command):
 class ListConsistencyGroupSnapshot(command.Lister):
     _description = _("List consistency group snapshots.")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             '--all-projects',
@@ -153,7 +161,9 @@ class ListConsistencyGroupSnapshot(command.Lister):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[tuple[Any, ...]]]:
         if parsed_args.long:
             columns = [
                 'ID',
@@ -194,7 +204,7 @@ class ListConsistencyGroupSnapshot(command.Lister):
 class ShowConsistencyGroupSnapshot(command.ShowOne):
     _description = _("Display consistency group snapshot details")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             "consistency_group_snapshot",
@@ -203,9 +213,14 @@ class ShowConsistencyGroupSnapshot(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         volume_client = self.app.client_manager.volume
         consistency_group_snapshot = utils.find_resource(
             volume_client.cgsnapshots, parsed_args.consistency_group_snapshot
         )
-        return zip(*sorted(consistency_group_snapshot._info.items()))
+        col_headers, col_data = zip(
+            *sorted(consistency_group_snapshot._info.items())
+        )
+        return col_headers, col_data

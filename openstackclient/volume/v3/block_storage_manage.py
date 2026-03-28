@@ -14,6 +14,8 @@
 """Block Storage Volume/Snapshot Management implementations"""
 
 import argparse
+from collections.abc import Iterable
+from typing import Any
 
 from cinderclient import api_versions
 from osc_lib import exceptions
@@ -32,7 +34,7 @@ class BlockStorageManageVolumes(command.Lister):
     Supported by --os-volume-api-version 3.8 or greater.
     """
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         host_group = parser.add_mutually_exclusive_group()
         host_group.add_argument(
@@ -104,7 +106,9 @@ class BlockStorageManageVolumes(command.Lister):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[list[str], Iterable[tuple[Any, ...]]]:
         volume_client = self.app.client_manager.volume
 
         if parsed_args.host is None and parsed_args.cluster is None:
@@ -196,7 +200,7 @@ class BlockStorageManageSnapshots(command.Lister):
     Supported by --os-volume-api-version 3.8 or greater.
     """
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         host_group = parser.add_mutually_exclusive_group()
         host_group.add_argument(
@@ -268,7 +272,9 @@ class BlockStorageManageSnapshots(command.Lister):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[list[str], Iterable[tuple[Any, ...]]]:
         volume_client = self.app.client_manager.volume
 
         if parsed_args.host is None and parsed_args.cluster is None:

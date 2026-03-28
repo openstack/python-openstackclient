@@ -14,6 +14,8 @@
 
 """Volume v3 snapshot action implementations"""
 
+import argparse
+from collections.abc import Iterable, Sequence
 import functools
 import logging
 from typing import Any
@@ -45,11 +47,13 @@ class VolumeIdColumn(cliff_columns.FormattableColumn[str]):
     ``functools.partial(VolumeIdColumn, volume_cache)``.
     """
 
-    def __init__(self, value, volume_cache=None):
+    def __init__(
+        self, value: str, volume_cache: dict[str, Any] | None = None
+    ) -> None:
         super().__init__(value)
         self._volume_cache = volume_cache or {}
 
-    def human_readable(self):
+    def human_readable(self) -> str:
         """Return a volume name if available
 
         :rtype: either the volume ID or name
@@ -100,7 +104,7 @@ def _format_snapshot(snapshot: _snapshot.Snapshot) -> dict[str, Any]:
 class CreateVolumeSnapshot(command.ShowOne):
     _description = _("Create new volume snapshot")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             "snapshot_name",
@@ -150,7 +154,9 @@ class CreateVolumeSnapshot(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         volume_client = self.app.client_manager.sdk_connection.volume
 
         volume = parsed_args.volume
@@ -186,13 +192,14 @@ class CreateVolumeSnapshot(command.ShowOne):
             )
 
         data = _format_snapshot(snapshot)
-        return zip(*sorted(data.items()))
+        col_headers, col_data = zip(*sorted(data.items()))
+        return col_headers, col_data
 
 
 class DeleteVolumeSnapshot(command.Command):
     _description = _("Delete volume snapshot(s)")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             "snapshots",
@@ -218,7 +225,7 @@ class DeleteVolumeSnapshot(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         volume_client = sdk_utils.ensure_service_version(
             self.app.client_manager.sdk_connection.volume, '3'
         )
@@ -265,7 +272,7 @@ class DeleteVolumeSnapshot(command.Command):
 class ListVolumeSnapshot(command.Lister):
     _description = _("List volume snapshots")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             '--all-projects',
@@ -316,7 +323,9 @@ class ListVolumeSnapshot(command.Lister):
         pagination.add_marker_pagination_option_to_parser(parser)
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
         volume_client = self.app.client_manager.sdk_connection.volume
         identity_client = self.app.client_manager.identity
 
@@ -405,7 +414,7 @@ class ListVolumeSnapshot(command.Lister):
 class SetVolumeSnapshot(command.Command):
     _description = _("Set volume snapshot properties")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'snapshot',
@@ -461,7 +470,7 @@ class SetVolumeSnapshot(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         volume_client = self.app.client_manager.sdk_connection.volume
 
         snapshot = volume_client.find_snapshot(
@@ -520,7 +529,7 @@ class SetVolumeSnapshot(command.Command):
 class ShowVolumeSnapshot(command.ShowOne):
     _description = _("Display volume snapshot details")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             "snapshot",
@@ -529,7 +538,9 @@ class ShowVolumeSnapshot(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         volume_client = self.app.client_manager.sdk_connection.volume
 
         snapshot = volume_client.find_snapshot(
@@ -537,13 +548,14 @@ class ShowVolumeSnapshot(command.ShowOne):
         )
 
         data = _format_snapshot(snapshot)
-        return zip(*sorted(data.items()))
+        col_headers, col_data = zip(*sorted(data.items()))
+        return col_headers, col_data
 
 
 class UnsetVolumeSnapshot(command.Command):
     _description = _("Unset volume snapshot properties")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'snapshot',
@@ -563,7 +575,7 @@ class UnsetVolumeSnapshot(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         volume_client = self.app.client_manager.sdk_connection.volume
 
         snapshot = volume_client.find_snapshot(

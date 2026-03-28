@@ -10,6 +10,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import argparse
+from collections.abc import Iterable
+from typing import Any
+
 from cinderclient import api_versions
 from osc_lib import exceptions
 
@@ -17,7 +21,9 @@ from openstackclient import command
 from openstackclient.i18n import _
 
 
-def _format_cleanup_response(cleaning, unavailable):
+def _format_cleanup_response(
+    cleaning: Any, unavailable: Any
+) -> tuple[tuple[str, ...], list[tuple[Any, ...]]]:
     column_headers = (
         'ID',
         'Cluster Name',
@@ -49,7 +55,7 @@ class BlockStorageCleanup(command.Lister):
     This command requires ``--os-volume-api-version`` 3.24 or greater.
     """
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             '--cluster',
@@ -127,7 +133,9 @@ class BlockStorageCleanup(command.Lister):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
         volume_client = self.app.client_manager.volume
 
         if volume_client.api_version < api_versions.APIVersion('3.24'):

@@ -14,6 +14,8 @@
 
 """Volume v2 host action implementations"""
 
+import argparse
+
 from openstackclient import command
 from openstackclient.i18n import _
 
@@ -21,7 +23,7 @@ from openstackclient.i18n import _
 class FailoverVolumeHost(command.Command):
     _description = _("Failover volume host to different backend")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             "host", metavar="<host-name>", help=_("Name of volume host")
@@ -37,7 +39,7 @@ class FailoverVolumeHost(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         service_client = self.app.client_manager.volume
         service_client.services.failover_host(
             parsed_args.host, parsed_args.volume_backend
@@ -47,7 +49,7 @@ class FailoverVolumeHost(command.Command):
 class SetVolumeHost(command.Command):
     _description = _("Set volume host properties")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             "host", metavar="<host-name>", help=_("Name of volume host")
@@ -65,7 +67,7 @@ class SetVolumeHost(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         service_client = self.app.client_manager.volume
         if parsed_args.enable:
             service_client.services.thaw_host(parsed_args.host)

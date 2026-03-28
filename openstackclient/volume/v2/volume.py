@@ -18,6 +18,7 @@ import argparse
 import copy
 import functools
 import logging
+from collections.abc import Iterable, Sequence
 from typing import Any
 
 from cliff import columns as cliff_columns
@@ -43,14 +44,20 @@ class KeyValueHintAction(argparse.Action):
 
     APPEND_KEYS = ('same_host', 'different_host')
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         self._key_value_action = parseractions.KeyValueAction(*args, **kwargs)
         self._key_value_append_action = parseractions.KeyValueAppendAction(
             *args, **kwargs
         )
         super().__init__(*args, **kwargs)
 
-    def __call__(self, parser, namespace, values, option_string=None):
+    def __call__(
+        self,
+        parser: argparse.ArgumentParser,
+        namespace: argparse.Namespace,
+        values: Any,
+        option_string: str | None = None,
+    ) -> None:
         if values.startswith(self.APPEND_KEYS):
             self._key_value_append_action(
                 parser, namespace, values, option_string=option_string
@@ -72,11 +79,13 @@ class AttachmentsColumn(cliff_columns.FormattableColumn[list[Any]]):
     ``functools.partial(AttachmentsColumn, server_cache)``.
     """
 
-    def __init__(self, value, server_cache=None):
+    def __init__(
+        self, value: list[Any], server_cache: dict[str, Any] | None = None
+    ) -> None:
         super().__init__(value)
         self._server_cache = server_cache or {}
 
-    def human_readable(self):
+    def human_readable(self) -> str:
         """Return a formatted string of a volume's attached instances
 
         :rtype: a string of formatted instances
@@ -137,7 +146,7 @@ class CreateVolume(command.ShowOne):
     _description = _("Create new volume")
 
     @staticmethod
-    def _check_size_arg(args):
+    def _check_size_arg(args: argparse.Namespace) -> None:
         """Check whether --size option is required or not.
 
         Require size parameter only in case when snapshot or source
@@ -151,7 +160,7 @@ class CreateVolume(command.ShowOne):
             )
             raise exceptions.CommandError(msg)
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             "name",
@@ -262,7 +271,9 @@ class CreateVolume(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         self._check_size_arg(parsed_args)
         # size is validated in the above call to
         # _check_size_arg where we check that size
@@ -366,13 +377,14 @@ class CreateVolume(command.ShowOne):
                 )
 
         data = _format_volume(volume)
-        return zip(*sorted(data.items()))
+        col_headers, col_data = zip(*sorted(data.items()))
+        return col_headers, col_data
 
 
 class DeleteVolume(command.Command):
     _description = _("Delete volume(s)")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             "volumes",
@@ -405,7 +417,7 @@ class DeleteVolume(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         volume_client = self.app.client_manager.sdk_connection.volume
         result = 0
 
@@ -441,7 +453,7 @@ class DeleteVolume(command.Command):
 class ListVolume(command.Lister):
     _description = _("List volumes")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             '--project',
@@ -480,7 +492,9 @@ class ListVolume(command.Lister):
         pagination.add_marker_pagination_option_to_parser(parser)
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[tuple[Any, ...]]]:
         volume_client = self.app.client_manager.volume
         identity_client = self.app.client_manager.identity
 
@@ -585,7 +599,7 @@ class ListVolume(command.Lister):
 class MigrateVolume(command.Command):
     _description = _("Migrate volume to a new host")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'volume',
@@ -619,7 +633,7 @@ class MigrateVolume(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         volume_client = self.app.client_manager.sdk_connection.volume
         volume = volume_client.find_volume(
             parsed_args.volume, ignore_missing=False
@@ -635,7 +649,7 @@ class MigrateVolume(command.Command):
 class SetVolume(command.Command):
     _description = _("Set volume properties")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'volume',
@@ -788,7 +802,7 @@ class SetVolume(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         volume_client = self.app.client_manager.volume
         volume = utils.find_resource(volume_client.volumes, parsed_args.volume)
 
@@ -952,7 +966,7 @@ class SetVolume(command.Command):
 class ShowVolume(command.ShowOne):
     _description = _("Display volume details")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'volume',
@@ -961,20 +975,23 @@ class ShowVolume(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         volume_client = self.app.client_manager.sdk_connection.volume
         volume = volume_client.find_volume(
             parsed_args.volume, ignore_missing=False
         )
 
         data = _format_volume(volume)
-        return zip(*sorted(data.items()))
+        col_headers, col_data = zip(*sorted(data.items()))
+        return col_headers, col_data
 
 
 class UnsetVolume(command.Command):
     _description = _("Unset volume properties")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'volume',
@@ -1003,7 +1020,7 @@ class UnsetVolume(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         volume_client = self.app.client_manager.volume
         volume = utils.find_resource(volume_client.volumes, parsed_args.volume)
 

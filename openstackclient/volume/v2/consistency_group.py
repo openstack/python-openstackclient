@@ -16,6 +16,8 @@
 
 import argparse
 import logging
+from collections.abc import Iterable, Sequence
+from typing import Any
 
 from osc_lib.cli import format_columns
 from osc_lib import exceptions
@@ -28,7 +30,9 @@ from openstackclient.i18n import _
 LOG = logging.getLogger(__name__)
 
 
-def _find_volumes(parsed_args_volumes, volume_client):
+def _find_volumes(
+    parsed_args_volumes: list[str], volume_client: Any
+) -> tuple[int, str]:
     result = 0
     uuid = ''
     for volume in parsed_args_volumes:
@@ -48,7 +52,7 @@ def _find_volumes(parsed_args_volumes, volume_client):
 class AddVolumeToConsistencyGroup(command.Command):
     _description = _("Add volume(s) to consistency group")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'consistency_group',
@@ -66,7 +70,7 @@ class AddVolumeToConsistencyGroup(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         volume_client = self.app.client_manager.volume
         result, add_uuid = _find_volumes(parsed_args.volumes, volume_client)
 
@@ -90,7 +94,7 @@ class AddVolumeToConsistencyGroup(command.Command):
 class CreateConsistencyGroup(command.ShowOne):
     _description = _("Create new consistency group.")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             "name",
@@ -144,7 +148,9 @@ class CreateConsistencyGroup(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         volume_client = self.app.client_manager.volume
         if parsed_args.volume_type:
             volume_type_id = utils.find_resource(
@@ -186,13 +192,14 @@ class CreateConsistencyGroup(command.ShowOne):
                 )
             )
 
-        return zip(*sorted(consistency_group._info.items()))
+        col_headers, col_data = zip(*sorted(consistency_group._info.items()))
+        return col_headers, col_data
 
 
 class DeleteConsistencyGroup(command.Command):
     _description = _("Delete consistency group(s).")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'consistency_groups',
@@ -208,7 +215,7 @@ class DeleteConsistencyGroup(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         volume_client = self.app.client_manager.volume
         result = 0
 
@@ -241,7 +248,7 @@ class DeleteConsistencyGroup(command.Command):
 class ListConsistencyGroup(command.Lister):
     _description = _("List consistency groups.")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             '--all-projects',
@@ -258,7 +265,9 @@ class ListConsistencyGroup(command.Lister):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[tuple[Any, ...]]]:
         if parsed_args.long:
             columns = [
                 'ID',
@@ -292,7 +301,7 @@ class ListConsistencyGroup(command.Lister):
 class RemoveVolumeFromConsistencyGroup(command.Command):
     _description = _("Remove volume(s) from consistency group")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'consistency_group',
@@ -310,7 +319,7 @@ class RemoveVolumeFromConsistencyGroup(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         volume_client = self.app.client_manager.volume
         result, remove_uuid = _find_volumes(parsed_args.volumes, volume_client)
 
@@ -334,7 +343,7 @@ class RemoveVolumeFromConsistencyGroup(command.Command):
 class SetConsistencyGroup(command.Command):
     _description = _("Set consistency group properties")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'consistency_group',
@@ -353,7 +362,7 @@ class SetConsistencyGroup(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         volume_client = self.app.client_manager.volume
         kwargs = {}
         if parsed_args.name:
@@ -372,7 +381,7 @@ class SetConsistencyGroup(command.Command):
 class ShowConsistencyGroup(command.ShowOne):
     _description = _("Display consistency group details.")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             "consistency_group",
@@ -381,9 +390,12 @@ class ShowConsistencyGroup(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         volume_client = self.app.client_manager.volume
         consistency_group = utils.find_resource(
             volume_client.consistencygroups, parsed_args.consistency_group
         )
-        return zip(*sorted(consistency_group._info.items()))
+        col_headers, col_data = zip(*sorted(consistency_group._info.items()))
+        return col_headers, col_data

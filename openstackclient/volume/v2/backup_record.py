@@ -14,7 +14,10 @@
 
 """Volume v2 Backup action implementations"""
 
+import argparse
 import logging
+from collections.abc import Iterable, Sequence
+from typing import Any
 
 from osc_lib import utils
 
@@ -33,7 +36,7 @@ Backup information can be imported into a new service instance to be able to
 restore."""
     )
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             "backup",
@@ -42,7 +45,9 @@ restore."""
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         volume_client = self.app.client_manager.volume
         backup = utils.find_resource(volume_client.backups, parsed_args.backup)
         backup_data = volume_client.backups.export_record(backup.id)
@@ -53,7 +58,8 @@ restore."""
             backup_data['Backup Service'] = backup_data.pop('backup_service')
             backup_data['Metadata'] = backup_data.pop('backup_url')
 
-        return zip(*sorted(backup_data.items()))
+        col_headers, col_data = zip(*sorted(backup_data.items()))
+        return col_headers, col_data
 
 
 class ImportBackupRecord(command.ShowOne):
@@ -64,7 +70,7 @@ Exported backup details contain the metadata necessary to restore to a new or
 rebuilt service instance"""
     )
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             "backup_service",
@@ -78,10 +84,13 @@ rebuilt service instance"""
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         volume_client = self.app.client_manager.volume
         backup_data = volume_client.backups.import_record(
             parsed_args.backup_service, parsed_args.backup_metadata
         )
         backup_data.pop('links', None)
-        return zip(*sorted(backup_data.items()))
+        col_headers, col_data = zip(*sorted(backup_data.items()))
+        return col_headers, col_data

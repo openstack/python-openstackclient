@@ -15,7 +15,10 @@
 
 """Volume v2 QoS action implementations"""
 
+import argparse
 import logging
+from collections.abc import Iterable, Sequence
+from typing import Any
 
 from osc_lib.cli import format_columns
 from osc_lib.cli import parseractions
@@ -32,7 +35,7 @@ LOG = logging.getLogger(__name__)
 class AssociateQos(command.Command):
     _description = _("Associate a QoS specification to a volume type")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'qos_spec',
@@ -46,7 +49,7 @@ class AssociateQos(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         volume_client = self.app.client_manager.volume
         qos_spec = utils.find_resource(
             volume_client.qos_specs, parsed_args.qos_spec
@@ -61,7 +64,7 @@ class AssociateQos(command.Command):
 class CreateQos(command.ShowOne):
     _description = _("Create new QoS specification")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'name',
@@ -93,7 +96,9 @@ class CreateQos(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         volume_client = self.app.client_manager.volume
         specs = {}
         specs.update({'consumer': parsed_args.consumer})
@@ -110,13 +115,14 @@ class CreateQos(command.ShowOne):
                 )
             }
         )
-        return zip(*sorted(qos_spec._info.items()))
+        col_headers, col_data = zip(*sorted(qos_spec._info.items()))
+        return col_headers, col_data
 
 
 class DeleteQos(command.Command):
     _description = _("Delete QoS specification")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'qos_specs',
@@ -132,7 +138,7 @@ class DeleteQos(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         volume_client = self.app.client_manager.volume
         result = 0
 
@@ -161,7 +167,7 @@ class DeleteQos(command.Command):
 class DisassociateQos(command.Command):
     _description = _("Disassociate a QoS specification from a volume type")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'qos_spec',
@@ -183,7 +189,7 @@ class DisassociateQos(command.Command):
 
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         volume_client = self.app.client_manager.volume
         qos_spec = utils.find_resource(
             volume_client.qos_specs, parsed_args.qos_spec
@@ -201,7 +207,9 @@ class DisassociateQos(command.Command):
 class ListQos(command.Lister):
     _description = _("List QoS specifications")
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[tuple[Any, ...]]]:
         volume_client = self.app.client_manager.volume
         qos_specs_list = volume_client.qos_specs.list()
 
@@ -249,7 +257,7 @@ class ListQos(command.Lister):
 class SetQos(command.Command):
     _description = _("Set QoS specification properties")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'qos_spec',
@@ -277,7 +285,7 @@ class SetQos(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         volume_client = self.app.client_manager.volume
         qos_spec = utils.find_resource(
             volume_client.qos_specs, parsed_args.qos_spec
@@ -311,7 +319,7 @@ class SetQos(command.Command):
 class ShowQos(command.ShowOne):
     _description = _("Display QoS specification details")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'qos_spec',
@@ -320,7 +328,9 @@ class ShowQos(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         volume_client = self.app.client_manager.volume
         qos_spec = utils.find_resource(
             volume_client.qos_specs, parsed_args.qos_spec
@@ -342,13 +352,14 @@ class ShowQos(command.ShowOne):
             }
         )
 
-        return zip(*sorted(qos_spec._info.items()))
+        col_headers, col_data = zip(*sorted(qos_spec._info.items()))
+        return col_headers, col_data
 
 
 class UnsetQos(command.Command):
     _description = _("Unset QoS specification properties")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'qos_spec',
@@ -367,7 +378,7 @@ class UnsetQos(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         volume_client = self.app.client_manager.volume
         qos_spec = utils.find_resource(
             volume_client.qos_specs, parsed_args.qos_spec

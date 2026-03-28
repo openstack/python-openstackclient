@@ -14,7 +14,10 @@
 
 """Volume v3 transfer action implementations"""
 
+import argparse
+from collections.abc import Iterable, Sequence
 import logging
+from typing import Any
 
 from cinderclient import api_versions
 from osc_lib import exceptions
@@ -30,7 +33,7 @@ LOG = logging.getLogger(__name__)
 class AcceptTransferRequest(command.ShowOne):
     _description = _("Accept volume transfer request.")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'transfer_request',
@@ -45,7 +48,9 @@ class AcceptTransferRequest(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         volume_client = self.app.client_manager.volume
 
         try:
@@ -63,13 +68,14 @@ class AcceptTransferRequest(command.ShowOne):
         )
         transfer_accept._info.pop("links", None)
 
-        return zip(*sorted(transfer_accept._info.items()))
+        col_headers, col_data = zip(*sorted(transfer_accept._info.items()))
+        return col_headers, col_data
 
 
 class CreateTransferRequest(command.ShowOne):
     _description = _("Create volume transfer request.")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             '--name',
@@ -102,7 +108,9 @@ class CreateTransferRequest(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         volume_client = self.app.client_manager.volume
 
         kwargs = {}
@@ -130,13 +138,16 @@ class CreateTransferRequest(command.ShowOne):
         )
         volume_transfer_request._info.pop("links", None)
 
-        return zip(*sorted(volume_transfer_request._info.items()))
+        col_headers, col_data = zip(
+            *sorted(volume_transfer_request._info.items())
+        )
+        return col_headers, col_data
 
 
 class DeleteTransferRequest(command.Command):
     _description = _("Delete volume transfer request(s).")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'transfer_request',
@@ -146,7 +157,7 @@ class DeleteTransferRequest(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         volume_client = self.app.client_manager.volume
         result = 0
 
@@ -179,7 +190,7 @@ class DeleteTransferRequest(command.Command):
 class ListTransferRequest(command.Lister):
     _description = _("Lists all volume transfer requests.")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             '--all-projects',
@@ -190,7 +201,9 @@ class ListTransferRequest(command.Lister):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[tuple[Any, ...]]]:
         columns = ['ID', 'Name', 'Volume ID']
         column_headers = ['ID', 'Name', 'Volume']
 
@@ -213,7 +226,7 @@ class ListTransferRequest(command.Lister):
 class ShowTransferRequest(command.ShowOne):
     _description = _("Show volume transfer request details.")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'transfer_request',
@@ -222,7 +235,9 @@ class ShowTransferRequest(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         volume_client = self.app.client_manager.volume
         volume_transfer_request = utils.find_resource(
             volume_client.transfers,
@@ -230,4 +245,7 @@ class ShowTransferRequest(command.ShowOne):
         )
         volume_transfer_request._info.pop("links", None)
 
-        return zip(*sorted(volume_transfer_request._info.items()))
+        col_headers, col_data = zip(
+            *sorted(volume_transfer_request._info.items())
+        )
+        return col_headers, col_data

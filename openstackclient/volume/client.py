@@ -13,7 +13,9 @@
 #   under the License.
 #
 
+import argparse
 import logging
+from typing import Any
 
 from osc_lib import exceptions
 from osc_lib import utils
@@ -34,7 +36,7 @@ API_VERSIONS = {
 _volume_api_version = None
 
 
-def make_client(instance):
+def make_client(instance: Any) -> Any:
     """Returns a volume service client."""
 
     # Defer client imports until we actually need them
@@ -92,7 +94,9 @@ def make_client(instance):
     return client
 
 
-def build_option_parser(parser):
+def build_option_parser(
+    parser: argparse.ArgumentParser,
+) -> argparse.ArgumentParser:
     """Hook to add global options"""
     parser.add_argument(
         '--os-volume-api-version',
@@ -104,7 +108,7 @@ def build_option_parser(parser):
     return parser
 
 
-def check_api_version(check_version):
+def check_api_version(check_version: str) -> bool:
     """Validate version supplied by user
 
     Returns:
