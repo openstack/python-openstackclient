@@ -13,7 +13,10 @@
 
 """Default Security Group Rule action implementations"""
 
+import argparse
 import logging
+from collections.abc import Iterable, Sequence
+from typing import Any
 
 from osc_lib.cli import parseractions
 from osc_lib import exceptions
@@ -27,7 +30,7 @@ from openstackclient.network import utils as network_utils
 LOG = logging.getLogger(__name__)
 
 
-def _get_columns(item):
+def _get_columns(item: Any) -> tuple[tuple[str, ...], tuple[str, ...]]:
     hidden_columns = ['location', 'name', 'revision_number']
     return utils.get_osc_show_columns_for_sdk_resource(
         item, {}, hidden_columns
@@ -44,7 +47,7 @@ class CreateDefaultSecurityGroupRule(
     groups.
     """
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
 
         parser.add_argument(
@@ -149,7 +152,9 @@ class CreateDefaultSecurityGroupRule(
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         client = self.app.client_manager.network
         # Build the create attributes.
         attrs = {}
@@ -236,7 +241,7 @@ class DeleteDefaultSecurityGroupRule(command.Command):
     default security groups.
     """
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'rule',
@@ -246,7 +251,7 @@ class DeleteDefaultSecurityGroupRule(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         result = 0
         client = self.app.client_manager.network
         for r in parsed_args.rule:
@@ -281,7 +286,7 @@ class ListDefaultSecurityGroupRule(command.Lister):
     security groups.
     """
 
-    def _format_network_security_group_rule(self, rule):
+    def _format_network_security_group_rule(self, rule: Any) -> Any:
         """Transform the SDK DefaultSecurityGroupRule object to a dict
 
         The SDK object gets in the way of reformatting columns...
@@ -292,7 +297,7 @@ class ListDefaultSecurityGroupRule(command.Lister):
         rule['remote_ip_prefix'] = network_utils.format_remote_ip_prefix(rule)
         return rule
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
 
         parser.add_argument(
@@ -334,7 +339,9 @@ class ListDefaultSecurityGroupRule(command.Lister):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
         client = self.app.client_manager.network
         column_headers = (
             'ID',
@@ -394,7 +401,7 @@ class ShowDefaultSecurityGroupRule(command.ShowOne):
     created. This rule may not be present on existing default security groups.
     """
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'rule',
@@ -403,7 +410,9 @@ class ShowDefaultSecurityGroupRule(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         client = self.app.client_manager.network
         obj = client.find_default_security_group_rule(
             parsed_args.rule, ignore_missing=False

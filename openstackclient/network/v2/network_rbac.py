@@ -13,7 +13,10 @@
 
 """RBAC action implementations"""
 
+import argparse
+from collections.abc import Iterable, Sequence
 import logging
+from typing import Any
 
 from osc_lib import exceptions
 from osc_lib import utils
@@ -26,7 +29,7 @@ from openstackclient.network import common
 LOG = logging.getLogger(__name__)
 
 
-def _get_columns(item):
+def _get_columns(item: Any) -> tuple[tuple[str, ...], tuple[str, ...]]:
     column_map = {
         'target_tenant': 'target_project_id',
     }
@@ -36,7 +39,9 @@ def _get_columns(item):
     )
 
 
-def _get_attrs(client_manager, parsed_args):
+def _get_attrs(
+    client_manager: Any, parsed_args: argparse.Namespace
+) -> dict[str, Any]:
     attrs = {}
     attrs['object_type'] = parsed_args.type
     attrs['action'] = parsed_args.action
@@ -95,7 +100,7 @@ def _get_attrs(client_manager, parsed_args):
 class CreateNetworkRBAC(command.ShowOne, common.NeutronCommandWithExtraArgs):
     _description = _("Create network RBAC policy")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'rbac_object',
@@ -166,7 +171,9 @@ class CreateNetworkRBAC(command.ShowOne, common.NeutronCommandWithExtraArgs):
         identity_common.add_project_domain_option_to_parser(parser)
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         client = self.app.client_manager.network
         attrs = _get_attrs(self.app.client_manager, parsed_args)
         attrs.update(
@@ -181,7 +188,7 @@ class CreateNetworkRBAC(command.ShowOne, common.NeutronCommandWithExtraArgs):
 class DeleteNetworkRBAC(command.Command):
     _description = _("Delete network RBAC policy(s)")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'rbac_policy',
@@ -191,7 +198,7 @@ class DeleteNetworkRBAC(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
         result = 0
 
@@ -220,7 +227,7 @@ class DeleteNetworkRBAC(command.Command):
 class ListNetworkRBAC(command.Lister):
     _description = _("List network RBAC policies")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             '--type',
@@ -265,7 +272,9 @@ class ListNetworkRBAC(command.Lister):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
         client = self.app.client_manager.network
 
         columns: tuple[str, ...] = (
@@ -317,7 +326,7 @@ class ListNetworkRBAC(command.Lister):
 class SetNetworkRBAC(common.NeutronCommandWithExtraArgs):
     _description = _("Set network RBAC policy properties")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'rbac_policy',
@@ -343,7 +352,7 @@ class SetNetworkRBAC(common.NeutronCommandWithExtraArgs):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
         obj = client.find_rbac_policy(
             parsed_args.rbac_policy, ignore_missing=False
@@ -366,7 +375,7 @@ class SetNetworkRBAC(common.NeutronCommandWithExtraArgs):
 class ShowNetworkRBAC(command.ShowOne):
     _description = _("Display network RBAC policy details")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'rbac_policy',
@@ -375,7 +384,9 @@ class ShowNetworkRBAC(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         client = self.app.client_manager.network
         obj = client.find_rbac_policy(
             parsed_args.rbac_policy, ignore_missing=False

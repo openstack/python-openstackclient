@@ -13,6 +13,10 @@
 
 """IP Availability Info implementations"""
 
+import argparse
+from collections.abc import Iterable, Sequence
+from typing import Any
+
 from osc_lib.cli import format_columns
 from osc_lib import utils
 
@@ -25,7 +29,7 @@ _formatters = {
 }
 
 
-def _get_columns(item):
+def _get_columns(item: Any) -> tuple[tuple[str, ...], tuple[str, ...]]:
     hidden_columns = ['id', 'name', 'location', 'tenant_id']
     return utils.get_osc_show_columns_for_sdk_resource(
         item, {}, hidden_columns
@@ -37,7 +41,7 @@ def _get_columns(item):
 class ListIPAvailability(command.Lister):
     _description = _("List IP availability for network")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             '--ip-version',
@@ -62,7 +66,9 @@ class ListIPAvailability(command.Lister):
         identity_common.add_project_domain_option_to_parser(parser)
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
         client = self.app.client_manager.network
 
         columns = (
@@ -106,7 +112,7 @@ class ListIPAvailability(command.Lister):
 class ShowIPAvailability(command.ShowOne):
     _description = _("Show network IP availability details")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'network',
@@ -115,7 +121,9 @@ class ShowIPAvailability(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         client = self.app.client_manager.network
         network_id = client.find_network(
             parsed_args.network, ignore_missing=False

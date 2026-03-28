@@ -13,6 +13,10 @@
 
 """Network Service Providers Implementation"""
 
+import argparse
+from collections.abc import Iterable
+from typing import Any
+
 from osc_lib import utils
 
 from openstackclient import command
@@ -22,7 +26,9 @@ from openstackclient.i18n import _
 class ListNetworkServiceProvider(command.Lister):
     _description = _("List Service Providers")
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
         client = self.app.client_manager.network
 
         columns = (

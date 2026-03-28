@@ -13,7 +13,10 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import argparse
+from collections.abc import Iterable, Sequence
 import itertools
+from typing import Any, cast
 
 from osc_lib import exceptions
 from osc_lib import utils
@@ -72,14 +75,16 @@ ACTION_SET = 'update'
 ACTION_SHOW = 'get'
 
 
-def _get_columns(item):
+def _get_columns(item: Any) -> tuple[tuple[str, ...], tuple[str, ...]]:
     hidden_columns = ['location', 'name', 'tenant_id']
     return utils.get_osc_show_columns_for_sdk_resource(
         item, {}, hidden_columns
     )
 
 
-def _check_type_parameters(attrs, type, is_create):
+def _check_type_parameters(
+    attrs: dict[str, Any], type: str, is_create: bool
+) -> None:
     req_params = MANDATORY_PARAMETERS[type]
     opt_params = OPTIONAL_PARAMETERS[type]
     type_params = req_params | opt_params
@@ -102,7 +107,11 @@ def _check_type_parameters(attrs, type, is_create):
         raise exceptions.CommandError(msg)
 
 
-def _get_attrs(network_client, parsed_args, is_create=False):
+def _get_attrs(
+    network_client: Any,
+    parsed_args: argparse.Namespace,
+    is_create: bool = False,
+) -> dict[str, Any]:
     attrs = {}
     qos = network_client.find_qos_policy(
         parsed_args.qos_policy, ignore_missing=False
@@ -148,19 +157,19 @@ def _get_attrs(network_client, parsed_args, is_create=False):
     return attrs
 
 
-def _rule_action_call(client, action, rule_type):
+def _rule_action_call(client: Any, action: str, rule_type: str) -> Any:
     rule_type = rule_type.replace('-', '_')
     func_name = f'{action}_qos_{rule_type}_rule'
     return getattr(client, func_name)
 
 
-def _find_rule_type(qos, rule_id):
+def _find_rule_type(qos: Any, rule_id: str) -> str | None:
     for rule in (r for r in qos.rules if r['id'] == rule_id):
-        return rule['type'].replace('_', '-')
+        return cast(str, rule['type']).replace('_', '-')
     return None
 
 
-def _add_rule_arguments(parser):
+def _add_rule_arguments(parser: argparse.ArgumentParser) -> None:
     parser.add_argument(
         '--max-kbps',
         dest='max_kbps',
@@ -230,7 +239,7 @@ class CreateNetworkQosRule(
 ):
     _description = _("Create new Network QoS rule")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'qos_policy',
@@ -255,7 +264,9 @@ class CreateNetworkQosRule(
         _add_rule_arguments(parser)
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         network_client = self.app.client_manager.network
         try:
             attrs = _get_attrs(network_client, parsed_args, is_create=True)
@@ -276,7 +287,7 @@ class CreateNetworkQosRule(
 class DeleteNetworkQosRule(command.Command):
     _description = _("Delete Network QoS rule")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'qos_policy',
@@ -290,7 +301,7 @@ class DeleteNetworkQosRule(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         network_client = self.app.client_manager.network
         rule_id = parsed_args.id
         try:
@@ -313,7 +324,7 @@ class DeleteNetworkQosRule(command.Command):
 class ListNetworkQosRule(command.Lister):
     _description = _("List Network QoS rules")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'qos_policy',
@@ -322,7 +333,9 @@ class ListNetworkQosRule(command.Lister):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
         client = self.app.client_manager.network
         columns = (
             'id',
@@ -359,7 +372,7 @@ class ListNetworkQosRule(command.Lister):
 class SetNetworkQosRule(common.NeutronCommandWithExtraArgs):
     _description = _("Set Network QoS rule properties")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'qos_policy',
@@ -374,7 +387,7 @@ class SetNetworkQosRule(common.NeutronCommandWithExtraArgs):
         _add_rule_arguments(parser)
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         network_client = self.app.client_manager.network
         try:
             qos = network_client.find_qos_policy(
@@ -405,7 +418,7 @@ class SetNetworkQosRule(common.NeutronCommandWithExtraArgs):
 class ShowNetworkQosRule(command.ShowOne):
     _description = _("Display Network QoS rule details")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'qos_policy',
@@ -419,7 +432,9 @@ class ShowNetworkQosRule(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         network_client = self.app.client_manager.network
         rule_id = parsed_args.id
         try:

@@ -13,6 +13,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import argparse
+from collections.abc import Iterable, Sequence
 import logging
 from typing import Any
 
@@ -30,8 +32,8 @@ from openstackclient.identity import common as identity_common
 LOG = logging.getLogger(__name__)
 
 
-class AdminStateColumn(cliff_columns.FormattableColumn):
-    def human_readable(self):
+class AdminStateColumn(cliff_columns.FormattableColumn[bool]):
+    def human_readable(self) -> str:
         return 'UP' if self._value else 'DOWN'
 
 
@@ -55,7 +57,9 @@ _attr_map = (
 _attr_map_dict = {x[0]: x[1] for x in _attr_map}
 
 
-def _get_common_parser(parser):
+def _get_common_parser(
+    parser: argparse.ArgumentParser,
+) -> argparse.ArgumentParser:
     parser.add_argument('--name', help=_('Name for the firewall group'))
     parser.add_argument(
         '--description',
@@ -123,8 +127,12 @@ def _get_common_parser(parser):
     return parser
 
 
-def _get_common_attrs(client_manager, parsed_args, is_create=True):
-    attrs = {}
+def _get_common_attrs(
+    client_manager: Any,
+    parsed_args: argparse.Namespace,
+    is_create: bool = True,
+) -> dict[str, Any]:
+    attrs: dict[str, Any] = {}
     client = client_manager.network
 
     if parsed_args.ingress_firewall_policy:
@@ -173,7 +181,7 @@ def _get_common_attrs(client_manager, parsed_args, is_create=True):
 class CreateFirewallGroup(command.ShowOne):
     _description = _("Create a new firewall group")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         _get_common_parser(parser)
         identity_utils.add_project_owner_option_to_parser(parser)
@@ -195,7 +203,9 @@ class CreateFirewallGroup(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         client = self.app.client_manager.network
         attrs = _get_common_attrs(self.app.client_manager, parsed_args)
         if 'project' in parsed_args and parsed_args.project is not None:
@@ -215,7 +225,7 @@ class CreateFirewallGroup(command.ShowOne):
 class DeleteFirewallGroup(command.Command):
     _description = _("Delete firewall group(s)")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'firewall_group',
@@ -225,7 +235,7 @@ class DeleteFirewallGroup(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
         result = 0
         for fwg in parsed_args.firewall_group:
@@ -253,7 +263,7 @@ class DeleteFirewallGroup(command.Command):
 class ListFirewallGroup(command.Lister):
     _description = _("List firewall groups")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             '--long',
@@ -262,7 +272,9 @@ class ListFirewallGroup(command.Lister):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[tuple[Any, ...]]]:
         client = self.app.client_manager.network
         obj = client.firewall_groups()
         headers, columns = column_util.get_column_definitions(
@@ -280,7 +292,7 @@ class ListFirewallGroup(command.Lister):
 class SetFirewallGroup(command.Command):
     _description = _("Set firewall group properties")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         _get_common_parser(parser)
         parser.add_argument(
@@ -305,7 +317,7 @@ class SetFirewallGroup(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
         fwg_id = client.find_firewall_group(
             parsed_args.firewall_group, ignore_missing=False
@@ -326,7 +338,7 @@ class SetFirewallGroup(command.Command):
 class ShowFirewallGroup(command.ShowOne):
     _description = _("Display firewall group details")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'firewall_group',
@@ -335,7 +347,9 @@ class ShowFirewallGroup(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         client = self.app.client_manager.network
         fwg_id = client.find_firewall_group(
             parsed_args.firewall_group, ignore_missing=False
@@ -351,7 +365,7 @@ class ShowFirewallGroup(command.ShowOne):
 class UnsetFirewallGroup(command.Command):
     _description = _("Unset firewall group properties")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'firewall_group',
@@ -397,7 +411,9 @@ class UnsetFirewallGroup(command.Command):
         )
         return parser
 
-    def _get_attrs(self, client, parsed_args):
+    def _get_attrs(
+        self, client: Any, parsed_args: argparse.Namespace
+    ) -> dict[str, Any]:
         attrs: dict[str, Any] = {}
         if parsed_args.ingress_firewall_policy:
             attrs['ingress_firewall_policy_id'] = None
@@ -420,7 +436,7 @@ class UnsetFirewallGroup(command.Command):
             attrs['ports'] = []
         return attrs
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
         fwg_id = client.find_firewall_group(
             parsed_args.firewall_group, ignore_missing=False

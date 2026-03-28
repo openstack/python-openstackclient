@@ -12,11 +12,12 @@
 #
 
 import abc
+import argparse
+from collections.abc import Generator
 import contextlib
 import logging
 from typing import Any
 
-from cliff import _argparse
 import openstack.exceptions
 from osc_lib.cli import parseractions
 from osc_lib import exceptions
@@ -43,7 +44,9 @@ _QUALIFIER_FMT = "%s\n\n*%s*"
 
 
 @contextlib.contextmanager
-def check_missing_extension_if_error(client_manager, attrs):
+def check_missing_extension_if_error(
+    client_manager: Any, attrs: dict[str, Any]
+) -> Generator[None, None, None]:
     # If specified option requires extension, then try to
     # find out if it exists. If it does not exist,
     # then an exception with the appropriate message
@@ -68,7 +71,7 @@ class NetDetectionMixin(command.Command, metaclass=abc.ABCMeta):
     """
 
     @property
-    def _network_type(self):
+    def _network_type(self) -> str | None:
         """Discover whether the running cloud is using neutron or nova-network.
 
         :return:
@@ -96,31 +99,31 @@ class NetDetectionMixin(command.Command, metaclass=abc.ABCMeta):
         return self._net_type
 
     @property
-    def is_neutron(self):
+    def is_neutron(self) -> bool:
         return self._network_type is _NET_TYPE_NEUTRON
 
     @property
-    def is_nova_network(self):
+    def is_nova_network(self) -> bool:
         return self._network_type is _NET_TYPE_COMPUTE
 
     @property
-    def is_docs_build(self):
+    def is_docs_build(self) -> bool:
         return self._network_type is None
 
-    def enhance_help_neutron(self, _help):
+    def enhance_help_neutron(self, _help: str) -> str:
         if self.is_docs_build:
             # Why can't we say 'neutron'?
             return _QUALIFIER_FMT % (_help, _("Network version 2 only"))
         return _help
 
-    def enhance_help_nova_network(self, _help):
+    def enhance_help_nova_network(self, _help: str) -> str:
         if self.is_docs_build:
             # Why can't we say 'nova-network'?
             return _QUALIFIER_FMT % (_help, _("Compute version 2 only"))
         return _help
 
     @staticmethod
-    def split_help(network_help, compute_help):
+    def split_help(network_help: str, compute_help: str) -> str:
         return (
             "*{network_qualifier}:*\n  {network_help}\n\n"
             "*{compute_qualifier}:*\n  {compute_help}".format(
@@ -133,7 +136,7 @@ class NetDetectionMixin(command.Command, metaclass=abc.ABCMeta):
             )
         )
 
-    def get_parser(self, prog_name: str) -> _argparse.ArgumentParser:
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         LOG.debug('get_parser(%s)', prog_name)
         parser = super().get_parser(prog_name)
         parser = self.update_parser_common(parser)
@@ -145,19 +148,25 @@ class NetDetectionMixin(command.Command, metaclass=abc.ABCMeta):
             parser = self.update_parser_compute(parser)
         return parser
 
-    def update_parser_common(self, parser):
+    def update_parser_common(
+        self, parser: argparse.ArgumentParser
+    ) -> argparse.ArgumentParser:
         """Default is no updates to parser."""
         return parser
 
-    def update_parser_network(self, parser):
+    def update_parser_network(
+        self, parser: argparse.ArgumentParser
+    ) -> argparse.ArgumentParser:
         """Default is no updates to parser."""
         return parser
 
-    def update_parser_compute(self, parser):
+    def update_parser_compute(
+        self, parser: argparse.ArgumentParser
+    ) -> argparse.ArgumentParser:
         """Default is no updates to parser."""
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> Any:
         if self.is_neutron:
             return self.take_action_network(
                 self.app.client_manager.network,
@@ -169,11 +178,15 @@ class NetDetectionMixin(command.Command, metaclass=abc.ABCMeta):
                 parsed_args,
             )
 
-    def take_action_network(self, client, parsed_args):
+    def take_action_network(
+        self, client: Any, parsed_args: argparse.Namespace
+    ) -> Any:
         """Override to do something useful."""
         pass
 
-    def take_action_compute(self, client, parsed_args):
+    def take_action_compute(
+        self, client: Any, parsed_args: argparse.Namespace
+    ) -> Any:
         """Override to do something useful."""
         pass
 
@@ -204,7 +217,7 @@ class NetworkAndComputeDelete(NetworkAndComputeCommand, metaclass=abc.ABCMeta):
 
     resource: str
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         ret = 0
         resources = getattr(parsed_args, self.resource, [])
 
@@ -267,7 +280,7 @@ class NetworkAndComputeShowOne(
     arguments.
     """
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> Any:
         try:
             if self.app.client_manager.is_network_endpoint_enabled():
                 return self.take_action_network(
@@ -300,7 +313,7 @@ class NeutronCommandWithExtraArgs(command.Command):
         'str': str,
     }
 
-    def _get_property_converter(self, _property):
+    def _get_property_converter(self, _property: dict[str, Any]) -> Any:
         if 'type' in _property:
             converter = self._allowed_types_dict.get(_property['type'])
         else:
@@ -316,7 +329,9 @@ class NeutronCommandWithExtraArgs(command.Command):
             )
         return converter
 
-    def _parse_extra_properties(self, extra_properties):
+    def _parse_extra_properties(
+        self, extra_properties: list[dict[str, Any]] | None
+    ) -> dict[str, Any]:
         result: dict[str, Any] = {}
         if extra_properties:
             for _property in extra_properties:
@@ -324,7 +339,7 @@ class NeutronCommandWithExtraArgs(command.Command):
                 result[_property['name']] = converter(_property['value'])
         return result
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             '--extra-property',
@@ -349,7 +364,9 @@ class NeutronCommandWithExtraArgs(command.Command):
 
 
 class NeutronUnsetCommandWithExtraArgs(NeutronCommandWithExtraArgs):
-    def _parse_extra_properties(self, extra_properties):
+    def _parse_extra_properties(
+        self, extra_properties: list[dict[str, Any]] | None
+    ) -> dict[str, Any]:
         result: dict[str, Any] = {}
         if extra_properties:
             for _property in extra_properties:

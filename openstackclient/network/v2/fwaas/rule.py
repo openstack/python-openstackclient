@@ -13,6 +13,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import argparse
+from collections.abc import Iterable, Sequence
 import logging
 from typing import Any
 
@@ -65,11 +67,13 @@ _attr_map = (
 _attr_map_dict = {x[0]: x[1] for x in _attr_map}
 
 
-def _convert_to_lowercase(string):
+def _convert_to_lowercase(string: str) -> str:
     return string.lower()
 
 
-def _get_common_parser(parser):
+def _get_common_parser(
+    parser: argparse.ArgumentParser,
+) -> argparse.ArgumentParser:
     parser.add_argument(
         '--name', metavar='<name>', help=_('Name of the firewall rule')
     )
@@ -208,8 +212,12 @@ def _get_common_parser(parser):
     return parser
 
 
-def _get_common_attrs(client_manager, parsed_args, is_create=True):
-    attrs = {}
+def _get_common_attrs(
+    client_manager: Any,
+    parsed_args: argparse.Namespace,
+    is_create: bool = True,
+) -> dict[str, Any]:
+    attrs: dict[str, Any] = {}
     client = client_manager.network
     if parsed_args.name:
         attrs['name'] = parsed_args.name
@@ -266,8 +274,8 @@ def _get_common_attrs(client_manager, parsed_args, is_create=True):
     return attrs
 
 
-class ProtocolColumn(cliff_columns.FormattableColumn):
-    def human_readable(self):
+class ProtocolColumn(cliff_columns.FormattableColumn[str | None]):
+    def human_readable(self) -> str:
         return self._value if self._value else 'any'
 
 
@@ -277,13 +285,15 @@ _formatters = {'protocol': ProtocolColumn}
 class CreateFirewallRule(command.ShowOne):
     _description = _("Create a new firewall rule")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         _get_common_parser(parser)
         identity_utils.add_project_owner_option_to_parser(parser)
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         client = self.app.client_manager.network
         attrs = _get_common_attrs(self.app.client_manager, parsed_args)
         if 'project' in parsed_args and parsed_args.project is not None:
@@ -303,7 +313,7 @@ class CreateFirewallRule(command.ShowOne):
 class DeleteFirewallRule(command.Command):
     _description = _("Delete firewall rule(s)")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'firewall_rule',
@@ -313,7 +323,7 @@ class DeleteFirewallRule(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
         result = 0
         for fwr in parsed_args.firewall_rule:
@@ -341,7 +351,7 @@ class DeleteFirewallRule(command.Command):
 class ListFirewallRule(command.Lister):
     _description = _("List firewall rules that belong to a given tenant")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             '--long',
@@ -351,7 +361,9 @@ class ListFirewallRule(command.Lister):
         )
         return parser
 
-    def extend_list(self, data, parsed_args):
+    def extend_list(
+        self, data: Iterable[Any], parsed_args: argparse.Namespace
+    ) -> list[Any]:
         ext_data = []
         for d in data:
             protocol = d['protocol'].upper() if d['protocol'] else 'ANY'
@@ -374,7 +386,9 @@ class ListFirewallRule(command.Lister):
             ext_data.append(d)
         return ext_data
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[tuple[Any, ...]]]:
         client = self.app.client_manager.network
         obj = client.firewall_rules()
         obj_extend = self.extend_list(obj, parsed_args)
@@ -393,7 +407,7 @@ class ListFirewallRule(command.Lister):
 class SetFirewallRule(command.Command):
     _description = _("Set firewall rule properties")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         _get_common_parser(parser)
         parser.add_argument(
@@ -403,7 +417,7 @@ class SetFirewallRule(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
         attrs = _get_common_attrs(
             self.app.client_manager, parsed_args, is_create=False
@@ -424,7 +438,7 @@ class SetFirewallRule(command.Command):
 class ShowFirewallRule(command.ShowOne):
     _description = _("Display firewall rule details")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'firewall_rule',
@@ -433,7 +447,9 @@ class ShowFirewallRule(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         client = self.app.client_manager.network
         fwr_id = client.find_firewall_rule(
             parsed_args.firewall_rule, ignore_missing=False
@@ -449,7 +465,7 @@ class ShowFirewallRule(command.ShowOne):
 class UnsetFirewallRule(command.Command):
     _description = _("Unset firewall rule properties")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'firewall_rule',
@@ -504,7 +520,9 @@ class UnsetFirewallRule(command.Command):
         )
         return parser
 
-    def _get_attrs(self, client_manager, parsed_args):
+    def _get_attrs(
+        self, client_manager: Any, parsed_args: argparse.Namespace
+    ) -> dict[str, Any]:
         attrs: dict[str, Any] = {}
         if parsed_args.source_ip_address:
             attrs['source_ip_address'] = None
@@ -524,7 +542,7 @@ class UnsetFirewallRule(command.Command):
             attrs['destination_firewall_group_id'] = None
         return attrs
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
         attrs = self._get_attrs(self.app.client_manager, parsed_args)
         fwr_id = client.find_firewall_rule(

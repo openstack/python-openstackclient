@@ -12,7 +12,10 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import argparse
 import logging
+from collections.abc import Iterable, Sequence
+from typing import Any
 
 from osc_lib.cli import identity as identity_utils
 from osc_lib import exceptions
@@ -37,14 +40,14 @@ _attr_map = [
 ]
 
 
-def _add_updatable_args(parser):
+def _add_updatable_args(parser: argparse.ArgumentParser) -> None:
     parser.add_argument('--name', help=_('Name of the tap service.'))
     parser.add_argument(
         '--description', help=_('Description of the tap service.')
     )
 
 
-def _get_columns(item):
+def _get_columns(item: Any) -> tuple[tuple[str, ...], tuple[str, ...]]:
     column_map: dict[str, str] = {}
     hidden_columns = ['location', 'tenant_id']
     return osc_utils.get_osc_show_columns_for_sdk_resource(
@@ -55,7 +58,7 @@ def _get_columns(item):
 class CreateTapService(command.ShowOne):
     _description = _("Create a new tap service.")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         identity_utils.add_project_owner_option_to_parser(parser)
         _add_updatable_args(parser)
@@ -68,7 +71,9 @@ class CreateTapService(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         client = self.app.client_manager.network
         attrs = {}
         if parsed_args.name is not None:
@@ -95,13 +100,15 @@ class CreateTapService(command.ShowOne):
 class ListTapService(command.Lister):
     _description = _("List tap services.")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         identity_utils.add_project_owner_option_to_parser(parser)
 
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[tuple[Any, ...]]]:
         client = self.app.client_manager.network
         params = {}
         if parsed_args.project is not None:
@@ -123,7 +130,7 @@ class ListTapService(command.Lister):
 class ShowTapService(command.ShowOne):
     _description = _("Show tap service details.")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             TAP_SERVICE,
@@ -132,7 +139,9 @@ class ShowTapService(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         client = self.app.client_manager.network
         id = client.find_tap_service(
             parsed_args.tap_service, ignore_missing=False
@@ -146,7 +155,7 @@ class ShowTapService(command.ShowOne):
 class DeleteTapService(command.Command):
     _description = _("Delete a tap service.")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             TAP_SERVICE,
@@ -156,7 +165,7 @@ class DeleteTapService(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
         fails = 0
         for id_or_name in parsed_args.tap_service:
@@ -185,7 +194,7 @@ class DeleteTapService(command.Command):
 class UpdateTapService(command.ShowOne):
     _description = _("Update a tap service.")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             TAP_SERVICE,
@@ -195,7 +204,9 @@ class UpdateTapService(command.ShowOne):
         _add_updatable_args(parser)
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         client = self.app.client_manager.network
         original_t_s = client.find_tap_service(
             parsed_args.tap_service, ignore_missing=False

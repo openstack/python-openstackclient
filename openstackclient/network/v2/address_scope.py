@@ -13,7 +13,10 @@
 
 """Address scope action implementations"""
 
+import argparse
 import logging
+from collections.abc import Iterable, Sequence
+from typing import Any
 
 from osc_lib import exceptions
 from osc_lib import utils
@@ -26,7 +29,7 @@ from openstackclient.network import common
 LOG = logging.getLogger(__name__)
 
 
-def _get_columns(item):
+def _get_columns(item: Any) -> tuple[tuple[str, ...], tuple[str, ...]]:
     column_map = {
         'is_shared': 'shared',
     }
@@ -36,8 +39,10 @@ def _get_columns(item):
     )
 
 
-def _get_attrs(client_manager, parsed_args):
-    attrs = {}
+def _get_attrs(
+    client_manager: Any, parsed_args: argparse.Namespace
+) -> dict[str, Any]:
+    attrs: dict[str, Any] = {}
     attrs['name'] = parsed_args.name
     attrs['ip_version'] = parsed_args.ip_version
     if parsed_args.share:
@@ -61,7 +66,7 @@ def _get_attrs(client_manager, parsed_args):
 class CreateAddressScope(command.ShowOne, common.NeutronCommandWithExtraArgs):
     _description = _("Create a new Address Scope")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'name', metavar="<name>", help=_("New address scope name")
@@ -96,7 +101,9 @@ class CreateAddressScope(command.ShowOne, common.NeutronCommandWithExtraArgs):
 
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         client = self.app.client_manager.network
         attrs = _get_attrs(self.app.client_manager, parsed_args)
         attrs.update(
@@ -112,7 +119,7 @@ class CreateAddressScope(command.ShowOne, common.NeutronCommandWithExtraArgs):
 class DeleteAddressScope(command.Command):
     _description = _("Delete address scope(s)")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'address_scope',
@@ -123,7 +130,7 @@ class DeleteAddressScope(command.Command):
 
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
         result = 0
 
@@ -154,7 +161,7 @@ class DeleteAddressScope(command.Command):
 class ListAddressScope(command.Lister):
     _description = _("List address scopes")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
 
         parser.add_argument(
@@ -196,7 +203,9 @@ class ListAddressScope(command.Lister):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
         client = self.app.client_manager.network
         columns = (
             'id',
@@ -249,7 +258,7 @@ class ListAddressScope(command.Lister):
 class SetAddressScope(common.NeutronCommandWithExtraArgs):
     _description = _("Set address scope properties")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'address_scope',
@@ -273,7 +282,7 @@ class SetAddressScope(common.NeutronCommandWithExtraArgs):
 
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
         obj = client.find_address_scope(
             parsed_args.address_scope, ignore_missing=False
@@ -294,7 +303,7 @@ class SetAddressScope(common.NeutronCommandWithExtraArgs):
 class ShowAddressScope(command.ShowOne):
     _description = _("Display address scope details")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'address_scope',
@@ -304,7 +313,9 @@ class ShowAddressScope(command.ShowOne):
 
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         client = self.app.client_manager.network
         obj = client.find_address_scope(
             parsed_args.address_scope, ignore_missing=False

@@ -13,7 +13,9 @@
 
 """Floating IP Port Forwarding action implementations"""
 
+import argparse
 import logging
+from collections.abc import Iterable, Sequence
 from typing import Any
 
 from osc_lib import exceptions
@@ -26,7 +28,7 @@ from openstackclient.network import common
 LOG = logging.getLogger(__name__)
 
 
-def validate_ports_diff(ports):
+def validate_ports_diff(ports: list[int]) -> int:
     if len(ports) == 0:
         return 0
 
@@ -40,7 +42,9 @@ def validate_ports_diff(ports):
     return ports_diff
 
 
-def validate_ports_match(internal_ports, external_ports):
+def validate_ports_match(
+    internal_ports: list[int], external_ports: list[int]
+) -> None:
     internal_ports_diff = validate_ports_diff(internal_ports)
     external_ports_diff = validate_ports_diff(external_ports)
 
@@ -52,7 +56,9 @@ def validate_ports_match(internal_ports, external_ports):
         raise exceptions.CommandError(msg)
 
 
-def validate_and_assign_port_ranges(parsed_args, attrs):
+def validate_and_assign_port_ranges(
+    parsed_args: argparse.Namespace, attrs: dict[str, Any]
+) -> None:
     internal_port_range = parsed_args.internal_protocol_port
     external_port_range = parsed_args.external_protocol_port
     external_ports = internal_ports = []
@@ -79,13 +85,13 @@ def validate_and_assign_port_ranges(parsed_args, attrs):
             attrs['external_port'] = int(external_port_range)
 
 
-def validate_port(port):
+def validate_port(port: int) -> None:
     if port <= 0 or port > 65535:
         msg = _("The port number range is <1-65535>")
         raise exceptions.CommandError(msg)
 
 
-def _get_columns(item):
+def _get_columns(item: Any) -> tuple[tuple[str, ...], tuple[str, ...]]:
     hidden_columns = ['location', 'tenant_id']
     return utils.get_osc_show_columns_for_sdk_resource(
         item, {}, hidden_columns
@@ -97,7 +103,7 @@ class CreateFloatingIPPortForwarding(
 ):
     _description = _("Create floating IP port forwarding")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             '--internal-ip-address',
@@ -164,7 +170,9 @@ class CreateFloatingIPPortForwarding(
 
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         attrs: dict[str, Any] = {}
         client = self.app.client_manager.network
         floating_ip = client.find_ip(
@@ -198,7 +206,7 @@ class CreateFloatingIPPortForwarding(
 class DeleteFloatingIPPortForwarding(command.Command):
     _description = _("Delete floating IP port forwarding")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'floating_ip',
@@ -216,7 +224,7 @@ class DeleteFloatingIPPortForwarding(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
         floating_ip = client.find_ip(
             parsed_args.floating_ip,
@@ -251,7 +259,7 @@ class DeleteFloatingIPPortForwarding(command.Command):
 class ListFloatingIPPortForwarding(command.Lister):
     _description = _("List floating IP port forwarding")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'floating_ip',
@@ -289,7 +297,9 @@ class ListFloatingIPPortForwarding(command.Lister):
 
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
         client = self.app.client_manager.network
 
         columns = (
@@ -354,7 +364,7 @@ class ListFloatingIPPortForwarding(command.Lister):
 class SetFloatingIPPortForwarding(common.NeutronCommandWithExtraArgs):
     _description = _("Set floating IP Port Forwarding Properties")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'floating_ip',
@@ -419,7 +429,7 @@ class SetFloatingIPPortForwarding(common.NeutronCommandWithExtraArgs):
 
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
         floating_ip = client.find_ip(
             parsed_args.floating_ip,
@@ -454,7 +464,7 @@ class SetFloatingIPPortForwarding(common.NeutronCommandWithExtraArgs):
 class ShowFloatingIPPortForwarding(command.ShowOne):
     _description = _("Display floating IP Port Forwarding details")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'floating_ip',
@@ -471,7 +481,9 @@ class ShowFloatingIPPortForwarding(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         client = self.app.client_manager.network
         floating_ip = client.find_ip(
             parsed_args.floating_ip,

@@ -14,7 +14,8 @@
 """Security Group action implementations"""
 
 import argparse
-from typing import Any
+from collections.abc import Iterable, Sequence
+from typing import Any, cast
 
 from cliff import columns as cliff_columns
 from osc_lib import utils
@@ -28,7 +29,9 @@ from openstackclient.network import common
 from openstackclient.network import utils as network_utils
 
 
-def _format_network_security_group_rules(sg_rules):
+def _format_network_security_group_rules(
+    sg_rules: list[dict[str, Any]],
+) -> str:
     # For readability and to align with formatting compute security group
     # rules, trim keys with caller known (e.g. security group and tenant ID)
     # or empty values.
@@ -39,10 +42,10 @@ def _format_network_security_group_rules(sg_rules):
         sg_rule.pop('security_group_id', None)
         sg_rule.pop('tenant_id', None)
         sg_rule.pop('project_id', None)
-    return utils.format_list_of_dicts(sg_rules)
+    return utils.format_list_of_dicts(sg_rules) or ""
 
 
-def _format_compute_security_group_rule(sg_rule):
+def _format_compute_security_group_rule(sg_rule: dict[str, Any]) -> str:
     info = network_utils.transform_compute_security_group_rule(sg_rule)
     # Trim parent security group ID since caller has this information.
     info.pop('parent_group_id', None)
@@ -59,20 +62,22 @@ def _format_compute_security_group_rule(sg_rule):
     return utils.format_dict(info)
 
 
-def _format_compute_security_group_rules(sg_rules):
+def _format_compute_security_group_rules(
+    sg_rules: list[dict[str, Any]],
+) -> str:
     rules = []
     for sg_rule in sg_rules:
         rules.append(_format_compute_security_group_rule(sg_rule))
-    return utils.format_list(rules, separator='\n')
+    return utils.format_list(rules, separator='\n') or ""
 
 
 class NetworkSecurityGroupRulesColumn(cliff_columns.FormattableColumn[Any]):
-    def human_readable(self):
+    def human_readable(self) -> str:
         return _format_network_security_group_rules(self._value)
 
 
 class ComputeSecurityGroupRulesColumn(cliff_columns.FormattableColumn[Any]):
-    def human_readable(self):
+    def human_readable(self) -> str:
         return _format_compute_security_group_rules(self._value)
 
 
@@ -86,7 +91,7 @@ _formatters_compute = {
 }
 
 
-def _get_columns(item):
+def _get_columns(item: Any) -> tuple[tuple[str, ...], tuple[str, ...]]:
     # We still support Nova managed security groups, where we have tenant_id.
     column_map = {
         'security_group_rules': 'rules',
@@ -104,7 +109,9 @@ class CreateSecurityGroup(
 ):
     _description = _("Create a new security group")
 
-    def update_parser_common(self, parser):
+    def update_parser_common(
+        self, parser: argparse.ArgumentParser
+    ) -> argparse.ArgumentParser:
         parser.add_argument(
             "name", metavar="<name>", help=_("New security group name")
         )
@@ -115,7 +122,9 @@ class CreateSecurityGroup(
         )
         return parser
 
-    def update_parser_network(self, parser):
+    def update_parser_network(
+        self, parser: argparse.ArgumentParser
+    ) -> argparse.ArgumentParser:
         parser.add_argument(
             '--project',
             metavar='<project>',
@@ -142,13 +151,15 @@ class CreateSecurityGroup(
         )
         return parser
 
-    def _get_description(self, parsed_args):
+    def _get_description(self, parsed_args: argparse.Namespace) -> str:
         if parsed_args.description is not None:
-            return parsed_args.description
+            return cast(str, parsed_args.description)
         else:
-            return parsed_args.name
+            return cast(str, parsed_args.name)
 
-    def take_action_network(self, client, parsed_args):
+    def take_action_network(
+        self, client: Any, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         # Build the create attributes.
         attrs = {}
         attrs['name'] = parsed_args.name
@@ -179,7 +190,9 @@ class CreateSecurityGroup(
         )
         return (display_columns, data)
 
-    def take_action_compute(self, client, parsed_args):
+    def take_action_compute(
+        self, client: Any, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         description = self._get_description(parsed_args)
         obj = compute_v2.create_security_group(
             client,
@@ -201,7 +214,9 @@ class DeleteSecurityGroup(common.NetworkAndComputeDelete):
     resource = 'group'
     r: str
 
-    def update_parser_common(self, parser):
+    def update_parser_common(
+        self, parser: argparse.ArgumentParser
+    ) -> argparse.ArgumentParser:
         parser.add_argument(
             'group',
             metavar='<group>',
@@ -210,11 +225,15 @@ class DeleteSecurityGroup(common.NetworkAndComputeDelete):
         )
         return parser
 
-    def take_action_network(self, client, parsed_args):
+    def take_action_network(
+        self, client: Any, parsed_args: argparse.Namespace
+    ) -> None:
         obj = client.find_security_group(self.r, ignore_missing=False)
         client.delete_security_group(obj)
 
-    def take_action_compute(self, client, parsed_args):
+    def take_action_compute(
+        self, client: Any, parsed_args: argparse.Namespace
+    ) -> None:
         security_group = compute_v2.find_security_group(client, self.r)
         compute_v2.delete_security_group(client, security_group['id'])
 
@@ -232,7 +251,9 @@ class ListSecurityGroup(common.NetworkAndComputeLister):
         'shared',
     ]
 
-    def update_parser_network(self, parser):
+    def update_parser_network(
+        self, parser: argparse.ArgumentParser
+    ) -> argparse.ArgumentParser:
         if not self.is_docs_build:
             # Maintain and hide the argument for backwards compatibility.
             # Network will always return all projects for an admin.
@@ -278,7 +299,9 @@ class ListSecurityGroup(common.NetworkAndComputeLister):
         )
         return parser
 
-    def update_parser_compute(self, parser):
+    def update_parser_compute(
+        self, parser: argparse.ArgumentParser
+    ) -> argparse.ArgumentParser:
         parser.add_argument(
             '--all-projects',
             action='store_true',
@@ -289,7 +312,9 @@ class ListSecurityGroup(common.NetworkAndComputeLister):
         )
         return parser
 
-    def take_action_network(self, client, parsed_args):
+    def take_action_network(
+        self, client: Any, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[tuple[Any, ...]]]:
         filters = {}
         if parsed_args.project:
             identity_client = self.app.client_manager.identity
@@ -335,7 +360,9 @@ class ListSecurityGroup(common.NetworkAndComputeLister):
             ),
         )
 
-    def take_action_compute(self, client, parsed_args):
+    def take_action_compute(
+        self, client: Any, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[tuple[Any, ...]]]:
         data = compute_v2.list_security_groups(
             # TODO(dtroyer): add limit, marker
             client,
@@ -364,7 +391,9 @@ class SetSecurityGroup(
 ):
     _description = _("Set security group properties")
 
-    def update_parser_common(self, parser):
+    def update_parser_common(
+        self, parser: argparse.ArgumentParser
+    ) -> argparse.ArgumentParser:
         parser.add_argument(
             'group',
             metavar='<group>',
@@ -393,13 +422,17 @@ class SetSecurityGroup(
         )
         return parser
 
-    def update_parser_network(self, parser):
+    def update_parser_network(
+        self, parser: argparse.ArgumentParser
+    ) -> argparse.ArgumentParser:
         _tag.add_tag_option_to_parser_for_set(
             parser, _('security group'), enhance_help=self.enhance_help_neutron
         )
         return parser
 
-    def take_action_network(self, client, parsed_args):
+    def take_action_network(
+        self, client: Any, parsed_args: argparse.Namespace
+    ) -> None:
         obj = client.find_security_group(
             parsed_args.group, ignore_missing=False
         )
@@ -423,7 +456,9 @@ class SetSecurityGroup(
         # tags is a subresource and it needs to be updated separately.
         _tag.update_tags_for_set(client, obj, parsed_args)
 
-    def take_action_compute(self, client, parsed_args):
+    def take_action_compute(
+        self, client: Any, parsed_args: argparse.Namespace
+    ) -> None:
         security_group = compute_v2.find_security_group(
             client, parsed_args.group
         )
@@ -445,7 +480,9 @@ class SetSecurityGroup(
 class ShowSecurityGroup(common.NetworkAndComputeShowOne):
     _description = _("Display security group details")
 
-    def update_parser_common(self, parser):
+    def update_parser_common(
+        self, parser: argparse.ArgumentParser
+    ) -> argparse.ArgumentParser:
         parser.add_argument(
             'group',
             metavar='<group>',
@@ -453,7 +490,9 @@ class ShowSecurityGroup(common.NetworkAndComputeShowOne):
         )
         return parser
 
-    def take_action_network(self, client, parsed_args):
+    def take_action_network(
+        self, client: Any, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         obj = client.find_security_group(
             parsed_args.group, ignore_missing=False
         )
@@ -463,7 +502,9 @@ class ShowSecurityGroup(common.NetworkAndComputeShowOne):
         )
         return (display_columns, data)
 
-    def take_action_compute(self, client, parsed_args):
+    def take_action_compute(
+        self, client: Any, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         obj = compute_v2.find_security_group(client, parsed_args.group)
         display_columns = ('description', 'id', 'name', 'project_id', 'rules')
         property_columns = ('description', 'id', 'name', 'tenant_id', 'rules')
@@ -476,7 +517,7 @@ class ShowSecurityGroup(common.NetworkAndComputeShowOne):
 class UnsetSecurityGroup(command.Command):
     _description = _("Unset security group properties")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'group',
@@ -486,7 +527,7 @@ class UnsetSecurityGroup(command.Command):
         _tag.add_tag_option_to_parser_for_unset(parser, _('security group'))
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
         obj = client.find_security_group(
             parsed_args.group, ignore_missing=False

@@ -12,7 +12,10 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import argparse
 import logging
+from collections.abc import Iterable, Sequence
+from typing import Any
 
 from osc_lib.cli import format_columns
 from osc_lib.cli import identity as identity_utils
@@ -45,7 +48,7 @@ _formatters = {
 }
 
 
-def _add_updatable_args(parser):
+def _add_updatable_args(parser: argparse.ArgumentParser) -> None:
     parser.add_argument('--name', help=_('Name of the tap flow.'))
     parser.add_argument(
         '--description', help=_('Description of the tap flow.')
@@ -55,7 +58,7 @@ def _add_updatable_args(parser):
 class CreateTapFlow(command.ShowOne):
     _description = _("Create a new tap flow.")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         identity_utils.add_project_owner_option_to_parser(parser)
         _add_updatable_args(parser)
@@ -92,7 +95,9 @@ class CreateTapFlow(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         client = self.app.client_manager.network
         attrs = {}
         if parsed_args.name is not None:
@@ -128,13 +133,15 @@ class CreateTapFlow(command.ShowOne):
 class ListTapFlow(command.Lister):
     _description = _("List tap flows.")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         identity_utils.add_project_owner_option_to_parser(parser)
 
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[tuple[Any, ...]]]:
         client = self.app.client_manager.network
         params = {}
         if parsed_args.project is not None:
@@ -161,7 +168,7 @@ class ListTapFlow(command.Lister):
 class ShowTapFlow(command.ShowOne):
     _description = _("Show tap flow details.")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             TAP_FLOW,
@@ -170,7 +177,9 @@ class ShowTapFlow(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         client = self.app.client_manager.network
         id = client.find_tap_flow(
             parsed_args.tap_flow, ignore_missing=False
@@ -184,7 +193,7 @@ class ShowTapFlow(command.ShowOne):
 class DeleteTapFlow(command.Command):
     _description = _("Delete a tap flow.")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             TAP_FLOW,
@@ -194,7 +203,7 @@ class DeleteTapFlow(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
         fails = 0
         for id_or_name in parsed_args.tap_flow:
@@ -219,7 +228,7 @@ class DeleteTapFlow(command.Command):
 class UpdateTapFlow(command.ShowOne):
     _description = _("Update a tap flow.")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             TAP_FLOW,
@@ -229,7 +238,9 @@ class UpdateTapFlow(command.ShowOne):
         _add_updatable_args(parser)
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         client = self.app.client_manager.network
         original_t_f = client.find_tap_flow(
             parsed_args.tap_flow, ignore_missing=False

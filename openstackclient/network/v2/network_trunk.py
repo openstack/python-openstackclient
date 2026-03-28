@@ -16,6 +16,8 @@
 
 """Network trunk and subports action implementations"""
 
+import argparse
+from collections.abc import Iterable, Sequence
 import logging
 from typing import Any
 
@@ -37,14 +39,14 @@ SUB_PORTS = 'sub_ports'
 
 
 class AdminStateColumn(cliff_columns.FormattableColumn[bool]):
-    def human_readable(self):
+    def human_readable(self) -> str:
         return 'UP' if self._value else 'DOWN'
 
 
 class CreateNetworkTrunk(command.ShowOne):
     """Create a network trunk for a given project"""
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'name', metavar='<name>', help=_("Name of the trunk to create")
@@ -87,7 +89,9 @@ class CreateNetworkTrunk(command.ShowOne):
         identity_utils.add_project_owner_option_to_parser(parser)
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         network_client = self.app.client_manager.network
         identity_client = self.app.client_manager.identity
         attrs = _get_attrs_for_trunk(
@@ -104,7 +108,7 @@ class CreateNetworkTrunk(command.ShowOne):
 class DeleteNetworkTrunk(command.Command):
     """Delete a given network trunk"""
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'trunk',
@@ -114,7 +118,7 @@ class DeleteNetworkTrunk(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         network_client = self.app.client_manager.network
         result = 0
         for trunk in parsed_args.trunk:
@@ -145,7 +149,7 @@ class DeleteNetworkTrunk(command.Command):
 class ListNetworkTrunk(command.Lister):
     """List all network trunks"""
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             '--long',
@@ -155,7 +159,9 @@ class ListNetworkTrunk(command.Lister):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
         network_client = self.app.client_manager.network
         data = network_client.trunks()
         headers: tuple[str, ...] = ('ID', 'Name', 'Parent Port', 'Description')
@@ -184,7 +190,7 @@ class ListNetworkTrunk(command.Lister):
 class SetNetworkTrunk(command.Command):
     """Set network trunk properties"""
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'trunk', metavar="<trunk>", help=_("Trunk to modify (name or ID)")
@@ -220,7 +226,7 @@ class SetNetworkTrunk(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         network_client = self.app.client_manager.network
         identity_client = self.app.client_manager.identity
         trunk_id = network_client.find_trunk(
@@ -255,14 +261,16 @@ class SetNetworkTrunk(command.Command):
 class ShowNetworkTrunk(command.ShowOne):
     """Show information of a given network trunk"""
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'trunk', metavar="<trunk>", help=_("Trunk to display (name or ID)")
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         network_client = self.app.client_manager.network
         trunk_id = network_client.find_trunk(
             parsed_args.trunk,
@@ -279,7 +287,7 @@ class ShowNetworkTrunk(command.ShowOne):
 class ListNetworkSubport(command.Lister):
     """List all subports for a given network trunk"""
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             '--trunk',
@@ -289,7 +297,9 @@ class ListNetworkSubport(command.Lister):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
         network_client = self.app.client_manager.network
         trunk_id = network_client.find_trunk(
             parsed_args.trunk,
@@ -321,7 +331,7 @@ class ListNetworkSubport(command.Lister):
 class UnsetNetworkTrunk(command.Command):
     """Unset subports from a given network trunk"""
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'trunk',
@@ -341,7 +351,7 @@ class UnsetNetworkTrunk(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         network_client = self.app.client_manager.network
         attrs = _get_attrs_for_subports(network_client, parsed_args)
         trunk_id = network_client.find_trunk(
@@ -357,14 +367,16 @@ _formatters = {
 }
 
 
-def _get_columns(item):
+def _get_columns(item: Any) -> tuple[tuple[str, ...], tuple[str, ...]]:
     hidden_columns = ['location', 'tenant_id']
     return osc_utils.get_osc_show_columns_for_sdk_resource(
         item, {}, hidden_columns
     )
 
 
-def _get_attrs_for_trunk(network_client, identity_client, parsed_args):
+def _get_attrs_for_trunk(
+    network_client: Any, identity_client: Any, parsed_args: argparse.Namespace
+) -> dict[str, Any]:
     attrs: dict[str, Any] = {}
     if parsed_args.name is not None:
         attrs['name'] = str(parsed_args.name)
@@ -397,7 +409,9 @@ def _get_attrs_for_trunk(network_client, identity_client, parsed_args):
     return attrs
 
 
-def _format_subports(network_client, subports):
+def _format_subports(
+    network_client: Any, subports: list[dict[str, Any]]
+) -> list[dict[str, Any]]:
     attrs = []
     for subport in subports:
         subport_attrs = {}
@@ -424,7 +438,9 @@ def _format_subports(network_client, subports):
     return attrs
 
 
-def _get_attrs_for_subports(network_client, parsed_args):
+def _get_attrs_for_subports(
+    network_client: Any, parsed_args: argparse.Namespace
+) -> list[dict[str, Any]]:
     attrs = []
     if 'set_subports' in parsed_args and parsed_args.set_subports is not None:
         attrs = _format_subports(network_client, parsed_args.set_subports)

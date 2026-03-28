@@ -13,7 +13,10 @@
 
 """Flavor action implementations"""
 
+import argparse
 import logging
+from collections.abc import Iterable, Sequence
+from typing import Any
 
 from osc_lib import exceptions
 from osc_lib import utils
@@ -26,7 +29,7 @@ from openstackclient.network import common
 LOG = logging.getLogger(__name__)
 
 
-def _get_columns(item):
+def _get_columns(item: Any) -> tuple[tuple[str, ...], tuple[str, ...]]:
     column_map = {
         'is_enabled': 'enabled',
     }
@@ -37,8 +40,10 @@ def _get_columns(item):
     )
 
 
-def _get_attrs(client_manager, parsed_args):
-    attrs = {}
+def _get_attrs(
+    client_manager: Any, parsed_args: argparse.Namespace
+) -> dict[str, Any]:
+    attrs: dict[str, Any] = {}
     attrs['name'] = parsed_args.name
     attrs['service_type'] = parsed_args.service_type
     if parsed_args.description is not None:
@@ -62,7 +67,7 @@ def _get_attrs(client_manager, parsed_args):
 class AddNetworkFlavorToProfile(command.Command):
     _description = _("Add a service profile to a network flavor")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'flavor', metavar="<flavor>", help=_("Network flavor (name or ID)")
@@ -74,7 +79,7 @@ class AddNetworkFlavorToProfile(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
         obj_flavor = client.find_flavor(
             parsed_args.flavor, ignore_missing=False
@@ -92,7 +97,7 @@ class AddNetworkFlavorToProfile(command.Command):
 class CreateNetworkFlavor(command.ShowOne, common.NeutronCommandWithExtraArgs):
     _description = _("Create new network flavor")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'name', metavar="<name>", help=_("Name for the flavor")
@@ -129,7 +134,9 @@ class CreateNetworkFlavor(command.ShowOne, common.NeutronCommandWithExtraArgs):
 
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         client = self.app.client_manager.network
         attrs = _get_attrs(self.app.client_manager, parsed_args)
         attrs.update(
@@ -145,7 +152,7 @@ class CreateNetworkFlavor(command.ShowOne, common.NeutronCommandWithExtraArgs):
 class DeleteNetworkFlavor(command.Command):
     _description = _("Delete network flavors")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
 
         parser.add_argument(
@@ -156,7 +163,7 @@ class DeleteNetworkFlavor(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
         result = 0
 
@@ -185,7 +192,9 @@ class DeleteNetworkFlavor(command.Command):
 class ListNetworkFlavor(command.Lister):
     _description = _("List network flavors")
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
         client = self.app.client_manager.network
 
         columns = ('id', 'name', 'is_enabled', 'service_type', 'description')
@@ -213,7 +222,7 @@ class ListNetworkFlavor(command.Lister):
 class RemoveNetworkFlavorFromProfile(command.Command):
     _description = _("Remove service profile from network flavor")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'flavor', metavar="<flavor>", help=_("Network flavor (name or ID)")
@@ -225,7 +234,7 @@ class RemoveNetworkFlavorFromProfile(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
         obj_flavor = client.find_flavor(
             parsed_args.flavor, ignore_missing=False
@@ -243,7 +252,7 @@ class RemoveNetworkFlavorFromProfile(command.Command):
 class SetNetworkFlavor(common.NeutronCommandWithExtraArgs):
     _description = _("Set network flavor properties")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'flavor',
@@ -266,7 +275,7 @@ class SetNetworkFlavor(common.NeutronCommandWithExtraArgs):
 
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
         obj = client.find_flavor(parsed_args.flavor, ignore_missing=False)
         attrs = {}
@@ -287,7 +296,7 @@ class SetNetworkFlavor(common.NeutronCommandWithExtraArgs):
 class ShowNetworkFlavor(command.ShowOne):
     _description = _("Display network flavor details")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'flavor',
@@ -296,7 +305,9 @@ class ShowNetworkFlavor(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         client = self.app.client_manager.network
         obj = client.find_flavor(parsed_args.flavor, ignore_missing=False)
         display_columns, columns = _get_columns(obj)

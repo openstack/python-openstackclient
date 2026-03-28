@@ -13,6 +13,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import argparse
+from collections.abc import Iterable, Sequence
 import logging
 from typing import Any
 
@@ -29,7 +31,7 @@ LOG = logging.getLogger(__name__)
 
 
 class RulesColumn(cliff_columns.FormattableColumn[Any]):
-    def human_readable(self):
+    def human_readable(self) -> str:
         return '\n'.join(str(v) for v in self._value)
 
 
@@ -38,7 +40,7 @@ _formatters = {
 }
 
 
-def _get_columns(item):
+def _get_columns(item: Any) -> tuple[tuple[str, ...], tuple[str, ...]]:
     column_map = {
         'is_shared': 'shared',
     }
@@ -48,7 +50,9 @@ def _get_columns(item):
     )
 
 
-def _get_attrs(client_manager, parsed_args):
+def _get_attrs(
+    client_manager: Any, parsed_args: argparse.Namespace
+) -> dict[str, Any]:
     attrs = {}
     if 'name' in parsed_args and parsed_args.name is not None:
         attrs['name'] = parsed_args.name
@@ -85,7 +89,7 @@ class CreateNetworkQosPolicy(
 ):
     _description = _("Create a QoS policy")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'name', metavar='<name>', help=_("Name of QoS policy to create")
@@ -129,7 +133,9 @@ class CreateNetworkQosPolicy(
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         client = self.app.client_manager.network
         attrs = _get_attrs(self.app.client_manager, parsed_args)
         attrs.update(
@@ -144,7 +150,7 @@ class CreateNetworkQosPolicy(
 class DeleteNetworkQosPolicy(command.Command):
     _description = _("Delete Qos Policy(s)")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'policy',
@@ -154,7 +160,7 @@ class DeleteNetworkQosPolicy(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
         result = 0
 
@@ -185,7 +191,7 @@ class DeleteNetworkQosPolicy(command.Command):
 class ListNetworkQosPolicy(command.Lister):
     _description = _("List QoS policies")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             '--project',
@@ -209,7 +215,9 @@ class ListNetworkQosPolicy(command.Lister):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
         client = self.app.client_manager.network
         columns = (
             'id',
@@ -245,7 +253,7 @@ class ListNetworkQosPolicy(command.Lister):
 class SetNetworkQosPolicy(common.NeutronCommandWithExtraArgs):
     _description = _("Set QoS policy properties")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'policy',
@@ -284,7 +292,7 @@ class SetNetworkQosPolicy(common.NeutronCommandWithExtraArgs):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
         obj = client.find_qos_policy(parsed_args.policy, ignore_missing=False)
         attrs = _get_attrs(self.app.client_manager, parsed_args)
@@ -297,7 +305,7 @@ class SetNetworkQosPolicy(common.NeutronCommandWithExtraArgs):
 class ShowNetworkQosPolicy(command.ShowOne):
     _description = _("Display QoS policy details")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'policy',
@@ -306,7 +314,9 @@ class ShowNetworkQosPolicy(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         client = self.app.client_manager.network
         obj = client.find_qos_policy(parsed_args.policy, ignore_missing=False)
         display_columns, columns = _get_columns(obj)

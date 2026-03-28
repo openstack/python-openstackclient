@@ -12,6 +12,10 @@
 
 """Floating IP Pool action implementations"""
 
+import argparse
+from collections.abc import Iterable
+from typing import Any
+
 from osc_lib import exceptions
 
 from openstackclient.api import compute_v2
@@ -22,14 +26,18 @@ from openstackclient.network import common
 class ListFloatingIPPool(common.NetworkAndComputeLister):
     _description = _("List pools of floating IP addresses")
 
-    def take_action_network(self, client, parsed_args):
+    def take_action_network(
+        self, client: Any, parsed_args: argparse.Namespace
+    ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
         msg = _(
             "Floating ip pool operations are only available for "
             "Compute v2 network."
         )
         raise exceptions.CommandError(msg)
 
-    def take_action_compute(self, client, parsed_args):
+    def take_action_compute(
+        self, client: Any, parsed_args: argparse.Namespace
+    ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
         columns = ('Name',)
         data = [
             (x['name'],) for x in compute_v2.list_floating_ip_pools(client)

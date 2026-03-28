@@ -13,7 +13,10 @@
 
 """L3 Conntrack Helper action implementations"""
 
+import argparse
 import logging
+from collections.abc import Iterable, Sequence
+from typing import Any
 
 from osc_lib import exceptions
 from osc_lib import utils
@@ -24,16 +27,16 @@ from openstackclient.i18n import _
 LOG = logging.getLogger(__name__)
 
 
-def _get_columns(item):
+def _get_columns(item: Any) -> tuple[tuple[str, ...], tuple[str, ...]]:
     hidden_columns = ['location', 'tenant_id']
     return utils.get_osc_show_columns_for_sdk_resource(
         item, {}, hidden_columns
     )
 
 
-def _get_attrs(client, parsed_args):
+def _get_attrs(client: Any, parsed_args: argparse.Namespace) -> dict[str, Any]:
     router = client.find_router(parsed_args.router, ignore_missing=False)
-    attrs = {'router_id': router.id}
+    attrs: dict[str, Any] = {'router_id': router.id}
     if parsed_args.helper:
         attrs['helper'] = parsed_args.helper
     if parsed_args.protocol:
@@ -47,7 +50,7 @@ def _get_attrs(client, parsed_args):
 class CreateConntrackHelper(command.ShowOne):
     _description = _("Create a new L3 conntrack helper")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'router',
@@ -78,7 +81,9 @@ class CreateConntrackHelper(command.ShowOne):
 
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         client = self.app.client_manager.network
 
         attrs = _get_attrs(client, parsed_args)
@@ -92,7 +97,7 @@ class CreateConntrackHelper(command.ShowOne):
 class DeleteConntrackHelper(command.Command):
     _description = _("Delete L3 conntrack helper")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'router',
@@ -108,7 +113,7 @@ class DeleteConntrackHelper(command.Command):
 
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
         result = 0
 
@@ -140,7 +145,7 @@ class DeleteConntrackHelper(command.Command):
 class ListConntrackHelper(command.Lister):
     _description = _("List L3 conntrack helpers")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'router',
@@ -174,7 +179,9 @@ class ListConntrackHelper(command.Lister):
 
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
         client = self.app.client_manager.network
         columns = (
             'id',
@@ -209,7 +216,7 @@ class ListConntrackHelper(command.Lister):
 class SetConntrackHelper(command.Command):
     _description = _("Set L3 conntrack helper properties")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'router',
@@ -241,7 +248,7 @@ class SetConntrackHelper(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
         attrs = _get_attrs(client, parsed_args)
         if attrs:
@@ -255,7 +262,7 @@ class SetConntrackHelper(command.Command):
 class ShowConntrackHelper(command.ShowOne):
     _description = _("Display L3 conntrack helper details")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'router',
@@ -270,7 +277,9 @@ class ShowConntrackHelper(command.ShowOne):
 
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         client = self.app.client_manager.network
         router = client.find_router(parsed_args.router, ignore_missing=False)
         obj = client.get_conntrack_helper(

@@ -13,13 +13,17 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import argparse
+from collections.abc import Iterable, Sequence
+from typing import Any
+
 from osc_lib import utils
 
 from openstackclient import command
 from openstackclient.i18n import _
 
 
-def _get_columns(item):
+def _get_columns(item: Any) -> tuple[tuple[str, ...], tuple[str, ...]]:
     column_map = {
         "type": "rule_type_name",
         "drivers": "drivers",
@@ -33,7 +37,7 @@ def _get_columns(item):
 class ListNetworkQosRuleType(command.Lister):
     _description = _("List QoS rule types")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         supported = parser.add_mutually_exclusive_group()
         supported.add_argument(
@@ -54,7 +58,9 @@ class ListNetworkQosRuleType(command.Lister):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
         client = self.app.client_manager.network
         columns = ('type',)
         column_headers = ('Type',)
@@ -82,7 +88,7 @@ class ListNetworkQosRuleType(command.Lister):
 class ShowNetworkQosRuleType(command.ShowOne):
     _description = _("Show details about supported QoS rule type")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'rule_type',
@@ -91,7 +97,9 @@ class ShowNetworkQosRuleType(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         client = self.app.client_manager.network
         obj = client.get_qos_rule_type(parsed_args.rule_type)
         display_columns, columns = _get_columns(obj)

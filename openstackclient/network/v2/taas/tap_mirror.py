@@ -10,7 +10,10 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import argparse
 import logging
+from collections.abc import Iterable, Sequence
+from typing import Any
 
 from osc_lib.cli import identity as identity_utils
 from osc_lib import exceptions
@@ -39,7 +42,7 @@ _attr_map = [
 ]
 
 
-def _get_columns(item):
+def _get_columns(item: Any) -> tuple[tuple[str, ...], tuple[str, ...]]:
     column_map: dict[str, str] = {}
     hidden_columns = ['location', 'tenant_id']
     return osc_utils.get_osc_show_columns_for_sdk_resource(
@@ -50,7 +53,7 @@ def _get_columns(item):
 class CreateTapMirror(command.ShowOne):
     _description = _("Create a new tap mirror.")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         identity_utils.add_project_owner_option_to_parser(parser)
         tap_service._add_updatable_args(parser)
@@ -88,7 +91,9 @@ class CreateTapMirror(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         client = self.app.client_manager.network
         attrs = {}
         if parsed_args.name is not None:
@@ -121,13 +126,15 @@ class CreateTapMirror(command.ShowOne):
 class ListTapMirror(command.Lister):
     _description = _("List tap mirrors.")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         identity_utils.add_project_owner_option_to_parser(parser)
 
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[tuple[Any, ...]]]:
         client = self.app.client_manager.network
         params = {}
         if parsed_args.project is not None:
@@ -149,7 +156,7 @@ class ListTapMirror(command.Lister):
 class ShowTapMirror(command.ShowOne):
     _description = _("Show tap mirror details.")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             TAP_MIRROR,
@@ -158,7 +165,9 @@ class ShowTapMirror(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         client = self.app.client_manager.network
         id = client.find_tap_mirror(
             parsed_args.tap_mirror, ignore_missing=False
@@ -172,7 +181,7 @@ class ShowTapMirror(command.ShowOne):
 class DeleteTapMirror(command.Command):
     _description = _("Delete a tap mirror.")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             TAP_MIRROR,
@@ -182,7 +191,7 @@ class DeleteTapMirror(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
         fails = 0
         for id_or_name in parsed_args.tap_mirror:
@@ -211,7 +220,7 @@ class DeleteTapMirror(command.Command):
 class UpdateTapMirror(command.ShowOne):
     _description = _("Update a tap mirror.")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             TAP_MIRROR,
@@ -221,7 +230,9 @@ class UpdateTapMirror(command.ShowOne):
         tap_service._add_updatable_args(parser)
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         client = self.app.client_manager.network
         original_t_s = client.find_tap_mirror(
             parsed_args.tap_mirror, ignore_missing=False

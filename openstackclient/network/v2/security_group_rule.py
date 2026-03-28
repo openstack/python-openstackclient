@@ -14,7 +14,9 @@
 """Security Group Rule action implementations"""
 
 import argparse
+from collections.abc import Iterable, Sequence
 import logging
+from typing import Any
 
 from osc_lib.cli import parseractions
 from osc_lib import exceptions
@@ -29,7 +31,7 @@ from openstackclient.network import utils as network_utils
 LOG = logging.getLogger(__name__)
 
 
-def _get_columns(item):
+def _get_columns(item: Any) -> tuple[tuple[str, ...], tuple[str, ...]]:
     hidden_columns = ['location', 'name', 'tenant_id', 'tags']
     return utils.get_osc_show_columns_for_sdk_resource(
         item, {}, hidden_columns
@@ -43,7 +45,9 @@ class CreateSecurityGroupRule(
 ):
     _description = _("Create a new security group rule")
 
-    def update_parser_common(self, parser):
+    def update_parser_common(
+        self, parser: argparse.ArgumentParser
+    ) -> argparse.ArgumentParser:
         parser.add_argument(
             'group',
             metavar='<group>',
@@ -78,10 +82,9 @@ class CreateSecurityGroupRule(
         # _network- or _compute-specific methods below.
 
         # --dst-port has a default for nova-net only
+        dst_port_default: dict[str, Any] = {}
         if self.is_nova_network:
             dst_port_default = dict(default=(0, 0))
-        else:
-            dst_port_default = {}
         parser.add_argument(
             '--dst-port',
             metavar='<port-range>',
@@ -99,10 +102,9 @@ class CreateSecurityGroupRule(
         # a future release.
         protocol_group = parser.add_mutually_exclusive_group()
         # --proto[col] has choices for nova-network only
+        proto_choices: dict[str, Any] = {}
         if self.is_nova_network:
             proto_choices = dict(choices=['icmp', 'tcp', 'udp'])
-        else:
-            proto_choices = {}
         protocol_help_compute = _("IP protocol (icmp, tcp, udp; default: tcp)")
         protocol_help_network = _(
             "IP protocol (ah, dccp, egp, esp, gre, icmp, igmp, ipv6-encap, "
@@ -138,7 +140,9 @@ class CreateSecurityGroupRule(
 
         return parser
 
-    def update_parser_network(self, parser):
+    def update_parser_network(
+        self, parser: argparse.ArgumentParser
+    ) -> argparse.ArgumentParser:
         parser.add_argument(
             '--description',
             metavar='<description>',
@@ -199,7 +203,9 @@ class CreateSecurityGroupRule(
         )
         return parser
 
-    def take_action_network(self, client, parsed_args):
+    def take_action_network(
+        self, client: Any, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         # Get the security group ID to hold the rule.
         security_group_id = client.find_security_group(
             parsed_args.group, ignore_missing=False
@@ -291,7 +297,9 @@ class CreateSecurityGroupRule(
         data = utils.get_item_properties(obj, columns)
         return (display_columns, data)
 
-    def take_action_compute(self, client, parsed_args):
+    def take_action_compute(
+        self, client: Any, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         group = compute_v2.find_security_group(client, parsed_args.group)
         protocol = network_utils.get_protocol(
             parsed_args, default_protocol='tcp'
@@ -330,7 +338,9 @@ class DeleteSecurityGroupRule(common.NetworkAndComputeDelete):
     resource = 'rule'
     r = None
 
-    def update_parser_common(self, parser):
+    def update_parser_common(
+        self, parser: argparse.ArgumentParser
+    ) -> argparse.ArgumentParser:
         parser.add_argument(
             'rule',
             metavar='<rule>',
@@ -339,29 +349,35 @@ class DeleteSecurityGroupRule(common.NetworkAndComputeDelete):
         )
         return parser
 
-    def take_action_network(self, client, parsed_args):
+    def take_action_network(
+        self, client: Any, parsed_args: argparse.Namespace
+    ) -> None:
         obj = client.find_security_group_rule(self.r, ignore_missing=False)
         client.delete_security_group_rule(obj)
 
-    def take_action_compute(self, client, parsed_args):
+    def take_action_compute(
+        self, client: Any, parsed_args: argparse.Namespace
+    ) -> None:
         compute_v2.delete_security_group_rule(client, self.r)
 
 
 class ListSecurityGroupRule(common.NetworkAndComputeLister):
     _description = _("List security group rules")
 
-    def _format_network_security_group_rule(self, rule):
+    def _format_network_security_group_rule(self, rule: Any) -> dict[str, Any]:
         """Transform the SDK SecurityGroupRule object to a dict
 
         The SDK object gets in the way of reformatting columns...
         Create port_range column from port_range_min and port_range_max
         """
-        rule = rule.to_dict()
-        rule['port_range'] = network_utils.format_network_port_range(rule)
-        rule['remote_ip_prefix'] = network_utils.format_remote_ip_prefix(rule)
-        return rule
+        data: dict[str, Any] = rule.to_dict()
+        data['port_range'] = network_utils.format_network_port_range(data)
+        data['remote_ip_prefix'] = network_utils.format_remote_ip_prefix(data)
+        return data
 
-    def update_parser_common(self, parser):
+    def update_parser_common(
+        self, parser: argparse.ArgumentParser
+    ) -> argparse.ArgumentParser:
         parser.add_argument(
             'group',
             metavar='<group>',
@@ -370,7 +386,9 @@ class ListSecurityGroupRule(common.NetworkAndComputeLister):
         )
         return parser
 
-    def update_parser_network(self, parser):
+    def update_parser_network(
+        self, parser: argparse.ArgumentParser
+    ) -> argparse.ArgumentParser:
         if not self.is_docs_build:
             # Accept but hide the argument for consistency with compute.
             # Network will always return all projects for an admin.
@@ -443,7 +461,9 @@ class ListSecurityGroupRule(common.NetworkAndComputeLister):
         )
         return parser
 
-    def update_parser_compute(self, parser):
+    def update_parser_compute(
+        self, parser: argparse.ArgumentParser
+    ) -> argparse.ArgumentParser:
         parser.add_argument(
             '--all-projects',
             action='store_true',
@@ -463,7 +483,9 @@ class ListSecurityGroupRule(common.NetworkAndComputeLister):
             )
         return parser
 
-    def _get_column_headers(self, parsed_args):
+    def _get_column_headers(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[str, ...]:
         column_headers: tuple[str, ...] = (
             'ID',
             'IP Protocol',
@@ -479,7 +501,9 @@ class ListSecurityGroupRule(common.NetworkAndComputeLister):
             column_headers += ('Security Group',)
         return column_headers
 
-    def take_action_network(self, client, parsed_args):
+    def take_action_network(
+        self, client: Any, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[tuple[Any, ...]]]:
         if parsed_args.long:
             msg = _(
                 "The --long option has been deprecated and is no longer needed"
@@ -542,7 +566,9 @@ class ListSecurityGroupRule(common.NetworkAndComputeLister):
             ),
         )
 
-    def take_action_compute(self, client, parsed_args):
+    def take_action_compute(
+        self, client: Any, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[tuple[Any, ...]]]:
         column_headers = self._get_column_headers(parsed_args)
         columns: tuple[str, ...] = (
             "ID",
@@ -592,7 +618,9 @@ class ListSecurityGroupRule(common.NetworkAndComputeLister):
 class ShowSecurityGroupRule(common.NetworkAndComputeShowOne):
     _description = _("Display security group rule details")
 
-    def update_parser_common(self, parser):
+    def update_parser_common(
+        self, parser: argparse.ArgumentParser
+    ) -> argparse.ArgumentParser:
         parser.add_argument(
             'rule',
             metavar="<rule>",
@@ -600,7 +628,9 @@ class ShowSecurityGroupRule(common.NetworkAndComputeShowOne):
         )
         return parser
 
-    def take_action_network(self, client, parsed_args):
+    def take_action_network(
+        self, client: Any, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         obj = client.find_security_group_rule(
             parsed_args.rule, ignore_missing=False
         )
@@ -613,7 +643,9 @@ class ShowSecurityGroupRule(common.NetworkAndComputeShowOne):
         data = utils.get_item_properties(obj, columns)
         return (display_columns, data)
 
-    def take_action_compute(self, client, parsed_args):
+    def take_action_compute(
+        self, client: Any, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         # NOTE(rtheis): Unfortunately, compute does not have an API
         # to get or list security group rules so parse through the
         # security groups to find all accessible rules in search of

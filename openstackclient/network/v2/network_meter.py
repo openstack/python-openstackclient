@@ -13,7 +13,10 @@
 
 """Metering Label Implementations"""
 
+import argparse
 import logging
+from collections.abc import Iterable, Sequence
+from typing import Any
 
 from osc_lib import exceptions
 from osc_lib import utils
@@ -26,7 +29,7 @@ from openstackclient.network import common
 LOG = logging.getLogger(__name__)
 
 
-def _get_columns(item):
+def _get_columns(item: Any) -> tuple[tuple[str, ...], tuple[str, ...]]:
     column_map = {
         'is_shared': 'shared',
     }
@@ -36,8 +39,10 @@ def _get_columns(item):
     )
 
 
-def _get_attrs(client_manager, parsed_args):
-    attrs = {}
+def _get_attrs(
+    client_manager: Any, parsed_args: argparse.Namespace
+) -> dict[str, Any]:
+    attrs: dict[str, Any] = {}
 
     if parsed_args.description is not None:
         attrs['description'] = parsed_args.description
@@ -64,7 +69,7 @@ def _get_attrs(client_manager, parsed_args):
 class CreateMeter(command.ShowOne, common.NeutronCommandWithExtraArgs):
     _description = _("Create network meter")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
 
         parser.add_argument(
@@ -99,7 +104,9 @@ class CreateMeter(command.ShowOne, common.NeutronCommandWithExtraArgs):
 
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         client = self.app.client_manager.network
         attrs = _get_attrs(self.app.client_manager, parsed_args)
         attrs.update(
@@ -117,7 +124,7 @@ class CreateMeter(command.ShowOne, common.NeutronCommandWithExtraArgs):
 class DeleteMeter(command.Command):
     _description = _("Delete network meter")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
 
         parser.add_argument(
@@ -128,7 +135,7 @@ class DeleteMeter(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
         result = 0
 
@@ -154,7 +161,9 @@ class DeleteMeter(command.Command):
 class ListMeter(command.Lister):
     _description = _("List network meters")
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
         client = self.app.client_manager.network
 
         columns = (
@@ -186,14 +195,16 @@ class ListMeter(command.Lister):
 class ShowMeter(command.ShowOne):
     _description = _("Show network meter")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'meter', metavar='<meter>', help=_('Meter to display (name or ID)')
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         client = self.app.client_manager.network
         obj = client.find_metering_label(
             parsed_args.meter, ignore_missing=False

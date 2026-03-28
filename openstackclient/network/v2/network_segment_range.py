@@ -16,6 +16,8 @@
 
 """Network segment action implementations"""
 
+import argparse
+from collections.abc import Iterable, Sequence
 import itertools
 import logging
 from typing import Any
@@ -32,14 +34,14 @@ from openstackclient.network import common
 LOG = logging.getLogger(__name__)
 
 
-def _get_columns(item):
+def _get_columns(item: Any) -> tuple[tuple[str, ...], tuple[str, ...]]:
     hidden_columns = ['location', 'tenant_id']
     return utils.get_osc_show_columns_for_sdk_resource(
         item, {}, hidden_columns
     )
 
 
-def _get_ranges(item):
+def _get_ranges(item: Any) -> Iterable[str]:
     item = sorted([int(i) for i in item])
     for a, b in itertools.groupby(enumerate(item), lambda xy: xy[1] - xy[0]):
         c = list(b)
@@ -48,17 +50,23 @@ def _get_ranges(item):
         )
 
 
-def _hack_tuple_value_update_by_index(tup, index, value):
+def _hack_tuple_value_update_by_index(
+    tup: tuple[Any, ...], index: int, value: Any
+) -> tuple[Any, ...]:
     lot = list(tup)
     lot[index] = value
     return tuple(lot)
 
 
-def _is_prop_empty(columns, props, prop_name):
+def _is_prop_empty(
+    columns: tuple[str, ...], props: tuple[Any, ...], prop_name: str
+) -> bool:
     return True if not props[columns.index(prop_name)] else False
 
 
-def _exchange_dict_keys_with_values(orig_dict):
+def _exchange_dict_keys_with_values(
+    orig_dict: dict[Any, Any],
+) -> dict[str, Any]:
     updated_dict: dict[str, Any] = {}
     for k, v in orig_dict.items():
         k = [k]
@@ -69,7 +77,9 @@ def _exchange_dict_keys_with_values(orig_dict):
     return updated_dict
 
 
-def _update_available_from_props(columns, props):
+def _update_available_from_props(
+    columns: tuple[str, ...], props: tuple[Any, ...]
+) -> tuple[Any, ...]:
     index_available = columns.index('available')
     props = _hack_tuple_value_update_by_index(
         props, index_available, list(_get_ranges(props[index_available]))
@@ -77,7 +87,9 @@ def _update_available_from_props(columns, props):
     return props
 
 
-def _update_used_from_props(columns, props):
+def _update_used_from_props(
+    columns: tuple[str, ...], props: tuple[Any, ...]
+) -> tuple[Any, ...]:
     index_used = columns.index('used')
     updated_used = _exchange_dict_keys_with_values(props[index_used])
     for k, v in updated_used.items():
@@ -86,7 +98,9 @@ def _update_used_from_props(columns, props):
     return props
 
 
-def _update_additional_fields_from_props(columns, props):
+def _update_additional_fields_from_props(
+    columns: tuple[str, ...], props: tuple[Any, ...]
+) -> tuple[Any, ...]:
     props = _update_available_from_props(columns, props)
     props = _update_used_from_props(columns, props)
     return props
@@ -97,7 +111,7 @@ class CreateNetworkSegmentRange(
 ):
     _description = _("Create new network segment range")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         shared_group = parser.add_mutually_exclusive_group()
         shared_group.add_argument(
@@ -170,7 +184,9 @@ class CreateNetworkSegmentRange(
 
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         network_client = self.app.client_manager.network
         try:
             # Verify that the extension exists.
@@ -251,7 +267,7 @@ class CreateNetworkSegmentRange(
 class DeleteNetworkSegmentRange(command.Command):
     _description = _("Delete network segment range(s)")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'network_segment_range',
@@ -261,7 +277,7 @@ class DeleteNetworkSegmentRange(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         network_client = self.app.client_manager.network
         try:
             # Verify that the extension exists.
@@ -304,7 +320,7 @@ class DeleteNetworkSegmentRange(command.Command):
 class ListNetworkSegmentRange(command.Lister):
     _description = _("List network segment ranges")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             '--long',
@@ -344,7 +360,9 @@ class ListNetworkSegmentRange(command.Lister):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[tuple[str, ...], tuple[Any, ...]]:
         network_client = self.app.client_manager.network
         try:
             # Verify that the extension exists.
@@ -433,7 +451,7 @@ class ListNetworkSegmentRange(command.Lister):
 class SetNetworkSegmentRange(common.NeutronCommandWithExtraArgs):
     _description = _("Set network segment range properties")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'network_segment_range',
@@ -459,7 +477,7 @@ class SetNetworkSegmentRange(common.NeutronCommandWithExtraArgs):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         network_client = self.app.client_manager.network
         try:
             # Verify that the extension exists.
@@ -497,7 +515,7 @@ class SetNetworkSegmentRange(common.NeutronCommandWithExtraArgs):
 class ShowNetworkSegmentRange(command.ShowOne):
     _description = _("Display network segment range details")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'network_segment_range',
@@ -506,7 +524,9 @@ class ShowNetworkSegmentRange(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         network_client = self.app.client_manager.network
         try:
             # Verify that the extension exists.

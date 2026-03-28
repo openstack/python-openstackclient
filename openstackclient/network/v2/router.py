@@ -14,6 +14,7 @@
 """Router action implementations"""
 
 import argparse
+from collections.abc import Iterable, Sequence
 import collections
 import copy
 import json
@@ -36,12 +37,12 @@ LOG = logging.getLogger(__name__)
 
 
 class AdminStateColumn(cliff_columns.FormattableColumn[bool]):
-    def human_readable(self):
+    def human_readable(self) -> str:
         return 'UP' if self._value else 'DOWN'
 
 
 class RouterInfoColumn(cliff_columns.FormattableColumn[Any]):
-    def human_readable(self):
+    def human_readable(self) -> str:
         try:
             return json.dumps(self._value)
         except (TypeError, KeyError):
@@ -49,12 +50,12 @@ class RouterInfoColumn(cliff_columns.FormattableColumn[Any]):
 
 
 class RoutesColumn(cliff_columns.FormattableColumn[Any]):
-    def human_readable(self):
+    def human_readable(self) -> str:
         # Map the route keys to match --route option.
         for route in self._value or []:
             if 'nexthop' in route:
                 route['gateway'] = route.pop('nexthop')
-        return utils.format_list_of_dicts(self._value)
+        return utils.format_list_of_dicts(self._value) or ""
 
 
 _formatters = {
@@ -68,7 +69,7 @@ _formatters = {
 }
 
 
-def _get_columns(item):
+def _get_columns(item: Any) -> tuple[tuple[str, ...], tuple[str, ...]]:
     column_map = {
         'is_ha': 'ha',
         'is_distributed': 'distributed',
@@ -88,7 +89,7 @@ def _get_columns(item):
     )
 
 
-def is_multiple_gateways_supported(n_client):
+def is_multiple_gateways_supported(n_client: Any) -> bool:
     return (
         n_client.find_extension(
             "external-gateway-multihoming", ignore_missing=True
@@ -97,7 +98,9 @@ def is_multiple_gateways_supported(n_client):
     )
 
 
-def _passed_multiple_gateways(extension_supported, external_gateways):
+def _passed_multiple_gateways(
+    extension_supported: bool, external_gateways: list[Any]
+) -> bool:
     passed_multiple_gws = len(external_gateways) > 1
     if passed_multiple_gws and not extension_supported:
         msg = _(
@@ -109,13 +112,15 @@ def _passed_multiple_gateways(extension_supported, external_gateways):
     return passed_multiple_gws
 
 
-def _get_external_gateway_attrs(client_manager, parsed_args):
+def _get_external_gateway_attrs(
+    client_manager: Any, parsed_args: argparse.Namespace
+) -> dict[str, Any]:
     attrs: dict[str, Any] = {}
 
     if parsed_args.external_gateways:
-        external_gateways: collections.defaultdict[str, list[dict]] = (
-            collections.defaultdict(list)
-        )
+        external_gateways: collections.defaultdict[
+            str, list[dict[str, Any]]
+        ] = collections.defaultdict(list)
         n_client = client_manager.network
         first_network_id = ''
 
@@ -206,8 +211,10 @@ def _get_external_gateway_attrs(client_manager, parsed_args):
     return attrs
 
 
-def _get_attrs(client_manager, parsed_args):
-    attrs = {}
+def _get_attrs(
+    client_manager: Any, parsed_args: argparse.Namespace
+) -> dict[str, Any]:
+    attrs: dict[str, Any] = {}
     n_client = client_manager.network
 
     if parsed_args.name is not None:
@@ -257,7 +264,7 @@ def _get_attrs(client_manager, parsed_args):
     return attrs
 
 
-def _parser_add_bfd_ecmp_arguments(parser):
+def _parser_add_bfd_ecmp_arguments(parser: argparse.ArgumentParser) -> None:
     """Helper to add BFD and ECMP args for CreateRouter and SetRouter."""
     parser.add_argument(
         '--enable-default-route-bfd',
@@ -298,7 +305,9 @@ def _parser_add_bfd_ecmp_arguments(parser):
     )
 
 
-def _command_check_bfd_ecmp_supported(attrs, client):
+def _command_check_bfd_ecmp_supported(
+    attrs: dict[str, Any], client: Any
+) -> None:
     """Helper to check for server side support when bfd/ecmp attrs provided.
 
     :raises: exceptions.CommandError
@@ -318,7 +327,7 @@ def _command_check_bfd_ecmp_supported(attrs, client):
 class AddPortToRouter(command.Command):
     _description = _("Add a port to a router")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'router',
@@ -330,7 +339,7 @@ class AddPortToRouter(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
         port = client.find_port(parsed_args.port, ignore_missing=False)
         client.add_interface_to_router(
@@ -342,7 +351,7 @@ class AddPortToRouter(command.Command):
 class AddSubnetToRouter(command.Command):
     _description = _("Add a subnet to a router")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'router',
@@ -356,7 +365,7 @@ class AddSubnetToRouter(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
         subnet = client.find_subnet(parsed_args.subnet, ignore_missing=False)
         client.add_interface_to_router(
@@ -368,7 +377,7 @@ class AddSubnetToRouter(command.Command):
 class AddExtraRoutesToRouter(command.ShowOne):
     _description = _("Add extra static routes to a router's routing table.")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'router',
@@ -398,7 +407,9 @@ class AddExtraRoutesToRouter(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         if parsed_args.routes is not None:
             for route in parsed_args.routes:
                 route['nexthop'] = route.pop('gateway')
@@ -419,7 +430,7 @@ class RemoveExtraRoutesFromRouter(command.ShowOne):
         "Remove extra static routes from a router's routing table."
     )
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'router',
@@ -449,7 +460,9 @@ class RemoveExtraRoutesFromRouter(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         if parsed_args.routes is not None:
             for route in parsed_args.routes:
                 route['nexthop'] = route.pop('gateway')
@@ -470,7 +483,7 @@ class RemoveExtraRoutesFromRouter(command.ShowOne):
 class CreateRouter(command.ShowOne, common.NeutronCommandWithExtraArgs):
     _description = _("Create a new router")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'name', metavar='<name>', help=_("New router name")
@@ -597,7 +610,9 @@ class CreateRouter(command.ShowOne, common.NeutronCommandWithExtraArgs):
 
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         client = self.app.client_manager.network
 
         attrs = _get_attrs(self.app.client_manager, parsed_args)
@@ -661,7 +676,7 @@ class CreateRouter(command.ShowOne, common.NeutronCommandWithExtraArgs):
 class DeleteRouter(command.Command):
     _description = _("Delete router(s)")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'router',
@@ -671,7 +686,7 @@ class DeleteRouter(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
         result = 0
 
@@ -703,7 +718,7 @@ class DeleteRouter(command.Command):
 class ListRouter(command.Lister):
     _description = _("List routers")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             '--name',
@@ -742,7 +757,9 @@ class ListRouter(command.Lister):
 
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
         identity_client = self.app.client_manager.identity
         client = self.app.client_manager.network
 
@@ -834,7 +851,7 @@ class ListRouter(command.Lister):
         )
 
     @staticmethod
-    def _filter_match(data, conditions):
+    def _filter_match(data: Any, conditions: dict[str, Any]) -> bool:
         for key, value in conditions.items():
             try:
                 if getattr(data, key) != value:
@@ -851,7 +868,7 @@ class ListRouter(command.Lister):
 class RemovePortFromRouter(command.Command):
     _description = _("Remove a port from a router")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'router',
@@ -865,7 +882,7 @@ class RemovePortFromRouter(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
         port = client.find_port(parsed_args.port, ignore_missing=False)
         client.remove_interface_from_router(
@@ -877,7 +894,7 @@ class RemovePortFromRouter(command.Command):
 class RemoveSubnetFromRouter(command.Command):
     _description = _("Remove a subnet from a router")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'router',
@@ -893,7 +910,7 @@ class RemoveSubnetFromRouter(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
         subnet = client.find_subnet(parsed_args.subnet, ignore_missing=False)
         client.remove_interface_from_router(
@@ -907,7 +924,7 @@ class RemoveSubnetFromRouter(command.Command):
 class SetRouter(common.NeutronCommandWithExtraArgs):
     _description = _("Set router properties")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'router',
@@ -1051,7 +1068,7 @@ class SetRouter(common.NeutronCommandWithExtraArgs):
         _parser_add_bfd_ecmp_arguments(parser)
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
         obj = client.find_router(parsed_args.router, ignore_missing=False)
 
@@ -1141,7 +1158,7 @@ class SetRouter(common.NeutronCommandWithExtraArgs):
 class ShowRouter(command.ShowOne):
     _description = _("Display router details")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'router',
@@ -1150,7 +1167,9 @@ class ShowRouter(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         client = self.app.client_manager.network
         obj = client.find_router(parsed_args.router, ignore_missing=False)
         interfaces_info = []
@@ -1177,7 +1196,7 @@ class ShowRouter(command.ShowOne):
 class UnsetRouter(common.NeutronUnsetCommandWithExtraArgs):
     _description = _("Unset router properties")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             '--route',
@@ -1217,7 +1236,7 @@ class UnsetRouter(common.NeutronUnsetCommandWithExtraArgs):
         _tag.add_tag_option_to_parser_for_unset(parser, _('router'))
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
         obj = client.find_router(parsed_args.router, ignore_missing=False)
         tmp_routes = copy.deepcopy(obj.routes)
@@ -1272,7 +1291,7 @@ class UnsetRouter(common.NeutronUnsetCommandWithExtraArgs):
 class AddGatewayToRouter(command.ShowOne):
     _description = _("Add router gateway")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'router',
@@ -1304,7 +1323,9 @@ class AddGatewayToRouter(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         client = self.app.client_manager.network
         if not is_multiple_gateways_supported(client):
             msg = _(
@@ -1339,7 +1360,7 @@ class AddGatewayToRouter(command.ShowOne):
 class RemoveGatewayFromRouter(command.ShowOne):
     _description = _("Remove router gateway")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'router',
@@ -1371,7 +1392,9 @@ class RemoveGatewayFromRouter(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         client = self.app.client_manager.network
         if not is_multiple_gateways_supported(client):
             msg = _(

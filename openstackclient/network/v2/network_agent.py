@@ -13,7 +13,10 @@
 
 """Network agent action implementations"""
 
+import argparse
 import logging
+from collections.abc import Iterable, Sequence
+from typing import Any
 
 from cliff import columns as cliff_columns
 from osc_lib.cli import format_columns
@@ -27,12 +30,12 @@ LOG = logging.getLogger(__name__)
 
 
 class AliveColumn(cliff_columns.FormattableColumn[bool]):
-    def human_readable(self):
+    def human_readable(self) -> str:
         return ":-)" if self._value else "XXX"
 
 
 class AdminStateColumn(cliff_columns.FormattableColumn[bool]):
-    def human_readable(self):
+    def human_readable(self) -> str:
         return 'UP' if self._value else 'DOWN'
 
 
@@ -45,7 +48,7 @@ _formatters = {
 }
 
 
-def _get_network_columns(item):
+def _get_network_columns(item: Any) -> tuple[tuple[str, ...], tuple[str, ...]]:
     column_data_mapping = {
         'admin_state_up': 'is_admin_state_up',
         'agent_type': 'agent_type',
@@ -73,7 +76,7 @@ def _get_network_columns(item):
 class AddNetworkToAgent(command.Command):
     _description = _("Add network to an agent")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             '--dhcp',
@@ -93,7 +96,7 @@ class AddNetworkToAgent(command.Command):
 
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
         agent = client.get_agent(parsed_args.agent_id)
         network = client.find_network(
@@ -110,7 +113,7 @@ class AddNetworkToAgent(command.Command):
 class AddRouterToAgent(command.Command):
     _description = _("Add router to an agent")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             '--l3', action='store_true', help=_('Add router to an L3 agent')
@@ -128,7 +131,7 @@ class AddRouterToAgent(command.Command):
 
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
         agent = client.get_agent(parsed_args.agent_id)
         router = client.find_router(parsed_args.router, ignore_missing=False)
@@ -139,7 +142,7 @@ class AddRouterToAgent(command.Command):
 class DeleteNetworkAgent(command.Command):
     _description = _("Delete network agent(s)")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'network_agent',
@@ -149,7 +152,7 @@ class DeleteNetworkAgent(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
         result = 0
 
@@ -197,7 +200,7 @@ class ListNetworkAgent(command.Lister):
         'ovn-agent': 'OVN Neutron agent',
     }
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         supported_agents = ','.join(self._supported_agents.keys())
         parser.add_argument(
@@ -235,7 +238,9 @@ class ListNetworkAgent(command.Lister):
 
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
         client = self.app.client_manager.network
         columns: tuple[str, ...] = (
             'id',
@@ -296,7 +301,7 @@ class ListNetworkAgent(command.Lister):
 class RemoveNetworkFromAgent(command.Command):
     _description = _("Remove network from an agent.")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             '--dhcp',
@@ -315,7 +320,7 @@ class RemoveNetworkFromAgent(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
         agent = client.get_agent(parsed_args.agent_id)
         network = client.find_network(
@@ -332,7 +337,7 @@ class RemoveNetworkFromAgent(command.Command):
 class RemoveRouterFromAgent(command.Command):
     _description = _("Remove router from an agent")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             '--l3',
@@ -352,7 +357,7 @@ class RemoveRouterFromAgent(command.Command):
 
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
         agent = client.get_agent(parsed_args.agent_id)
         router = client.find_router(parsed_args.router, ignore_missing=False)
@@ -365,7 +370,7 @@ class RemoveRouterFromAgent(command.Command):
 class SetNetworkAgent(command.Command):
     _description = _("Set network agent properties")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'network_agent',
@@ -386,7 +391,7 @@ class SetNetworkAgent(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
         obj = client.get_agent(parsed_args.network_agent)
         attrs = {}
@@ -404,7 +409,7 @@ class SetNetworkAgent(command.Command):
 class ShowNetworkAgent(command.ShowOne):
     _description = _("Display network agent details")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'network_agent',
@@ -413,7 +418,9 @@ class ShowNetworkAgent(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         client = self.app.client_manager.network
         obj = client.get_agent(parsed_args.network_agent)
         display_columns, columns = _get_network_columns(obj)

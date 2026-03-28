@@ -13,7 +13,9 @@
 
 """Subnet action implementations"""
 
+import argparse
 import copy
+from collections.abc import Iterable, Sequence
 import logging
 from typing import Any
 
@@ -32,7 +34,9 @@ from openstackclient.network import common
 LOG = logging.getLogger(__name__)
 
 
-def _update_arguments(obj_list, parsed_args_list, option):
+def _update_arguments(
+    obj_list: list[Any], parsed_args_list: list[Any], option: str
+) -> None:
     for item in parsed_args_list:
         try:
             obj_list.remove(item)
@@ -45,7 +49,7 @@ def _update_arguments(obj_list, parsed_args_list, option):
 
 
 class AllocationPoolsColumn(cliff_columns.FormattableColumn[Any]):
-    def human_readable(self):
+    def human_readable(self) -> str:
         pool_formatted = [
             '{}-{}'.format(pool.get('start', ''), pool.get('end', ''))
             for pool in self._value
@@ -54,17 +58,18 @@ class AllocationPoolsColumn(cliff_columns.FormattableColumn[Any]):
 
 
 class HostRoutesColumn(cliff_columns.FormattableColumn[Any]):
-    def human_readable(self):
+    def human_readable(self) -> str:
         # Map the host route keys to match --host-route option.
-        return utils.format_list_of_dicts(
-            convert_entries_to_gateway(self._value)
+        return (
+            utils.format_list_of_dicts(convert_entries_to_gateway(self._value))
+            or ""
         )
 
 
 class UnsortedListColumn(cliff_columns.FormattableColumn[list[Any]]):
     # format_columns.ListColumn sorts the output, but for things like
     # DNS server addresses the order matters
-    def human_readable(self):
+    def human_readable(self) -> str:
         return ', '.join(self._value)
 
 
@@ -77,7 +82,9 @@ _formatters = {
 }
 
 
-def _get_common_parse_arguments(parser, is_create=True):
+def _get_common_parse_arguments(
+    parser: argparse.ArgumentParser, is_create: bool = True
+) -> None:
     parser.add_argument(
         '--allocation-pool',
         metavar='start=<ip-address>,end=<ip-address>',
@@ -159,7 +166,7 @@ def _get_common_parse_arguments(parser, is_create=True):
     )
 
 
-def _get_columns(item):
+def _get_columns(item: Any) -> tuple[tuple[str, ...], tuple[str, ...]]:
     column_map = {
         'is_dhcp_enabled': 'enable_dhcp',
         'subnet_pool_id': 'subnetpool_id',
@@ -176,7 +183,9 @@ def _get_columns(item):
     )
 
 
-def convert_entries_to_nexthop(entries):
+def convert_entries_to_nexthop(
+    entries: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
     # Change 'gateway' entry to 'nexthop'
     changed_entries = copy.deepcopy(entries)
     for entry in changed_entries:
@@ -187,7 +196,9 @@ def convert_entries_to_nexthop(entries):
     return changed_entries
 
 
-def convert_entries_to_gateway(entries):
+def convert_entries_to_gateway(
+    entries: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
     # Change 'nexthop' entry to 'gateway'
     changed_entries = copy.deepcopy(entries)
     for entry in changed_entries:
@@ -198,7 +209,11 @@ def convert_entries_to_gateway(entries):
     return changed_entries
 
 
-def _get_attrs(client_manager, parsed_args, is_create=True):
+def _get_attrs(
+    client_manager: Any,
+    parsed_args: argparse.Namespace,
+    is_create: bool = True,
+) -> dict[str, Any]:
     attrs = {}
     client = client_manager.network
     if 'name' in parsed_args and parsed_args.name is not None:
@@ -292,7 +307,7 @@ def _get_attrs(client_manager, parsed_args, is_create=True):
 class CreateSubnet(command.ShowOne, common.NeutronCommandWithExtraArgs):
     _description = _("Create a subnet")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'name', metavar='<name>', help=_("New subnet name")
@@ -419,7 +434,9 @@ class CreateSubnet(command.ShowOne, common.NeutronCommandWithExtraArgs):
         _tag.add_tag_option_to_parser_for_create(parser, _('subnet'))
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         client = self.app.client_manager.network
         attrs = _get_attrs(self.app.client_manager, parsed_args)
         attrs.update(
@@ -436,7 +453,7 @@ class CreateSubnet(command.ShowOne, common.NeutronCommandWithExtraArgs):
 class DeleteSubnet(command.Command):
     _description = _("Delete subnet(s)")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'subnet',
@@ -446,7 +463,7 @@ class DeleteSubnet(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
         result = 0
 
@@ -478,7 +495,7 @@ class DeleteSubnet(command.Command):
 class ListSubnet(command.Lister):
     _description = _("List subnets")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             '--long',
@@ -566,7 +583,9 @@ class ListSubnet(command.Lister):
         _tag.add_tag_filtering_option_to_parser(parser, _('subnets'))
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
         identity_client = self.app.client_manager.identity
         network_client = self.app.client_manager.network
         filters = {}
@@ -650,7 +669,7 @@ class ListSubnet(command.Lister):
 class SetSubnet(common.NeutronCommandWithExtraArgs):
     _description = _("Set subnet properties")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'subnet',
@@ -707,7 +726,7 @@ class SetSubnet(common.NeutronCommandWithExtraArgs):
         _get_common_parse_arguments(parser, is_create=False)
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
         obj = client.find_subnet(parsed_args.subnet, ignore_missing=False)
         attrs = _get_attrs(
@@ -743,7 +762,7 @@ class SetSubnet(common.NeutronCommandWithExtraArgs):
 class ShowSubnet(command.ShowOne):
     _description = _("Display subnet details")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'subnet',
@@ -752,7 +771,9 @@ class ShowSubnet(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         obj = self.app.client_manager.network.find_subnet(
             parsed_args.subnet, ignore_missing=False
         )
@@ -764,7 +785,7 @@ class ShowSubnet(command.ShowOne):
 class UnsetSubnet(common.NeutronUnsetCommandWithExtraArgs):
     _description = _("Unset subnet properties")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             '--allocation-pool',
@@ -827,7 +848,7 @@ class UnsetSubnet(common.NeutronUnsetCommandWithExtraArgs):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
         obj = client.find_subnet(parsed_args.subnet, ignore_missing=False)
 

@@ -11,13 +11,18 @@
 #   under the License.
 #
 
+from collections.abc import Iterable, Sequence
+from typing import Any, cast
+
 from osc_lib import exceptions
 
 from openstackclient.i18n import _
 
 
 # Transform compute security group rule for display.
-def transform_compute_security_group_rule(sg_rule):
+def transform_compute_security_group_rule(
+    sg_rule: dict[str, Any],
+) -> dict[str, Any]:
     info = {}
     info.update(sg_rule)
     from_port = info.pop('from_port')
@@ -45,14 +50,14 @@ def transform_compute_security_group_rule(sg_rule):
     return info
 
 
-def str2bool(strbool):
+def str2bool(strbool: str | None) -> bool | None:
     if strbool is None:
         return None
     return strbool.lower() == 'true'
 
 
-def str2list(strlist):
-    result = []
+def str2list(strlist: str | None) -> list[str]:
+    result: list[str] = []
     if strlist:
         result = strlist.split(';')
     return result
@@ -83,12 +88,15 @@ def str2dict(strdict: str) -> dict[str, str]:
     return result
 
 
-def format_security_group_rule_show(obj):
+def format_security_group_rule_show(
+    obj: dict[str, Any],
+) -> tuple[Sequence[str], Iterable[Any]]:
     data = transform_compute_security_group_rule(obj)
-    return zip(*sorted(data.items()))
+    col_headers, col_data = zip(*sorted(data.items()))
+    return col_headers, col_data
 
 
-def format_network_port_range(rule):
+def format_network_port_range(rule: dict[str, Any]) -> str:
     # Display port range or ICMP type and code. For example:
     # - ICMP type: 'type=3'
     # - ICMP type and code: 'type=3:code=0'
@@ -114,8 +122,8 @@ def format_network_port_range(rule):
     return port_range
 
 
-def format_remote_ip_prefix(rule):
-    remote_ip_prefix = rule['remote_ip_prefix']
+def format_remote_ip_prefix(rule: dict[str, Any]) -> str | None:
+    remote_ip_prefix = cast(str | None, rule['remote_ip_prefix'])
     if remote_ip_prefix is None:
         ethertype = rule['ether_type']
         if ethertype == 'IPv4':
@@ -125,7 +133,7 @@ def format_remote_ip_prefix(rule):
     return remote_ip_prefix
 
 
-def convert_ipvx_case(string):
+def convert_ipvx_case(string: str) -> str:
     if string.lower() == 'ipv4':
         return 'IPv4'
     if string.lower() == 'ipv6':
@@ -133,7 +141,7 @@ def convert_ipvx_case(string):
     return string
 
 
-def is_icmp_protocol(protocol):
+def is_icmp_protocol(protocol: str | None) -> bool:
     # NOTE(rtheis): Neutron has deprecated protocol icmpv6.
     # However, while the OSC CLI doesn't document the protocol,
     # the code must still handle it. In addition, handle both
@@ -144,12 +152,14 @@ def is_icmp_protocol(protocol):
         return False
 
 
-def convert_to_lowercase(string):
+def convert_to_lowercase(string: str) -> str:
     return string.lower()
 
 
-def get_protocol(parsed_args, default_protocol='any'):
-    protocol = default_protocol
+def get_protocol(
+    parsed_args: Any, default_protocol: str = 'any'
+) -> str | None:
+    protocol: str | None = default_protocol
     if parsed_args.protocol is not None:
         protocol = parsed_args.protocol
     if hasattr(parsed_args, "proto") and parsed_args.proto is not None:
@@ -159,7 +169,7 @@ def get_protocol(parsed_args, default_protocol='any'):
     return protocol
 
 
-def get_ethertype(parsed_args, protocol):
+def get_ethertype(parsed_args: Any, protocol: str | None) -> str:
     ethertype = 'IPv4'
     if parsed_args.ethertype is not None:
         ethertype = parsed_args.ethertype
@@ -168,7 +178,7 @@ def get_ethertype(parsed_args, protocol):
     return ethertype
 
 
-def is_ipv6_protocol(protocol):
+def is_ipv6_protocol(protocol: str | None) -> bool:
     # NOTE(rtheis): Neutron has deprecated protocol icmpv6.
     # However, while the OSC CLI doesn't document the protocol,
     # the code must still handle it. In addition, handle both

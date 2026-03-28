@@ -15,7 +15,10 @@
 
 """Router NDP proxy action implementations"""
 
+import argparse
 import logging
+from collections.abc import Iterable, Sequence
+from typing import Any
 
 from osc_lib import exceptions
 from osc_lib import utils
@@ -28,7 +31,7 @@ from openstackclient.identity import common as identity_common
 LOG = logging.getLogger(__name__)
 
 
-def _get_columns(item):
+def _get_columns(item: Any) -> tuple[tuple[str, ...], tuple[str, ...]]:
     hidden_columns = ['location']
     return utils.get_osc_show_columns_for_sdk_resource(
         item, {}, hidden_columns
@@ -38,7 +41,7 @@ def _get_columns(item):
 class CreateNDPProxy(command.ShowOne):
     _description = _("Create NDP proxy")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'router', metavar='<router>', help=_("The name or ID of a router")
@@ -75,7 +78,9 @@ class CreateNDPProxy(command.ShowOne):
 
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         attrs = {'name': parsed_args.name}
         client = self.app.client_manager.network
         router = client.find_router(
@@ -102,7 +107,7 @@ class CreateNDPProxy(command.ShowOne):
 class DeleteNDPProxy(command.Command):
     _description = _("Delete NDP proxy")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'ndp_proxy',
@@ -112,7 +117,7 @@ class DeleteNDPProxy(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
         result = 0
 
@@ -137,7 +142,7 @@ class DeleteNDPProxy(command.Command):
 class ListNDPProxy(command.Lister):
     _description = _("List NDP proxies")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             '--router',
@@ -180,7 +185,9 @@ class ListNDPProxy(command.Lister):
 
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
         client = self.app.client_manager.network
         identity_client = self.app.client_manager.identity
 
@@ -239,7 +246,7 @@ class ListNDPProxy(command.Lister):
 class SetNDPProxy(command.Command):
     _description = _("Set NDP proxy properties")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'ndp_proxy',
@@ -259,7 +266,7 @@ class SetNDPProxy(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
         attrs = {}
         if parsed_args.description is not None:
@@ -276,7 +283,7 @@ class SetNDPProxy(command.Command):
 class ShowNDPProxy(command.ShowOne):
     _description = _("Display NDP proxy details")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'ndp_proxy',
@@ -285,7 +292,9 @@ class ShowNDPProxy(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         client = self.app.client_manager.network
         obj = client.find_ndp_proxy(
             parsed_args.ndp_proxy, ignore_missing=False

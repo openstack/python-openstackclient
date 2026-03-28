@@ -15,7 +15,10 @@
 
 """Node Local IP action implementations"""
 
+import argparse
 import logging
+from collections.abc import Iterable, Sequence
+from typing import Any
 
 from osc_lib import exceptions
 from osc_lib import utils
@@ -27,15 +30,17 @@ from openstackclient.identity import common as identity_common
 LOG = logging.getLogger(__name__)
 
 
-def _get_columns(item):
+def _get_columns(item: Any) -> tuple[tuple[str, ...], tuple[str, ...]]:
     hidden_columns = ['location', 'tenant_id']
     return utils.get_osc_show_columns_for_sdk_resource(
         item, {}, hidden_columns
     )
 
 
-def _get_attrs(client_manager, parsed_args):
-    attrs = {}
+def _get_attrs(
+    client_manager: Any, parsed_args: argparse.Namespace
+) -> dict[str, Any]:
+    attrs: dict[str, Any] = {}
     network_client = client_manager.network
 
     if parsed_args.name:
@@ -70,7 +75,7 @@ def _get_attrs(client_manager, parsed_args):
 class CreateLocalIP(command.ShowOne):
     _description = _("Create Local IP")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             '--name', metavar="<name>", help=_("New Local IP name")
@@ -105,7 +110,9 @@ class CreateLocalIP(command.ShowOne):
 
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         client = self.app.client_manager.network
         attrs = _get_attrs(self.app.client_manager, parsed_args)
 
@@ -119,7 +126,7 @@ class CreateLocalIP(command.ShowOne):
 class DeleteLocalIP(command.Command):
     _description = _("Delete Local IP(s)")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'local_ip',
@@ -130,7 +137,7 @@ class DeleteLocalIP(command.Command):
 
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
         result = 0
 
@@ -160,7 +167,7 @@ class DeleteLocalIP(command.Command):
 class SetLocalIP(command.Command):
     _description = _("Set Local IP properties")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'local_ip',
@@ -177,7 +184,7 @@ class SetLocalIP(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
         obj = client.find_local_ip(parsed_args.local_ip, ignore_missing=False)
         attrs = {}
@@ -192,7 +199,7 @@ class SetLocalIP(command.Command):
 class ListLocalIP(command.Lister):
     _description = _("List Local IPs")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
 
         parser.add_argument(
@@ -236,7 +243,9 @@ class ListLocalIP(command.Lister):
 
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
         client = self.app.client_manager.network
         columns = (
             'id',
@@ -301,7 +310,7 @@ class ListLocalIP(command.Lister):
 class ShowLocalIP(command.ShowOne):
     _description = _("Display Local IP details")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'local_ip',
@@ -311,7 +320,9 @@ class ShowLocalIP(command.ShowOne):
 
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         client = self.app.client_manager.network
         obj = client.find_local_ip(parsed_args.local_ip, ignore_missing=False)
         display_columns, columns = _get_columns(obj)

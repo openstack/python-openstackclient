@@ -1919,7 +1919,9 @@ class TestShowRouter(TestRouter):
             columns, data = self.cmd.take_action(parsed_args)
 
         self.assertIn("routes", columns)
-        self.assertIsNone(list(data)[columns.index('routes')].human_readable())
+        self.assertEqual(
+            list(data)[columns.index('routes')].human_readable(), ''
+        )
 
 
 class TestUnsetRouter(TestRouter):

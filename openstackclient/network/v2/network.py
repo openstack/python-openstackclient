@@ -12,6 +12,10 @@
 
 """Network action implementations"""
 
+import argparse
+from collections.abc import Iterable, Sequence
+from typing import Any
+
 from cliff import columns as cliff_columns
 from osc_lib.cli import format_columns
 from osc_lib import exceptions
@@ -25,12 +29,12 @@ from openstackclient.network import common
 
 
 class AdminStateColumn(cliff_columns.FormattableColumn[bool]):
-    def human_readable(self):
+    def human_readable(self) -> str:
         return 'UP' if self._value else 'DOWN'
 
 
 class RouterExternalColumn(cliff_columns.FormattableColumn[bool]):
-    def human_readable(self):
+    def human_readable(self) -> str:
         return 'External' if self._value else 'Internal'
 
 
@@ -47,7 +51,7 @@ _formatters = {
 }
 
 
-def _get_columns_network(item):
+def _get_columns_network(item: Any) -> tuple[tuple[str, ...], tuple[str, ...]]:
     column_map = {
         'subnet_ids': 'subnets',
         'is_admin_state_up': 'admin_state_up',
@@ -67,11 +71,13 @@ def _get_columns_network(item):
     )
 
 
-def _get_columns_compute(item):
+def _get_columns_compute(item: Any) -> tuple[tuple[str, ...], tuple[str, ...]]:
     return utils.get_osc_show_columns_for_sdk_resource(item, {})
 
 
-def _get_attrs_network(client_manager, parsed_args):
+def _get_attrs_network(
+    client_manager: Any, parsed_args: argparse.Namespace
+) -> dict[str, Any]:
     attrs = {}
     if parsed_args.name is not None:
         attrs['name'] = parsed_args.name
@@ -143,7 +149,9 @@ def _get_attrs_network(client_manager, parsed_args):
     return attrs
 
 
-def _get_attrs_compute(client_manager, parsed_args):
+def _get_attrs_compute(
+    client_manager: Any, parsed_args: argparse.Namespace
+) -> dict[str, Any]:
     attrs = {}
     if parsed_args.name is not None:
         attrs['name'] = parsed_args.name
@@ -156,7 +164,7 @@ def _get_attrs_compute(client_manager, parsed_args):
     return attrs
 
 
-def _add_additional_network_options(parser):
+def _add_additional_network_options(parser: argparse.ArgumentParser) -> None:
     # Add additional network options
 
     parser.add_argument(
@@ -204,7 +212,9 @@ class CreateNetwork(
 ):
     _description = _("Create new network")
 
-    def update_parser_common(self, parser):
+    def update_parser_common(
+        self, parser: argparse.ArgumentParser
+    ) -> argparse.ArgumentParser:
         parser.add_argument(
             'name', metavar='<name>', help=_("New network name")
         )
@@ -222,7 +232,9 @@ class CreateNetwork(
         )
         return parser
 
-    def update_parser_network(self, parser):
+    def update_parser_network(
+        self, parser: argparse.ArgumentParser
+    ) -> argparse.ArgumentParser:
         admin_group = parser.add_mutually_exclusive_group()
         admin_group.add_argument(
             '--enable',
@@ -371,7 +383,9 @@ class CreateNetwork(
         )
         return parser
 
-    def update_parser_compute(self, parser):
+    def update_parser_compute(
+        self, parser: argparse.ArgumentParser
+    ) -> argparse.ArgumentParser:
         parser.add_argument(
             '--subnet',
             metavar='<subnet>',
@@ -382,7 +396,9 @@ class CreateNetwork(
         )
         return parser
 
-    def take_action_network(self, client, parsed_args):
+    def take_action_network(
+        self, client: Any, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         attrs = _get_attrs_network(self.app.client_manager, parsed_args)
         if parsed_args.transparent_vlan:
             attrs['vlan_transparent'] = True
@@ -425,7 +441,9 @@ class CreateNetwork(
         data = utils.get_item_properties(obj, columns, formatters=_formatters)
         return (display_columns, data)
 
-    def take_action_compute(self, client, parsed_args):
+    def take_action_compute(
+        self, client: Any, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         attrs = _get_attrs_compute(self.app.client_manager, parsed_args)
         obj = compute_v2.create_network(client, **attrs)
         display_columns, columns = _get_columns_compute(obj)
@@ -440,7 +458,9 @@ class DeleteNetwork(common.NetworkAndComputeDelete):
     resource = 'network'
     r: str
 
-    def update_parser_common(self, parser):
+    def update_parser_common(
+        self, parser: argparse.ArgumentParser
+    ) -> argparse.ArgumentParser:
         parser.add_argument(
             'network',
             metavar="<network>",
@@ -450,11 +470,15 @@ class DeleteNetwork(common.NetworkAndComputeDelete):
 
         return parser
 
-    def take_action_network(self, client, parsed_args):
+    def take_action_network(
+        self, client: Any, parsed_args: argparse.Namespace
+    ) -> None:
         obj = client.find_network(self.r, ignore_missing=False)
         client.delete_network(obj)
 
-    def take_action_compute(self, client, parsed_args):
+    def take_action_compute(
+        self, client: Any, parsed_args: argparse.Namespace
+    ) -> None:
         network = compute_v2.find_network(client, self.r)
         compute_v2.delete_network(client, network['id'])
 
@@ -464,7 +488,9 @@ class DeleteNetwork(common.NetworkAndComputeDelete):
 class ListNetwork(common.NetworkAndComputeLister):
     _description = _("List networks")
 
-    def update_parser_network(self, parser):
+    def update_parser_network(
+        self, parser: argparse.ArgumentParser
+    ) -> argparse.ArgumentParser:
         router_ext_group = parser.add_mutually_exclusive_group()
         router_ext_group.add_argument(
             '--external',
@@ -586,7 +612,9 @@ class ListNetwork(common.NetworkAndComputeLister):
         )
         return parser
 
-    def take_action_network(self, client, parsed_args):
+    def take_action_network(
+        self, client: Any, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[tuple[Any, ...]]]:
         identity_client = self.app.client_manager.identity
         if parsed_args.long:
             columns: tuple[str, ...] = (
@@ -708,7 +736,9 @@ class ListNetwork(common.NetworkAndComputeLister):
             ),
         )
 
-    def take_action_compute(self, client, parsed_args):
+    def take_action_compute(
+        self, client: Any, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[tuple[Any, ...]]]:
         columns = (
             'id',
             'label',
@@ -740,7 +770,7 @@ class ListNetwork(common.NetworkAndComputeLister):
 class SetNetwork(common.NeutronCommandWithExtraArgs):
     _description = _("Set network properties")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'network',
@@ -839,7 +869,7 @@ class SetNetwork(common.NeutronCommandWithExtraArgs):
         _add_additional_network_options(parser)
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
         obj = client.find_network(parsed_args.network, ignore_missing=False)
 
@@ -860,7 +890,9 @@ class SetNetwork(common.NeutronCommandWithExtraArgs):
 class ShowNetwork(common.NetworkAndComputeShowOne):
     _description = _("Show network details")
 
-    def update_parser_common(self, parser):
+    def update_parser_common(
+        self, parser: argparse.ArgumentParser
+    ) -> argparse.ArgumentParser:
         parser.add_argument(
             'network',
             metavar="<network>",
@@ -868,13 +900,17 @@ class ShowNetwork(common.NetworkAndComputeShowOne):
         )
         return parser
 
-    def take_action_network(self, client, parsed_args):
+    def take_action_network(
+        self, client: Any, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         obj = client.find_network(parsed_args.network, ignore_missing=False)
         display_columns, columns = _get_columns_network(obj)
         data = utils.get_item_properties(obj, columns, formatters=_formatters)
         return (display_columns, data)
 
-    def take_action_compute(self, client, parsed_args):
+    def take_action_compute(
+        self, client: Any, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         obj = compute_v2.find_network(client, parsed_args.network)
         display_columns, columns = _get_columns_compute(obj)
         data = utils.get_dict_properties(obj, columns)
@@ -884,7 +920,7 @@ class ShowNetwork(common.NetworkAndComputeShowOne):
 class UnsetNetwork(common.NeutronUnsetCommandWithExtraArgs):
     _description = _("Unset network properties")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'network',
@@ -894,7 +930,7 @@ class UnsetNetwork(common.NeutronUnsetCommandWithExtraArgs):
         _tag.add_tag_option_to_parser_for_unset(parser, _('network'))
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
         obj = client.find_network(parsed_args.network, ignore_missing=False)
 

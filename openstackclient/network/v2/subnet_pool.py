@@ -13,7 +13,10 @@
 
 """Subnet pool action implementations"""
 
+import argparse
+from collections.abc import Iterable, Sequence
 import logging
+from typing import Any
 
 from osc_lib.cli import format_columns
 from osc_lib.cli import parseractions
@@ -30,7 +33,7 @@ from openstackclient.network import common
 LOG = logging.getLogger(__name__)
 
 
-def _get_columns(item):
+def _get_columns(item: Any) -> tuple[tuple[str, ...], tuple[str, ...]]:
     column_map = {
         'default_prefix_length': 'default_prefixlen',
         'is_shared': 'shared',
@@ -49,7 +52,9 @@ _formatters = {
 }
 
 
-def _get_attrs(client_manager, parsed_args):
+def _get_attrs(
+    client_manager: Any, parsed_args: argparse.Namespace
+) -> dict[str, Any]:
     attrs = {}
     network_client = client_manager.network
 
@@ -100,7 +105,9 @@ def _get_attrs(client_manager, parsed_args):
     return attrs
 
 
-def _add_prefix_options(parser, for_create=False):
+def _add_prefix_options(
+    parser: argparse.ArgumentParser, for_create: bool = False
+) -> None:
     parser.add_argument(
         '--pool-prefix',
         metavar='<pool-prefix>',
@@ -135,7 +142,7 @@ def _add_prefix_options(parser, for_create=False):
     )
 
 
-def _add_default_options(parser):
+def _add_default_options(parser: argparse.ArgumentParser) -> None:
     default_group = parser.add_mutually_exclusive_group()
     default_group.add_argument(
         '--default',
@@ -154,7 +161,7 @@ def _add_default_options(parser):
 class CreateSubnetPool(command.ShowOne, common.NeutronCommandWithExtraArgs):
     _description = _("Create subnet pool")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'name', metavar='<name>', help=_("Name of the new subnet pool")
@@ -205,7 +212,9 @@ class CreateSubnetPool(command.ShowOne, common.NeutronCommandWithExtraArgs):
         _tag.add_tag_option_to_parser_for_create(parser, _('subnet pool'))
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         client = self.app.client_manager.network
         attrs = _get_attrs(self.app.client_manager, parsed_args)
         # NeutronServer expects prefixes to be a List
@@ -225,7 +234,7 @@ class CreateSubnetPool(command.ShowOne, common.NeutronCommandWithExtraArgs):
 class DeleteSubnetPool(command.Command):
     _description = _("Delete subnet pool(s)")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'subnet_pool',
@@ -235,7 +244,7 @@ class DeleteSubnetPool(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
         result = 0
 
@@ -266,7 +275,7 @@ class DeleteSubnetPool(command.Command):
 class ListSubnetPool(command.Lister):
     _description = _("List subnet pools")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             '--long',
@@ -327,7 +336,9 @@ class ListSubnetPool(command.Lister):
         _tag.add_tag_filtering_option_to_parser(parser, _('subnet pools'))
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
         identity_client = self.app.client_manager.identity
         network_client = self.app.client_manager.network
         filters = {}
@@ -394,7 +405,7 @@ class ListSubnetPool(command.Lister):
 class SetSubnetPool(common.NeutronCommandWithExtraArgs):
     _description = _("Set subnet pool properties")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'subnet_pool',
@@ -440,7 +451,7 @@ class SetSubnetPool(common.NeutronCommandWithExtraArgs):
 
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
         obj = client.find_subnet_pool(
             parsed_args.subnet_pool, ignore_missing=False
@@ -465,7 +476,7 @@ class SetSubnetPool(common.NeutronCommandWithExtraArgs):
 class ShowSubnetPool(command.ShowOne):
     _description = _("Display subnet pool details")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'subnet_pool',
@@ -474,7 +485,9 @@ class ShowSubnetPool(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         client = self.app.client_manager.network
         obj = client.find_subnet_pool(
             parsed_args.subnet_pool, ignore_missing=False
@@ -487,7 +500,7 @@ class ShowSubnetPool(command.ShowOne):
 class UnsetSubnetPool(command.Command):
     _description = _("Unset subnet pool properties")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'subnet_pool',
@@ -497,7 +510,7 @@ class UnsetSubnetPool(command.Command):
         _tag.add_tag_option_to_parser_for_unset(parser, _('subnet pool'))
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
         obj = client.find_subnet_pool(
             parsed_args.subnet_pool, ignore_missing=False

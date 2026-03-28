@@ -13,7 +13,9 @@
 
 """Meter Rule Implementations"""
 
+import argparse
 import logging
+from collections.abc import Iterable, Sequence
 from typing import Any
 
 from osc_lib import exceptions
@@ -27,14 +29,16 @@ from openstackclient.network import common
 LOG = logging.getLogger(__name__)
 
 
-def _get_columns(item):
+def _get_columns(item: Any) -> tuple[tuple[str, ...], tuple[str, ...]]:
     hidden_columns = ['location', 'tenant_id']
     return utils.get_osc_show_columns_for_sdk_resource(
         item, {}, hidden_columns
     )
 
 
-def _get_attrs(client_manager, parsed_args):
+def _get_attrs(
+    client_manager: Any, parsed_args: argparse.Namespace
+) -> dict[str, Any]:
     attrs: dict[str, Any] = {}
 
     if parsed_args.exclude:
@@ -68,7 +72,7 @@ def _get_attrs(client_manager, parsed_args):
 class CreateMeterRule(command.ShowOne, common.NeutronCommandWithExtraArgs):
     _description = _("Create a new meter rule")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
 
         parser.add_argument(
@@ -125,7 +129,9 @@ class CreateMeterRule(command.ShowOne, common.NeutronCommandWithExtraArgs):
 
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         client = self.app.client_manager.network
         _meter = client.find_metering_label(
             parsed_args.meter, ignore_missing=False
@@ -145,7 +151,7 @@ class CreateMeterRule(command.ShowOne, common.NeutronCommandWithExtraArgs):
 class DeleteMeterRule(command.Command):
     _description = _("Delete meter rule(s)")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
 
         parser.add_argument(
@@ -157,7 +163,7 @@ class DeleteMeterRule(command.Command):
 
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
         result = 0
 
@@ -183,7 +189,9 @@ class DeleteMeterRule(command.Command):
 class ListMeterRule(command.Lister):
     _description = _("List meter rules")
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
         client = self.app.client_manager.network
 
         columns = (
@@ -218,7 +226,7 @@ class ListMeterRule(command.Lister):
 class ShowMeterRule(command.ShowOne):
     _description = _("Display meter rules details")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'meter_rule_id',
@@ -227,7 +235,9 @@ class ShowMeterRule(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         client = self.app.client_manager.network
         obj = client.find_metering_label_rule(
             parsed_args.meter_rule_id, ignore_missing=False

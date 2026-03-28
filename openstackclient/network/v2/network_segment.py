@@ -13,7 +13,10 @@
 
 """Network segment action implementations"""
 
+import argparse
+from collections.abc import Iterable, Sequence
 import logging
+from typing import Any
 
 from osc_lib import exceptions
 from osc_lib import utils
@@ -25,7 +28,7 @@ from openstackclient.network import common
 LOG = logging.getLogger(__name__)
 
 
-def _get_columns(item):
+def _get_columns(item: Any) -> tuple[tuple[str, ...], tuple[str, ...]]:
     hidden_columns = ['location', 'tenant_id']
     return utils.get_osc_show_columns_for_sdk_resource(
         item, {}, hidden_columns
@@ -37,7 +40,7 @@ class CreateNetworkSegment(
 ):
     _description = _("Create new network segment")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'name', metavar='<name>', help=_('New network segment name')
@@ -81,7 +84,9 @@ class CreateNetworkSegment(
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         client = self.app.client_manager.network
         attrs = {}
         attrs['name'] = parsed_args.name
@@ -107,7 +112,7 @@ class CreateNetworkSegment(
 class DeleteNetworkSegment(command.Command):
     _description = _("Delete network segment(s)")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'network_segment',
@@ -117,7 +122,7 @@ class DeleteNetworkSegment(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
 
         result = 0
@@ -148,7 +153,7 @@ class DeleteNetworkSegment(command.Command):
 class ListNetworkSegment(command.Lister):
     _description = _("List network segments")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             '--long',
@@ -166,7 +171,9 @@ class ListNetworkSegment(command.Lister):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
         network_client = self.app.client_manager.network
 
         filters = {}
@@ -211,7 +218,7 @@ class ListNetworkSegment(command.Lister):
 class SetNetworkSegment(common.NeutronCommandWithExtraArgs):
     _description = _("Set network segment properties")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'network_segment',
@@ -230,7 +237,7 @@ class SetNetworkSegment(common.NeutronCommandWithExtraArgs):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
         obj = client.find_segment(
             parsed_args.network_segment, ignore_missing=False
@@ -249,7 +256,7 @@ class SetNetworkSegment(common.NeutronCommandWithExtraArgs):
 class ShowNetworkSegment(command.ShowOne):
     _description = _("Display network segment details")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'network_segment',
@@ -258,7 +265,9 @@ class ShowNetworkSegment(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         client = self.app.client_manager.network
         obj = client.find_segment(
             parsed_args.network_segment, ignore_missing=False

@@ -13,7 +13,10 @@
 
 """Auto-allocated Topology Implementations"""
 
+import argparse
 import logging
+from collections.abc import Iterable, Sequence
+from typing import Any
 
 from osc_lib import utils
 
@@ -24,26 +27,28 @@ from openstackclient.identity import common as identity_common
 LOG = logging.getLogger(__name__)
 
 
-def _get_columns(item):
+def _get_columns(item: Any) -> tuple[tuple[str, ...], tuple[str, ...]]:
     hidden_columns = ['name', 'location', 'tenant_id']
     return utils.get_osc_show_columns_for_sdk_resource(
         item, {}, hidden_columns
     )
 
 
-def _format_check_resource_columns():
+def _format_check_resource_columns() -> tuple[str, ...]:
     return ('dry_run',)
 
 
-def _format_check_resource(item):
+def _format_check_resource(item: Any) -> Any:
     item_id = getattr(item, 'id', False)
     if item_id == 'dry-run=pass':
         item.check_resource = 'pass'
     return item
 
 
-def _get_attrs(client_manager, parsed_args):
-    attrs = {}
+def _get_attrs(
+    client_manager: Any, parsed_args: argparse.Namespace
+) -> dict[str, Any]:
+    attrs: dict[str, Any] = {}
     if parsed_args.project:
         identity_client = client_manager.identity
         project_id = identity_common.find_project(
@@ -63,7 +68,7 @@ def _get_attrs(client_manager, parsed_args):
 class CreateAutoAllocatedTopology(command.ShowOne):
     _description = _("Create the  auto allocated topology for project")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             '--project',
@@ -94,7 +99,9 @@ class CreateAutoAllocatedTopology(command.ShowOne):
 
         return parser
 
-    def check_resource_topology(self, client, parsed_args):
+    def check_resource_topology(
+        self, client: Any, parsed_args: argparse.Namespace
+    ) -> tuple[tuple[str, ...], Any]:
         obj = client.validate_auto_allocated_topology(parsed_args.project)
 
         columns = _format_check_resource_columns()
@@ -104,13 +111,17 @@ class CreateAutoAllocatedTopology(command.ShowOne):
 
         return (columns, data)
 
-    def get_topology(self, client, parsed_args):
+    def get_topology(
+        self, client: Any, parsed_args: argparse.Namespace
+    ) -> tuple[tuple[str, ...], Any]:
         obj = client.get_auto_allocated_topology(parsed_args.project)
         display_columns, columns = _get_columns(obj)
         data = utils.get_item_properties(obj, columns, formatters={})
         return (display_columns, data)
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         client = self.app.client_manager.network
         if parsed_args.check_resources:
             columns, data = self.check_resource_topology(client, parsed_args)
@@ -124,7 +135,7 @@ class CreateAutoAllocatedTopology(command.ShowOne):
 class DeleteAutoAllocatedTopology(command.Command):
     _description = _("Delete auto allocated topology for project")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             '--project',
@@ -138,6 +149,6 @@ class DeleteAutoAllocatedTopology(command.Command):
 
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
         client.delete_auto_allocated_topology(parsed_args.project)

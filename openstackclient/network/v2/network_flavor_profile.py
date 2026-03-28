@@ -11,7 +11,10 @@
 #   under the License.
 #
 
+import argparse
 import logging
+from collections.abc import Iterable, Sequence
+from typing import Any
 
 from osc_lib import exceptions
 from osc_lib import utils
@@ -23,7 +26,7 @@ from openstackclient.network import common
 LOG = logging.getLogger(__name__)
 
 
-def _get_columns(item):
+def _get_columns(item: Any) -> tuple[tuple[str, ...], tuple[str, ...]]:
     column_map = {
         'is_enabled': 'enabled',
     }
@@ -34,8 +37,10 @@ def _get_columns(item):
     )
 
 
-def _get_attrs(client_manager, parsed_args):
-    attrs = {}
+def _get_attrs(
+    client_manager: Any, parsed_args: argparse.Namespace
+) -> dict[str, Any]:
+    attrs: dict[str, Any] = {}
     if parsed_args.description is not None:
         attrs['description'] = parsed_args.description
     if parsed_args.driver is not None:
@@ -57,7 +62,7 @@ class CreateNetworkFlavorProfile(
 ):
     _description = _("Create new network flavor profile")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             '--description',
@@ -92,7 +97,9 @@ class CreateNetworkFlavorProfile(
 
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         client = self.app.client_manager.network
         attrs = _get_attrs(self.app.client_manager, parsed_args)
         attrs.update(
@@ -113,7 +120,7 @@ class CreateNetworkFlavorProfile(
 class DeleteNetworkFlavorProfile(command.Command):
     _description = _("Delete network flavor profile")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
 
         parser.add_argument(
@@ -124,7 +131,7 @@ class DeleteNetworkFlavorProfile(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
         result = 0
 
@@ -154,7 +161,9 @@ class DeleteNetworkFlavorProfile(command.Command):
 class ListNetworkFlavorProfile(command.Lister):
     _description = _("List network flavor profile(s)")
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
         client = self.app.client_manager.network
 
         columns = (
@@ -190,7 +199,7 @@ class ListNetworkFlavorProfile(command.Lister):
 class SetNetworkFlavorProfile(common.NeutronCommandWithExtraArgs):
     _description = _("Set network flavor profile properties")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'flavor_profile',
@@ -230,7 +239,7 @@ class SetNetworkFlavorProfile(common.NeutronCommandWithExtraArgs):
 
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
         obj = client.find_service_profile(
             parsed_args.flavor_profile, ignore_missing=False
@@ -246,7 +255,7 @@ class SetNetworkFlavorProfile(common.NeutronCommandWithExtraArgs):
 class ShowNetworkFlavorProfile(command.ShowOne):
     _description = _("Display network flavor profile details")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'flavor_profile',
@@ -255,7 +264,9 @@ class ShowNetworkFlavorProfile(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         client = self.app.client_manager.network
         obj = client.find_service_profile(
             parsed_args.flavor_profile, ignore_missing=False

@@ -14,6 +14,7 @@
 """Port action implementations"""
 
 import argparse
+from collections.abc import Iterable, Sequence
 import copy
 import json
 import logging
@@ -35,22 +36,22 @@ LOG = logging.getLogger(__name__)
 
 
 class AdminStateColumn(cliff_columns.FormattableColumn[bool]):
-    def human_readable(self):
+    def human_readable(self) -> str:
         return 'UP' if self._value else 'DOWN'
 
 
 class SubPortColumn(format_columns.ListDictColumn):
     _value: Any
 
-    def _retrieve_subports(self):
+    def _retrieve_subports(self) -> None:
         if isinstance(self._value, dict):
             self._value = self._value['sub_ports']
 
-    def human_readable(self):
+    def human_readable(self) -> str:
         self._retrieve_subports()
         return super().human_readable()
 
-    def machine_readable(self):
+    def machine_readable(self) -> Any:
         self._retrieve_subports()
         return super().machine_readable()
 
@@ -73,7 +74,7 @@ _list_formatters = copy.deepcopy(_formatters)
 _list_formatters.update({'trunk_details': SubPortColumn})
 
 
-def _get_columns(item):
+def _get_columns(item: Any) -> tuple[tuple[str, ...], tuple[str, ...]]:
     column_data_mapping = {
         'admin_state_up': 'is_admin_state_up',
         'allowed_address_pairs': 'allowed_address_pairs',
@@ -127,7 +128,13 @@ class JSONKeyValueAction(argparse.Action):
     Ensures that ``dest`` is a dict
     """
 
-    def __call__(self, parser, namespace, values, option_string=None):
+    def __call__(
+        self,
+        parser: argparse.ArgumentParser,
+        namespace: argparse.Namespace,
+        values: Any,
+        option_string: str | None = None,
+    ) -> None:
         # Make sure we have an empty dict rather than None
         if getattr(namespace, self.dest, None) is None:
             setattr(namespace, self.dest, {})
@@ -148,8 +155,10 @@ class JSONKeyValueAction(argparse.Action):
                 raise argparse.ArgumentError(self, msg)
 
 
-def _get_attrs(client_manager, parsed_args):
-    attrs = {}
+def _get_attrs(
+    client_manager: Any, parsed_args: argparse.Namespace
+) -> dict[str, Any]:
+    attrs: dict[str, Any] = {}
 
     if parsed_args.description is not None:
         attrs['description'] = parsed_args.description
@@ -250,7 +259,9 @@ def _get_attrs(client_manager, parsed_args):
     return attrs
 
 
-def _prepare_fixed_ips(client_manager, parsed_args):
+def _prepare_fixed_ips(
+    client_manager: Any, parsed_args: argparse.Namespace
+) -> None:
     """Fix and properly format fixed_ip option.
 
     Appropriately convert any subnet names to their respective ids.
@@ -281,7 +292,9 @@ def _prepare_fixed_ips(client_manager, parsed_args):
         parsed_args.fixed_ip = ips
 
 
-def _prepare_filter_fixed_ips(client_manager, parsed_args):
+def _prepare_filter_fixed_ips(
+    client_manager: Any, parsed_args: argparse.Namespace
+) -> list[str]:
     """Fix and properly format fixed_ip option for filtering.
 
     Appropriately convert any subnet names to their respective ids.
@@ -308,7 +321,9 @@ def _prepare_filter_fixed_ips(client_manager, parsed_args):
     return ips
 
 
-def _add_updatable_args(parser, create=False):
+def _add_updatable_args(
+    parser: argparse.ArgumentParser, create: bool = False
+) -> None:
     parser.add_argument(
         '--description',
         metavar='<description>',
@@ -434,7 +449,9 @@ def _add_updatable_args(parser, create=False):
 
 # TODO(abhiraut): Use the SDK resource mapped attribute names once the
 # OSC minimum requirements include SDK 1.0.
-def _convert_address_pairs(parsed_args):
+def _convert_address_pairs(
+    parsed_args: argparse.Namespace,
+) -> list[dict[str, Any]]:
     ops = []
     for opt in parsed_args.allowed_address_pairs:
         addr = {}
@@ -445,7 +462,9 @@ def _convert_address_pairs(parsed_args):
     return ops
 
 
-def _convert_extra_dhcp_options(parsed_args):
+def _convert_extra_dhcp_options(
+    parsed_args: argparse.Namespace,
+) -> list[dict[str, Any]]:
     dhcp_options = []
     for opt in parsed_args.extra_dhcp_options:
         option = {}
@@ -460,7 +479,7 @@ def _convert_extra_dhcp_options(parsed_args):
 
 # When we have multiple hints, we'll need to refactor this to allow
 # arbitrary combinations. But until then let's have it as simple as possible.
-def _validate_port_hints(hints):
+def _validate_port_hints(hints: dict[str, Any]) -> None:
     if hints not in (
         {},
         # by hint alias
@@ -477,7 +496,7 @@ def _validate_port_hints(hints):
 # When we have multiple hints, we'll need to refactor this to expand aliases
 # without losing other hints. But until then let's have it as simple as
 # possible.
-def _expand_port_hint_aliases(hints):
+def _expand_port_hint_aliases(hints: dict[str, Any]) -> dict[str, Any]:
     if hints == {'ovs-tx-steering': 'thread'}:
         return {'openvswitch': {'other_config': {'tx-steering': 'thread'}}}
     elif hints == {'ovs-tx-steering': 'hash'}:
@@ -489,7 +508,7 @@ def _expand_port_hint_aliases(hints):
 class CreatePort(command.ShowOne, common.NeutronCommandWithExtraArgs):
     _description = _("Create a new port")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
 
         parser.add_argument(
@@ -635,7 +654,9 @@ class CreatePort(command.ShowOne, common.NeutronCommandWithExtraArgs):
         _tag.add_tag_option_to_parser_for_create(parser, _('port'))
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         network_client = self.app.client_manager.network
         network = network_client.find_network(
             parsed_args.network, ignore_missing=False
@@ -727,7 +748,7 @@ class CreatePort(command.ShowOne, common.NeutronCommandWithExtraArgs):
 class DeletePort(command.Command):
     _description = _("Delete port(s)")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'port',
@@ -737,7 +758,7 @@ class DeletePort(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
         result = 0
 
@@ -769,7 +790,7 @@ class DeletePort(command.Command):
 class ListPort(command.Lister):
     _description = _("List ports")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             '--device-owner',
@@ -867,7 +888,9 @@ class ListPort(command.Lister):
         _tag.add_tag_filtering_option_to_parser(parser, _('ports'))
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[tuple[Any, ...]]]:
         network_client = self.app.client_manager.network
         identity_client = self.app.client_manager.identity
 
@@ -966,7 +989,7 @@ class ListPort(command.Lister):
 class SetPort(common.NeutronCommandWithExtraArgs):
     _description = _("Set port properties")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         _add_updatable_args(parser)
         admin_group = parser.add_mutually_exclusive_group()
@@ -1120,7 +1143,7 @@ class SetPort(common.NeutronCommandWithExtraArgs):
 
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
 
         _prepare_fixed_ips(self.app.client_manager, parsed_args)
@@ -1222,14 +1245,16 @@ class SetPort(common.NeutronCommandWithExtraArgs):
 class ShowPort(command.ShowOne):
     _description = _("Display port details")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'port', metavar="<port>", help=_("Port to display (name or ID)")
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         client = self.app.client_manager.network
         obj = client.find_port(parsed_args.port, ignore_missing=False)
         display_columns, columns = _get_columns(obj)
@@ -1242,7 +1267,7 @@ class ShowPort(command.ShowOne):
 class UnsetPort(common.NeutronUnsetCommandWithExtraArgs):
     _description = _("Unset port properties")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             '--fixed-ip',
@@ -1339,7 +1364,7 @@ class UnsetPort(common.NeutronUnsetCommandWithExtraArgs):
 
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
         obj = client.find_port(parsed_args.port, ignore_missing=False)
         # SDK ignores update() if it receives a modified obj and attrs

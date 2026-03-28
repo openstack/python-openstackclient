@@ -13,7 +13,10 @@
 
 """Address group action implementations"""
 
+import argparse
 import logging
+from collections.abc import Iterable, Sequence
+from typing import Any
 
 import netaddr
 from osc_lib import exceptions
@@ -27,19 +30,21 @@ from openstackclient.network import common
 LOG = logging.getLogger(__name__)
 
 
-def _get_columns(item):
+def _get_columns(item: Any) -> tuple[tuple[str, ...], tuple[str, ...]]:
     hidden_columns = ['location', 'tenant_id']
     return utils.get_osc_show_columns_for_sdk_resource(
         item, {}, hidden_columns
     )
 
 
-def _format_addresses(addresses):
+def _format_addresses(addresses: list[str]) -> list[str]:
     return [str(netaddr.IPNetwork(addr)) for addr in addresses]
 
 
-def _get_attrs(client_manager, parsed_args):
-    attrs = {}
+def _get_attrs(
+    client_manager: Any, parsed_args: argparse.Namespace
+) -> dict[str, Any]:
+    attrs: dict[str, Any] = {}
     attrs['name'] = parsed_args.name
     if parsed_args.description:
         attrs['description'] = parsed_args.description
@@ -59,7 +64,7 @@ def _get_attrs(client_manager, parsed_args):
 class CreateAddressGroup(command.ShowOne, common.NeutronCommandWithExtraArgs):
     _description = _("Create a new Address Group")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'name', metavar="<name>", help=_("New address group name")
@@ -87,7 +92,9 @@ class CreateAddressGroup(command.ShowOne, common.NeutronCommandWithExtraArgs):
 
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         client = self.app.client_manager.network
         attrs = _get_attrs(self.app.client_manager, parsed_args)
 
@@ -105,7 +112,7 @@ class CreateAddressGroup(command.ShowOne, common.NeutronCommandWithExtraArgs):
 class DeleteAddressGroup(command.Command):
     _description = _("Delete address group(s)")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'address_group',
@@ -116,7 +123,7 @@ class DeleteAddressGroup(command.Command):
 
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
         result = 0
 
@@ -145,7 +152,7 @@ class DeleteAddressGroup(command.Command):
 class ListAddressGroup(command.Lister):
     _description = _("List address groups")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
 
         parser.add_argument(
@@ -165,7 +172,9 @@ class ListAddressGroup(command.Lister):
 
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
         client = self.app.client_manager.network
         columns = (
             'id',
@@ -210,7 +219,7 @@ class ListAddressGroup(command.Lister):
 class SetAddressGroup(common.NeutronCommandWithExtraArgs):
     _description = _("Set address group properties")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'address_group',
@@ -236,7 +245,7 @@ class SetAddressGroup(common.NeutronCommandWithExtraArgs):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
         obj = client.find_address_group(
             parsed_args.address_group, ignore_missing=False
@@ -261,7 +270,7 @@ class SetAddressGroup(common.NeutronCommandWithExtraArgs):
 class ShowAddressGroup(command.ShowOne):
     _description = _("Display address group details")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'address_group',
@@ -271,7 +280,9 @@ class ShowAddressGroup(command.ShowOne):
 
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         client = self.app.client_manager.network
         obj = client.find_address_group(
             parsed_args.address_group, ignore_missing=False
@@ -285,7 +296,7 @@ class ShowAddressGroup(command.ShowOne):
 class UnsetAddressGroup(command.Command):
     _description = _("Unset address group properties")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'address_group',
@@ -304,7 +315,7 @@ class UnsetAddressGroup(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
         obj = client.find_address_group(
             parsed_args.address_group, ignore_missing=False
