@@ -15,6 +15,8 @@
 
 """Identity v3 User action implementations"""
 
+import argparse
+from collections.abc import Iterable, Sequence
 import copy
 import logging
 from typing import Any
@@ -32,7 +34,7 @@ from openstackclient.identity import common
 LOG = logging.getLogger(__name__)
 
 
-def _format_user(user):
+def _format_user(user: Any) -> tuple[tuple[str, ...], Any]:
     columns = (
         'default_project_id',
         'domain_id',
@@ -61,7 +63,9 @@ def _format_user(user):
     )
 
 
-def _get_options_for_user(identity_client, parsed_args):
+def _get_options_for_user(
+    identity_client: Any, parsed_args: argparse.Namespace
+) -> dict[str, Any]:
     options: dict[str, Any] = {}
     if parsed_args.ignore_lockout_failure_attempts:
         options['ignore_lockout_failure_attempts'] = True
@@ -92,7 +96,7 @@ def _get_options_for_user(identity_client, parsed_args):
     return options
 
 
-def _add_user_options(parser):
+def _add_user_options(parser: argparse.ArgumentParser) -> None:
     # Add additional user options
 
     parser.add_argument(
@@ -192,7 +196,7 @@ def _add_user_options(parser):
 class CreateUser(command.ShowOne):
     _description = _("Create new user")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'name',
@@ -251,7 +255,9 @@ class CreateUser(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         identity_client = sdk_utils.ensure_service_version(
             self.app.client_manager.sdk_connection.identity, '3'
         )
@@ -336,7 +342,7 @@ class CreateUser(command.ShowOne):
 class DeleteUser(command.Command):
     _description = _("Delete user(s)")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'users',
@@ -351,7 +357,7 @@ class DeleteUser(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         identity_client = sdk_utils.ensure_service_version(
             self.app.client_manager.sdk_connection.identity, '3'
         )
@@ -398,7 +404,7 @@ class DeleteUser(command.Command):
 class ListUser(command.Lister):
     _description = _("List users")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             '--domain',
@@ -444,7 +450,9 @@ class ListUser(command.Lister):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[tuple[Any, ...]]]:
         identity_client = sdk_utils.ensure_service_version(
             self.app.client_manager.sdk_connection.identity, '3'
         )
@@ -548,7 +556,7 @@ class ListUser(command.Lister):
 class SetUser(command.Command):
     _description = _("Set user properties")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'user',
@@ -610,7 +618,7 @@ class SetUser(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         identity_client = sdk_utils.ensure_service_version(
             self.app.client_manager.sdk_connection.identity, '3'
         )
@@ -685,7 +693,7 @@ class SetPasswordUser(command.Command):
 
     required_scope = False
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             '--password',
@@ -699,7 +707,7 @@ class SetPasswordUser(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         identity_client = sdk_utils.ensure_service_version(
             self.app.client_manager.sdk_connection.identity, '3'
         )
@@ -761,7 +769,7 @@ class SetPasswordUser(command.Command):
 class ShowUser(command.ShowOne):
     _description = _("Display user details")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'user',
@@ -775,7 +783,9 @@ class ShowUser(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         identity_client = sdk_utils.ensure_service_version(
             self.app.client_manager.sdk_connection.identity, '3'
         )

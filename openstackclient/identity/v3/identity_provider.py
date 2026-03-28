@@ -13,7 +13,10 @@
 
 """Identity v3 IdentityProvider action implementations"""
 
+import argparse
+from collections.abc import Iterable, Sequence
 import logging
+from typing import Any
 
 from osc_lib.cli import format_columns
 from osc_lib import exceptions
@@ -30,7 +33,7 @@ LOG = logging.getLogger(__name__)
 class CreateIdentityProvider(command.ShowOne):
     _description = _("Create new identity provider")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'identity_provider_id',
@@ -98,7 +101,9 @@ class CreateIdentityProvider(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         identity_client = self.app.client_manager.identity
         remote_ids: list[str] | None = None
         if parsed_args.remote_id_file:
@@ -140,13 +145,14 @@ class CreateIdentityProvider(command.ShowOne):
         idp._info['remote_ids'] = format_columns.ListColumn(
             idp._info.pop('remote_ids', [])
         )
-        return zip(*sorted(idp._info.items()))
+        col_headers, col_data = zip(*sorted(idp._info.items()))
+        return col_headers, col_data
 
 
 class DeleteIdentityProvider(command.Command):
     _description = _("Delete identity provider(s)")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'identity_provider',
@@ -156,7 +162,7 @@ class DeleteIdentityProvider(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         identity_client = self.app.client_manager.identity
         result = 0
         for i in parsed_args.identity_provider:
@@ -183,7 +189,7 @@ class DeleteIdentityProvider(command.Command):
 class ListIdentityProvider(command.Lister):
     _description = _("List identity providers")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             '--id',
@@ -198,7 +204,9 @@ class ListIdentityProvider(command.Lister):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
         columns = ('ID', 'Enabled', 'Domain ID', 'Description')
         identity_client = self.app.client_manager.identity
 
@@ -225,7 +233,7 @@ class ListIdentityProvider(command.Lister):
 class SetIdentityProvider(command.Command):
     _description = _("Set identity provider properties")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'identity_provider',
@@ -279,7 +287,7 @@ class SetIdentityProvider(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         federation_client = self.app.client_manager.identity.federation
 
         # Always set remote_ids if either is passed in
@@ -326,7 +334,7 @@ class SetIdentityProvider(command.Command):
 class ShowIdentityProvider(command.ShowOne):
     _description = _("Display identity provider details")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'identity_provider',
@@ -335,7 +343,9 @@ class ShowIdentityProvider(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         identity_client = self.app.client_manager.identity
         idp = utils.find_resource(
             identity_client.federation.identity_providers,
@@ -346,4 +356,5 @@ class ShowIdentityProvider(command.ShowOne):
         idp._info.pop('links', None)
         remote_ids = format_columns.ListColumn(idp._info.pop('remote_ids', []))
         idp._info['remote_ids'] = remote_ids
-        return zip(*sorted(idp._info.items()))
+        col_headers, col_data = zip(*sorted(idp._info.items()))
+        return col_headers, col_data

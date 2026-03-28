@@ -15,8 +15,11 @@
 
 """Identity v2.0 User action implementations"""
 
+import argparse
+from collections.abc import Iterable, Sequence
 import functools
 import logging
+from typing import Any, cast
 
 from cliff import columns as cliff_columns
 from keystoneauth1 import exceptions as ks_exc
@@ -41,16 +44,16 @@ class ProjectColumn(cliff_columns.FormattableColumn[str]):
     ``functools.partial(ProjectColumn, project_cache)``.
     """
 
-    def __init__(self, value, project_cache=None):
+    def __init__(self, value: str, project_cache: Any = None) -> None:
         super().__init__(value)
         self.project_cache = project_cache or {}
 
-    def human_readable(self):
+    def human_readable(self) -> str:
         project = self._value
         if not project:
             return ""
         if project in self.project_cache.keys():
-            return self.project_cache[project].name
+            return cast(str, self.project_cache[project].name)
         else:
             return project
 
@@ -58,7 +61,7 @@ class ProjectColumn(cliff_columns.FormattableColumn[str]):
 class CreateUser(command.ShowOne):
     _description = _("Create new user")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'name',
@@ -104,7 +107,9 @@ class CreateUser(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         identity_client = self.app.client_manager.identity
 
         if parsed_args.project:
@@ -155,13 +160,14 @@ class CreateUser(command.ShowOne):
 
         info = {}
         info.update(user._info)
-        return zip(*sorted(info.items()))
+        col_headers, col_data = zip(*sorted(info.items()))
+        return col_headers, col_data
 
 
 class DeleteUser(command.Command):
     _description = _("Delete user(s)")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'users',
@@ -171,7 +177,7 @@ class DeleteUser(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         identity_client = self.app.client_manager.identity
 
         errors = 0
@@ -204,7 +210,7 @@ class DeleteUser(command.Command):
 class ListUser(command.Lister):
     _description = _("List users")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             '--project',
@@ -219,7 +225,9 @@ class ListUser(command.Lister):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
         identity_client = self.app.client_manager.identity
         formatters = {}
         project = None
@@ -278,7 +286,7 @@ class ListUser(command.Lister):
 class SetUser(command.Command):
     _description = _("Set user properties")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'user',
@@ -324,7 +332,7 @@ class SetUser(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         identity_client = self.app.client_manager.identity
 
         if parsed_args.password_prompt:
@@ -376,7 +384,7 @@ class SetUser(command.Command):
 class ShowUser(command.ShowOne):
     _description = _("Display user details")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'user',
@@ -385,7 +393,9 @@ class ShowUser(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         identity_client = self.app.client_manager.identity
 
         info = {}
@@ -417,4 +427,5 @@ class ShowUser(command.ShowOne):
         if 'tenant_id' in info:
             info.update({'project_id': info.pop('tenant_id')})
 
-        return zip(*sorted(info.items()))
+        col_headers, col_data = zip(*sorted(info.items()))
+        return col_headers, col_data

@@ -13,8 +13,11 @@
 
 """Identity v3 Endpoint Group action implementations"""
 
+import argparse
+from collections.abc import Iterable, Sequence
 import json
 import logging
+from typing import Any
 
 from osc_lib import exceptions
 from osc_lib import utils
@@ -30,7 +33,7 @@ LOG = logging.getLogger(__name__)
 class _FiltersReader:
     _description = _("Helper class capable of reading filters from files")
 
-    def _read_filters(self, path):
+    def _read_filters(self, path: str) -> Any:
         """Read and parse rules from path
 
         Expect the file to contain a valid JSON structure.
@@ -62,7 +65,7 @@ class _FiltersReader:
 class AddProjectToEndpointGroup(command.Command):
     _description = _("Add a project to an endpoint group")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'endpointgroup',
@@ -77,7 +80,7 @@ class AddProjectToEndpointGroup(command.Command):
         common.add_project_domain_option_to_parser(parser)
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.identity
 
         endpointgroup = utils.find_resource(
@@ -96,7 +99,7 @@ class AddProjectToEndpointGroup(command.Command):
 class CreateEndpointGroup(command.ShowOne, _FiltersReader):
     _description = _("Create new endpoint group")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'name',
@@ -114,7 +117,9 @@ class CreateEndpointGroup(command.ShowOne, _FiltersReader):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         identity_client = self.app.client_manager.identity
 
         filters = None
@@ -130,13 +135,14 @@ class CreateEndpointGroup(command.ShowOne, _FiltersReader):
         info = {}
         endpoint_group._info.pop('links')
         info.update(endpoint_group._info)
-        return zip(*sorted(info.items()))
+        col_headers, col_data = zip(*sorted(info.items()))
+        return col_headers, col_data
 
 
 class DeleteEndpointGroup(command.Command):
     _description = _("Delete endpoint group(s)")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'endpointgroup',
@@ -146,7 +152,7 @@ class DeleteEndpointGroup(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         identity_client = self.app.client_manager.identity
         result = 0
         for i in parsed_args.endpointgroup:
@@ -176,7 +182,7 @@ class DeleteEndpointGroup(command.Command):
 class ListEndpointGroup(command.Lister):
     _description = _("List endpoint groups")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         list_group = parser.add_mutually_exclusive_group()
         list_group.add_argument(
@@ -196,7 +202,9 @@ class ListEndpointGroup(command.Lister):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
         client = self.app.client_manager.identity
 
         endpointgroup = None
@@ -241,7 +249,7 @@ class ListEndpointGroup(command.Lister):
 class RemoveProjectFromEndpointGroup(command.Command):
     _description = _("Remove project from endpoint group")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'endpointgroup',
@@ -256,7 +264,7 @@ class RemoveProjectFromEndpointGroup(command.Command):
         common.add_project_domain_option_to_parser(parser)
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.identity
 
         endpointgroup = utils.find_resource(
@@ -275,7 +283,7 @@ class RemoveProjectFromEndpointGroup(command.Command):
 class SetEndpointGroup(command.Command, _FiltersReader):
     _description = _("Set endpoint group properties")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'endpointgroup',
@@ -300,7 +308,7 @@ class SetEndpointGroup(command.Command, _FiltersReader):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         identity_client = self.app.client_manager.identity
         endpointgroup = utils.find_resource(
             identity_client.endpoint_groups, parsed_args.endpointgroup
@@ -321,7 +329,7 @@ class SetEndpointGroup(command.Command, _FiltersReader):
 class ShowEndpointGroup(command.ShowOne):
     _description = _("Display endpoint group details")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'endpointgroup',
@@ -330,7 +338,9 @@ class ShowEndpointGroup(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         identity_client = self.app.client_manager.identity
         endpoint_group = utils.find_resource(
             identity_client.endpoint_groups, parsed_args.endpointgroup
@@ -339,4 +349,5 @@ class ShowEndpointGroup(command.ShowOne):
         info = {}
         endpoint_group._info.pop('links')
         info.update(endpoint_group._info)
-        return zip(*sorted(info.items()))
+        col_headers, col_data = zip(*sorted(info.items()))
+        return col_headers, col_data

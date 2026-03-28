@@ -15,8 +15,11 @@
 
 """Identity v3 federation mapping action implementations"""
 
+import argparse
+from collections.abc import Iterable, Sequence
 import json
 import logging
+from typing import Any
 
 from osc_lib import exceptions
 from osc_lib import utils
@@ -31,7 +34,7 @@ LOG = logging.getLogger(__name__)
 class _RulesReader:
     _description = _("Helper class capable of reading rules from files")
 
-    def _read_rules(self, path):
+    def _read_rules(self, path: str) -> Any:
         """Read and parse rules from path
 
         Expect the file to contain a valid JSON structure.
@@ -82,7 +85,9 @@ class _RulesReader:
             return rules
 
     @staticmethod
-    def add_federated_schema_version_option(parser):
+    def add_federated_schema_version_option(
+        parser: argparse.ArgumentParser,
+    ) -> None:
         parser.add_argument(
             '--schema-version',
             metavar='<schema_version>',
@@ -100,7 +105,7 @@ class _RulesReader:
 class CreateMapping(command.ShowOne, _RulesReader):
     _description = _("Create new mapping")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'mapping',
@@ -116,7 +121,9 @@ class CreateMapping(command.ShowOne, _RulesReader):
         _RulesReader.add_federated_schema_version_option(parser)
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         identity_client = self.app.client_manager.identity
 
         rules = self._read_rules(parsed_args.rules)
@@ -127,13 +134,14 @@ class CreateMapping(command.ShowOne, _RulesReader):
         )
 
         mapping._info.pop('links', None)
-        return zip(*sorted(mapping._info.items()))
+        col_headers, col_data = zip(*sorted(mapping._info.items()))
+        return col_headers, col_data
 
 
 class DeleteMapping(command.Command):
     _description = _("Delete mapping(s)")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'mapping',
@@ -143,7 +151,7 @@ class DeleteMapping(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         identity_client = self.app.client_manager.identity
         result = 0
         for i in parsed_args.mapping:
@@ -171,7 +179,9 @@ class DeleteMapping(command.Command):
 class ListMapping(command.Lister):
     _description = _("List mappings")
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
         # NOTE(marek-denis): Since rules can be long and tedious I have decided
         # to only list ids of the mappings. If somebody wants to check the
         # rules, (s)he should show specific ones.
@@ -185,7 +195,7 @@ class ListMapping(command.Lister):
 class SetMapping(command.Command, _RulesReader):
     _description = _("Set mapping properties")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'mapping',
@@ -201,7 +211,7 @@ class SetMapping(command.Command, _RulesReader):
         _RulesReader.add_federated_schema_version_option(parser)
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         identity_client = self.app.client_manager.identity
 
         rules = self._read_rules(parsed_args.rules)
@@ -218,7 +228,7 @@ class SetMapping(command.Command, _RulesReader):
 class ShowMapping(command.ShowOne):
     _description = _("Display mapping details")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'mapping',
@@ -227,10 +237,13 @@ class ShowMapping(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         identity_client = self.app.client_manager.identity
 
         mapping = identity_client.federation.mappings.get(parsed_args.mapping)
 
         mapping._info.pop('links', None)
-        return zip(*sorted(mapping._info.items()))
+        col_headers, col_data = zip(*sorted(mapping._info.items()))
+        return col_headers, col_data

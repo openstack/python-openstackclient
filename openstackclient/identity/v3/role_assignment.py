@@ -13,15 +13,22 @@
 
 """Identity v3 Assignment action implementations"""
 
+import argparse
+from collections.abc import Iterable
+from typing import Any
+
 from openstack import utils as sdk_utils
+from osc_lib import exceptions
 
 from openstackclient import command
 from openstackclient.i18n import _
 from openstackclient.identity import common
 
 
-def _format_role_assignment_(assignment, include_names):
-    def _get_names(attr):
+def _format_role_assignment_(
+    assignment: Any, include_names: Any
+) -> tuple[Any, ...]:
+    def _get_names(attr: Any) -> str:
         return (
             (
                 attr['name']
@@ -36,7 +43,7 @@ def _format_role_assignment_(assignment, include_names):
             else ''
         )
 
-    def _get_ids(attr):
+    def _get_ids(attr: Any) -> str:
         return attr['id'] or '' if attr else ''
 
     func = _get_names if include_names else _get_ids
@@ -54,7 +61,7 @@ def _format_role_assignment_(assignment, include_names):
 class ListRoleAssignment(command.Lister):
     _description = _("List role assignments")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             '--effective',
@@ -119,7 +126,9 @@ class ListRoleAssignment(command.Lister):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
         identity_client = sdk_utils.ensure_service_version(
             self.app.client_manager.sdk_connection.identity, '3'
         )
@@ -155,6 +164,8 @@ class ListRoleAssignment(command.Lister):
             )
         elif parsed_args.authuser:
             if auth_ref:
+                if auth_ref.user_id is None:
+                    raise exceptions.CommandError('missing auth info')
                 user_id = common._find_sdk_id(
                     identity_client.find_user,
                     name_or_id=auth_ref.user_id,
@@ -189,6 +200,8 @@ class ListRoleAssignment(command.Lister):
             )
         elif parsed_args.authproject:
             if auth_ref:
+                if auth_ref.project_id is None:
+                    raise exceptions.CommandError('missing auth info')
                 project_id = common._find_sdk_id(
                     identity_client.find_project,
                     name_or_id=auth_ref.project_id,

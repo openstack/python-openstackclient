@@ -13,9 +13,12 @@
 
 """Identity v3 Trust action implementations"""
 
+import argparse
+from collections.abc import Iterable, Sequence
 import datetime
 import itertools
 import logging
+from typing import Any
 
 from openstack import exceptions as sdk_exceptions
 from openstack import utils as sdk_utils
@@ -30,7 +33,7 @@ from openstackclient.identity import common
 LOG = logging.getLogger(__name__)
 
 
-def _format_trust(trust):
+def _format_trust(trust: Any) -> tuple[tuple[str, ...], Any]:
     columns = (
         'expires_at',
         'id',
@@ -52,7 +55,7 @@ def _format_trust(trust):
 class CreateTrust(command.ShowOne):
     _description = _("Create new trust")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'trustor',
@@ -113,7 +116,9 @@ class CreateTrust(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         identity_client = sdk_utils.ensure_service_version(
             self.app.client_manager.sdk_connection.identity, '3'
         )
@@ -206,7 +211,7 @@ class CreateTrust(command.ShowOne):
 class DeleteTrust(command.Command):
     _description = _("Delete trust(s)")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'trust',
@@ -216,7 +221,7 @@ class DeleteTrust(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         identity_client = sdk_utils.ensure_service_version(
             self.app.client_manager.sdk_connection.identity, '3'
         )
@@ -250,7 +255,7 @@ class DeleteTrust(command.Command):
 class ListTrust(command.Lister):
     _description = _("List trusts")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             '--trustor',
@@ -280,7 +285,9 @@ class ListTrust(command.Lister):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
         identity_client = sdk_utils.ensure_service_version(
             self.app.client_manager.sdk_connection.identity, '3'
         )
@@ -402,7 +409,7 @@ class ListTrust(command.Lister):
 class ShowTrust(command.ShowOne):
     _description = _("Display trust details")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'trust',
@@ -411,7 +418,9 @@ class ShowTrust(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         identity_client = sdk_utils.ensure_service_version(
             self.app.client_manager.sdk_connection.identity, '3'
         )

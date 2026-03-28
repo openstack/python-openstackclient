@@ -13,7 +13,10 @@
 
 """Limits action implementations."""
 
+import argparse
+from collections.abc import Iterable, Sequence
 import logging
+from typing import Any
 
 from openstack import utils as sdk_utils
 from osc_lib import exceptions
@@ -26,7 +29,7 @@ from openstackclient.identity import common as common_utils
 LOG = logging.getLogger(__name__)
 
 
-def _format_limit(limit):
+def _format_limit(limit: Any) -> tuple[tuple[str, ...], Any]:
     columns = (
         "description",
         "id",
@@ -51,7 +54,7 @@ def _format_limit(limit):
 class CreateLimit(command.ShowOne):
     _description = _("Create a limit")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             '--description',
@@ -90,7 +93,9 @@ class CreateLimit(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         identity_client = sdk_utils.ensure_service_version(
             self.app.client_manager.sdk_connection.identity, '3'
         )
@@ -125,7 +130,7 @@ class CreateLimit(command.ShowOne):
 class ListLimit(command.Lister):
     _description = _("List limits")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             '--service',
@@ -152,7 +157,9 @@ class ListLimit(command.Lister):
 
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
         identity_client = sdk_utils.ensure_service_version(
             self.app.client_manager.sdk_connection.identity, '3'
         )
@@ -204,7 +211,7 @@ class ListLimit(command.Lister):
 class ShowLimit(command.ShowOne):
     _description = _("Display limit details")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'limit_id',
@@ -213,7 +220,9 @@ class ShowLimit(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         identity_client = sdk_utils.ensure_service_version(
             self.app.client_manager.sdk_connection.identity, '3'
         )
@@ -224,7 +233,7 @@ class ShowLimit(command.ShowOne):
 class SetLimit(command.ShowOne):
     _description = _("Update information about a limit")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'limit_id',
@@ -245,7 +254,9 @@ class SetLimit(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         identity_client = sdk_utils.ensure_service_version(
             self.app.client_manager.sdk_connection.identity, '3'
         )
@@ -263,7 +274,7 @@ class SetLimit(command.ShowOne):
 class DeleteLimit(command.Command):
     _description = _("Delete a limit")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'limit_id',
@@ -276,7 +287,7 @@ class DeleteLimit(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         identity_client = sdk_utils.ensure_service_version(
             self.app.client_manager.sdk_connection.identity, '3'
         )

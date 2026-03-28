@@ -13,7 +13,10 @@
 
 """Registered limits action implementations."""
 
+import argparse
+from collections.abc import Iterable, Sequence
 import logging
+from typing import Any
 
 from openstack import utils as sdk_utils
 from osc_lib import exceptions
@@ -26,7 +29,9 @@ from openstackclient.identity import common as common_utils
 LOG = logging.getLogger(__name__)
 
 
-def _format_registered_limit(registered_limit):
+def _format_registered_limit(
+    registered_limit: Any,
+) -> tuple[tuple[str, ...], Any]:
     columns = (
         'default_limit',
         'description',
@@ -52,7 +57,7 @@ def _format_registered_limit(registered_limit):
 class CreateRegisteredLimit(command.ShowOne):
     _description = _("Create a registered limit")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             '--description',
@@ -87,7 +92,9 @@ class CreateRegisteredLimit(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         identity_client = sdk_utils.ensure_service_version(
             self.app.client_manager.sdk_connection.identity, '3'
         )
@@ -117,7 +124,7 @@ class CreateRegisteredLimit(command.ShowOne):
 class DeleteRegisteredLimit(command.Command):
     _description = _("Delete a registered limit")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'registered_limits',
@@ -130,7 +137,7 @@ class DeleteRegisteredLimit(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         identity_client = sdk_utils.ensure_service_version(
             self.app.client_manager.sdk_connection.identity, '3'
         )
@@ -165,7 +172,7 @@ class DeleteRegisteredLimit(command.Command):
 class ListRegisteredLimit(command.Lister):
     _description = _("List registered limits")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             '--service',
@@ -187,7 +194,9 @@ class ListRegisteredLimit(command.Lister):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
         identity_client = sdk_utils.ensure_service_version(
             self.app.client_manager.sdk_connection.identity, '3'
         )
@@ -224,7 +233,7 @@ class ListRegisteredLimit(command.Lister):
 class SetRegisteredLimit(command.ShowOne):
     _description = _("Update information about a registered limit")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'registered_limit_id',
@@ -274,7 +283,9 @@ class SetRegisteredLimit(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         identity_client = sdk_utils.ensure_service_version(
             self.app.client_manager.sdk_connection.identity, '3'
         )
@@ -309,7 +320,7 @@ class SetRegisteredLimit(command.ShowOne):
 class ShowRegisteredLimit(command.ShowOne):
     _description = _("Display registered limit details")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'registered_limit_id',
@@ -318,7 +329,9 @@ class ShowRegisteredLimit(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         identity_client = sdk_utils.ensure_service_version(
             self.app.client_manager.sdk_connection.identity, '3'
         )

@@ -12,7 +12,9 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 
+import argparse
 import logging
+from typing import Any
 
 from keystoneclient.v2_0 import client as identity_client_v2
 from osc_lib import utils
@@ -39,7 +41,7 @@ AUTH_VERSIONS = {
 }
 
 
-def make_client(instance):
+def make_client(instance: Any) -> Any:
     """Returns an identity service client."""
     identity_client = utils.get_client_class(
         API_NAME, instance._api_version[API_NAME], API_VERSIONS
@@ -56,7 +58,9 @@ def make_client(instance):
     return client
 
 
-def build_option_parser(parser):
+def build_option_parser(
+    parser: argparse.ArgumentParser,
+) -> argparse.ArgumentParser:
     """Hook to add global options"""
     parser.add_argument(
         '--os-identity-api-version',
@@ -70,10 +74,11 @@ def build_option_parser(parser):
     return parser
 
 
+# We're not going to add type hints to this at this point
 class IdentityClientv2(identity_client_v2.Client):
     """Tweak the earlier client class to deal with some changes"""
 
-    def __getattr__(self, name):
+    def __getattr__(self, name: str) -> Any:
         # Map v3 'projects' back to v2 'tenants'
         if name == "projects":
             return self.tenants

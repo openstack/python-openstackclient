@@ -15,7 +15,10 @@
 
 """Project action implementations"""
 
+import argparse
+from collections.abc import Iterable, Sequence
 import logging
+from typing import Any
 
 from openstack import exceptions as sdk_exc
 from openstack import utils as sdk_utils
@@ -31,7 +34,7 @@ from openstackclient.identity.v3 import tag
 LOG = logging.getLogger(__name__)
 
 
-def _format_project(project):
+def _format_project(project: Any) -> tuple[tuple[str, ...], Any]:
     # NOTE(0weng): Projects allow unknown attributes in the body, so extract
     # the column names separately.
     (column_headers, columns) = utils.get_osc_show_columns_for_sdk_resource(
@@ -49,7 +52,7 @@ def _format_project(project):
 class CreateProject(command.ShowOne):
     _description = _("Create new project")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'name',
@@ -105,7 +108,9 @@ class CreateProject(command.ShowOne):
         tag.add_tag_option_to_parser_for_create(parser, _('project'))
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         identity_client = sdk_utils.ensure_service_version(
             self.app.client_manager.sdk_connection.identity, '3'
         )
@@ -184,7 +189,7 @@ class DeleteProject(command.Command):
         "regardless."
     )
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'projects',
@@ -199,7 +204,7 @@ class DeleteProject(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         identity_client = sdk_utils.ensure_service_version(
             self.app.client_manager.sdk_connection.identity, '3'
         )
@@ -237,7 +242,7 @@ class DeleteProject(command.Command):
 class ListProject(command.Lister):
     _description = _("List projects")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             '--domain',
@@ -294,7 +299,9 @@ class ListProject(command.Lister):
         tag.add_tag_filtering_option_to_parser(parser, _('projects'))
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
         identity_client = sdk_utils.ensure_service_version(
             self.app.client_manager.sdk_connection.identity, '3'
         )
@@ -374,7 +381,7 @@ class ListProject(command.Lister):
 class SetProject(command.Command):
     _description = _("Set project properties")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'project',
@@ -425,7 +432,7 @@ class SetProject(command.Command):
         tag.add_tag_option_to_parser_for_set(parser, _('project'))
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         identity_client = sdk_utils.ensure_service_version(
             self.app.client_manager.sdk_connection.identity, '3'
         )
@@ -490,7 +497,7 @@ class SetProject(command.Command):
 class ShowProject(command.ShowOne):
     _description = _("Display project details")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'project',
@@ -516,12 +523,14 @@ class ShowProject(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         identity_client = sdk_utils.ensure_service_version(
             self.app.client_manager.sdk_connection.identity, '3'
         )
 
-        kwargs = {}
+        kwargs: dict[str, Any] = {}
 
         domain = None
         if parsed_args.domain:

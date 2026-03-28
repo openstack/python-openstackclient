@@ -15,6 +15,10 @@
 
 """Identity v2 Token action implementations"""
 
+import argparse
+from collections.abc import Iterable, Sequence
+from typing import Any
+
 from osc_lib import exceptions
 
 from openstackclient import command
@@ -27,11 +31,13 @@ class IssueToken(command.ShowOne):
     # scoped token is optional
     required_scope = False
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         auth_ref = self.app.client_manager.auth_ref
         if not auth_ref:
             raise exceptions.AuthorizationFailure(
@@ -49,13 +55,14 @@ class IssueToken(command.ShowOne):
             data['project_id'] = auth_ref.project_id
         if auth_ref.user_id:
             data['user_id'] = auth_ref.user_id
-        return zip(*sorted(data.items()))
+        col_headers, col_data = zip(*sorted(data.items()))
+        return col_headers, col_data
 
 
 class RevokeToken(command.Command):
     _description = _("Revoke existing token")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'token',
@@ -64,7 +71,7 @@ class RevokeToken(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         identity_client = self.app.client_manager.identity
 
         identity_client.tokens.delete(parsed_args.token)

@@ -15,6 +15,10 @@
 
 """Identity v3 Token action implementations"""
 
+import argparse
+from collections.abc import Iterable, Sequence
+from typing import Any
+
 from osc_lib import exceptions
 from osc_lib import utils
 
@@ -26,7 +30,7 @@ from openstackclient.identity import common
 class AuthorizeRequestToken(command.ShowOne):
     _description = _("Authorize a request token")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             '--request-key',
@@ -48,7 +52,9 @@ class AuthorizeRequestToken(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         identity_client = self.app.client_manager.identity
 
         # NOTE(stevemar): We want a list of role ids
@@ -64,13 +70,14 @@ class AuthorizeRequestToken(command.ShowOne):
             parsed_args.request_key, roles
         )
 
-        return zip(*sorted(verifier_pin._info.items()))
+        col_headers, col_data = zip(*sorted(verifier_pin._info.items()))
+        return col_headers, col_data
 
 
 class CreateAccessToken(command.ShowOne):
     _description = _("Create an access token")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             '--consumer-key',
@@ -104,7 +111,9 @@ class CreateAccessToken(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         token_client = self.app.client_manager.identity.oauth1.access_tokens
         access_token = token_client.create(
             parsed_args.consumer_key,
@@ -113,13 +122,14 @@ class CreateAccessToken(command.ShowOne):
             parsed_args.request_secret,
             parsed_args.verifier,
         )
-        return zip(*sorted(access_token._info.items()))
+        col_headers, col_data = zip(*sorted(access_token._info.items()))
+        return col_headers, col_data
 
 
 class CreateRequestToken(command.ShowOne):
     _description = _("Create a request token")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             '--consumer-key',
@@ -148,7 +158,9 @@ class CreateRequestToken(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         identity_client = self.app.client_manager.identity
 
         if parsed_args.domain:
@@ -168,7 +180,8 @@ class CreateRequestToken(command.ShowOne):
         request_token = token_client.create(
             parsed_args.consumer_key, parsed_args.consumer_secret, project.id
         )
-        return zip(*sorted(request_token._info.items()))
+        col_headers, col_data = zip(*sorted(request_token._info.items()))
+        return col_headers, col_data
 
 
 class IssueToken(command.ShowOne):
@@ -177,11 +190,13 @@ class IssueToken(command.ShowOne):
     # scoped token is optional
     required_scope = False
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         auth_ref = self.app.client_manager.auth_ref
         if not auth_ref:
             raise exceptions.AuthorizationFailure(
@@ -207,13 +222,14 @@ class IssueToken(command.ShowOne):
             # deployment system. When that happens, this will have to relay
             # scope information and IDs like we do for projects and domains.
             data['system'] = 'all'
-        return zip(*sorted(data.items()))
+        col_headers, col_data = zip(*sorted(data.items()))
+        return col_headers, col_data
 
 
 class RevokeToken(command.Command):
     _description = _("Revoke existing token")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'token',
@@ -222,7 +238,7 @@ class RevokeToken(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         identity_client = self.app.client_manager.identity
 
         identity_client.tokens.revoke_token(parsed_args.token)

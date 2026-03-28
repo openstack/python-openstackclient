@@ -15,7 +15,10 @@
 
 """Identity v2 Role action implementations"""
 
+import argparse
+from collections.abc import Iterable, Sequence
 import logging
+from typing import Any
 
 from keystoneauth1 import exceptions as ks_exc
 from osc_lib import exceptions
@@ -31,7 +34,7 @@ LOG = logging.getLogger(__name__)
 class AddRole(command.ShowOne):
     _description = _("Add role to project:user")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'role',
@@ -52,7 +55,9 @@ class AddRole(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         identity_client = self.app.client_manager.identity
         role = utils.find_resource(identity_client.roles, parsed_args.role)
         project = utils.find_resource(
@@ -68,13 +73,14 @@ class AddRole(command.ShowOne):
 
         info = {}
         info.update(role._info)
-        return zip(*sorted(info.items()))
+        col_headers, col_data = zip(*sorted(info.items()))
+        return col_headers, col_data
 
 
 class CreateRole(command.ShowOne):
     _description = _("Create new role")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'role_name',
@@ -88,7 +94,9 @@ class CreateRole(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         identity_client = self.app.client_manager.identity
         try:
             role = identity_client.roles.create(parsed_args.role_name)
@@ -104,13 +112,14 @@ class CreateRole(command.ShowOne):
 
         info = {}
         info.update(role._info)
-        return zip(*sorted(info.items()))
+        col_headers, col_data = zip(*sorted(info.items()))
+        return col_headers, col_data
 
 
 class DeleteRole(command.Command):
     _description = _("Delete role(s)")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'roles',
@@ -120,7 +129,7 @@ class DeleteRole(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         identity_client = self.app.client_manager.identity
 
         errors = 0
@@ -153,7 +162,9 @@ class DeleteRole(command.Command):
 class ListRole(command.Lister):
     _description = _("List roles")
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
         identity_client = self.app.client_manager.identity
 
         columns = ('ID', 'Name')
@@ -175,7 +186,7 @@ class ListRole(command.Lister):
 class RemoveRole(command.Command):
     _description = _("Remove role from project : user")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'role',
@@ -196,7 +207,7 @@ class RemoveRole(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         identity_client = self.app.client_manager.identity
         role = utils.find_resource(identity_client.roles, parsed_args.role)
         project = utils.find_resource(
@@ -210,7 +221,7 @@ class RemoveRole(command.Command):
 class ShowRole(command.ShowOne):
     _description = _("Display role details")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'role',
@@ -219,10 +230,13 @@ class ShowRole(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         identity_client = self.app.client_manager.identity
         role = utils.find_resource(identity_client.roles, parsed_args.role)
 
         info = {}
         info.update(role._info)
-        return zip(*sorted(info.items()))
+        col_headers, col_data = zip(*sorted(info.items()))
+        return col_headers, col_data

@@ -15,7 +15,10 @@
 
 """Service action implementations"""
 
+import argparse
+from collections.abc import Iterable, Sequence
 import logging
+from typing import Any
 
 from osc_lib import exceptions
 from osc_lib import utils
@@ -31,7 +34,7 @@ LOG = logging.getLogger(__name__)
 class CreateService(command.ShowOne):
     _description = _("Create new service")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'type',
@@ -50,7 +53,9 @@ class CreateService(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         identity_client = self.app.client_manager.identity
 
         name = parsed_args.name
@@ -64,13 +69,14 @@ class CreateService(command.ShowOne):
 
         info = {}
         info.update(service._info)
-        return zip(*sorted(info.items()))
+        col_headers, col_data = zip(*sorted(info.items()))
+        return col_headers, col_data
 
 
 class DeleteService(command.Command):
     _description = _("Delete service(s)")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'services',
@@ -80,7 +86,7 @@ class DeleteService(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         identity_client = self.app.client_manager.identity
 
         result = 0
@@ -110,7 +116,7 @@ class DeleteService(command.Command):
 class ListService(command.Lister):
     _description = _("List services")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             '--long',
@@ -120,7 +126,9 @@ class ListService(command.Lister):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
         columns: tuple[str, ...] = ('ID', 'Name', 'Type')
         if parsed_args.long:
             columns += ('Description',)
@@ -134,7 +142,7 @@ class ListService(command.Lister):
 class ShowService(command.ShowOne):
     _description = _("Display service details")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'service',
@@ -149,7 +157,9 @@ class ShowService(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         identity_client = self.app.client_manager.identity
         auth_ref = self.app.client_manager.auth_ref
 
@@ -163,7 +173,8 @@ class ShowService(command.ShowOne):
                     # FIXME(stephenfin): The return type for this in ksa is
                     # wrong
                     info.update(service_endpoints[0])  # type: ignore
-                    return zip(*sorted(info.items()))
+                    col_headers, col_data = zip(*sorted(info.items()))
+                    return col_headers, col_data
 
             msg = _(
                 "No service catalog with a type, name or ID of '%s' exists."
@@ -173,4 +184,5 @@ class ShowService(command.ShowOne):
             service = common.find_service(identity_client, parsed_args.service)
             info = {}
             info.update(service._info)
-            return zip(*sorted(info.items()))
+            col_headers, col_data = zip(*sorted(info.items()))
+            return col_headers, col_data

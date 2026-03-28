@@ -16,7 +16,10 @@
 
 """Identity v2 EC2 Credentials action implementations"""
 
+import argparse
+from collections.abc import Iterable, Sequence
 import logging
+from typing import Any
 
 from osc_lib import exceptions
 from osc_lib import utils
@@ -31,7 +34,7 @@ LOG = logging.getLogger(__name__)
 class CreateEC2Creds(command.ShowOne):
     _description = _("Create EC2 credentials")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             '--project',
@@ -51,7 +54,9 @@ class CreateEC2Creds(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         identity_client = self.app.client_manager.identity
 
         if parsed_args.project:
@@ -79,13 +84,14 @@ class CreateEC2Creds(command.ShowOne):
         if 'tenant_id' in info:
             info.update({'project_id': info.pop('tenant_id')})
 
-        return zip(*sorted(info.items()))
+        col_headers, col_data = zip(*sorted(info.items()))
+        return col_headers, col_data
 
 
 class DeleteEC2Creds(command.Command):
     _description = _("Delete EC2 credentials")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'access_keys',
@@ -100,7 +106,7 @@ class DeleteEC2Creds(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         identity_client = self.app.client_manager.identity
 
         if parsed_args.user:
@@ -138,7 +144,7 @@ class DeleteEC2Creds(command.Command):
 class ListEC2Creds(command.Lister):
     _description = _("List EC2 credentials")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             '--user',
@@ -147,7 +153,9 @@ class ListEC2Creds(command.Lister):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
         identity_client = self.app.client_manager.identity
 
         if parsed_args.user:
@@ -179,7 +187,7 @@ class ListEC2Creds(command.Lister):
 class ShowEC2Creds(command.ShowOne):
     _description = _("Display EC2 credentials details")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'access_key',
@@ -193,7 +201,9 @@ class ShowEC2Creds(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         identity_client = self.app.client_manager.identity
 
         if parsed_args.user:
@@ -213,4 +223,5 @@ class ShowEC2Creds(command.ShowOne):
         if 'tenant_id' in info:
             info.update({'project_id': info.pop('tenant_id')})
 
-        return zip(*sorted(info.items()))
+        col_headers, col_data = zip(*sorted(info.items()))
+        return col_headers, col_data

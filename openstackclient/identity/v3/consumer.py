@@ -15,7 +15,10 @@
 
 """Identity v3 Consumer action implementations"""
 
+import argparse
+from collections.abc import Iterable, Sequence
 import logging
+from typing import Any
 
 from osc_lib import exceptions
 from osc_lib import utils
@@ -30,7 +33,7 @@ LOG = logging.getLogger(__name__)
 class CreateConsumer(command.ShowOne):
     _description = _("Create new consumer")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             '--description',
@@ -39,19 +42,22 @@ class CreateConsumer(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         identity_client = self.app.client_manager.identity
         consumer = identity_client.oauth1.consumers.create(
             parsed_args.description
         )
         consumer._info.pop('links', None)
-        return zip(*sorted(consumer._info.items()))
+        col_headers, col_data = zip(*sorted(consumer._info.items()))
+        return col_headers, col_data
 
 
 class DeleteConsumer(command.Command):
     _description = _("Delete consumer(s)")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'consumer',
@@ -61,7 +67,7 @@ class DeleteConsumer(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         identity_client = self.app.client_manager.identity
         result = 0
         for i in parsed_args.consumer:
@@ -92,7 +98,9 @@ class DeleteConsumer(command.Command):
 class ListConsumer(command.Lister):
     _description = _("List consumers")
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
         columns = ('ID', 'Description')
         data = self.app.client_manager.identity.oauth1.consumers.list()
         return (
@@ -111,7 +119,7 @@ class ListConsumer(command.Lister):
 class SetConsumer(command.Command):
     _description = _("Set consumer properties")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'consumer',
@@ -125,7 +133,7 @@ class SetConsumer(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         identity_client = self.app.client_manager.identity
         consumer = utils.find_resource(
             identity_client.oauth1.consumers, parsed_args.consumer
@@ -142,7 +150,7 @@ class SetConsumer(command.Command):
 class ShowConsumer(command.ShowOne):
     _description = _("Display consumer details")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'consumer',
@@ -151,11 +159,14 @@ class ShowConsumer(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         identity_client = self.app.client_manager.identity
         consumer = utils.find_resource(
             identity_client.oauth1.consumers, parsed_args.consumer
         )
 
         consumer._info.pop('links', None)
-        return zip(*sorted(consumer._info.items()))
+        col_headers, col_data = zip(*sorted(consumer._info.items()))
+        return col_headers, col_data

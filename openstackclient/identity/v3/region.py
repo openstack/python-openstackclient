@@ -13,7 +13,10 @@
 
 """Identity v3 Region action implementations"""
 
+import argparse
+from collections.abc import Iterable, Sequence
 import logging
+from typing import Any
 
 from openstack import utils as sdk_utils
 from osc_lib import exceptions
@@ -26,7 +29,7 @@ from openstackclient.i18n import _
 LOG = logging.getLogger(__name__)
 
 
-def _format_region(region):
+def _format_region(region: Any) -> tuple[tuple[str, ...], Any]:
     columns = ('id', 'description', 'parent_region_id')
     column_headers = ('region', 'description', 'parent_region')
     return (
@@ -38,7 +41,7 @@ def _format_region(region):
 class CreateRegion(command.ShowOne):
     _description = _("Create new region")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         # NOTE(stevemar): The API supports an optional region ID, but that
         # seems like poor UX, we will only support user-defined IDs.
@@ -59,7 +62,9 @@ class CreateRegion(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         identity_client = sdk_utils.ensure_service_version(
             self.app.client_manager.sdk_connection.identity, '3'
         )
@@ -76,7 +81,7 @@ class CreateRegion(command.ShowOne):
 class DeleteRegion(command.Command):
     _description = _("Delete region(s)")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'region',
@@ -86,7 +91,7 @@ class DeleteRegion(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         identity_client = sdk_utils.ensure_service_version(
             self.app.client_manager.sdk_connection.identity, '3'
         )
@@ -113,7 +118,7 @@ class DeleteRegion(command.Command):
 class ListRegion(command.Lister):
     _description = _("List regions")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             '--parent-region',
@@ -122,7 +127,9 @@ class ListRegion(command.Lister):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
         identity_client = sdk_utils.ensure_service_version(
             self.app.client_manager.sdk_connection.identity, '3'
         )
@@ -151,7 +158,7 @@ class ListRegion(command.Lister):
 class SetRegion(command.Command):
     _description = _("Set region properties")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'region',
@@ -170,7 +177,7 @@ class SetRegion(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         identity_client = sdk_utils.ensure_service_version(
             self.app.client_manager.sdk_connection.identity, '3'
         )
@@ -187,7 +194,7 @@ class SetRegion(command.Command):
 class ShowRegion(command.ShowOne):
     _description = _("Display region details")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'region',
@@ -196,7 +203,9 @@ class ShowRegion(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         identity_client = sdk_utils.ensure_service_version(
             self.app.client_manager.sdk_connection.identity, '3'
         )

@@ -15,7 +15,10 @@
 
 """Identity v2 Project action implementations"""
 
+import argparse
+from collections.abc import Iterable, Sequence
 import logging
+from typing import Any
 
 from keystoneauth1 import exceptions as ks_exc
 from osc_lib.cli import format_columns
@@ -33,7 +36,7 @@ LOG = logging.getLogger(__name__)
 class CreateProject(command.ShowOne):
     _description = _("Create new project")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'name',
@@ -73,7 +76,9 @@ class CreateProject(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         identity_client = self.app.client_manager.identity
 
         enabled = True
@@ -102,7 +107,8 @@ class CreateProject(command.ShowOne):
 
         # TODO(stevemar): Remove the line below when we support multitenancy
         project._info.pop('parent_id', None)
-        return zip(*sorted(project._info.items()))
+        col_headers, col_data = zip(*sorted(project._info.items()))
+        return col_headers, col_data
 
 
 class DeleteProject(command.Command):
@@ -115,7 +121,7 @@ class DeleteProject(command.Command):
         "regardless."
     )
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'projects',
@@ -125,7 +131,7 @@ class DeleteProject(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         identity_client = self.app.client_manager.identity
 
         errors = 0
@@ -158,7 +164,7 @@ class DeleteProject(command.Command):
 class ListProject(command.Lister):
     _description = _("List projects")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             '--long',
@@ -177,7 +183,9 @@ class ListProject(command.Lister):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
         columns: tuple[str, ...] = ('ID', 'Name')
         if parsed_args.long:
             columns += ('Description', 'Enabled')
@@ -200,7 +208,7 @@ class ListProject(command.Lister):
 class SetProject(command.Command):
     _description = _("Set project properties")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'project',
@@ -240,7 +248,7 @@ class SetProject(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         identity_client = self.app.client_manager.identity
 
         project = utils.find_resource(
@@ -272,7 +280,7 @@ class SetProject(command.Command):
 class ShowProject(command.ShowOne):
     _description = _("Display project details")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'project',
@@ -281,7 +289,9 @@ class ShowProject(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         identity_client = self.app.client_manager.identity
 
         info = {}
@@ -324,13 +334,14 @@ class ShowProject(command.ShowOne):
                     properties[k] = v
 
         info['properties'] = format_columns.DictColumn(properties)
-        return zip(*sorted(info.items()))
+        col_headers, col_data = zip(*sorted(info.items()))
+        return col_headers, col_data
 
 
 class UnsetProject(command.Command):
     _description = _("Unset project properties")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'project',
@@ -350,7 +361,7 @@ class UnsetProject(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         identity_client = self.app.client_manager.identity
         project = utils.find_resource(
             identity_client.tenants,

@@ -15,7 +15,10 @@
 
 """Group action implementations"""
 
+import argparse
+from collections.abc import Iterable, Sequence
 import logging
+from typing import Any
 
 from openstack import exceptions as sdk_exc
 from openstack import utils as sdk_utils
@@ -30,7 +33,7 @@ from openstackclient.identity import common
 LOG = logging.getLogger(__name__)
 
 
-def _format_group(group):
+def _format_group(group: Any) -> tuple[tuple[str, ...], Any]:
     columns = (
         'description',
         'domain_id',
@@ -52,7 +55,7 @@ def _format_group(group):
 class AddUserToGroup(command.Command):
     _description = _("Add user to group")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'group',
@@ -72,7 +75,7 @@ class AddUserToGroup(command.Command):
         common.add_user_domain_option_to_parser(parser)
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         identity_client = sdk_utils.ensure_service_version(
             self.app.client_manager.sdk_connection.identity, '3'
         )
@@ -114,7 +117,7 @@ class AddUserToGroup(command.Command):
 class CheckUserInGroup(command.Command):
     _description = _("Check user membership in group")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'group',
@@ -130,7 +133,7 @@ class CheckUserInGroup(command.Command):
         common.add_user_domain_option_to_parser(parser)
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         identity_client = sdk_utils.ensure_service_version(
             self.app.client_manager.sdk_connection.identity, '3'
         )
@@ -173,7 +176,7 @@ class CheckUserInGroup(command.Command):
 class CreateGroup(command.ShowOne):
     _description = _("Create new group")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'name',
@@ -197,7 +200,9 @@ class CreateGroup(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         identity_client = sdk_utils.ensure_service_version(
             self.app.client_manager.sdk_connection.identity, '3'
         )
@@ -237,7 +242,7 @@ class CreateGroup(command.ShowOne):
 class DeleteGroup(command.Command):
     _description = _("Delete group(s)")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'groups',
@@ -252,7 +257,7 @@ class DeleteGroup(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         identity_client = sdk_utils.ensure_service_version(
             self.app.client_manager.sdk_connection.identity, '3'
         )
@@ -286,7 +291,7 @@ class DeleteGroup(command.Command):
 class ListGroup(command.Lister):
     _description = _("List groups")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             '--domain',
@@ -307,7 +312,9 @@ class ListGroup(command.Lister):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
         identity_client = sdk_utils.ensure_service_version(
             self.app.client_manager.sdk_connection.identity, '3'
         )
@@ -356,7 +363,7 @@ class ListGroup(command.Lister):
 class RemoveUserFromGroup(command.Command):
     _description = _("Remove user from group")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'group',
@@ -376,7 +383,7 @@ class RemoveUserFromGroup(command.Command):
         common.add_user_domain_option_to_parser(parser)
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         identity_client = sdk_utils.ensure_service_version(
             self.app.client_manager.sdk_connection.identity, '3'
         )
@@ -418,7 +425,7 @@ class RemoveUserFromGroup(command.Command):
 class SetGroup(command.Command):
     _description = _("Set group properties")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'group',
@@ -442,7 +449,7 @@ class SetGroup(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         identity_client = sdk_utils.ensure_service_version(
             self.app.client_manager.sdk_connection.identity, '3'
         )
@@ -461,7 +468,7 @@ class SetGroup(command.Command):
 class ShowGroup(command.ShowOne):
     _description = _("Display group details")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'group',
@@ -475,7 +482,9 @@ class ShowGroup(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         identity_client = sdk_utils.ensure_service_version(
             self.app.client_manager.sdk_connection.identity, '3'
         )

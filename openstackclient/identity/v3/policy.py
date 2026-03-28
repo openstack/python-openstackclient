@@ -15,7 +15,10 @@
 
 """Identity v3 Policy action implementations"""
 
+import argparse
+from collections.abc import Iterable, Sequence
 import logging
+from typing import Any
 
 from osc_lib import exceptions
 from osc_lib import utils
@@ -30,7 +33,7 @@ LOG = logging.getLogger(__name__)
 class CreatePolicy(command.ShowOne):
     _description = _("Create new policy")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             '--type',
@@ -48,7 +51,9 @@ class CreatePolicy(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         blob = utils.read_blob_file_contents(parsed_args.rules)
 
         identity_client = self.app.client_manager.identity
@@ -58,13 +63,14 @@ class CreatePolicy(command.ShowOne):
 
         policy._info.pop('links')
         policy._info.update({'rules': policy._info.pop('blob')})
-        return zip(*sorted(policy._info.items()))
+        col_headers, col_data = zip(*sorted(policy._info.items()))
+        return col_headers, col_data
 
 
 class DeletePolicy(command.Command):
     _description = _("Delete policy(s)")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'policy',
@@ -74,7 +80,7 @@ class DeletePolicy(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         identity_client = self.app.client_manager.identity
         result = 0
         for i in parsed_args.policy:
@@ -102,7 +108,7 @@ class DeletePolicy(command.Command):
 class ListPolicy(command.Lister):
     _description = _("List policies")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             '--long',
@@ -112,7 +118,9 @@ class ListPolicy(command.Lister):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
         columns: tuple[str, ...] = ('ID', 'Type')
         column_headers: tuple[str, ...] = columns
         if parsed_args.long:
@@ -135,7 +143,7 @@ class ListPolicy(command.Lister):
 class SetPolicy(command.Command):
     _description = _("Set policy properties")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'policy',
@@ -154,7 +162,7 @@ class SetPolicy(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         identity_client = self.app.client_manager.identity
         blob = None
 
@@ -173,7 +181,7 @@ class SetPolicy(command.Command):
 class ShowPolicy(command.ShowOne):
     _description = _("Display policy details")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'policy',
@@ -182,7 +190,9 @@ class ShowPolicy(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         identity_client = self.app.client_manager.identity
         policy = utils.find_resource(
             identity_client.policies, parsed_args.policy
@@ -190,4 +200,5 @@ class ShowPolicy(command.ShowOne):
 
         policy._info.pop('links')
         policy._info.update({'rules': policy._info.pop('blob')})
-        return zip(*sorted(policy._info.items()))
+        col_headers, col_data = zip(*sorted(policy._info.items()))
+        return col_headers, col_data

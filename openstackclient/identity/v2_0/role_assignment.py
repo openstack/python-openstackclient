@@ -13,6 +13,10 @@
 
 """Identity v2 Assignment action implementations"""
 
+import argparse
+from collections.abc import Iterable
+from typing import Any
+
 from osc_lib import exceptions
 from osc_lib import utils
 
@@ -23,7 +27,7 @@ from openstackclient.i18n import _
 class ListRoleAssignment(command.Lister):
     _description = _("List role assignments")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             '--user',
@@ -55,7 +59,9 @@ class ListRoleAssignment(command.Lister):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
         identity_client = self.app.client_manager.identity
         auth_ref = self.app.client_manager.auth_ref
 

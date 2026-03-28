@@ -13,6 +13,8 @@
 
 """Identity v2 Service Catalog action implementations"""
 
+import argparse
+from collections.abc import Iterable, Sequence
 import logging
 from typing import Any
 
@@ -28,7 +30,7 @@ LOG = logging.getLogger(__name__)
 
 
 class EndpointsColumn(cliff_columns.FormattableColumn[Any]):
-    def human_readable(self):
+    def human_readable(self) -> str:
         if not self._value:
             return ""
         ret = ''
@@ -47,7 +49,9 @@ class EndpointsColumn(cliff_columns.FormattableColumn[Any]):
 class ListCatalog(command.Lister):
     _description = _("List services in the service catalog")
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
         # Trigger auth if it has not happened yet
         auth_ref = self.app.client_manager.auth_ref
         if not auth_ref:
@@ -75,7 +79,7 @@ class ListCatalog(command.Lister):
 class ShowCatalog(command.ShowOne):
     _description = _("Display service catalog details")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'service',
@@ -84,7 +88,9 @@ class ShowCatalog(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         # Trigger auth if it has not happened yet
         auth_ref = self.app.client_manager.auth_ref
         if not auth_ref:
@@ -108,4 +114,5 @@ class ShowCatalog(command.ShowOne):
             LOG.error(_('service %s not found\n'), parsed_args.service)
             return ((), ())
 
-        return zip(*sorted(data.items()))
+        col_headers, col_data = zip(*sorted(data.items()))
+        return col_headers, col_data

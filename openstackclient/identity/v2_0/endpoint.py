@@ -15,7 +15,10 @@
 
 """Endpoint action implementations"""
 
+import argparse
+from collections.abc import Iterable, Sequence
 import logging
+from typing import Any
 
 from osc_lib import exceptions
 from osc_lib import utils
@@ -31,7 +34,7 @@ LOG = logging.getLogger(__name__)
 class CreateEndpoint(command.ShowOne):
     _description = _("Create new endpoint")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'service',
@@ -61,7 +64,9 @@ class CreateEndpoint(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         identity_client = self.app.client_manager.identity
         service = common.find_service(identity_client, parsed_args.service)
         endpoint = identity_client.endpoints.create(
@@ -76,13 +81,14 @@ class CreateEndpoint(command.ShowOne):
         info.update(endpoint._info)
         info['service_name'] = service.name
         info['service_type'] = service.type
-        return zip(*sorted(info.items()))
+        col_headers, col_data = zip(*sorted(info.items()))
+        return col_headers, col_data
 
 
 class DeleteEndpoint(command.Command):
     _description = _("Delete endpoint(s)")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'endpoints',
@@ -92,7 +98,7 @@ class DeleteEndpoint(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         identity_client = self.app.client_manager.identity
 
         result = 0
@@ -121,7 +127,7 @@ class DeleteEndpoint(command.Command):
 class ListEndpoint(command.Lister):
     _description = _("List endpoints")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             '--long',
@@ -131,7 +137,9 @@ class ListEndpoint(command.Lister):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
         identity_client = self.app.client_manager.identity
 
         columns: tuple[str, ...] = (
@@ -168,7 +176,7 @@ class ListEndpoint(command.Lister):
 class ShowEndpoint(command.ShowOne):
     _description = _("Display endpoint details")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'endpoint_or_service',
@@ -180,7 +188,9 @@ class ShowEndpoint(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         identity_client = self.app.client_manager.identity
         data = identity_client.endpoints.list()
         match = None
@@ -196,9 +206,11 @@ class ShowEndpoint(command.ShowOne):
                 if ep.service_id == service.id:
                     match = ep
         if match is None:
-            return None
+            return ((), ())
+
         info = {}
         info.update(match._info)
         info['service_name'] = service.name
         info['service_type'] = service.type
-        return zip(*sorted(info.items()))
+        col_headers, col_data = zip(*sorted(info.items()))
+        return col_headers, col_data

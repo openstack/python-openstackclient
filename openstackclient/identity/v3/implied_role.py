@@ -15,7 +15,10 @@
 
 """Identity v3 Implied Role action implementations"""
 
+import argparse
+from collections.abc import Iterable, Sequence
 import logging
+from typing import Any
 
 
 from openstackclient import command
@@ -25,7 +28,9 @@ from openstackclient.i18n import _
 LOG = logging.getLogger(__name__)
 
 
-def _get_role_ids(identity_client, parsed_args):
+def _get_role_ids(
+    identity_client: Any, parsed_args: argparse.Namespace
+) -> tuple[Any, Any]:
     """Return prior and implied role id(s)
 
     If prior and implied role id(s) are retrievable from identity
@@ -50,7 +55,7 @@ def _get_role_ids(identity_client, parsed_args):
 class CreateImpliedRole(command.ShowOne):
     _description = _("Creates an association between prior and implied roles")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'role',
@@ -65,7 +70,9 @@ class CreateImpliedRole(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         identity_client = self.app.client_manager.identity
         (prior_role_id, implied_role_id) = _get_role_ids(
             identity_client, parsed_args
@@ -74,13 +81,16 @@ class CreateImpliedRole(command.ShowOne):
             prior_role_id, implied_role_id
         )
         response._info.pop('links', None)
-        return zip(*sorted([(k, v['id']) for k, v in response._info.items()]))
+        col_headers, col_data = zip(
+            *sorted([(k, v['id']) for k, v in response._info.items()])
+        )
+        return col_headers, col_data
 
 
 class DeleteImpliedRole(command.Command):
     _description = _("Deletes an association between prior and implied roles")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'role',
@@ -95,7 +105,7 @@ class DeleteImpliedRole(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         identity_client = self.app.client_manager.identity
         (prior_role_id, implied_role_id) = _get_role_ids(
             identity_client, parsed_args
@@ -112,12 +122,14 @@ class ListImpliedRole(command.Lister):
         'Implied Role Name',
     ]
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         return parser
 
-    def take_action(self, parsed_args):
-        def _list_implied(response):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[tuple[Any, ...]]]:
+        def _list_implied(response: Any) -> Iterable[tuple[Any, ...]]:
             for rule in response:
                 for implies in rule.implies:
                     yield (

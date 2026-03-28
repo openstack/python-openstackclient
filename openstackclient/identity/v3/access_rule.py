@@ -15,7 +15,10 @@
 
 """Identity v3 Access Rule action implementations"""
 
+import argparse
+from collections.abc import Iterable, Sequence
 import logging
+from typing import Any
 
 from openstack import utils as sdk_utils
 from osc_lib import exceptions
@@ -32,7 +35,7 @@ LOG = logging.getLogger(__name__)
 class DeleteAccessRule(command.Command):
     _description = _("Delete access rule(s)")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'access_rule',
@@ -42,7 +45,7 @@ class DeleteAccessRule(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         identity_client = sdk_utils.ensure_service_version(
             self.app.client_manager.sdk_connection.identity, '3'
         )
@@ -76,7 +79,7 @@ class DeleteAccessRule(command.Command):
 class ListAccessRule(command.Lister):
     _description = _("List access rules")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             '--user',
@@ -86,7 +89,9 @@ class ListAccessRule(command.Lister):
         common.add_user_domain_option_to_parser(parser)
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
         identity_client = sdk_utils.ensure_service_version(
             self.app.client_manager.sdk_connection.identity, '3'
         )
@@ -120,7 +125,7 @@ class ListAccessRule(command.Lister):
 class ShowAccessRule(command.ShowOne):
     _description = _("Display access rule details")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'access_rule',
@@ -129,7 +134,9 @@ class ShowAccessRule(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         identity_client = sdk_utils.ensure_service_version(
             self.app.client_manager.sdk_connection.identity, '3'
         )

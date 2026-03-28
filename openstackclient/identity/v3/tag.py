@@ -11,16 +11,27 @@
 #   under the License.
 
 import argparse
+from collections.abc import Sequence
+from typing import Any
 
 from openstackclient.i18n import _
 
 
 class _CommaListAction(argparse.Action):
-    def __call__(self, parser, namespace, values, option_string=None):
-        setattr(namespace, self.dest, values.split(','))
+    def __call__(
+        self,
+        parser: argparse.ArgumentParser,
+        namespace: argparse.Namespace,
+        values: str | Sequence[Any] | None,
+        option_string: str | None = None,
+    ) -> None:
+        values = values.split(',') if isinstance(values, str) else values
+        setattr(namespace, self.dest, values)
 
 
-def add_tag_filtering_option_to_parser(parser, collection_name):
+def add_tag_filtering_option_to_parser(
+    parser: argparse.ArgumentParser, collection_name: str
+) -> None:
     parser.add_argument(
         '--tags',
         metavar='<tag>[,<tag>,...]',
@@ -63,7 +74,9 @@ def add_tag_filtering_option_to_parser(parser, collection_name):
     )
 
 
-def get_tag_filtering_args(parsed_args, args):
+def get_tag_filtering_args(
+    parsed_args: argparse.Namespace, args: dict[str, Any]
+) -> None:
     if parsed_args.tags:
         args['tags'] = ','.join(parsed_args.tags)
     if parsed_args.tags_any:
@@ -74,7 +87,9 @@ def get_tag_filtering_args(parsed_args, args):
         args['not-tags-any'] = ','.join(parsed_args.not_tags_any)
 
 
-def add_tag_option_to_parser_for_create(parser, resource_name):
+def add_tag_option_to_parser_for_create(
+    parser: argparse.ArgumentParser, resource_name: str
+) -> None:
     tag_group = parser.add_mutually_exclusive_group()
     tag_group.add_argument(
         '--tag',
@@ -89,7 +104,9 @@ def add_tag_option_to_parser_for_create(parser, resource_name):
     )
 
 
-def add_tag_option_to_parser_for_set(parser, resource_name):
+def add_tag_option_to_parser_for_set(
+    parser: argparse.ArgumentParser, resource_name: str
+) -> None:
     parser.add_argument(
         '--tag',
         action='append',

@@ -15,6 +15,10 @@
 
 """Common identity code"""
 
+import argparse
+from collections.abc import Callable
+from typing import Any, cast
+
 from keystoneclient import exceptions as identity_exc
 from keystoneclient.v3 import domains
 from keystoneclient.v3 import groups
@@ -27,7 +31,7 @@ from osc_lib import utils
 from openstackclient.i18n import _
 
 
-def find_service_in_list(service_list, service_id):
+def find_service_in_list(service_list: list[Any], service_id: str) -> Any:
     """Find a service by id in service list."""
 
     for service in service_list:
@@ -38,7 +42,7 @@ def find_service_in_list(service_list, service_id):
     )
 
 
-def find_service(identity_client, name_type_or_id):
+def find_service(identity_client: Any, name_type_or_id: str) -> Any:
     """Find a service by id, name or type."""
 
     try:
@@ -74,7 +78,7 @@ def find_service(identity_client, name_type_or_id):
         raise exceptions.CommandError(msg % name_type_or_id)
 
 
-def find_service_sdk(identity_client, name_type_or_id):
+def find_service_sdk(identity_client: Any, name_type_or_id: str) -> Any:
     """Find a service by id, name or type."""
 
     try:
@@ -107,7 +111,7 @@ def find_service_sdk(identity_client, name_type_or_id):
     return service
 
 
-def get_resource(manager, name_type_or_id):
+def get_resource(manager: Any, name_type_or_id: str) -> Any:
     # NOTE (vishakha): Due to bug #1799153 and for any another related case
     # where GET resource API does not support the filter by name,
     # osc_lib.utils.find_resource() method cannot be used because that method
@@ -126,7 +130,7 @@ def get_resource(manager, name_type_or_id):
         raise exceptions.CommandError(msg % name_type_or_id)
 
 
-def get_resource_by_id(manager, resource_id):
+def get_resource_by_id(manager: Any, resource_id: str) -> Any:
     """Get resource by ID
 
     Raises CommandError if the resource is not found
@@ -138,7 +142,12 @@ def get_resource_by_id(manager, resource_id):
         raise exceptions.CommandError(msg.format(resource_id))
 
 
-def _get_token_resource(client, resource, parsed_name, parsed_domain=None):
+def _get_token_resource(
+    client: Any,
+    resource: str,
+    parsed_name: str,
+    parsed_domain: str | None = None,
+) -> str:
     """Peek into the user's auth token to get resource IDs
 
     Look into a user's token to try and find the ID of a domain, project or
@@ -174,7 +183,7 @@ def _get_token_resource(client, resource, parsed_name, parsed_domain=None):
         if isinstance(obj, list):
             for item in obj:
                 if item['name'] == parsed_name:
-                    return item['id']
+                    return cast(str, item['id'])
                 if item['id'] == parsed_name:
                     return parsed_name
             return parsed_name
@@ -184,15 +193,18 @@ def _get_token_resource(client, resource, parsed_name, parsed_domain=None):
         return parsed_name
 
 
-def find_domain(identity_client, name_or_id):
+def find_domain(identity_client: Any, name_or_id: str) -> domains.Domain:
     return _find_identity_resource(
         identity_client.domains, name_or_id, domains.Domain
     )
 
 
 def find_domain_id_sdk(
-    identity_client, name_or_id, *, validate_actor_existence=True
-):
+    identity_client: Any,
+    name_or_id: str,
+    *,
+    validate_actor_existence: bool = True,
+) -> str:
     return _find_sdk_id(
         identity_client.find_domain,
         name_or_id=name_or_id,
@@ -200,7 +212,11 @@ def find_domain_id_sdk(
     )
 
 
-def find_group(identity_client, name_or_id, domain_name_or_id=None):
+def find_group(
+    identity_client: Any,
+    name_or_id: str,
+    domain_name_or_id: str | None = None,
+) -> groups.Group:
     if domain_name_or_id is None:
         return _find_identity_resource(
             identity_client.groups, name_or_id, groups.Group
@@ -216,12 +232,12 @@ def find_group(identity_client, name_or_id, domain_name_or_id=None):
 
 
 def find_group_id_sdk(
-    identity_client,
-    name_or_id,
-    domain_name_or_id=None,
+    identity_client: Any,
+    name_or_id: str,
+    domain_name_or_id: str | None = None,
     *,
-    validate_actor_existence=True,
-):
+    validate_actor_existence: bool = True,
+) -> str:
     if domain_name_or_id is None:
         return _find_sdk_id(
             identity_client.find_group,
@@ -242,7 +258,11 @@ def find_group_id_sdk(
     )
 
 
-def find_project(identity_client, name_or_id, domain_name_or_id=None):
+def find_project(
+    identity_client: Any,
+    name_or_id: str,
+    domain_name_or_id: str | None = None,
+) -> projects.Project:
     if domain_name_or_id is None:
         return _find_identity_resource(
             identity_client.projects, name_or_id, projects.Project
@@ -257,13 +277,13 @@ def find_project(identity_client, name_or_id, domain_name_or_id=None):
 
 
 def find_project_id_sdk(
-    identity_client,
-    name_or_id,
-    domain_name_or_id=None,
+    identity_client: Any,
+    name_or_id: str,
+    domain_name_or_id: str | None = None,
     *,
-    validate_actor_existence=True,
-    validate_domain_actor_existence=None,
-):
+    validate_actor_existence: bool = True,
+    validate_domain_actor_existence: bool | None = None,
+) -> str:
     if domain_name_or_id is None:
         return _find_sdk_id(
             identity_client.find_project,
@@ -287,7 +307,11 @@ def find_project_id_sdk(
     )
 
 
-def find_user(identity_client, name_or_id, domain_name_or_id=None):
+def find_user(
+    identity_client: Any,
+    name_or_id: str,
+    domain_name_or_id: str | None = None,
+) -> users.User:
     if domain_name_or_id is None:
         return _find_identity_resource(
             identity_client.users, name_or_id, users.User
@@ -299,12 +323,12 @@ def find_user(identity_client, name_or_id, domain_name_or_id=None):
 
 
 def find_user_id_sdk(
-    identity_client,
-    name_or_id,
-    domain_name_or_id=None,
+    identity_client: Any,
+    name_or_id: str,
+    domain_name_or_id: str | None = None,
     *,
-    validate_actor_existence=True,
-):
+    validate_actor_existence: bool = True,
+) -> str:
     if domain_name_or_id is None:
         return _find_sdk_id(
             identity_client.find_user,
@@ -325,8 +349,11 @@ def find_user_id_sdk(
 
 
 def _find_identity_resource(
-    identity_client_manager, name_or_id, resource_type, **kwargs
-):
+    identity_client_manager: Any,
+    name_or_id: str,
+    resource_type: Any,
+    **kwargs: Any,
+) -> Any:
     """Find a specific identity resource.
 
     Using keystoneclient's manager, attempt to find a specific resource by its
@@ -365,8 +392,12 @@ def _find_identity_resource(
 
 
 def _find_sdk_id(
-    find_command, name_or_id, *, validate_actor_existence=True, **kwargs
-):
+    find_command: Callable[..., Any],
+    name_or_id: str,
+    *,
+    validate_actor_existence: bool = True,
+    **kwargs: Any,
+) -> str:
     try:
         resource = find_command(
             name_or_id=name_or_id, ignore_missing=False, **kwargs
@@ -377,10 +408,10 @@ def _find_sdk_id(
         if not validate_actor_existence:
             return name_or_id
         raise exceptions.CommandError from exc
-    return resource.id
+    return cast(str, resource.id)
 
 
-def add_user_domain_option_to_parser(parser):
+def add_user_domain_option_to_parser(parser: argparse.ArgumentParser) -> None:
     parser.add_argument(
         '--user-domain',
         metavar='<user-domain>',
@@ -392,7 +423,7 @@ def add_user_domain_option_to_parser(parser):
     )
 
 
-def add_group_domain_option_to_parser(parser):
+def add_group_domain_option_to_parser(parser: argparse.ArgumentParser) -> None:
     parser.add_argument(
         '--group-domain',
         metavar='<group-domain>',
@@ -404,7 +435,10 @@ def add_group_domain_option_to_parser(parser):
     )
 
 
-def add_project_domain_option_to_parser(parser, enhance_help=lambda _h: _h):
+def add_project_domain_option_to_parser(
+    parser: argparse.ArgumentParser,
+    enhance_help: Callable[[str], str] = lambda _h: _h,
+) -> None:
     parser.add_argument(
         '--project-domain',
         metavar='<project-domain>',
@@ -418,7 +452,7 @@ def add_project_domain_option_to_parser(parser, enhance_help=lambda _h: _h):
     )
 
 
-def add_role_domain_option_to_parser(parser):
+def add_role_domain_option_to_parser(parser: argparse.ArgumentParser) -> None:
     parser.add_argument(
         '--role-domain',
         metavar='<role-domain>',
@@ -430,7 +464,7 @@ def add_role_domain_option_to_parser(parser):
     )
 
 
-def add_inherited_option_to_parser(parser):
+def add_inherited_option_to_parser(parser: argparse.ArgumentParser) -> None:
     parser.add_argument(
         '--inherited',
         action='store_true',
@@ -441,7 +475,7 @@ def add_inherited_option_to_parser(parser):
     )
 
 
-def add_resource_option_to_parser(parser):
+def add_resource_option_to_parser(parser: argparse.ArgumentParser) -> None:
     immutable_group = parser.add_mutually_exclusive_group()
     immutable_group.add_argument(
         '--immutable',

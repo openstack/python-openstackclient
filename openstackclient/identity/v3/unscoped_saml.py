@@ -17,6 +17,10 @@ The first step of federated auth is to fetch an unscoped token. From there,
 the user can list domains and projects they are allowed to access, and request
 a scoped token."""
 
+import argparse
+from collections.abc import Iterable
+from typing import Any
+
 from osc_lib import utils
 
 from openstackclient import command
@@ -26,7 +30,9 @@ from openstackclient.i18n import _
 class ListAccessibleDomains(command.Lister):
     _description = _("List accessible domains")
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
         columns = ('ID', 'Enabled', 'Name', 'Description')
         identity_client = self.app.client_manager.identity
         data = identity_client.federation.domains.list()
@@ -46,7 +52,9 @@ class ListAccessibleDomains(command.Lister):
 class ListAccessibleProjects(command.Lister):
     _description = _("List accessible projects")
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
         columns = ('ID', 'Domain ID', 'Enabled', 'Name')
         identity_client = self.app.client_manager.identity
         data = identity_client.federation.projects.list()
