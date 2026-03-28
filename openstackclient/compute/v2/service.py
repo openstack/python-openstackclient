@@ -20,6 +20,7 @@ from collections.abc import Iterable
 import logging
 from typing import Any
 
+from openstack.compute import v2 as compute_v2
 from openstack.compute.v2 import service as _service
 from openstack import utils as sdk_utils
 from osc_lib import exceptions
@@ -199,7 +200,7 @@ class SetService(command.Command):
 
     @staticmethod
     def _find_service_by_host_and_binary(
-        compute_client: Any, host: str, binary: str
+        compute_client: compute_v2.Proxy, host: str, binary: str
     ) -> _service.Service:
         """Utility method to find a compute service by host and binary
 

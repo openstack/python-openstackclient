@@ -89,9 +89,9 @@ class AddressesColumn(cliff_columns.FormattableColumn[Any]):
             for k, v in (self._value.items() if self._value else [])
         }
 
-    def __lt__(self, other: Any) -> bool:
-        # cliff only ever compares two values from the same column,
-        # so `other` is expected to also be an AddressesColumn
+    def __lt__(self, other: object) -> bool:
+        if not isinstance(other, AddressesColumn):
+            return NotImplemented
         return self.human_readable() < other.human_readable()
 
     def __eq__(self, other: object) -> bool:

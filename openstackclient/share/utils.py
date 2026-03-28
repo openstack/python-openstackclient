@@ -120,7 +120,7 @@ def format_column_headers(columns: list[str]) -> list[str]:
 def format_share_group_type(
     share_group_type: Any, formatter: str = 'table'
 ) -> dict[str, Any]:
-    printable_share_group_type = share_group_type._info
+    printable_share_group_type: dict[str, Any] = share_group_type._info
 
     is_public = printable_share_group_type.pop('is_public')
 

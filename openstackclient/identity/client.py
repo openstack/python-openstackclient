@@ -75,7 +75,7 @@ def build_option_parser(
 
 
 # We're not going to add type hints to this at this point
-class IdentityClientv2(identity_client_v2.Client):
+class IdentityClientv2(identity_client_v2.Client):  # type: ignore[misc]
     """Tweak the earlier client class to deal with some changes"""
 
     def __getattr__(self, name: str) -> Any:
