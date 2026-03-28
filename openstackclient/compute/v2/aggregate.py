@@ -17,7 +17,7 @@
 """Compute v2 Aggregate action implementations"""
 
 import logging
-import typing as ty
+from typing import Any
 
 from cliff import columns
 from openstack import utils as sdk_utils
@@ -33,7 +33,7 @@ from openstackclient.i18n import _
 LOG = logging.getLogger(__name__)
 
 
-_aggregate_formatters: dict[str, type[columns.FormattableColumn[ty.Any]]] = {
+_aggregate_formatters: dict[str, type[columns.FormattableColumn[Any]]] = {
     'Hosts': format_columns.ListColumn,
     'Metadata': format_columns.DictColumn,
     'hosts': format_columns.ListColumn,
@@ -323,7 +323,7 @@ class SetAggregate(command.Command):
         if kwargs:
             compute_client.update_aggregate(aggregate.id, **kwargs)
 
-        properties: dict[str, ty.Any] = {}
+        properties: dict[str, Any] = {}
         if parsed_args.no_property:
             # NOTE(RuiChen): "availability_zone" can not be unset from
             # properties. It is already excluded from show and create output.

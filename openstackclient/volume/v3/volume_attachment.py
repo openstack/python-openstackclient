@@ -11,7 +11,7 @@
 # under the License.
 
 import logging
-import typing as ty
+from typing import Any
 
 from openstack import utils as sdk_utils
 from osc_lib.cli import format_columns
@@ -57,7 +57,7 @@ def _format_attachment(attachment):
     # VolumeAttachmentManager.create returns a dict while everything else
     # returns a VolumeAttachment object
     if isinstance(attachment, dict):
-        data: tuple[ty.Any, ...] = ()
+        data: tuple[Any, ...] = ()
         for column in columns:
             if column == 'connection_info':
                 data += (format_columns.DictColumn(attachment[column]),)

@@ -19,7 +19,7 @@ import argparse
 import logging
 import os
 import sys
-import typing as ty
+from typing import Any
 
 from cliff import columns as cliff_columns
 from osc_lib.api import utils as api_utils
@@ -840,9 +840,7 @@ class ShowImage(command.ShowOne):
             parsed_args.image, ignore_missing=False
         )
 
-        formatters: dict[
-            str, type[cliff_columns.FormattableColumn[ty.Any]]
-        ] = {
+        formatters: dict[str, type[cliff_columns.FormattableColumn[Any]]] = {
             'properties': format_columns.DictColumn,
         }
         if parsed_args.human_readable:

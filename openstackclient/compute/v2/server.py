@@ -21,7 +21,7 @@ import getpass
 import json
 import logging
 import os
-import typing as ty
+from typing import Any
 
 from cliff import columns as cliff_columns
 import iso8601
@@ -66,7 +66,7 @@ class PowerStateColumn(cliff_columns.FormattableColumn[int]):
             return 'N/A'
 
 
-class AddressesColumn(cliff_columns.FormattableColumn[ty.Any]):
+class AddressesColumn(cliff_columns.FormattableColumn[Any]):
     """Generate a formatted string of a server's addresses."""
 
     def human_readable(self):

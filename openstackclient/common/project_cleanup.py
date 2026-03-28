@@ -17,7 +17,7 @@ import getpass
 import logging
 import os
 import queue
-import typing as ty
+from typing import Any
 
 from cliff.formatters import table
 from openstack import utils as sdk_utils
@@ -107,7 +107,7 @@ class ProjectCleanup(command.Command):
             connection = connection.connect_as_project(project)
 
         if connection:
-            status_queue: queue.Queue[ty.Any] = queue.Queue()
+            status_queue: queue.Queue[Any] = queue.Queue()
             parsed_args.max_width = int(
                 os.environ.get('CLIFF_MAX_TERM_WIDTH', 0)
             )

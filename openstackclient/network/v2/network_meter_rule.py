@@ -14,7 +14,7 @@
 """Meter Rule Implementations"""
 
 import logging
-import typing as ty
+from typing import Any
 
 from osc_lib import exceptions
 from osc_lib import utils
@@ -35,7 +35,7 @@ def _get_columns(item):
 
 
 def _get_attrs(client_manager, parsed_args):
-    attrs: dict[str, ty.Any] = {}
+    attrs: dict[str, Any] = {}
 
     if parsed_args.exclude:
         attrs['excluded'] = True

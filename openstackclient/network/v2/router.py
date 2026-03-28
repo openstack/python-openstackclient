@@ -18,7 +18,7 @@ import collections
 import copy
 import json
 import logging
-import typing as ty
+from typing import Any
 
 from cliff import columns as cliff_columns
 from osc_lib.cli import format_columns
@@ -40,7 +40,7 @@ class AdminStateColumn(cliff_columns.FormattableColumn[bool]):
         return 'UP' if self._value else 'DOWN'
 
 
-class RouterInfoColumn(cliff_columns.FormattableColumn[ty.Any]):
+class RouterInfoColumn(cliff_columns.FormattableColumn[Any]):
     def human_readable(self):
         try:
             return json.dumps(self._value)
@@ -48,7 +48,7 @@ class RouterInfoColumn(cliff_columns.FormattableColumn[ty.Any]):
             return ''
 
 
-class RoutesColumn(cliff_columns.FormattableColumn[ty.Any]):
+class RoutesColumn(cliff_columns.FormattableColumn[Any]):
     def human_readable(self):
         # Map the route keys to match --route option.
         for route in self._value or []:
@@ -110,7 +110,7 @@ def _passed_multiple_gateways(extension_supported, external_gateways):
 
 
 def _get_external_gateway_attrs(client_manager, parsed_args):
-    attrs: dict[str, ty.Any] = {}
+    attrs: dict[str, Any] = {}
 
     if parsed_args.external_gateways:
         external_gateways: collections.defaultdict[str, list[dict]] = (

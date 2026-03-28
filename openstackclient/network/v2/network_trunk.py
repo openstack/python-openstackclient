@@ -17,7 +17,7 @@
 """Network trunk and subports action implementations"""
 
 import logging
-import typing as ty
+from typing import Any
 
 from cliff import columns as cliff_columns
 from osc_lib.cli import format_columns
@@ -365,7 +365,7 @@ def _get_columns(item):
 
 
 def _get_attrs_for_trunk(network_client, identity_client, parsed_args):
-    attrs: dict[str, ty.Any] = {}
+    attrs: dict[str, Any] = {}
     if parsed_args.name is not None:
         attrs['name'] = str(parsed_args.name)
     if parsed_args.description is not None:

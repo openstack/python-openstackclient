@@ -21,7 +21,7 @@ import copy
 import logging
 import os
 import sys
-import typing as ty
+from typing import Any
 import urllib.parse
 
 from openstack import exceptions as sdk_exceptions
@@ -446,7 +446,7 @@ class CreateImage(command.ShowOne):
 
         # Build an attribute dict from the parsed args, only include
         # attributes that were actually set on the command line
-        kwargs: dict[str, ty.Any] = {'allow_duplicates': True}
+        kwargs: dict[str, Any] = {'allow_duplicates': True}
         copy_attrs = (
             'name',
             'id',
@@ -629,7 +629,7 @@ class CreateImage(command.ShowOne):
         source_volume = volume_client.find_volume(
             parsed_args.volume, ignore_missing=False
         )
-        kwargs: dict[str, ty.Any] = {
+        kwargs: dict[str, Any] = {
             'visibility': None,
             'protected': None,
         }
@@ -1503,7 +1503,7 @@ class UnsetImage(command.Command):
                     )
                     tagret += 1
 
-        kwargs: dict[str, ty.Any] = {}
+        kwargs: dict[str, Any] = {}
         if parsed_args.properties:
             for k in parsed_args.properties:
                 if k in image:
@@ -1621,7 +1621,7 @@ class StageImage(command.Command):
         else:
             fp = get_data_from_stdin()
 
-        kwargs: dict[str, ty.Any] = {}
+        kwargs: dict[str, Any] = {}
 
         if parsed_args.progress and parsed_args.filename:
             # NOTE(stephenfin): we only show a progress bar if the user

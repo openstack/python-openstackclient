@@ -18,7 +18,7 @@
 from collections.abc import Collection
 import datetime
 import functools
-import typing as ty
+from typing import Any
 
 from cliff import columns as cliff_columns
 from osc_lib import utils
@@ -55,7 +55,7 @@ class ProjectColumn(cliff_columns.FormattableColumn[str]):
         return project
 
 
-class CountColumn(cliff_columns.FormattableColumn[Collection[ty.Any]]):
+class CountColumn(cliff_columns.FormattableColumn[Collection[Any]]):
     def human_readable(self):
         return len(self._value) if self._value is not None else None
 

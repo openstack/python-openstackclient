@@ -16,7 +16,7 @@
 
 import functools
 import logging
-import typing as ty
+from typing import Any
 
 from cliff import columns as cliff_columns
 from osc_lib.cli import format_columns
@@ -32,7 +32,7 @@ from openstackclient.identity import common as identity_common
 LOG = logging.getLogger(__name__)
 
 
-class EncryptionInfoColumn(cliff_columns.FormattableColumn[ty.Any]):
+class EncryptionInfoColumn(cliff_columns.FormattableColumn[Any]):
     """Formattable column for encryption info column.
 
     Unlike the parent FormattableColumn class, the initializer of the
