@@ -438,7 +438,7 @@ class DeleteNetwork(common.NetworkAndComputeDelete):
 
     # Used by base class to find resources in parsed_args.
     resource = 'network'
-    r = None
+    r: str
 
     def update_parser_common(self, parser):
         parser.add_argument(

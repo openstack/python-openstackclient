@@ -13,6 +13,8 @@
 
 """Base API Library"""
 
+from typing import Any
+
 from keystoneauth1 import exceptions as ks_exceptions
 from keystoneauth1 import session as ks_session
 from osc_lib import exceptions
@@ -30,7 +32,9 @@ class KeystoneSession:
 
     """
 
-    def __init__(self, session=None, endpoint=None, **kwargs):
+    def __init__(
+        self, session: Any = None, endpoint: str | None = None, **kwargs: Any
+    ) -> None:
         """Base object that contains some common API objects and methods
 
         :param Session session:
@@ -46,7 +50,9 @@ class KeystoneSession:
         self.session = session
         self.endpoint = endpoint
 
-    def _request(self, method, url, session=None, **kwargs):
+    def _request(
+        self, method: str, url: str, session: Any = None, **kwargs: Any
+    ) -> Any:
         """Perform call into session
 
         All API calls are funneled through this method to provide a common
@@ -82,8 +88,12 @@ class BaseAPI(KeystoneSession):
     """Base API"""
 
     def __init__(
-        self, session=None, service_type=None, endpoint=None, **kwargs
-    ):
+        self,
+        session: Any = None,
+        service_type: str | None = None,
+        endpoint: str | None = None,
+        **kwargs: Any,
+    ) -> None:
         """Base object that contains some common API objects and methods
 
         :param Session session:
@@ -101,7 +111,13 @@ class BaseAPI(KeystoneSession):
 
     # The basic action methods all take a Session and return dict/lists
 
-    def create(self, url, session=None, method=None, **params):
+    def create(
+        self,
+        url: str,
+        session: Any = None,
+        method: str | None = None,
+        **params: Any,
+    ) -> Any:
         """Create a new resource
 
         :param string url:
@@ -121,7 +137,7 @@ class BaseAPI(KeystoneSession):
         except requests.JSONDecodeError:
             return ret
 
-    def delete(self, url, session=None, **params):
+    def delete(self, url: str, session: Any = None, **params: Any) -> Any:
         """Delete a resource
 
         :param string url:
@@ -132,7 +148,14 @@ class BaseAPI(KeystoneSession):
 
         return self._request('DELETE', url, **params)
 
-    def list(self, path, session=None, body=None, detailed=False, **params):
+    def list(
+        self,
+        path: str,
+        session: Any = None,
+        body: Any = None,
+        detailed: bool = False,
+        **params: Any,
+    ) -> Any:
         """Return a list of resources
 
         GET ${ENDPOINT}/${PATH}?${PARAMS}
@@ -177,11 +200,11 @@ class BaseAPI(KeystoneSession):
 
     def find_attr(
         self,
-        path,
-        value=None,
-        attr=None,
-        resource=None,
-    ):
+        path: str,
+        value: str | None = None,
+        attr: str | None = None,
+        resource: str | None = None,
+    ) -> Any:
         """Find a resource via attribute or ID
 
         Most APIs return a list wrapped by a dict with the resource
@@ -211,7 +234,7 @@ class BaseAPI(KeystoneSession):
         if resource is None:
             resource = path
 
-        def getlist(kw):
+        def getlist(kw: dict[str, Any]) -> Any:
             """Do list call, unwrap resource dict if present"""
             ret = self.list(path, **kw)
             if isinstance(ret, dict) and resource in ret:
@@ -219,7 +242,7 @@ class BaseAPI(KeystoneSession):
             return ret
 
         # Search by attribute
-        kwargs = {attr: value}
+        kwargs: dict[str, Any] = {attr: value}
         data = getlist(kwargs)
         if isinstance(data, dict):
             return data
@@ -241,7 +264,7 @@ class BaseAPI(KeystoneSession):
             msg % {'resource': resource, 'attr': attr, 'value': value}
         )
 
-    def find_bulk(self, path, **kwargs):
+    def find_bulk(self, path: str, **kwargs: Any) -> Any:
         """Bulk load and filter locally
 
         :param string path:
@@ -267,7 +290,7 @@ class BaseAPI(KeystoneSession):
 
         return ret
 
-    def find_one(self, path, **kwargs):
+    def find_one(self, path: str, **kwargs: Any) -> Any:
         """Find a resource by name or ID
 
         :param string path:
@@ -286,12 +309,7 @@ class BaseAPI(KeystoneSession):
             raise RuntimeError(msg)
         return bulk_list[0]
 
-    def find(
-        self,
-        path,
-        value=None,
-        attr=None,
-    ):
+    def find(self, path: str, value: str, attr: str) -> Any:
         """Find a single resource by name or ID
 
         :param string path:

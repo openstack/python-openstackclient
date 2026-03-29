@@ -17,6 +17,7 @@ intentionally supported by SDK.
 """
 
 import http
+from typing import Any
 
 from openstack import exceptions as sdk_exceptions
 from osc_lib import exceptions
@@ -25,7 +26,7 @@ from osc_lib import exceptions
 # consistency groups
 
 
-def find_consistency_group(compute_client, name_or_id):
+def find_consistency_group(compute_client: Any, name_or_id: str) -> Any:
     """Find the consistency group for a given name or ID
 
     https://docs.openstack.org/api-ref/block-storage/v3/#show-a-consistency-group-s-details

@@ -16,7 +16,8 @@
 import logging
 import os
 import sys
-import urllib
+from typing import Any
+import urllib.parse
 
 from osc_lib import utils
 
@@ -31,12 +32,15 @@ PUBLIC_CONTAINER_ACLS = [GLOBAL_READ_ACL, LIST_CONTENTS_ACL]
 class APIv1(api.BaseAPI):
     """Object Store v1 API"""
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
 
     def container_create(
-        self, container=None, public=False, storage_policy=None
-    ):
+        self,
+        container: str,
+        public: bool = False,
+        storage_policy: str | None = None,
+    ) -> dict[str, Any | None]:
         """Create a container
 
         :param string container:
@@ -58,7 +62,9 @@ class APIv1(api.BaseAPI):
             headers['x-storage-policy'] = storage_policy
 
         response = self.create(
-            urllib.parse.quote(container), method='PUT', headers=headers
+            urllib.parse.quote(container),
+            method='PUT',
+            headers=headers,
         )
 
         data = {
@@ -69,10 +75,7 @@ class APIv1(api.BaseAPI):
 
         return data
 
-    def container_delete(
-        self,
-        container=None,
-    ):
+    def container_delete(self, container: str) -> None:
         """Delete a container
 
         :param string container:
@@ -84,13 +87,13 @@ class APIv1(api.BaseAPI):
 
     def container_list(
         self,
-        full_listing=False,
-        limit=None,
-        marker=None,
-        end_marker=None,
-        prefix=None,
-        **params,
-    ):
+        full_listing: bool = False,
+        limit: int | None = None,
+        marker: str | None = None,
+        end_marker: str | None = None,
+        prefix: str | None = None,
+        **params: Any,
+    ) -> Any:
         """Get containers in an account
 
         :param boolean full_listing:
@@ -142,10 +145,7 @@ class APIv1(api.BaseAPI):
 
         return self.list('', **params)
 
-    def container_save(
-        self,
-        container=None,
-    ):
+    def container_save(self, container: str) -> None:
         """Save all the content from a container
 
         :param string container:
@@ -158,9 +158,9 @@ class APIv1(api.BaseAPI):
 
     def container_set(
         self,
-        container,
-        properties,
-    ):
+        container: str,
+        properties: dict[str, str],
+    ) -> None:
         """Set container properties
 
         :param string container:
@@ -173,10 +173,7 @@ class APIv1(api.BaseAPI):
         if headers:
             self.create(urllib.parse.quote(container), headers=headers)
 
-    def container_show(
-        self,
-        container=None,
-    ):
+    def container_show(self, container: str) -> dict[str, Any]:
         """Get container details
 
         :param string container:
@@ -213,9 +210,9 @@ class APIv1(api.BaseAPI):
 
     def container_unset(
         self,
-        container,
-        properties,
-    ):
+        container: str,
+        properties: dict[str, str],
+    ) -> None:
         """Unset container properties
 
         :param string container:
@@ -231,11 +228,8 @@ class APIv1(api.BaseAPI):
             self.create(urllib.parse.quote(container), headers=headers)
 
     def object_create(
-        self,
-        container=None,
-        object=None,
-        name=None,
-    ):
+        self, container: str, object: str, name: str | None = None
+    ) -> dict[str, Any]:
         """Create an object inside a container
 
         :param string container:
@@ -254,33 +248,25 @@ class APIv1(api.BaseAPI):
 
         # For uploading a file, if name is provided then set it as the
         # object's name in the container.
-        object_name_str = name if name else object
+        name = name if name else object
 
-        full_url = (
-            f"{urllib.parse.quote(container)}/"
-            f"{urllib.parse.quote(object_name_str)}"
-        )
         with open(object, 'rb') as f:
             response = self.create(
-                full_url,
+                f"{urllib.parse.quote(container)}/{urllib.parse.quote(name)}",
                 method='PUT',
                 data=f,
             )
         data = {
             'account': self._find_account_id(),
             'container': container,
-            'object': object_name_str,
+            'object': name,
             'x-trans-id': response.headers.get('X-Trans-Id'),
             'etag': response.headers.get('Etag'),
         }
 
         return data
 
-    def object_delete(
-        self,
-        container=None,
-        object=None,
-    ):
+    def object_delete(self, container: str, object: str) -> None:
         """Delete an object from a container
 
         :param string container:
@@ -298,15 +284,15 @@ class APIv1(api.BaseAPI):
 
     def object_list(
         self,
-        container=None,
-        full_listing=False,
-        limit=None,
-        marker=None,
-        end_marker=None,
-        delimiter=None,
-        prefix=None,
-        **params,
-    ):
+        container: str,
+        full_listing: bool = False,
+        limit: int | None = None,
+        marker: str | None = None,
+        end_marker: str | None = None,
+        delimiter: str | None = None,
+        prefix: str | None = None,
+        **params: Any,
+    ) -> Any:
         """List objects in a container
 
         :param string container:
@@ -374,11 +360,8 @@ class APIv1(api.BaseAPI):
         return self.list(urllib.parse.quote(container), **params)
 
     def object_save(
-        self,
-        container=None,
-        object=None,
-        file=None,
-    ):
+        self, container: str, object: str, file: str | None = None
+    ) -> None:
         """Save an object stored in a container
 
         :param string container:
@@ -394,7 +377,7 @@ class APIv1(api.BaseAPI):
 
         response = self._request(
             'GET',
-            f"{urllib.parse.quote(container)}/{urllib.parse.quote(object)}",
+            f'{urllib.parse.quote(container)}/{urllib.parse.quote(object)}',
             stream=True,
         )
         if response.status_code == 200:
@@ -403,19 +386,20 @@ class APIv1(api.BaseAPI):
                     for chunk in response.iter_content(64 * 1024):
                         f.write(chunk)
             else:
-                if not os.path.exists(os.path.dirname(file)):
-                    if len(os.path.dirname(file)) > 0:
-                        os.makedirs(os.path.dirname(file))
-                with open(file, 'wb') as f:
+                file_path = file or ''
+                if not os.path.exists(os.path.dirname(file_path)):
+                    if len(os.path.dirname(file_path)) > 0:
+                        os.makedirs(os.path.dirname(file_path))
+                with open(file_path, 'wb') as f:
                     for chunk in response.iter_content(64 * 1024):
                         f.write(chunk)
 
     def object_set(
         self,
-        container,
-        object,
-        properties,
-    ):
+        container: str,
+        object: str,
+        properties: dict[str, str],
+    ) -> None:
         """Set object properties
 
         :param string container:
@@ -434,11 +418,8 @@ class APIv1(api.BaseAPI):
             )
 
     def object_unset(
-        self,
-        container,
-        object,
-        properties,
-    ):
+        self, container: str, object: str, properties: dict[str, str]
+    ) -> None:
         """Unset object properties
 
         :param string container:
@@ -456,11 +437,7 @@ class APIv1(api.BaseAPI):
                 headers=headers,
             )
 
-    def object_show(
-        self,
-        container=None,
-        object=None,
-    ):
+    def object_show(self, container: str, object: str) -> dict[str, Any]:
         """Get object details
 
         :param string container:
@@ -502,10 +479,7 @@ class APIv1(api.BaseAPI):
 
         return data
 
-    def account_set(
-        self,
-        properties,
-    ):
+    def account_set(self, properties: dict[str, str]) -> None:
         """Set account properties
 
         :param dict properties:
@@ -519,13 +493,13 @@ class APIv1(api.BaseAPI):
             # registered in the catalog
             self.create("", headers=headers)
 
-    def account_show(self):
+    def account_show(self) -> dict[str, Any]:
         """Show account details"""
 
         # NOTE(stevemar): Just a HEAD request to the endpoint already in the
         # catalog should be enough.
         response = self._request("HEAD", "")
-        data = {}
+        data: dict[str, Any] = {}
 
         properties = self._get_properties(response.headers, 'x-account-meta-')
         if properties:
@@ -541,8 +515,8 @@ class APIv1(api.BaseAPI):
 
     def account_unset(
         self,
-        properties,
-    ):
+        properties: dict[str, str],
+    ) -> None:
         """Unset account properties
 
         :param dict properties:
@@ -555,11 +529,13 @@ class APIv1(api.BaseAPI):
         if headers:
             self.create("", headers=headers)
 
-    def _find_account_id(self):
-        url_parts = urllib.parse.urlparse(self.endpoint)
-        return url_parts.path.split('/')[-1]
+    def _find_account_id(self) -> str:
+        url_parts = urllib.parse.urlparse(self.endpoint or '')
+        return str(url_parts.path).split('/')[-1]
 
-    def _unset_properties(self, properties, header_tag):
+    def _unset_properties(
+        self, properties: dict[str, str], header_tag: str
+    ) -> dict[str, str]:
         # NOTE(stevemar): As per the API, the headers have to be in the form
         # of "X-Remove-Account-Meta-Book: x". In the case where metadata is
         # removed, we can set the value of the header to anything, so it's
@@ -567,13 +543,15 @@ class APIv1(api.BaseAPI):
         # "X-Remove-Container-Meta-Book: x", and the same logic applies for
         # Object properties
 
-        headers = {}
+        headers: dict[str, str] = {}
         for k in properties:
             header_name = header_tag % k
             headers[header_name] = 'x'
         return headers
 
-    def _set_properties(self, properties, header_tag):
+    def _set_properties(
+        self, properties: dict[str, str], header_tag: str
+    ) -> dict[str, str]:
         # NOTE(stevemar): As per the API, the headers have to be in the form
         # of "X-Account-Meta-Book: MobyDick". In the case of a Container
         # property we use: "X-Add-Container-Meta-Book: MobyDick", and the same
@@ -581,7 +559,7 @@ class APIv1(api.BaseAPI):
 
         log = logging.getLogger(__name__ + '._set_properties')
 
-        headers = {}
+        headers: dict[str, str] = {}
         for k, v in properties.items():
             if not utils.is_ascii(k) or not utils.is_ascii(v):
                 log.error('Cannot set property %s to non-ascii value', k)
@@ -591,10 +569,10 @@ class APIv1(api.BaseAPI):
             headers[header_name] = v
         return headers
 
-    def _get_properties(self, headers, header_tag):
+    def _get_properties(self, headers: Any, header_tag: str) -> dict[str, Any]:
         # Add in properties as a top level key, this is consistent with other
         # OSC commands
-        properties = {}
+        properties: dict[str, Any] = {}
         for k, v in headers.items():
             if k.lower().startswith(header_tag):
                 properties[k[len(header_tag) :]] = v

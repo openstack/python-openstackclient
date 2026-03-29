@@ -17,6 +17,7 @@ intentionally supported by SDK. Most of these are proxy APIs.
 """
 
 import http
+from typing import Any
 
 from openstack import exceptions as sdk_exceptions
 from osc_lib import exceptions
@@ -25,7 +26,11 @@ from osc_lib import exceptions
 # security groups
 
 
-def create_security_group(compute_client, name=None, description=None):
+def create_security_group(
+    compute_client: Any,
+    name: str | None = None,
+    description: str | None = None,
+) -> Any:
     """Create a new security group
 
     https://docs.openstack.org/api-ref/compute/#create-security-group
@@ -46,7 +51,9 @@ def create_security_group(compute_client, name=None, description=None):
     return response.json()['security_group']
 
 
-def list_security_groups(compute_client, all_projects=None):
+def list_security_groups(
+    compute_client: Any, all_projects: bool | None = None
+) -> Any:
     """Get all security groups
 
     https://docs.openstack.org/api-ref/compute/#list-security-groups
@@ -63,7 +70,7 @@ def list_security_groups(compute_client, all_projects=None):
     return response.json()['security_groups']
 
 
-def find_security_group(compute_client, name_or_id):
+def find_security_group(compute_client: Any, name_or_id: str) -> Any:
     """Find the security group for a given name or ID
 
     https://docs.openstack.org/api-ref/compute/#show-security-group-details
@@ -101,8 +108,11 @@ def find_security_group(compute_client, name_or_id):
 
 
 def update_security_group(
-    compute_client, security_group_id, name=None, description=None
-):
+    compute_client: Any,
+    security_group_id: str,
+    name: str | None = None,
+    description: str | None = None,
+) -> Any:
     """Update an existing security group
 
     https://docs.openstack.org/api-ref/compute/#update-security-group
@@ -127,7 +137,9 @@ def update_security_group(
     return response.json()['security_group']
 
 
-def delete_security_group(compute_client, security_group_id=None):
+def delete_security_group(
+    compute_client: Any, security_group_id: str | None = None
+) -> None:
     """Delete a security group
 
     https://docs.openstack.org/api-ref/compute/#delete-security-group
@@ -146,14 +158,14 @@ def delete_security_group(compute_client, security_group_id=None):
 
 
 def create_security_group_rule(
-    compute_client,
-    security_group_id=None,
-    ip_protocol=None,
-    from_port=None,
-    to_port=None,
-    remote_ip=None,
-    remote_group=None,
-):
+    compute_client: Any,
+    security_group_id: str | None = None,
+    ip_protocol: str | None = None,
+    from_port: int | None = None,
+    to_port: int | None = None,
+    remote_ip: str | None = None,
+    remote_group: str | None = None,
+) -> Any:
     """Create a new security group rule
 
     https://docs.openstack.org/api-ref/compute/#create-security-group-rule
@@ -182,7 +194,9 @@ def create_security_group_rule(
     return response.json()['security_group_rule']
 
 
-def delete_security_group_rule(compute_client, security_group_rule_id=None):
+def delete_security_group_rule(
+    compute_client: Any, security_group_rule_id: str | None = None
+) -> None:
     """Delete a security group rule
 
     https://docs.openstack.org/api-ref/compute/#delete-security-group-rule
@@ -201,7 +215,12 @@ def delete_security_group_rule(compute_client, security_group_rule_id=None):
 # networks
 
 
-def create_network(compute_client, name, subnet, share_subnet=None):
+def create_network(
+    compute_client: Any,
+    name: str,
+    subnet: str,
+    share_subnet: bool | None = None,
+) -> Any:
     """Create a new network
 
     https://docs.openstack.org/api-ref/compute/#create-network
@@ -212,7 +231,7 @@ def create_network(compute_client, name, subnet, share_subnet=None):
     :param bool share_subnet: Shared subnet between projects
     :returns: A network object
     """
-    data = {
+    data: dict[str, Any] = {
         'label': name,
         'cidr': subnet,
     }
@@ -226,7 +245,7 @@ def create_network(compute_client, name, subnet, share_subnet=None):
     return response.json()['network']
 
 
-def list_networks(compute_client):
+def list_networks(compute_client: Any) -> Any:
     """Get all networks
 
     https://docs.openstack.org/api-ref/compute/#list-networks
@@ -239,7 +258,7 @@ def list_networks(compute_client):
     return response.json()['networks']
 
 
-def find_network(compute_client, name_or_id):
+def find_network(compute_client: Any, name_or_id: str) -> Any:
     """Find the network for a given name or ID
 
     https://docs.openstack.org/api-ref/compute/#show-network-details
@@ -276,7 +295,7 @@ def find_network(compute_client, name_or_id):
     return found
 
 
-def delete_network(compute_client, network_id):
+def delete_network(compute_client: Any, network_id: str) -> None:
     """Delete a network
 
     https://docs.openstack.org/api-ref/compute/#delete-network
@@ -294,7 +313,7 @@ def delete_network(compute_client, network_id):
 # floating ips
 
 
-def create_floating_ip(compute_client, network):
+def create_floating_ip(compute_client: Any, network: str) -> Any:
     """Create a new floating ip
 
     https://docs.openstack.org/api-ref/compute/#create-allocate-floating-ip-address
@@ -309,7 +328,7 @@ def create_floating_ip(compute_client, network):
     return response.json()['floating_ip']
 
 
-def list_floating_ips(compute_client):
+def list_floating_ips(compute_client: Any) -> Any:
     """Get all floating IPs
 
     https://docs.openstack.org/api-ref/compute/#list-floating-ip-addresses
@@ -321,7 +340,7 @@ def list_floating_ips(compute_client):
     return response.json()['floating_ips']
 
 
-def get_floating_ip(compute_client, floating_ip_id):
+def get_floating_ip(compute_client: Any, floating_ip_id: str) -> Any:
     """Get a floating IP
 
     https://docs.openstack.org/api-ref/compute/#show-floating-ip-address-details
@@ -336,7 +355,7 @@ def get_floating_ip(compute_client, floating_ip_id):
     return response.json()['floating_ip']
 
 
-def delete_floating_ip(compute_client, floating_ip_id):
+def delete_floating_ip(compute_client: Any, floating_ip_id: str) -> None:
     """Delete a floating IP
 
     https://docs.openstack.org/api-ref/compute/#delete-deallocate-floating-ip-address
@@ -353,7 +372,7 @@ def delete_floating_ip(compute_client, floating_ip_id):
 # floating ip pools
 
 
-def list_floating_ip_pools(compute_client):
+def list_floating_ip_pools(compute_client: Any) -> Any:
     """Get all floating IP pools
 
     https://docs.openstack.org/api-ref/compute/#list-floating-ip-pools
