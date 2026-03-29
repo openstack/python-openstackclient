@@ -57,7 +57,7 @@ def check_missing_extension_if_error(client_manager, attrs):
         raise
 
 
-class NetDetectionMixin(metaclass=abc.ABCMeta):
+class NetDetectionMixin(command.Command, metaclass=abc.ABCMeta):
     """Convenience methods for nova-network vs. neutron decisions.
 
     A live environment detects which network type it is running and creates its
@@ -81,7 +81,7 @@ class NetDetectionMixin(metaclass=abc.ABCMeta):
         # Have we set it up yet for this command?
         if not hasattr(self, '_net_type'):
             try:
-                if self.app.client_manager.is_network_endpoint_enabled():  # type: ignore
+                if self.app.client_manager.is_network_endpoint_enabled():
                     net_type = _NET_TYPE_NEUTRON
                 else:
                     net_type = _NET_TYPE_COMPUTE
@@ -135,7 +135,7 @@ class NetDetectionMixin(metaclass=abc.ABCMeta):
 
     def get_parser(self, prog_name: str) -> _argparse.ArgumentParser:
         LOG.debug('get_parser(%s)', prog_name)
-        parser = super().get_parser(prog_name)  # type: ignore
+        parser = super().get_parser(prog_name)
         parser = self.update_parser_common(parser)
         LOG.debug('common parser: %s', parser)
         if self.is_neutron or self.is_docs_build:
@@ -160,12 +160,12 @@ class NetDetectionMixin(metaclass=abc.ABCMeta):
     def take_action(self, parsed_args):
         if self.is_neutron:
             return self.take_action_network(
-                self.app.client_manager.network,  # type: ignore
+                self.app.client_manager.network,
                 parsed_args,
             )
         elif self.is_nova_network:
             return self.take_action_compute(
-                self.app.client_manager.compute,  # type: ignore
+                self.app.client_manager.compute,
                 parsed_args,
             )
 
