@@ -1909,6 +1909,7 @@ class CreateServer(command.ShowOne):
 
             networks = parsed_args.nics[0]
         else:
+            _networks = []
             for nic in parsed_args.nics:
                 if 'tag' in nic:
                     if not sdk_utils.supports_microversion(
@@ -1969,7 +1970,8 @@ class CreateServer(command.ShowOne):
                 if nic.get('tag'):  # tags are optional
                     network['tag'] = nic['tag']
 
-                networks.append(network)  # type: ignore[union-attr]
+                _networks.append(network)
+            networks = _networks
 
         if not parsed_args.nics and sdk_utils.supports_microversion(
             compute_client, '2.37'

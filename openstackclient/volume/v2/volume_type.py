@@ -14,6 +14,7 @@
 
 """Volume v2 Type action implementations"""
 
+from collections.abc import MutableMapping
 import functools
 import logging
 from typing import Any
@@ -439,7 +440,9 @@ class ListVolumeType(command.Lister):
                 is_public=parsed_args.is_public,
             )
 
-        formatters = {'Extra Specs': format_columns.DictColumn}
+        formatters: MutableMapping[str, Any] = {
+            'Extra Specs': format_columns.DictColumn
+        }
 
         if parsed_args.encryption_type:
             encryption = {}
@@ -466,7 +469,7 @@ class ListVolumeType(command.Lister):
             _EncryptionInfoColumn = functools.partial(
                 EncryptionInfoColumn, encryption_data=encryption
             )
-            formatters['id'] = _EncryptionInfoColumn  # type: ignore
+            formatters['id'] = _EncryptionInfoColumn
 
         return (
             column_headers,
