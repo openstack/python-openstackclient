@@ -541,8 +541,9 @@ class TestShowNetworkAgent(TestNetworkAgent):
         'configuration',
         'created_at',
         'description',
-        'host',
+        'ha_chassis_priority',
         'ha_state',
+        'host',
         'id',
         'last_heartbeat_at',
         'resources_synced',
@@ -558,6 +559,9 @@ class TestShowNetworkAgent(TestNetworkAgent):
         format_columns.DictColumn(_network_agent.configuration),
         _network_agent.created_at,
         _network_agent.description,
+        # NOTE(ralonsoh): `ha_chassis_priority` column is still not supported
+        # by the API. See LP#2103521.
+        None,
         _network_agent.ha_state,
         _network_agent.host,
         _network_agent.id,
@@ -601,5 +605,5 @@ class TestShowNetworkAgent(TestNetworkAgent):
         self.network_client.get_agent.assert_called_once_with(
             self._network_agent.id
         )
-        self.assertEqual(set(self.columns), set(columns))
+        self.assertCountEqual(self.columns, columns)
         self.assertEqual(len(list(self.data)), len(list(data)))

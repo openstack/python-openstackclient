@@ -46,13 +46,27 @@ _formatters = {
 
 
 def _get_network_columns(item):
-    column_map = {
-        'is_admin_state_up': 'admin_state_up',
-        'is_alive': 'alive',
+    column_data_mapping = {
+        'admin_state_up': 'is_admin_state_up',
+        'agent_type': 'agent_type',
+        'alive': 'is_alive',
+        'availability_zone': 'availability_zone',
+        'binary': 'binary',
+        'configuration': 'configuration',
+        'created_at': 'created_at',
+        'description': 'description',
+        'ha_chassis_priority': 'ha_chassis_priority',
+        'ha_state': 'ha_state',
+        'host': 'host',
+        'id': 'id',
+        'last_heartbeat_at': 'last_heartbeat_at',
+        'resources_synced': 'resources_synced',
+        'started_at': 'started_at',
+        'topic': 'topic',
     }
-    hidden_columns = ['location', 'name', 'tenant_id']
-    return utils.get_osc_show_columns_for_sdk_resource(
-        item, column_map, hidden_columns
+    return (
+        tuple(column_data_mapping.keys()),
+        tuple(column_data_mapping.values()),
     )
 
 
