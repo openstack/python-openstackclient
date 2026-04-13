@@ -128,11 +128,6 @@ class TestCommandList(utils.TestCommand):
         self.assertEqual(datalist, tuple(data))
 
 
-@mock.patch.dict(
-    'openstackclient.common.module.sys.modules',
-    values=MODULES,
-    clear=True,
-)
 class TestModuleList(utils.TestCommand):
     def setUp(self):
         super().setUp()
@@ -150,7 +145,12 @@ class TestModuleList(utils.TestCommand):
         # In base command class Lister in cliff, abstract method take_action()
         # returns a tuple containing the column names and an iterable
         # containing the data to be listed.
-        columns, data = self.cmd.take_action(parsed_args)
+        with mock.patch.dict(
+            'openstackclient.common.module.sys.modules',
+            values=MODULES,
+            clear=True,
+        ):
+            columns, data = self.cmd.take_action(parsed_args)
 
         # Output xxxclient and openstacksdk, but not regular module, like: zlib
         self.assertIn(module_name_1, columns)
@@ -177,7 +177,12 @@ class TestModuleList(utils.TestCommand):
         # In base command class Lister in cliff, abstract method take_action()
         # returns a tuple containing the column names and an iterable
         # containing the data to be listed.
-        columns, data = self.cmd.take_action(parsed_args)
+        with mock.patch.dict(
+            'openstackclient.common.module.sys.modules',
+            values=MODULES,
+            clear=True,
+        ):
+            columns, data = self.cmd.take_action(parsed_args)
 
         # Output xxxclient, openstacksdk and regular module, like: zlib
         self.assertIn(module_name_1, columns)
