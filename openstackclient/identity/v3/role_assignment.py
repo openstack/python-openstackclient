@@ -13,6 +13,8 @@
 
 """Identity v3 Assignment action implementations"""
 
+from openstack import utils as sdk_utils
+
 from openstackclient import command
 from openstackclient.i18n import _
 from openstackclient.identity import common
@@ -118,7 +120,9 @@ class ListRoleAssignment(command.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.sdk_connection.identity
+        identity_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.identity, '3'
+        )
         auth_ref = self.app.client_manager.auth_ref
 
         role_id = None

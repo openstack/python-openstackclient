@@ -18,6 +18,7 @@
 import logging
 
 from openstack import exceptions as sdk_exc
+from openstack import utils as sdk_utils
 from osc_lib.cli import parseractions
 from osc_lib import exceptions
 from osc_lib import utils
@@ -105,7 +106,9 @@ class CreateProject(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.sdk_connection.identity
+        identity_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.identity, '3'
+        )
 
         kwargs = {}
 
@@ -197,7 +200,9 @@ class DeleteProject(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.sdk_connection.identity
+        identity_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.identity, '3'
+        )
 
         errors = 0
         for project in parsed_args.projects:
@@ -290,7 +295,9 @@ class ListProject(command.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.sdk_connection.identity
+        identity_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.identity, '3'
+        )
 
         column_headers: tuple[str, ...] = ('ID', 'Name')
         if parsed_args.long:
@@ -419,7 +426,9 @@ class SetProject(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.sdk_connection.identity
+        identity_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.identity, '3'
+        )
 
         kwargs = {}
         if parsed_args.name:
@@ -508,7 +517,9 @@ class ShowProject(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.sdk_connection.identity
+        identity_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.identity, '3'
+        )
 
         kwargs = {}
 

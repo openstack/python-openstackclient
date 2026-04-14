@@ -17,7 +17,9 @@ from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 from openstackclient.tests.unit import utils as test_utils
 
 
-class TestProjectCleanup(test_utils.TestCommand):
+class TestProjectCleanup(
+    identity_fakes.FakeClientMixin, test_utils.TestCommand
+):
     project = identity_fakes.FakeProject.create_one_project()
 
     def setUp(self):

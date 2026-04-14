@@ -17,6 +17,7 @@
 
 import logging
 
+from openstack import utils as sdk_utils
 from osc_lib import exceptions
 from osc_lib import utils
 
@@ -132,7 +133,9 @@ class CreateEndpoint(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.sdk_connection.identity
+        identity_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.identity, '3'
+        )
         service = common.find_service_sdk(identity_client, parsed_args.service)
 
         kwargs = {}
@@ -165,7 +168,9 @@ class DeleteEndpoint(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.sdk_connection.identity
+        identity_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.identity, '3'
+        )
         result = 0
         for i in parsed_args.endpoint:
             try:
@@ -228,7 +233,9 @@ class ListEndpoint(command.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.sdk_connection.identity
+        identity_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.identity, '3'
+        )
 
         endpoint = None
         if parsed_args.endpoint:
@@ -398,7 +405,9 @@ class SetEndpoint(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.sdk_connection.identity
+        identity_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.identity, '3'
+        )
         endpoint = identity_client.find_endpoint(
             parsed_args.endpoint, ignore_missing=False
         )
@@ -447,7 +456,9 @@ class ShowEndpoint(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.sdk_connection.identity
+        identity_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.identity, '3'
+        )
         endpoint = identity_client.find_endpoint(
             parsed_args.endpoint, ignore_missing=False
         )

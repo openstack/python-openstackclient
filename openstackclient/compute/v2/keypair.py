@@ -300,7 +300,9 @@ class ListKeypair(command.Lister):
     def take_action(self, parsed_args):
         compute_client = self.app.client_manager.compute
         identity_client = self.app.client_manager.identity
-        identity_sdk_client = self.app.client_manager.sdk_connection.identity
+        identity_sdk_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.identity, '3'
+        )
 
         kwargs = {}
 

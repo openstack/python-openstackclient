@@ -553,14 +553,7 @@ class TestGroupList(identity_fakes.TestIdentityv3):
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
 
-        # Set expected values
-        kwargs = {
-            'domain_id': self.domain.id,
-        }
-
-        self.identity_sdk_client.user_groups.assert_called_with(
-            self.user.id, **kwargs
-        )
+        self.identity_sdk_client.user_groups.assert_called_with(self.user.id)
 
         self.assertEqual(self.columns, columns)
 

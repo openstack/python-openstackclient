@@ -18,6 +18,7 @@
 import logging
 
 from openstack import exceptions as sdk_exc
+from openstack import utils as sdk_utils
 from osc_lib import exceptions
 from osc_lib import utils
 
@@ -72,7 +73,9 @@ class AddUserToGroup(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.sdk_connection.identity
+        identity_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.identity, '3'
+        )
 
         group_id = common.find_group_id_sdk(
             identity_client, parsed_args.group, parsed_args.group_domain
@@ -128,7 +131,9 @@ class CheckUserInGroup(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.sdk_connection.identity
+        identity_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.identity, '3'
+        )
 
         user_id = common.find_user_id_sdk(
             identity_client,
@@ -193,7 +198,9 @@ class CreateGroup(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.sdk_connection.identity
+        identity_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.identity, '3'
+        )
 
         kwargs = {}
         if parsed_args.name:
@@ -246,7 +253,9 @@ class DeleteGroup(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.sdk_connection.identity
+        identity_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.identity, '3'
+        )
 
         errors = 0
         for group in parsed_args.groups:
@@ -299,7 +308,9 @@ class ListGroup(command.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.sdk_connection.identity
+        identity_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.identity, '3'
+        )
 
         domain = None
         if parsed_args.domain:
@@ -314,13 +325,10 @@ class ListGroup(command.Lister):
                 parsed_args.user,
                 parsed_args.user_domain,
             )
-            if domain:
-                # NOTE(0weng): The API doesn't actually support filtering
-                # additionally by domain_id, so this doesn't really do
-                # anything.
-                data = identity_client.user_groups(user, domain_id=domain)
-            else:
-                data = identity_client.user_groups(user)
+            # NOTE(0weng): The API doesn't actually support filtering
+            # additionally by domain_id, so this doesn't really do
+            # anything.
+            data = identity_client.user_groups(user)
         else:
             if domain:
                 data = identity_client.groups(domain_id=domain)
@@ -369,7 +377,9 @@ class RemoveUserFromGroup(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.sdk_connection.identity
+        identity_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.identity, '3'
+        )
 
         group_id = common.find_group_id_sdk(
             identity_client, parsed_args.group, parsed_args.group_domain
@@ -433,7 +443,9 @@ class SetGroup(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.sdk_connection.identity
+        identity_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.identity, '3'
+        )
         group = common.find_group_id_sdk(
             identity_client, parsed_args.group, parsed_args.domain
         )
@@ -464,7 +476,9 @@ class ShowGroup(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.sdk_connection.identity
+        identity_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.identity, '3'
+        )
 
         if parsed_args.domain:
             domain = common.find_domain_id_sdk(

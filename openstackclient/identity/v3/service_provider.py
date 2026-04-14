@@ -15,6 +15,7 @@
 
 import logging
 
+from openstack import utils as sdk_utils
 from osc_lib import exceptions
 from osc_lib import utils
 
@@ -99,7 +100,9 @@ class CreateServiceProvider(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        service_client = self.app.client_manager.sdk_connection.identity
+        service_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.identity, '3'
+        )
 
         kwargs = {}
 
@@ -136,7 +139,9 @@ class DeleteServiceProvider(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        service_client = self.app.client_manager.sdk_connection.identity
+        service_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.identity, '3'
+        )
         result = 0
         for i in parsed_args.service_provider:
             try:
@@ -163,7 +168,9 @@ class ListServiceProvider(command.Lister):
     _description = _("List service providers")
 
     def take_action(self, parsed_args):
-        service_client = self.app.client_manager.sdk_connection.identity
+        service_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.identity, '3'
+        )
         data = service_client.service_providers()
 
         column_headers = (
@@ -234,7 +241,9 @@ class SetServiceProvider(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        service_client = self.app.client_manager.sdk_connection.identity
+        service_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.identity, '3'
+        )
 
         kwargs = {}
 
@@ -271,7 +280,9 @@ class ShowServiceProvider(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        service_client = self.app.client_manager.sdk_connection.identity
+        service_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.identity, '3'
+        )
         service_provider = service_client.find_service_provider(
             parsed_args.service_provider,
             ignore_missing=False,

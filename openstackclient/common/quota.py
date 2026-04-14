@@ -21,6 +21,7 @@ import sys
 import typing as ty
 
 from openstack import exceptions as sdk_exceptions
+from openstack import utils as sdk_utils
 from osc_lib import exceptions
 from osc_lib import utils
 
@@ -106,7 +107,9 @@ def _xform_get_quota(data, value, keys):
 
 def get_project(app, project):
     if project is not None:
-        identity_client = app.client_manager.sdk_connection.identity
+        identity_client = sdk_utils.ensure_service_version(
+            app.client_manager.sdk_connection.identity, '3'
+        )
         project = identity_client.find_project(project, ignore_missing=False)
         project_id = project.id
         project_name = project.name
@@ -448,10 +451,11 @@ class ListQuota(command.Lister):
         )
 
     def take_action(self, parsed_args):
-        project_ids = [
-            p.id
-            for p in self.app.client_manager.sdk_connection.identity.projects()
-        ]
+        identity_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.identity, '3'
+        )
+
+        project_ids = [p.id for p in identity_client.projects()]
         if parsed_args.compute:
             return self._list_quota_compute(parsed_args, project_ids)
         elif parsed_args.volume:
@@ -923,7 +927,10 @@ class DeleteQuota(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.sdk_connection.identity
+        identity_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.identity, '3'
+        )
+
         project = identity_client.find_project(
             parsed_args.project, ignore_missing=False
         )

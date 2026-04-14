@@ -64,7 +64,9 @@ class BlockStorageLogLevelList(command.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        volume_client = self.app.client_manager.sdk_connection.volume
+        volume_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.volume, '3'
+        )
         columns = [
             "Binary",
             "Host",
@@ -142,7 +144,9 @@ class BlockStorageLogLevelSet(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        volume_client = self.app.client_manager.sdk_connection.volume
+        volume_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.volume, '3'
+        )
 
         if not sdk_utils.supports_microversion(volume_client, '3.32'):
             msg = _(

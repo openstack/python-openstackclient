@@ -20,6 +20,7 @@ import typing as ty
 
 from cliff import columns as cliff_columns
 from openstack.block_storage.v3 import snapshot as _snapshot
+from openstack import utils as sdk_utils
 from osc_lib.cli import format_columns
 from osc_lib.cli import parseractions
 from osc_lib import exceptions
@@ -218,7 +219,9 @@ class DeleteVolumeSnapshot(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        volume_client = self.app.client_manager.sdk_connection.volume
+        volume_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.volume, '3'
+        )
         result = 0
 
         if parsed_args.remote:

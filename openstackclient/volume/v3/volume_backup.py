@@ -126,7 +126,9 @@ class CreateVolumeBackup(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        volume_client = self.app.client_manager.sdk_connection.volume
+        volume_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.volume, '3'
+        )
 
         volume_id = volume_client.find_volume(
             parsed_args.volume,
@@ -199,7 +201,9 @@ class DeleteVolumeBackup(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        volume_client = self.app.client_manager.sdk_connection.volume
+        volume_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.volume, '3'
+        )
         result = 0
 
         for backup in parsed_args.backups:
@@ -300,8 +304,12 @@ class ListVolumeBackup(command.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        volume_client = self.app.client_manager.sdk_connection.volume
-        identity_client = self.app.client_manager.sdk_connection.identity
+        volume_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.volume, '3'
+        )
+        identity_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.identity, '3'
+        )
 
         columns: tuple[str, ...] = (
             'id',
@@ -423,7 +431,9 @@ class RestoreVolumeBackup(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        volume_client = self.app.client_manager.sdk_connection.volume
+        volume_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.volume, '3'
+        )
 
         columns: tuple[str, ...] = (
             'id',
@@ -526,7 +536,9 @@ class SetVolumeBackup(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        volume_client = self.app.client_manager.sdk_connection.volume
+        volume_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.volume, '3'
+        )
 
         backup = volume_client.find_backup(
             parsed_args.backup,
@@ -628,7 +640,9 @@ class UnsetVolumeBackup(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        volume_client = self.app.client_manager.sdk_connection.volume
+        volume_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.volume, '3'
+        )
 
         if not sdk_utils.supports_microversion(volume_client, '3.43'):
             msg = _(
@@ -670,7 +684,9 @@ class ShowVolumeBackup(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        volume_client = self.app.client_manager.sdk_connection.volume
+        volume_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.volume, '3'
+        )
         backup = volume_client.find_backup(
             parsed_args.backup, ignore_missing=False
         )

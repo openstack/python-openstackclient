@@ -76,7 +76,9 @@ class CreateVolumeGroupSnapshot(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        volume_client = self.app.client_manager.sdk_connection.volume
+        volume_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.volume, '3'
+        )
 
         if not sdk_utils.supports_microversion(volume_client, '3.14'):
             msg = _(
@@ -116,7 +118,9 @@ class DeleteVolumeGroupSnapshot(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        volume_client = self.app.client_manager.sdk_connection.volume
+        volume_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.volume, '3'
+        )
 
         if not sdk_utils.supports_microversion(volume_client, '3.14'):
             msg = _(
@@ -166,7 +170,9 @@ class ListVolumeGroupSnapshot(command.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        volume_client = self.app.client_manager.sdk_connection.volume
+        volume_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.volume, '3'
+        )
 
         if not sdk_utils.supports_microversion(volume_client, '3.14'):
             msg = _(
@@ -212,7 +218,9 @@ class ShowVolumeGroupSnapshot(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        volume_client = self.app.client_manager.sdk_connection.volume
+        volume_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.volume, '3'
+        )
 
         if not sdk_utils.supports_microversion(volume_client, '3.14'):
             msg = _(

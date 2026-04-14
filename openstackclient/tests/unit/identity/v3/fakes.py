@@ -682,6 +682,7 @@ class FakeClientMixin:
         self.app.client_manager.sdk_connection.identity = mock.Mock(
             _proxy.Proxy
         )
+        self.app.client_manager.sdk_connection.identity.api_version = '3'
         self.identity_sdk_client = (
             self.app.client_manager.sdk_connection.identity
         )
@@ -716,6 +717,7 @@ class TestFederatedIdentity(utils.TestCommand):
         self.app.client_manager.sdk_connection.identity = mock.Mock(
             _proxy.Proxy
         )
+        self.app.client_manager.sdk_connection.identity.api_version = '3'
         self.identity_sdk_client = (
             self.app.client_manager.sdk_connection.identity
         )
@@ -736,6 +738,7 @@ class TestOAuth1(utils.TestCommand):
         self.app.client_manager.sdk_connection.identity = mock.Mock(
             _proxy.Proxy
         )
+        self.app.client_manager.sdk_connection.identity.api_version = '3'
         self.identity_sdk_client = (
             self.app.client_manager.sdk_connection.identity
         )

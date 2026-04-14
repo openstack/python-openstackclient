@@ -17,6 +17,7 @@ import copy
 import logging
 
 from openstack import exceptions as sdk_exceptions
+from openstack import utils as sdk_utils
 from osc_lib import utils
 
 from openstackclient import command
@@ -132,7 +133,9 @@ class ListAvailabilityZone(command.Lister):
         return result
 
     def _get_volume_availability_zones(self, parsed_args):
-        volume_client = self.app.client_manager.sdk_connection.volume
+        volume_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.volume, '3'
+        )
         data = []
         try:
             data = list(volume_client.availability_zones())

@@ -17,6 +17,7 @@
 
 import logging
 
+from openstack import utils as sdk_utils
 from osc_lib import exceptions
 from osc_lib import utils
 
@@ -42,13 +43,15 @@ class DeleteAccessRule(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.sdk_connection.identity
+        identity_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.identity, '3'
+        )
         conn = self.app.client_manager.sdk_connection
         auth = conn.config.get_auth()
         if auth is None:
             # this will never happen
             raise exceptions.CommandError('invalid authentication info')
-        user_id = auth.get_user_id(conn.identity)
+        user_id = auth.get_user_id(conn.session)
 
         errors = 0
         for ac in parsed_args.access_rule:
@@ -84,7 +87,9 @@ class ListAccessRule(command.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.sdk_connection.identity
+        identity_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.identity, '3'
+        )
         if parsed_args.user:
             user_id = common.find_user(
                 identity_client, parsed_args.user, parsed_args.user_domain
@@ -95,7 +100,7 @@ class ListAccessRule(command.Lister):
             if auth is None:
                 # this will never happen
                 raise exceptions.CommandError('invalid authentication info')
-            user_id = auth.get_user_id(conn.identity)
+            user_id = auth.get_user_id(conn.session)
 
         columns = ('ID', 'Service', 'Method', 'Path')
         data = identity_client.access_rules(user=user_id)
@@ -125,13 +130,15 @@ class ShowAccessRule(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.sdk_connection.identity
+        identity_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.identity, '3'
+        )
         conn = self.app.client_manager.sdk_connection
         auth = conn.config.get_auth()
         if auth is None:
             # this will never happen
             raise exceptions.CommandError('invalid authentication info')
-        user_id = auth.get_user_id(conn.identity)
+        user_id = auth.get_user_id(conn.session)
 
         access_rule = identity_client.get_access_rule(
             user_id, parsed_args.access_rule

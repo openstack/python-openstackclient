@@ -16,6 +16,7 @@
 
 import logging
 
+from openstack import utils as sdk_utils
 from osc_lib import exceptions
 from osc_lib import utils
 
@@ -67,7 +68,9 @@ class CreateProtocol(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.sdk_connection.identity
+        identity_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.identity, '3'
+        )
 
         protocol = identity_client.create_federation_protocol(
             name=parsed_args.federation_protocol,
@@ -102,7 +105,9 @@ class DeleteProtocol(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.sdk_connection.identity
+        identity_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.identity, '3'
+        )
 
         result = 0
         for i in parsed_args.federation_protocol:
@@ -146,7 +151,9 @@ class ListProtocols(command.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.sdk_connection.identity
+        identity_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.identity, '3'
+        )
 
         protocols = identity_client.federation_protocols(
             parsed_args.identity_provider
@@ -187,7 +194,9 @@ class SetProtocol(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.sdk_connection.identity
+        identity_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.identity, '3'
+        )
 
         kwargs = {'idp_id': parsed_args.identity_provider}
         if parsed_args.federation_protocol:
@@ -221,7 +230,9 @@ class ShowProtocol(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.sdk_connection.identity
+        identity_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.identity, '3'
+        )
 
         protocol = identity_client.get_federation_protocol(
             idp_id=parsed_args.identity_provider,

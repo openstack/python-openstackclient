@@ -20,6 +20,7 @@ import queue
 import typing as ty
 
 from cliff.formatters import table
+from openstack import utils as sdk_utils
 
 from openstackclient import command
 from openstackclient.i18n import _
@@ -97,7 +98,10 @@ class ProjectCleanup(command.Command):
             # as-is
             pass
         elif parsed_args.project:
-            project = connection.identity.find_project(
+            identity_client = sdk_utils.ensure_service_version(
+                connection.identity, '3'
+            )
+            project = identity_client.find_project(
                 name_or_id=parsed_args.project, ignore_missing=False
             )
             connection = connection.connect_as_project(project)

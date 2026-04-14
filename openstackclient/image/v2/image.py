@@ -593,7 +593,9 @@ class CreateImage(command.ShowOne):
         return _format_image(image)
 
     def _take_action_volume(self, parsed_args):
-        volume_client = self.app.client_manager.sdk_connection.volume
+        volume_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.volume, '3'
+        )
 
         unsupported_opts = {
             # 'name',  # 'name' is a positional argument and will always exist

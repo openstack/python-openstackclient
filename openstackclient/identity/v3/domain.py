@@ -18,6 +18,7 @@
 import logging
 
 from openstack import exceptions as sdk_exceptions
+from openstack import utils as sdk_utils
 from osc_lib import exceptions
 from osc_lib import utils
 
@@ -92,7 +93,9 @@ class CreateDomain(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.sdk_connection.identity
+        identity_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.identity, '3'
+        )
 
         options = {}
         if parsed_args.immutable is not None:
@@ -131,7 +134,9 @@ class DeleteDomain(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.sdk_connection.identity
+        identity_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.identity, '3'
+        )
         result = 0
         for i in parsed_args.domain:
             try:
@@ -175,6 +180,9 @@ class ListDomain(command.Lister):
         return parser
 
     def take_action(self, parsed_args):
+        identity_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.identity, '3'
+        )
         kwargs = {}
         if parsed_args.name:
             kwargs['name'] = parsed_args.name
@@ -183,9 +191,7 @@ class ListDomain(command.Lister):
 
         columns = ('id', 'name', 'is_enabled', 'description')
         column_headers = ('ID', 'Name', 'Enabled', 'Description')
-        data = self.app.client_manager.sdk_connection.identity.domains(
-            **kwargs
-        )
+        data = identity_client.domains(**kwargs)
 
         return (
             column_headers,
@@ -239,7 +245,9 @@ class SetDomain(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.sdk_connection.identity
+        identity_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.identity, '3'
+        )
         domain = identity_client.find_domain(
             parsed_args.domain, ignore_missing=False
         )
@@ -269,7 +277,9 @@ class ShowDomain(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.sdk_connection.identity
+        identity_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.identity, '3'
+        )
         domain = identity_client.find_domain(
             parsed_args.domain, ignore_missing=False
         )

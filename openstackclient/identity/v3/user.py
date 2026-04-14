@@ -20,6 +20,7 @@ import logging
 import typing as ty
 
 from openstack import exceptions as sdk_exc
+from openstack import utils as sdk_utils
 from osc_lib import exceptions
 from osc_lib import utils
 
@@ -251,7 +252,9 @@ class CreateUser(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.sdk_connection.identity
+        identity_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.identity, '3'
+        )
 
         kwargs = {}
 
@@ -349,7 +352,9 @@ class DeleteUser(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.sdk_connection.identity
+        identity_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.identity, '3'
+        )
 
         domain = None
         if parsed_args.domain:
@@ -440,7 +445,9 @@ class ListUser(command.Lister):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.sdk_connection.identity
+        identity_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.identity, '3'
+        )
 
         domain = None
         if parsed_args.domain:
@@ -604,7 +611,9 @@ class SetUser(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.sdk_connection.identity
+        identity_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.identity, '3'
+        )
 
         if parsed_args.password_prompt:
             parsed_args.password = utils.get_password(self.app.stdin)
@@ -691,14 +700,16 @@ class SetPasswordUser(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.sdk_connection.identity
+        identity_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.identity, '3'
+        )
         conn = self.app.client_manager.sdk_connection
         auth = conn.config.get_auth()
         if auth is None:
             # this will never happen
             raise exceptions.CommandError('invalid authentication info')
 
-        user_id = auth.get_user_id(conn.identity)
+        user_id = auth.get_user_id(conn.session)
 
         # FIXME(gyee): there are two scenarios:
         #
@@ -765,7 +776,9 @@ class ShowUser(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        identity_client = self.app.client_manager.sdk_connection.identity
+        identity_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.identity, '3'
+        )
 
         user_str = common._get_token_resource(
             identity_client, 'user', parsed_args.user, parsed_args.domain

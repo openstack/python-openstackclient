@@ -321,7 +321,9 @@ class CreateVolume(command.ShowOne):
         # volume from snapshot, backup or source volume
         size = parsed_args.size
 
-        volume_client = self.app.client_manager.sdk_connection.volume
+        volume_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.volume, '3'
+        )
         image_client = self.app.client_manager.image
 
         if (
@@ -536,7 +538,9 @@ class DeleteVolume(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        volume_client = self.app.client_manager.sdk_connection.volume
+        volume_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.volume, '3'
+        )
         result = 0
 
         if parsed_args.remote and (parsed_args.force or parsed_args.cascade):
@@ -779,7 +783,9 @@ class MigrateVolume(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        volume_client = self.app.client_manager.sdk_connection.volume
+        volume_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.volume, '3'
+        )
         volume = volume_client.find_volume(
             parsed_args.volume, ignore_missing=False
         )
@@ -1141,7 +1147,9 @@ class ShowVolume(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        volume_client = self.app.client_manager.sdk_connection.volume
+        volume_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.volume, '3'
+        )
         volume = volume_client.find_volume(
             parsed_args.volume, ignore_missing=False
         )
@@ -1225,7 +1233,9 @@ class VolumeSummary(command.ShowOne):
         return parser
 
     def take_action(self, parsed_args):
-        volume_client = self.app.client_manager.sdk_connection.volume
+        volume_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.volume, '3'
+        )
 
         if not sdk_utils.supports_microversion(volume_client, '3.12'):
             msg = _(
@@ -1277,7 +1287,9 @@ class VolumeRevertToSnapshot(command.Command):
         return parser
 
     def take_action(self, parsed_args):
-        volume_client = self.app.client_manager.sdk_connection.volume
+        volume_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.volume, '3'
+        )
 
         if not sdk_utils.supports_microversion(volume_client, '3.40'):
             msg = _(
