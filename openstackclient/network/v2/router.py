@@ -76,15 +76,15 @@ def _get_columns(item):
     }
     if hasattr(item, 'interfaces_info'):
         column_map['interfaces_info'] = 'interfaces_info'
-    invisible_columns = ['location', 'tenant_id']
+    hidden_columns = ['location', 'tenant_id']
     if item.is_ha is None:
-        invisible_columns.append('is_ha')
+        hidden_columns.append('is_ha')
         column_map.pop('is_ha')
     if item.is_distributed is None:
-        invisible_columns.append('is_distributed')
+        hidden_columns.append('is_distributed')
         column_map.pop('is_distributed')
     return utils.get_osc_show_columns_for_sdk_resource(
-        item, column_map, invisible_columns
+        item, column_map, hidden_columns
     )
 
 

@@ -392,7 +392,7 @@ def _get_attrs_for_trunk(network_client, identity_client, parsed_args):
             parsed_args.project,
             parsed_args.project_domain,
         ).id
-        attrs['tenant_id'] = project_id
+        attrs['project_id'] = project_id
 
     return attrs
 
