@@ -12,10 +12,9 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
-#
 
 import logging
-import typing
+from typing import Any
 
 from osc_lib.cli import identity as identity_utils
 from osc_lib import exceptions
@@ -456,7 +455,7 @@ class UnsetFirewallPolicy(command.Command):
         return parser
 
     def _get_attrs(self, client_manager, parsed_args):
-        attrs: dict[str, typing.Any] = {}
+        attrs: dict[str, Any] = {}
         client = client_manager.network
 
         if parsed_args.firewall_rule:

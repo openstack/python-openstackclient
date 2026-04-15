@@ -14,7 +14,7 @@
 #    under the License.
 
 import logging
-import typing
+from typing import Any
 
 from cliff import columns as cliff_columns
 from osc_lib.cli import identity as identity_utils
@@ -398,7 +398,7 @@ class UnsetFirewallGroup(command.Command):
         return parser
 
     def _get_attrs(self, client, parsed_args):
-        attrs: dict[str, typing.Any] = {}
+        attrs: dict[str, Any] = {}
         if parsed_args.ingress_firewall_policy:
             attrs['ingress_firewall_policy_id'] = None
         if parsed_args.egress_firewall_policy:
