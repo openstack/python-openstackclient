@@ -82,7 +82,7 @@ class ServerActionEventColumn(columns.FormattableColumn):
 
 
 def _get_server_event_columns(item, client):
-    hidden_columns = ['name', 'server_id', 'links', 'location', 'finish_time']
+    hidden_columns = ['name', 'server_id', 'links', 'location']
 
     if not sdk_utils.supports_microversion(client, '2.58'):
         # updated_at was introduced in 2.58
