@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: python-openstackclient VERSION\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/openstack-i18n/\n"
-"POT-Creation-Date: 2025-04-01 18:07+0000\n"
+"POT-Creation-Date: 2026-04-15 02:22+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -1004,9 +1004,6 @@ msgstr "Politika(ları/yı) sil"
 
 msgid "Delete port(s)"
 msgstr "Bağlantı noktalarını sil"
-
-msgid "Delete project(s)"
-msgstr "Proje(yi/leri) sil"
 
 msgid "Delete public or private key(s)"
 msgstr "Genel veya özel anahtarları sil"
@@ -2020,10 +2017,6 @@ msgid "Failed to set flavor access to project: %s"
 msgstr "Projeye flavor erişiminin ayarlanması başarısız: %s"
 
 #, python-format
-msgid "Failed to set image property: %s"
-msgstr "İmaj özelliği ayarlarken hata oluştu: %s"
-
-#, python-format
 msgid "Failed to set snapshot property: %s"
 msgstr "Anlık görüntü özelliğini ayarlama başarısız: %s"
 
@@ -2034,10 +2027,6 @@ msgstr "Anlık görüntü durumunu ayarlama başarısız: %s"
 #, python-format
 msgid "Failed to set volume bootable property: %s"
 msgstr "Disk bölümü ön yükleme özelliği ayarlanırken hata oluştu: %s"
-
-#, python-format
-msgid "Failed to set volume property: %s"
-msgstr "Disk özelliklerini ayarlama işlemi başarısız: %s"
 
 #, python-format
 msgid "Failed to set volume read-only access mode flag: %s"
@@ -2082,14 +2071,6 @@ msgstr ""
 #, python-format
 msgid "Failed to unset flavor property: %s"
 msgstr "Flavor özelliğini kaldırma işlemi başarısız: %s"
-
-#, python-format
-msgid "Failed to unset image property: %s"
-msgstr "İmaj özelliği ayarını kaldırma başarısız: %s"
-
-#, python-format
-msgid "Failed to unset volume property: %s"
-msgstr "Disk bölümü özelliği ayarlarını kaldırma başarısız: %s"
 
 #, python-format
 msgid "Failed to update snapshot name or description: %s"
@@ -2548,14 +2529,6 @@ msgstr "EC2 kimlik bilgilerini listele"
 msgid "List IP availability for network"
 msgstr "Ağ için IP kullanılabilirliğini listele"
 
-msgid "List IP availability of given IP version networks (default is 4)"
-msgstr ""
-"Verilen IP sürüm ağlarının IP kullanılabilirliğini listele (varsayılan sürüm "
-"4)"
-
-msgid "List IP availability of given project (name or ID)"
-msgstr "Verilen projenin IP kullanılabilirliğini listeleyin (isim veya ID)"
-
 msgid "List Network QoS rules"
 msgstr "Ağ QoS kurallarını listele"
 
@@ -2582,24 +2555,6 @@ msgstr "Çıktıdaki ek alanları listele"
 
 msgid "List address scopes"
 msgstr "Adres kapsamlarını listele"
-
-msgid "List address scopes according to their project (name or ID)"
-msgstr "Adres kapsamlarını projelerine göre listele (ad veya kimlik)"
-
-msgid "List address scopes not shared between projects"
-msgstr "Projeler arasında paylaşılmayan adres kapsamlarını listele"
-
-msgid "List address scopes of given IP version networks (4 or 6)"
-msgstr "Verilen IP sürüm ağlarının adres kapsamlarını listele (4 veya 6)"
-
-msgid "List address scopes shared between projects"
-msgstr "Projeler arasında paylaşılan adres kapsamlarını listele"
-
-msgid "List agents hosting a network (name or ID)"
-msgstr "Bir ağa ev sahipliği yapan ajanları listele (isim veya ID)"
-
-msgid "List agents hosting this router (name or ID)"
-msgstr "Bu yönlendiriciyi barındıran ajanları listele (isim veya ID)"
 
 msgid "List all aggregates"
 msgstr "Tüm kümeleri listele"
@@ -2646,17 +2601,11 @@ msgstr "Kapları listele"
 msgid "List credentials"
 msgstr "Kimlik bilgilerini listele"
 
-msgid "List disabled networks"
-msgstr "Devre dışı bırakılan ağları listele"
-
 msgid "List disabled routers"
 msgstr "Devre dışı bırakılmış yönlendiricileri listele"
 
 msgid "List domains"
 msgstr "Alanları listele"
-
-msgid "List enabled networks"
-msgstr "Aktif ağları listele"
 
 msgid "List enabled routers"
 msgstr "Etkinleştirilmiş yönlendiricileri listele"
@@ -2676,9 +2625,6 @@ msgstr "Kimlik API için uzantıları listele"
 msgid "List extensions for the Network API"
 msgstr "Ağ API için uzantıları listele"
 
-msgid "List external networks"
-msgstr "Harici ağları listele"
-
 msgid "List federation protocols"
 msgstr "Federasyon protokollerinin listele"
 
@@ -2688,24 +2634,6 @@ msgstr "Flavorları listele"
 msgid "List floating IP(s)"
 msgstr "Yüzen IP(ler) listesi"
 
-msgid "List floating IP(s) according to given fixed IP address"
-msgstr "Verilen sabit IP adresine göre yüzen IP(ler) listesi"
-
-msgid "List floating IP(s) according to given network (name or ID)"
-msgstr "Verilen ağdaki yüzen IP(ler) listesi (isim veya ID)"
-
-msgid "List floating IP(s) according to given port (name or ID)"
-msgstr "Verilen bağlantı noktasına göre yüzen IP(ler) listesi (isim veya ID)"
-
-msgid "List floating IP(s) according to given project (name or ID)"
-msgstr "Verilen projeye göre yüzen IP(ler)i listele (isim veya ID)"
-
-msgid "List floating IP(s) according to given router (name or ID)"
-msgstr "Verilen yönlendiriciye göre yüzen IP(ler)i listele (isim veya ID)"
-
-msgid "List floating IP(s) according to given status ('ACTIVE', 'DOWN')"
-msgstr "Verilen duruma göre yüzen IP(ler) listesi ('AKTİF', 'KAPALI')"
-
 msgid "List groups"
 msgstr "Grupları listele"
 
@@ -2714,9 +2642,6 @@ msgstr "Yönetici arakatman listesi"
 
 msgid "List identity providers"
 msgstr "Kimlik sağlayıcılarını listele"
-
-msgid "List internal networks"
-msgstr "Dahili ağları listele"
 
 msgid "List key fingerprints"
 msgstr "Anahtar parmak izlerini listele"
@@ -2732,13 +2657,6 @@ msgstr "Modül sürümlerini listele"
 
 msgid "List network RBAC policies"
 msgstr "Ağ RBAC politikalarının listesi"
-
-msgid ""
-"List network RBAC policies according to given action (\"access_as_external\" "
-"or \"access_as_shared\")"
-msgstr ""
-"Verilen eyleme göre ağ RBAC ilkelerini listele (\"access_as_external\" veya "
-"\"access_as_shared\")"
 
 msgid "List network agents"
 msgstr "Ağ ajanlarını listele"
@@ -2761,47 +2679,11 @@ msgstr "Ağ kotasını listele"
 msgid "List network segments"
 msgstr "Ağ bölümlerini listele"
 
-msgid "List network segments that belong to this network (name or ID)"
-msgstr "Bu ağa ait ağ kesimlerini listeleyin (ad veya kimlik)"
-
 msgid "List networks"
 msgstr "Ağları listele"
 
-msgid ""
-"List networks according to VLAN ID for VLAN networks or Tunnel ID for GENEVE/"
-"GRE/VXLAN networks"
-msgstr ""
-"VLAN ağları için VLAN ID'ye veya GENEVA/GRE/VXLAN ağları için Tünel ID'ye "
-"göre ağları listele"
-
-msgid "List networks according to name of the physical network"
-msgstr "Ağları fiziksel ağın adına göre listeleme"
-
-msgid "List networks according to their name"
-msgstr "Ağları isimlerine göre listele"
-
-msgid "List networks according to their project (name or ID)"
-msgstr "Projelerine göre ağları listele (isim veya ID)"
-
-msgid ""
-"List networks according to their status ('ACTIVE', 'BUILD', 'DOWN', 'ERROR')"
-msgstr ""
-"Ağları durumlarına göre listeleyin ('AKTİF', 'KURMA', 'KAPALI', 'HATA')"
-
-msgid "List networks hosted by agent (ID only)"
-msgstr "Aracı tarafından barındırılan ağları listele (yalnızca ID)"
-
-msgid "List networks not shared between projects"
-msgstr "Projeler arasında paylaşılmayan ağları listele"
-
-msgid "List networks shared between projects"
-msgstr "Projeler arasında paylaşılan ağları listele"
-
 msgid "List objects"
 msgstr "Nesneleri listele"
-
-msgid "List only address scopes of given name in output"
-msgstr "Çıktıda verilen adın sadece adres kapsamlarını listeleyin"
 
 msgid "List only agents running on the specified host"
 msgstr "Yalnızca belirtilen ana bilgisayarda çalışan ajanları listele"
@@ -2825,9 +2707,6 @@ msgstr ""
 "Yalnızca belirtilen aygıt sahibi olan bağlantı noktalarını listeleyin. Bu, "
 "bağlantı noktasını kullanan varlıktır (örneğin, ağ: dhcp)."
 
-msgid "List only ports with this MAC address"
-msgstr "Sadece bu MAC adresine sahip bağlantı noktalarını listele"
-
 msgid "List only private flavors"
 msgstr "Sadece gizli flavorları listele"
 
@@ -2849,29 +2728,6 @@ msgstr "Sadece genele açık türleri listele"
 msgid "List only specified service (name only)"
 msgstr "Sadece belirtilen servisleri listele (sadece isim)"
 
-msgid "List only subnet pools of given address scope in output (name or ID)"
-msgstr ""
-"Verilen adres kapsamındaki sadece altağ havuzlarını çıktıda listele (isim "
-"veya ID)"
-
-msgid "List only subnet pools of given name in output"
-msgstr "Verilen isimdeki sadece altağ havuzlarını çıktıda listele"
-
-msgid "List only subnets of given gateway IP in output"
-msgstr "Verilen geçit IP'sinin sadece alt ağlarını çıktıda listele"
-
-msgid "List only subnets of given name in output"
-msgstr "Verilen isimdeki sadece altağları çıktıda listele"
-
-msgid ""
-"List only subnets which belong to a given network in output (name or ID)"
-msgstr "Verilen bir ağa ait sadece altağları çıktıda listele (isim veya ID)"
-
-msgid ""
-"List only subnets which belong to a given project in output (name or ID)"
-msgstr ""
-"Verilen bir projeye ait sadece altağları çıktıda listele (isim veya ID)"
-
 msgid "List policies"
 msgstr "Politikaları listele"
 
@@ -2880,9 +2736,6 @@ msgstr "Yüzer IP adresleri havuzlarını listele"
 
 msgid "List ports"
 msgstr "Bağlantı noktalarını listele"
-
-msgid "List ports according to their project (name or ID)"
-msgstr "Projeye bağlı olarak bağlantı noktalarını listele (isim veya ID)"
 
 msgid "List projects"
 msgstr "Projeleri listele"
@@ -2913,26 +2766,11 @@ msgstr "Yönlendiricilerin listesi"
 msgid "List routers according to their name"
 msgstr "Yönlendiricileri isimlerine göre listele"
 
-msgid "List routers according to their project (name or ID)"
-msgstr "Yönlendiricileri projelerine göre listele (isim veya ID)"
-
-msgid "List routers hosted by an agent (ID only)"
-msgstr "Bir ajan tarafından sunulan yönlendiricileri listele (sadece ID)"
-
-msgid "List rules applied to incoming network traffic"
-msgstr "Gelen ağ trafiğine uygulanan kurallar listesi"
-
-msgid "List rules applied to outgoing network traffic"
-msgstr "Giden ağ trafiğine uygulanan kuralları listele"
-
 msgid "List security group rules"
 msgstr "Güvenlik grubu kurallarını listele"
 
 msgid "List security groups"
 msgstr "Güvenlik gruplarını listele"
-
-msgid "List security groups according to the project (name or ID)"
-msgstr "Projeye göre güvenlik grubunu listele (isim veya ID)"
 
 msgid "List servers"
 msgstr "Sunucuları listele"
@@ -2955,31 +2793,8 @@ msgstr "Belirtilen sunucu üzerindeki servisleri listele (sadece isim)"
 msgid "List subnet pools"
 msgstr "Altağ havuzlarını listele"
 
-msgid "List subnet pools according to their project (name or ID)"
-msgstr "Alt ağ havuzlarını projelerine göre listele (isim veya ID)"
-
-msgid "List subnet pools not shared between projects"
-msgstr "Projeler arasında paylaşılmayan altağ havularını listele"
-
-msgid "List subnet pools not used as the default external subnet pool"
-msgstr ""
-"Varsayılan harici altağ havuzu olarak kullanılmayan altağ havuzlarını listele"
-
-msgid "List subnet pools shared between projects"
-msgstr "Projeler arasında paylaşılan altağ havuzlarını listele"
-
-msgid "List subnet pools used as the default external subnet pool"
-msgstr ""
-"Varsayılan harici altağ havuzu olarak kullanılan altağ havuzlarını listele"
-
 msgid "List subnets"
 msgstr "Alt ağları listele"
-
-msgid "List subnets which have DHCP disabled"
-msgstr "DHCP'nin devre dışı olduğu altağları listele"
-
-msgid "List subnets which have DHCP enabled"
-msgstr "DHCP'nin etkin olduğu altağları listele"
 
 msgid "List the default volume type"
 msgstr "Varsayılan disk bölümü türünü listele"
@@ -4643,8 +4458,8 @@ msgstr "Ağı varsayılan dış ağ olarak ayarlayın"
 
 msgid ""
 "Set the notional service where the encryption is performed (\"front-end\" or "
-"\"back-end\") (admin only) (The default value for this option is \"front-end"
-"\" when setting encryption type of a volume for the first time. Consider "
+"\"back-end\") (admin only) (The default value for this option is \"front-"
+"end\" when setting encryption type of a volume for the first time. Consider "
 "using other encryption options such as: \"--encryption-cipher\", \"--"
 "encryption-key-size\" and \"--encryption-provider\")"
 msgstr ""
@@ -4656,10 +4471,10 @@ msgstr ""
 
 msgid ""
 "Set the notional service where the encryption is performed (\"front-end\" or "
-"\"back-end\") (admin only) (The default value for this option is \"front-end"
-"\" when setting encryption type of a volume. Consider using other encryption "
-"options such as: \"--encryption-cipher\", \"--encryption-key-size\" and \"--"
-"encryption-provider\")"
+"\"back-end\") (admin only) (The default value for this option is \"front-"
+"end\" when setting encryption type of a volume. Consider using other "
+"encryption options such as: \"--encryption-cipher\", \"--encryption-key-"
+"size\" and \"--encryption-provider\")"
 msgstr ""
 "Şifrelemenin gerçekleştirildiği kavramsal servisi ayarla (\"front-end\" veya "
 "\"back-end\") (sadece yönetici) (Bir disk bölümünün şifreleme türü "
