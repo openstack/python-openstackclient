@@ -31,6 +31,7 @@ DEFAULT_DOMAIN = 'default'
 # core OSC
 IGNORED_MODULES = (
     'neutron_taas.taas_client.osc',
+    'neutronclient.osc.v2.fwaas',
     'neutronclient.osc.v2.taas',
 )
 
