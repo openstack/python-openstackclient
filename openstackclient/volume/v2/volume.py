@@ -18,7 +18,7 @@ import argparse
 import copy
 import functools
 import logging
-import typing as ty
+from typing import Any
 
 from cliff import columns as cliff_columns
 from openstack.block_storage.v2 import volume as _volume
@@ -61,7 +61,7 @@ class KeyValueHintAction(argparse.Action):
             )
 
 
-class AttachmentsColumn(cliff_columns.FormattableColumn[list[ty.Any]]):
+class AttachmentsColumn(cliff_columns.FormattableColumn[list[Any]]):
     """Formattable column for attachments column.
 
     Unlike the parent FormattableColumn class, the initializer of the
@@ -92,7 +92,7 @@ class AttachmentsColumn(cliff_columns.FormattableColumn[list[ty.Any]]):
         return msg
 
 
-def _format_volume(volume: _volume.Volume) -> dict[str, ty.Any]:
+def _format_volume(volume: _volume.Volume) -> dict[str, Any]:
     # Some columns returned by openstacksdk should not be shown because they're
     # either irrelevant or duplicates
     ignored_columns = {

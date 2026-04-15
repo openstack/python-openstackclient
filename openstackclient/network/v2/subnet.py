@@ -15,7 +15,7 @@
 
 import copy
 import logging
-import typing as ty
+from typing import Any
 
 from cliff import columns as cliff_columns
 from osc_lib.cli import format_columns
@@ -44,7 +44,7 @@ def _update_arguments(obj_list, parsed_args_list, option):
             raise exceptions.CommandError(msg)
 
 
-class AllocationPoolsColumn(cliff_columns.FormattableColumn[ty.Any]):
+class AllocationPoolsColumn(cliff_columns.FormattableColumn[Any]):
     def human_readable(self):
         pool_formatted = [
             '{}-{}'.format(pool.get('start', ''), pool.get('end', ''))
@@ -53,7 +53,7 @@ class AllocationPoolsColumn(cliff_columns.FormattableColumn[ty.Any]):
         return ','.join(pool_formatted)
 
 
-class HostRoutesColumn(cliff_columns.FormattableColumn[ty.Any]):
+class HostRoutesColumn(cliff_columns.FormattableColumn[Any]):
     def human_readable(self):
         # Map the host route keys to match --host-route option.
         return utils.format_list_of_dicts(
@@ -61,7 +61,7 @@ class HostRoutesColumn(cliff_columns.FormattableColumn[ty.Any]):
         )
 
 
-class UnsortedListColumn(cliff_columns.FormattableColumn[list[ty.Any]]):
+class UnsortedListColumn(cliff_columns.FormattableColumn[list[Any]]):
     # format_columns.ListColumn sorts the output, but for things like
     # DNS server addresses the order matters
     def human_readable(self):
@@ -831,7 +831,7 @@ class UnsetSubnet(common.NeutronUnsetCommandWithExtraArgs):
         client = self.app.client_manager.network
         obj = client.find_subnet(parsed_args.subnet, ignore_missing=False)
 
-        attrs: dict[str, ty.Any] = {}
+        attrs: dict[str, Any] = {}
         if parsed_args.gateway:
             attrs['gateway_ip'] = None
         if parsed_args.dns_nameservers:

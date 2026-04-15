@@ -16,7 +16,7 @@
 
 import functools
 import logging
-import typing as ty
+from typing import Any
 
 from cliff import columns as cliff_columns
 from openstack.block_storage.v3 import snapshot as _snapshot
@@ -61,7 +61,7 @@ class VolumeIdColumn(cliff_columns.FormattableColumn[str]):
         return volume
 
 
-def _format_snapshot(snapshot: _snapshot.Snapshot) -> dict[str, ty.Any]:
+def _format_snapshot(snapshot: _snapshot.Snapshot) -> dict[str, Any]:
     # Some columns returned by openstacksdk should not be shown because they're
     # either irrelevant or duplicates
     ignored_columns = {

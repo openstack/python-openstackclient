@@ -14,7 +14,7 @@
 import abc
 import contextlib
 import logging
-import typing as ty
+from typing import Any
 
 from cliff import _argparse
 import openstack.exceptions
@@ -317,7 +317,7 @@ class NeutronCommandWithExtraArgs(command.Command):
         return converter
 
     def _parse_extra_properties(self, extra_properties):
-        result: dict[str, ty.Any] = {}
+        result: dict[str, Any] = {}
         if extra_properties:
             for _property in extra_properties:
                 converter = self._get_property_converter(_property)
@@ -350,7 +350,7 @@ class NeutronCommandWithExtraArgs(command.Command):
 
 class NeutronUnsetCommandWithExtraArgs(NeutronCommandWithExtraArgs):
     def _parse_extra_properties(self, extra_properties):
-        result: dict[str, ty.Any] = {}
+        result: dict[str, Any] = {}
         if extra_properties:
             for _property in extra_properties:
                 result[_property['name']] = None

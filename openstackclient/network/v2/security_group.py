@@ -14,7 +14,7 @@
 """Security Group action implementations"""
 
 import argparse
-import typing as ty
+from typing import Any
 
 from cliff import columns as cliff_columns
 from osc_lib import utils
@@ -66,12 +66,12 @@ def _format_compute_security_group_rules(sg_rules):
     return utils.format_list(rules, separator='\n')
 
 
-class NetworkSecurityGroupRulesColumn(cliff_columns.FormattableColumn[ty.Any]):
+class NetworkSecurityGroupRulesColumn(cliff_columns.FormattableColumn[Any]):
     def human_readable(self):
         return _format_network_security_group_rules(self._value)
 
 
-class ComputeSecurityGroupRulesColumn(cliff_columns.FormattableColumn[ty.Any]):
+class ComputeSecurityGroupRulesColumn(cliff_columns.FormattableColumn[Any]):
     def human_readable(self):
         return _format_compute_security_group_rules(self._value)
 

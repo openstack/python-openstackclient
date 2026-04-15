@@ -18,7 +18,7 @@
 import datetime
 import json
 import logging
-import typing as ty
+from typing import Any
 import uuid
 
 from cliff import columns as cliff_columns
@@ -33,7 +33,7 @@ from openstackclient.identity import common
 LOG = logging.getLogger(__name__)
 
 
-class RolesColumn(cliff_columns.FormattableColumn[ty.Any]):
+class RolesColumn(cliff_columns.FormattableColumn[Any]):
     """Generate a formatted string of role names."""
 
     def human_readable(self):

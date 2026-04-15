@@ -14,7 +14,7 @@
 """Floating IP Port Forwarding action implementations"""
 
 import logging
-import typing as ty
+from typing import Any
 
 from osc_lib import exceptions
 from osc_lib import utils
@@ -165,7 +165,7 @@ class CreateFloatingIPPortForwarding(
         return parser
 
     def take_action(self, parsed_args):
-        attrs: dict[str, ty.Any] = {}
+        attrs: dict[str, Any] = {}
         client = self.app.client_manager.network
         floating_ip = client.find_ip(
             parsed_args.floating_ip,

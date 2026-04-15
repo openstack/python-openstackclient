@@ -18,7 +18,7 @@ import argparse
 import itertools
 import logging
 import sys
-import typing as ty
+from typing import Any
 
 from openstack import exceptions as sdk_exceptions
 from openstack import utils as sdk_utils
@@ -203,7 +203,7 @@ def get_network_quotas(
         #
         # so we need to make conversion to have data in same format from
         # all of the services
-        result: dict[str, ty.Any] = {"usage": {}, "reservation": {}}
+        result: dict[str, Any] = {"usage": {}, "reservation": {}}
         for key, values in dict_quota.items():
             if values is None:
                 continue

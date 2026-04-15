@@ -18,7 +18,7 @@
 
 import itertools
 import logging
-import typing as ty
+from typing import Any
 
 from osc_lib import exceptions
 from osc_lib import utils
@@ -59,7 +59,7 @@ def _is_prop_empty(columns, props, prop_name):
 
 
 def _exchange_dict_keys_with_values(orig_dict):
-    updated_dict: dict[str, ty.Any] = {}
+    updated_dict: dict[str, Any] = {}
     for k, v in orig_dict.items():
         k = [k]
         if not updated_dict.get(v):
@@ -402,7 +402,7 @@ class ListNetworkSegmentRange(command.Lister):
                 'available',
             )
 
-        display_props: tuple[ty.Any, ...] = tuple()
+        display_props: tuple[Any, ...] = tuple()
         for s in data:
             props = utils.get_item_properties(s, columns)
             if (

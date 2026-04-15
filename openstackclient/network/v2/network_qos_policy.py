@@ -14,7 +14,7 @@
 #    under the License.
 
 import logging
-import typing as ty
+from typing import Any
 
 from cliff import columns as cliff_columns
 from osc_lib import exceptions
@@ -28,7 +28,7 @@ from openstackclient.network import common
 LOG = logging.getLogger(__name__)
 
 
-class RulesColumn(cliff_columns.FormattableColumn[ty.Any]):
+class RulesColumn(cliff_columns.FormattableColumn[Any]):
     def human_readable(self):
         return '\n'.join(str(v) for v in self._value)
 
