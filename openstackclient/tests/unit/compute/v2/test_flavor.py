@@ -106,7 +106,6 @@ class TestFlavorCreate(TestFlavor):
             'id': None,
             'ephemeral': 0,
             'swap': 0,
-            'rxtx_factor': 1.0,
             'is_public': True,
         }
 
@@ -387,6 +386,32 @@ class TestFlavorCreate(TestFlavor):
             ('ram', self.flavor.ram),
             ('vcpus', self.flavor.vcpus),
             ('description', 'description'),
+            ('name', self.flavor.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.assertRaises(
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
+
+    def test_flavor_create_with_rxtx_factor_post_v2102(self):
+        self.set_compute_api_version('2.102')
+
+        arglist = [
+            '--id',
+            self.flavor.id,
+            '--ram',
+            str(self.flavor.ram),
+            '--vcpus',
+            str(self.flavor.vcpus),
+            '--rxtx-factor',
+            '1.0',
+            self.flavor.name,
+        ]
+        verifylist = [
+            ('ram', self.flavor.ram),
+            ('vcpus', self.flavor.vcpus),
+            ('rxtx_factor', 1.0),
             ('name', self.flavor.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
