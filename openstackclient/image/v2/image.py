@@ -166,10 +166,10 @@ def get_data_from_stdin():
         image = sys.stdin
         if hasattr(sys.stdin, 'buffer'):
             image = sys.stdin.buffer
-        if os.name == "nt":
+        if sys.platform == "win32":
             import msvcrt
 
-            msvcrt.setmode(sys.stdin.fileno(), os.O_BINARY)  # type: ignore
+            msvcrt.setmode(sys.stdin.fileno(), os.O_BINARY)
 
         return image
     else:

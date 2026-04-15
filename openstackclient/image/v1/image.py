@@ -314,10 +314,10 @@ class CreateImage(command.ShowOne):
             else:
                 # Read file from stdin
                 if not sys.stdin.isatty():
-                    if os.name == "nt":
+                    if sys.platform == "win32":
                         import msvcrt
 
-                        msvcrt.setmode(sys.stdin.fileno(), os.O_BINARY)  # type: ignore
+                        msvcrt.setmode(sys.stdin.fileno(), os.O_BINARY)
                     if hasattr(sys.stdin, 'buffer'):
                         kwargs['data'] = sys.stdin.buffer
                     else:
@@ -785,10 +785,10 @@ class SetImage(command.Command):
                     # Read file from stdin
                     if sys.stdin.isatty() is not True:
                         if parsed_args.stdin:
-                            if os.name == "nt":
+                            if sys.platform == "win32":
                                 import msvcrt
 
-                                msvcrt.setmode(sys.stdin.fileno(), os.O_BINARY)  # type: ignore
+                                msvcrt.setmode(sys.stdin.fileno(), os.O_BINARY)
                             if hasattr(sys.stdin, 'buffer'):
                                 kwargs['data'] = sys.stdin.buffer
                             else:
