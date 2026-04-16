@@ -12,9 +12,9 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
-#
+
 import logging
-import typing
+from typing import Any
 
 from cliff import columns as cliff_columns
 from osc_lib.cli import identity as identity_utils
@@ -505,7 +505,7 @@ class UnsetFirewallRule(command.Command):
         return parser
 
     def _get_attrs(self, client_manager, parsed_args):
-        attrs: dict[str, typing.Any] = {}
+        attrs: dict[str, Any] = {}
         if parsed_args.source_ip_address:
             attrs['source_ip_address'] = None
         if parsed_args.source_port:
