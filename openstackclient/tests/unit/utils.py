@@ -17,6 +17,7 @@ import argparse
 import io
 import os
 
+from cliff import columns as cliff_columns
 import fixtures
 import testtools
 
@@ -68,6 +69,28 @@ class TestCase(testtools.TestCase):
 
 class TestCommand(TestCase):
     """Test cliff command classes"""
+
+    # TODO(slaweq): Remove those methods in favour of the ones in
+    # osc_lib.test.base.TestCommand once osc-lib TestCommand
+    # provides all of the same functionality as this TestCommand
+    # like e.g. the monkey patching for sys.stderr and this one can be
+    # removed.
+
+    def assertListItemEqual(self, expected, actual):
+        self.assertEqual(len(expected), len(actual))
+        for item_expected, item_actual in zip(expected, actual):
+            self.assertItemEqual(item_expected, item_actual)
+
+    def assertItemEqual(self, expected, actual):
+        self.assertEqual(len(expected), len(actual))
+        for col_expected, col_actual in zip(expected, actual):
+            if isinstance(col_expected, cliff_columns.FormattableColumn):
+                self.assertIsInstance(col_actual, col_expected.__class__)
+                self.assertEqual(
+                    col_expected.human_readable(), col_actual.human_readable()
+                )
+            else:
+                self.assertEqual(col_expected, col_actual)
 
     def setUp(self):
         super().setUp()

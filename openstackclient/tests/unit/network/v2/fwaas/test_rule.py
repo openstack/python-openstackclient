@@ -17,7 +17,6 @@
 import re
 from unittest import mock
 
-from cliff import columns as cliff_columns
 from openstack.network.v2 import firewall_rule
 from openstack.test import fakes as sdk_fakes
 from osc_lib import exceptions
@@ -78,26 +77,6 @@ class TestFirewallRule(network_fakes.TestNetworkV2):
         else:
             self.mocked.assert_called_once_with(**req_body)
         self.assertEqual(self.ordered_headers, headers)
-
-    # TODO(slaweq): remove this method once network_fakes.TestNetworkV2 will
-    # inherit from the osc_lib.test.base.TestCommand
-    def assertListItemEqual(self, expected, actual):
-        self.assertEqual(len(expected), len(actual))
-        for item_expected, item_actual in zip(expected, actual):
-            self.assertItemEqual(item_expected, item_actual)
-
-    # TODO(slaweq): remove this method once network_fakes.TestNetworkV2 will
-    # inherit from the osc_lib.test.base.TestCommand
-    def assertItemEqual(self, expected, actual):
-        self.assertEqual(len(expected), len(actual))
-        for col_expected, col_actual in zip(expected, actual):
-            if isinstance(col_expected, cliff_columns.FormattableColumn):
-                self.assertIsInstance(col_actual, col_expected.__class__)
-                self.assertEqual(
-                    col_expected.human_readable(), col_actual.human_readable()
-                )
-            else:
-                self.assertEqual(col_expected, col_actual)
 
     def setUp(self):
         super().setUp()
