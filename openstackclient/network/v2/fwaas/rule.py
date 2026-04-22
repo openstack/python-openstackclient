@@ -501,10 +501,18 @@ class UnsetFirewallRule(command.Command):
         parser.add_argument(
             '--share',
             action='store_true',
-            help=_('Restrict use of the firewall rule to the current project'),
+            help=_(
+                '(Deprecated) Use "firewall rule set --no-share" instead. '
+                'Restrict use of the firewall rule to the current project'
+            ),
         )
         parser.add_argument(
-            '--enable-rule', action='store_true', help=_('Disable this rule')
+            '--enable-rule',
+            action='store_true',
+            help=_(
+                '(Deprecated) Use "firewall rule set --disable-rule" instead. '
+                'Disable this rule'
+            ),
         )
 
         parser.add_argument(
@@ -533,8 +541,16 @@ class UnsetFirewallRule(command.Command):
         if parsed_args.destination_port:
             attrs['destination_port'] = None
         if parsed_args.share:
+            LOG.warning(
+                'The --share option is deprecated, please use '
+                '"firewall rule set --no-share" instead.'
+            )
             attrs['shared'] = False
         if parsed_args.enable_rule:
+            LOG.warning(
+                'The --enable-rule option is deprecated, please use '
+                '"firewall rule set --disable-rule" instead.'
+            )
             attrs['enabled'] = False
         if parsed_args.source_firewall_group:
             attrs['source_firewall_group_id'] = None

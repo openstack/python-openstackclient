@@ -403,11 +403,17 @@ class UnsetFirewallGroup(command.Command):
             '--share',
             action='store_true',
             help=_(
+                '(Deprecated) Use "firewall group set --no-share" instead. '
                 'Restrict use of the firewall group to the current project'
             ),
         )
         parser.add_argument(
-            '--enable', action='store_true', help=_('Disable firewall group')
+            '--enable',
+            action='store_true',
+            help=_(
+                '(Deprecated) Use "firewall group set --disable" instead. '
+                'Disable firewall group'
+            ),
         )
         return parser
 
@@ -420,8 +426,16 @@ class UnsetFirewallGroup(command.Command):
         if parsed_args.egress_firewall_policy:
             attrs['egress_firewall_policy_id'] = None
         if parsed_args.share:
+            LOG.warning(
+                'The --share option is deprecated, please use '
+                '"firewall group set --no-share" instead.'
+            )
             attrs['shared'] = False
         if parsed_args.enable:
+            LOG.warning(
+                'The --enable option is deprecated, please use '
+                '"firewall group set --disable" instead.'
+            )
             attrs['admin_state_up'] = False
         if parsed_args.port:
             old = client.find_firewall_group(

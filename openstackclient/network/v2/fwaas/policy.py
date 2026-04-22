@@ -468,6 +468,7 @@ class UnsetFirewallPolicy(command.Command):
             '--share',
             action='store_true',
             help=_(
+                '(Deprecated) Use "firewall policy set --no-share" instead. '
                 'Restrict use of the firewall policy to the current project'
             ),
         )
@@ -494,6 +495,10 @@ class UnsetFirewallPolicy(command.Command):
         if parsed_args.audited:
             attrs['audited'] = False
         if parsed_args.share:
+            LOG.warning(
+                'The --share option is deprecated, please use '
+                '"firewall policy set --no-share" instead.'
+            )
             attrs['shared'] = False
         return attrs
 

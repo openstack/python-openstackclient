@@ -798,7 +798,12 @@ class TestUnsetFirewallRule(TestFirewallRule):
             ('share', True),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        result = self.cmd.take_action(parsed_args)
+        with mock.patch.object(fwaas_rule.LOG, 'warning') as mock_warning:
+            result = self.cmd.take_action(parsed_args)
+            mock_warning.assert_called_once_with(
+                'The --share option is deprecated, please use '
+                '"firewall rule set --no-share" instead.'
+            )
         self.mocked.assert_called_once_with(target, **{'shared': False})
         self.assertIsNone(result)
 
@@ -899,8 +904,12 @@ class TestUnsetFirewallRule(TestFirewallRule):
             ('enable_rule', True),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        result = self.cmd.take_action(parsed_args)
-
+        with mock.patch.object(fwaas_rule.LOG, 'warning') as mock_warning:
+            result = self.cmd.take_action(parsed_args)
+            mock_warning.assert_called_once_with(
+                'The --enable-rule option is deprecated, please use '
+                '"firewall rule set --disable-rule" instead.'
+            )
         self.mocked.assert_called_once_with(target, **{'enabled': False})
         self.assertIsNone(result)
 
