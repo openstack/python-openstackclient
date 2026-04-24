@@ -593,6 +593,9 @@ class SetQuota(command.Command):
         compute_kwargs = {}
         volume_kwargs = {}
         network_kwargs = {}
+        compute_client = None
+        volume_client = None
+        network_client = None
 
         if self.app.client_manager.is_compute_endpoint_enabled():
             compute_client = self.app.client_manager.compute
@@ -636,12 +639,12 @@ class SetQuota(command.Command):
                 network_kwargs['check_limit'] = True
 
         if parsed_args.quota_class or parsed_args.default:
-            if compute_kwargs:
+            if compute_kwargs and compute_client:
                 compute_client.update_quota_class_set(
                     parsed_args.project or 'default',
                     **compute_kwargs,
                 )
-            if volume_kwargs:
+            if volume_kwargs and volume_client:
                 volume_client.update_quota_class_set(
                     parsed_args.project or 'default',
                     **volume_kwargs,
@@ -657,11 +660,11 @@ class SetQuota(command.Command):
         project_info = get_project(self.app, parsed_args.project)
         project = project_info['id']
 
-        if compute_kwargs:
+        if compute_kwargs and compute_client:
             compute_client.update_quota_set(project, **compute_kwargs)
-        if volume_kwargs:
+        if volume_kwargs and volume_client:
             volume_client.update_quota_set(project, **volume_kwargs)
-        if network_kwargs:
+        if network_kwargs and network_client:
             network_client.update_quota(project, **network_kwargs)
 
 

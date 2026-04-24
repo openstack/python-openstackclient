@@ -1,0 +1,9 @@
+---
+fixes:
+  - |
+    When attempting to set or delete a quota for nova the command can fail if
+    the endpoint for the service does not exist but the service does. An
+    endpoint is a service at a specific region for a specific interface. The
+    other quota commands gracefully handle this leading it not being possible
+    to set or delete a quota in this case but to be able to see it.
+    [`Bug 2150251 <https://bugs.launchpad.net/python-openstackclient/+bug/2150251>`_]
