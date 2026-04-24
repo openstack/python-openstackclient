@@ -245,7 +245,7 @@ class TestCreateFirewallGroup(TestFirewallGroup):
         self.network_client.find_firewall_policy.side_effect = _mock_find
         port = 'port'
         self.network_client.find_port.side_effect = _mock_find
-        tenant_id = 'my-tenant'
+        project_id = 'my-project'
         arglist = [
             '--name',
             name,
@@ -258,7 +258,7 @@ class TestCreateFirewallGroup(TestFirewallGroup):
             '--port',
             port,
             '--project',
-            tenant_id,
+            project_id,
             '--share',
             '--disable',
         ]
@@ -269,7 +269,7 @@ class TestCreateFirewallGroup(TestFirewallGroup):
             ('egress_firewall_policy', egress_policy),
             ('port', [port]),
             ('shared', True),
-            ('project', tenant_id),
+            ('project', project_id),
             ('admin_state_up', False),
         ]
         request, response = _generate_req_and_res(verifylist, self.resource)
