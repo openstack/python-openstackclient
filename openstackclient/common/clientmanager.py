@@ -156,11 +156,21 @@ class ClientManager(clientmanager.ClientManager):
         #                there is no Service Catalog, callers here are
         #                not expecting that so fold None into True to
         #                use Network API by default
-        return self.is_service_available('network') is not False
+        return (
+            self.is_service_available(
+                'network', self.region_name, self.interface
+            )
+            is not False
+        )
 
     def is_compute_endpoint_enabled(self) -> bool:
         """Check if Compute endpoint is enabled"""
-        return self.is_service_available('compute') is not False
+        return (
+            self.is_service_available(
+                'compute', self.region_name, self.interface
+            )
+            is not False
+        )
 
     # TODO(stephenfin): Drop volume_client argument in OSC 8.0 or later.
     def is_volume_endpoint_enabled(self, volume_client: Any = None) -> bool:
@@ -169,11 +179,26 @@ class ClientManager(clientmanager.ClientManager):
         # Service Types Authority
         # https://service-types.openstack.org/service-types.json
         return (
-            self.is_service_available('block-storage') is not False
-            or self.is_service_available('volume') is not False
-            or self.is_service_available('volumev3') is not False
-            or self.is_service_available('volumev2') is not False
-            or self.is_service_available('block-store') is not False
+            self.is_service_available(
+                'block-storage', self.region_name, self.interface
+            )
+            is not False
+            or self.is_service_available(
+                'volume', self.region_name, self.interface
+            )
+            is not False
+            or self.is_service_available(
+                'volumev3', self.region_name, self.interface
+            )
+            is not False
+            or self.is_service_available(
+                'volumev2', self.region_name, self.interface
+            )
+            is not False
+            or self.is_service_available(
+                'block-store', self.region_name, self.interface
+            )
+            is not False
         )
 
 
