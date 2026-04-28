@@ -759,7 +759,7 @@ class SetPasswordUser(command.Command):
                 )
             )
 
-        identity_client.update_user(
+        identity_client.update_password(
             user=user_id,
             current_password=current_password,
             password=password,
