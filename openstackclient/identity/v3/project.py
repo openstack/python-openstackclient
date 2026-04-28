@@ -556,8 +556,8 @@ class ShowProject(command.ShowOne):
         if parsed_args.children:
             kwargs['subtree_as_ids'] = True
 
-        project = identity_client.find_project(
+        project_obj = identity_client.find_project(
             project, **kwargs, ignore_missing=False
         )
 
-        return _format_project(project)
+        return _format_project(project_obj)

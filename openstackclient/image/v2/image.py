@@ -1533,7 +1533,7 @@ class UnsetImage(command.Command):
                     # out, what was changed inside
                     # NOTE: ping gtema to improve that in SDK
                     new_props = kwargs.get(
-                        'properties', image.get('properties').copy()
+                        'properties', image['properties'].copy()
                     )
                     new_props.pop(k, None)
                     kwargs['properties'] = new_props

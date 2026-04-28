@@ -157,7 +157,9 @@ class CreateVolumeSnapshot(command.ShowOne):
     def take_action(
         self, parsed_args: argparse.Namespace
     ) -> tuple[Sequence[str], Iterable[Any]]:
-        volume_client = self.app.client_manager.sdk_connection.volume
+        volume_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.volume, '3'
+        )
 
         volume = parsed_args.volume
         if not parsed_args.volume:
@@ -541,7 +543,9 @@ class ShowVolumeSnapshot(command.ShowOne):
     def take_action(
         self, parsed_args: argparse.Namespace
     ) -> tuple[Sequence[str], Iterable[Any]]:
-        volume_client = self.app.client_manager.sdk_connection.volume
+        volume_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.volume, '3'
+        )
 
         snapshot = volume_client.find_snapshot(
             parsed_args.snapshot, ignore_missing=False

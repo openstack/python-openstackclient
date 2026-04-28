@@ -540,11 +540,13 @@ class SetFloatingIP(common.NeutronCommandWithExtraArgs):
 
     def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
-        attrs = {}
         obj = client.find_ip(
             parsed_args.floating_ip,
             ignore_missing=False,
         )
+
+        attrs: dict[str, Any] = {}
+
         if parsed_args.port:
             port = client.find_port(parsed_args.port, ignore_missing=False)
             attrs['port_id'] = port.id

@@ -123,7 +123,7 @@ class CreateTrust(command.ShowOne):
             self.app.client_manager.sdk_connection.identity, '3'
         )
 
-        kwargs = {}
+        kwargs: dict[str, Any] = {}
 
         # NOTE(stevemar): Find the two users, project and roles that
         # are necessary for making a trust usable, the API dictates that

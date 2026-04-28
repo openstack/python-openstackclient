@@ -262,7 +262,7 @@ class CreateUser(command.ShowOne):
             self.app.client_manager.sdk_connection.identity, '3'
         )
 
-        kwargs = {}
+        kwargs: dict[str, Any] = {}
 
         domain_id = None
         if parsed_args.domain:

@@ -341,7 +341,7 @@ class ListSubnetPool(command.Lister):
     ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
         identity_client = self.app.client_manager.identity
         network_client = self.app.client_manager.network
-        filters = {}
+        filters: dict[str, Any] = {}
         if parsed_args.share:
             filters['shared'] = True
             filters['is_shared'] = True

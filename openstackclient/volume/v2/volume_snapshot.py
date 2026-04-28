@@ -22,6 +22,7 @@ from typing import Any
 
 from cliff import columns as cliff_columns
 from openstack.block_storage.v2 import snapshot as _snapshot
+from openstack import utils as sdk_utils
 from osc_lib.cli import format_columns
 from osc_lib.cli import parseractions
 from osc_lib import exceptions
@@ -157,7 +158,9 @@ class CreateVolumeSnapshot(command.ShowOne):
     def take_action(
         self, parsed_args: argparse.Namespace
     ) -> tuple[Sequence[str], Iterable[Any]]:
-        volume_client = self.app.client_manager.sdk_connection.volume
+        volume_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.volume, '2'
+        )
 
         volume = parsed_args.volume
         if not parsed_args.volume:
@@ -523,7 +526,9 @@ class ShowVolumeSnapshot(command.ShowOne):
     def take_action(
         self, parsed_args: argparse.Namespace
     ) -> tuple[Sequence[str], Iterable[Any]]:
-        volume_client = self.app.client_manager.sdk_connection.volume
+        volume_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.volume, '2'
+        )
 
         snapshot = volume_client.find_snapshot(
             parsed_args.snapshot, ignore_missing=False

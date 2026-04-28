@@ -24,6 +24,7 @@ from typing import Any
 from cliff import columns as cliff_columns
 from openstack.block_storage.v2 import volume as _volume
 from openstack import exceptions as sdk_exceptions
+from openstack import utils as sdk_utils
 from osc_lib.cli import format_columns
 from osc_lib.cli import parseractions
 from osc_lib import exceptions
@@ -978,7 +979,10 @@ class ShowVolume(command.ShowOne):
     def take_action(
         self, parsed_args: argparse.Namespace
     ) -> tuple[Sequence[str], Iterable[Any]]:
-        volume_client = self.app.client_manager.sdk_connection.volume
+        volume_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.volume, '2'
+        )
+
         volume = volume_client.find_volume(
             parsed_args.volume, ignore_missing=False
         )

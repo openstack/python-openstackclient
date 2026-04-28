@@ -88,6 +88,7 @@ class FakeClientMixin:
         self.app.client_manager.sdk_connection.volume = mock.Mock(
             spec=block_storage_v2_proxy.Proxy,
         )
+        self.app.client_manager.sdk_connection.volume.api_version = '2'
         self.volume_sdk_client = self.app.client_manager.sdk_connection.volume
         self.set_volume_api_version()  # default to the lowest
 

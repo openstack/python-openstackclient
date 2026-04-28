@@ -289,6 +289,7 @@ class DeleteApplicationCredential(command.Command):
         identity_client = sdk_utils.ensure_service_version(
             self.app.client_manager.sdk_connection.identity, '3'
         )
+
         conn = self.app.client_manager.sdk_connection
         auth = conn.config.get_auth()
         if auth is None:
@@ -296,6 +297,9 @@ class DeleteApplicationCredential(command.Command):
             raise exceptions.CommandError('invalid authentication info')
 
         user_id = auth.get_user_id(conn.session)
+        if user_id is None:
+            msg = _("failed to retrieve auth info for current session")
+            raise exceptions.CommandError(msg)
 
         errors = 0
         for ac in parsed_args.application_credential:
@@ -387,12 +391,17 @@ class ShowApplicationCredential(command.ShowOne):
         identity_client = sdk_utils.ensure_service_version(
             self.app.client_manager.sdk_connection.identity, '3'
         )
+
         conn = self.app.client_manager.sdk_connection
         auth = conn.config.get_auth()
         if auth is None:
             # this will never happen
             raise exceptions.CommandError('invalid authentication info')
+
         user_id = auth.get_user_id(conn.session)
+        if user_id is None:
+            msg = _("failed to retrieve auth info for current session")
+            raise exceptions.CommandError(msg)
 
         application_credential = identity_client.find_application_credential(
             user_id, parsed_args.application_credential, ignore_missing=False

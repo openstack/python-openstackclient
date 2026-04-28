@@ -105,7 +105,8 @@ class ProjectCleanup(command.Command):
             project = identity_client.find_project(
                 name_or_id=parsed_args.project, ignore_missing=False
             )
-            connection = connection.connect_as_project(project)
+            # FIXME(stephenfin): The type in SDK is wrong
+            connection = connection.connect_as_project(project)  # type: ignore
 
         if connection:
             status_queue: queue.Queue[Any] = queue.Queue()

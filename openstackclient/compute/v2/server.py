@@ -417,7 +417,7 @@ class AddFixedIP(command.ShowOne):
         else:
             net_id = parsed_args.network
 
-        kwargs = {'net_id': net_id}
+        kwargs: dict[str, Any] = {'net_id': net_id}
         if parsed_args.fixed_ip_address:
             kwargs['fixed_ips'] = [
                 {"ip_address": parsed_args.fixed_ip_address}
@@ -3148,9 +3148,8 @@ class ListServer(command.Lister):
                 s.image_id = IMAGE_STRING_FOR_BFV
 
             if not sdk_utils.supports_microversion(compute_client, '2.47'):
-                flavor = flavors.get(s.flavor['id'])
-                if flavor:
-                    s.flavor_name = flavor.name
+                if s.flavor['id'] in flavors:
+                    s.flavor_name = flavors[s.flavor['id']].name
                 s.flavor_id = s.flavor['id']
             else:
                 s.flavor_name = s.flavor['original_name']

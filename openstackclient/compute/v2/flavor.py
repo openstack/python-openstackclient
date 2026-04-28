@@ -553,15 +553,15 @@ class ShowFlavor(command.ShowOne):
 
         # Since we need to inject "access_project_id" into resource - convert
         # it to dict and treat it respectively
-        flavor = flavor.to_dict()
-        flavor['access_project_ids'] = access_projects
+        flavor_dict = flavor.to_dict()
+        flavor_dict['access_project_ids'] = access_projects
 
-        display_columns, columns = _get_flavor_columns(flavor)
+        display_columns, columns = _get_flavor_columns(flavor_dict)
         data = utils.get_dict_properties(
-            flavor, columns, formatters=_formatters
+            flavor_dict, columns, formatters=_formatters
         )
 
-        return (display_columns, data)
+        return display_columns, data
 
 
 class UnsetFlavor(command.Command):

@@ -325,7 +325,7 @@ class ListFloatingIPPortForwarding(command.Lister):
             'Description',
         )
 
-        query = {}
+        query: dict[str, Any] = {}
 
         if parsed_args.port:
             port = client.find_port(parsed_args.port, ignore_missing=False)
