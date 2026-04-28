@@ -21,6 +21,7 @@ from collections.abc import Iterable, Sequence
 from typing import Any
 
 from cliff import columns as cliff_columns
+from openstack import utils as sdk_utils
 from osc_lib import exceptions
 from osc_lib import utils
 
@@ -110,7 +111,9 @@ class CreateVolumeBackup(command.ShowOne):
     def take_action(
         self, parsed_args: argparse.Namespace
     ) -> tuple[Sequence[str], Iterable[Any]]:
-        volume_client = self.app.client_manager.sdk_connection.volume
+        volume_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.volume, '2'
+        )
 
         volume_id = volume_client.find_volume(
             parsed_args.volume,
@@ -163,7 +166,9 @@ class DeleteVolumeBackup(command.Command):
         return parser
 
     def take_action(self, parsed_args: argparse.Namespace) -> None:
-        volume_client = self.app.client_manager.sdk_connection.volume
+        volume_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.volume, '2'
+        )
         result = 0
 
         for backup in parsed_args.backups:
@@ -247,7 +252,9 @@ class ListVolumeBackup(command.Lister):
     def take_action(
         self, parsed_args: argparse.Namespace
     ) -> tuple[Sequence[str], Iterable[tuple[Any, ...]]]:
-        volume_client = self.app.client_manager.sdk_connection.volume
+        volume_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.volume, '2'
+        )
 
         columns: tuple[str, ...] = (
             'id',
@@ -362,7 +369,9 @@ class RestoreVolumeBackup(command.ShowOne):
     def take_action(
         self, parsed_args: argparse.Namespace
     ) -> tuple[Sequence[str], Iterable[Any]]:
-        volume_client = self.app.client_manager.sdk_connection.volume
+        volume_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.volume, '2'
+        )
 
         backup = volume_client.find_backup(
             parsed_args.backup,
@@ -428,7 +437,9 @@ class SetVolumeBackup(command.Command):
         return parser
 
     def take_action(self, parsed_args: argparse.Namespace) -> None:
-        volume_client = self.app.client_manager.sdk_connection.volume
+        volume_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.volume, '2'
+        )
 
         backup = volume_client.find_backup(
             parsed_args.backup,
@@ -465,7 +476,9 @@ class ShowVolumeBackup(command.ShowOne):
     def take_action(
         self, parsed_args: argparse.Namespace
     ) -> tuple[Sequence[str], Iterable[Any]]:
-        volume_client = self.app.client_manager.sdk_connection.volume
+        volume_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.volume, '2'
+        )
         backup = volume_client.find_backup(
             parsed_args.backup, ignore_missing=False
         )

@@ -221,7 +221,9 @@ class DeleteVolumeSnapshot(command.Command):
         return parser
 
     def take_action(self, parsed_args: argparse.Namespace) -> None:
-        volume_client = self.app.client_manager.sdk_connection.volume
+        volume_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.volume, '2'
+        )
         result = 0
 
         for snapshot in parsed_args.snapshots:
@@ -311,7 +313,9 @@ class ListVolumeSnapshot(command.Lister):
     def take_action(
         self, parsed_args: argparse.Namespace
     ) -> tuple[Sequence[str], Iterable[tuple[Any, ...]]]:
-        volume_client = self.app.client_manager.sdk_connection.volume
+        volume_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.volume, '2'
+        )
         identity_client = self.app.client_manager.identity
 
         columns: tuple[str, ...] = (
@@ -456,7 +460,9 @@ class SetVolumeSnapshot(command.Command):
         return parser
 
     def take_action(self, parsed_args: argparse.Namespace) -> None:
-        volume_client = self.app.client_manager.sdk_connection.volume
+        volume_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.volume, '2'
+        )
 
         snapshot = volume_client.find_snapshot(
             parsed_args.snapshot, ignore_missing=False

@@ -18,6 +18,7 @@ import argparse
 from collections.abc import Iterable, Sequence
 from typing import Any
 
+from openstack import utils as sdk_utils
 from osc_lib import exceptions
 from osc_lib import utils
 
@@ -51,7 +52,9 @@ class ListService(command.Lister):
     def take_action(
         self, parsed_args: argparse.Namespace
     ) -> tuple[Sequence[str], Iterable[tuple[Any, ...]]]:
-        volume_client = self.app.client_manager.sdk_connection.volume
+        volume_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.volume, '2'
+        )
 
         columns: tuple[str, ...] = (
             "binary",
@@ -129,7 +132,9 @@ class SetService(command.Command):
             )
             raise exceptions.CommandError(msg)
 
-        volume_client = self.app.client_manager.sdk_connection.volume
+        volume_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.volume, '2'
+        )
 
         service = volume_client.find_service(
             parsed_args.service, ignore_missing=False, host=parsed_args.host

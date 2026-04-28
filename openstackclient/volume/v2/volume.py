@@ -282,7 +282,9 @@ class CreateVolume(command.ShowOne):
         # volume from snapshot or source volume
         size = parsed_args.size
 
-        volume_client = self.app.client_manager.sdk_connection.volume
+        volume_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.volume, '2'
+        )
         image_client = self.app.client_manager.image
 
         source_volume = None
@@ -419,7 +421,9 @@ class DeleteVolume(command.Command):
         return parser
 
     def take_action(self, parsed_args: argparse.Namespace) -> None:
-        volume_client = self.app.client_manager.sdk_connection.volume
+        volume_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.volume, '2'
+        )
         result = 0
 
         for volume in parsed_args.volumes:
@@ -635,7 +639,10 @@ class MigrateVolume(command.Command):
         return parser
 
     def take_action(self, parsed_args: argparse.Namespace) -> None:
-        volume_client = self.app.client_manager.sdk_connection.volume
+        volume_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.volume, '2'
+        )
+
         volume = volume_client.find_volume(
             parsed_args.volume, ignore_missing=False
         )
