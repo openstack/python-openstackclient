@@ -30,7 +30,7 @@ md-namespace-objects-delete,image metadef object delete,Delete all metadata defi
 md-namespace-properties-delete,image metadef property delete,Delete all metadata definitions property inside a specific namespace.
 md-namespace-resource-type-list,image metadef resource type association list,List resource types associated to specific namespace.
 md-namespace-show,image metadef namespace show,Describe a specific metadata definitions namespace.
-md-namespace-tags-delete,,Delete all metadata definitions tags inside a specific namespace.
+md-namespace-tags-delete,image metadef namespace unset --all,Delete all metadata definitions tags inside a specific namespace.
 md-namespace-update,,Update an existing metadata definitions namespace.
 md-object-create,image metadef object create,Create a new metadata definitions object inside a namespace.
 md-object-show,image metadef object show,Describe a specific metadata definitions object inside a namespace.
@@ -46,12 +46,12 @@ md-property-update,image metadef property set,Update metadata definitions proper
 md-resource-type-associate,image metadef resource type association create,Associate resource type with a metadata definitions namespace.
 md-resource-type-deassociate,image metadef resource type association delete,Deassociate resource type with a metadata definitions namespace.
 md-resource-type-list,image metadef resource type list,List available resource type names.
-md-tag-create,,Add a new metadata definitions tag inside a namespace.
+md-tag-create,image metadef namespace set --tag,Add a new metadata definitions tag inside a namespace.
 md-tag-create-multiple,,Create new metadata definitions tags inside a namespace.
-md-tag-delete,,Delete a specific metadata definitions tag inside a namespace.
-md-tag-list,,List metadata definitions tags inside a specific namespace.
-md-tag-show,,Describe a specific metadata definitions tag inside a namespace.
-md-tag-update,,Rename a metadata definitions tag inside a namespace.
+md-tag-delete,image metadef namespace unset --tag,Delete a specific metadata definitions tag inside a namespace.
+md-tag-list,image metadef namespace show,List metadata definitions tags inside a specific namespace.
+md-tag-show,image metadef namespace show,Describe a specific metadata definitions tag inside a namespace.
+md-tag-update,image metadef namespace set --tag,Rename a metadata definitions tag inside a namespace.
 member-create,image add project,Create member for a given image.
 member-delete,image remove project,Delete image member.
 member-get,image member get,Show details of an image member

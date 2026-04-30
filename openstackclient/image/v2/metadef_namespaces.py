@@ -44,6 +44,7 @@ def _format_namespace(namespace: Any) -> dict[str, Any]:
         'namespace',
         'owner',
         'protected',
+        'tags',
         'schema',
         'updated_at',
         'visibility',
@@ -278,6 +279,17 @@ class SetMetadefNamespace(command.Command):
             dest="is_protected",
             help=_("Allow metadef namespace to be deleted (default)"),
         )
+        parser.add_argument(
+            "--tag",
+            metavar="<tag>",
+            action='append',
+            default=[],
+            dest='tags',
+            help=_(
+                "Set a tag on this metadef namespace "
+                "(repeat option to set multiple tags)"
+            ),
+        )
         return parser
 
     def take_action(self, parsed_args: argparse.Namespace) -> None:
@@ -300,6 +312,21 @@ class SetMetadefNamespace(command.Command):
             kwargs['visibility'] = parsed_args.visibility
 
         image_client.update_metadef_namespace(namespace, **kwargs)
+
+        errors = 0
+        for tag in parsed_args.tags:
+            try:
+                image_client.add_tag_to_metadef_namespace(namespace, tag)
+            except Exception:
+                LOG.error(_("Tag set failed for tag %s"), tag)
+                errors += 1
+
+        if errors > 0:
+            msg = _("Failed to set %(errors)s of %(total)s tags.") % {
+                'errors': errors,
+                'total': len(parsed_args.tags),
+            }
+            raise exceptions.CommandError(msg)
 
 
 class ShowMetadefNamespace(command.ShowOne):
@@ -326,3 +353,61 @@ class ShowMetadefNamespace(command.ShowOne):
 
         col_headers, col_data = zip(*sorted(info.items()))
         return col_headers, col_data
+
+
+class UnsetMetadefNamespace(command.Command):
+    _description = _("Unset metadef namespace tags")
+
+    def get_parser(self, prog_name):
+        parser = super().get_parser(prog_name)
+        parser.add_argument(
+            "namespace",
+            metavar="<namespace>",
+            help=_("Metadef namespace to modify (name)"),
+        )
+        tag_group = parser.add_mutually_exclusive_group(required=True)
+        tag_group.add_argument(
+            "--tag",
+            metavar="<tag>",
+            action='append',
+            default=[],
+            dest='tags',
+            help=_(
+                "Unset a tag on this metadef namespace "
+                "(repeat option to unset multiple tags)"
+            ),
+        )
+        tag_group.add_argument(
+            "--all-tags",
+            action="store_true",
+            default=False,
+            help=_("Unset all metadef tags"),
+        )
+        return parser
+
+    def take_action(self, parsed_args):
+        image_client = self.app.client_manager.image
+
+        namespace = image_client.get_metadef_namespace(parsed_args.namespace)
+
+        errors = 0
+        if parsed_args.all_tags:
+            namespace = image_client.remove_tags_from_metadef_namespace(
+                namespace
+            )
+        elif parsed_args.tags:
+            for tag in parsed_args.tags:
+                try:
+                    image_client.remove_tag_from_metadef_namespace(
+                        namespace, tag
+                    )
+                except Exception:
+                    LOG.error(_("tag unset failed for tag %s"), tag)
+                    errors += 1
+
+        if errors > 0:
+            msg = _("Failed to unset %(errors)s of %(total)s tags.") % {
+                'errors': errors,
+                'total': len(parsed_args.tags),
+            }
+            raise exceptions.CommandError(msg)
