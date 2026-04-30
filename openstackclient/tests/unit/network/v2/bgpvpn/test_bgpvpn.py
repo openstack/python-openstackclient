@@ -91,7 +91,7 @@ class TestCreateBgpvpn(fakes.TestNeutronClientBgpvpn):
     @mock.patch('osc_lib.cli.identity.find_project')
     def test_create_bgpvpn_with_all_args(self, mock_find_project):
         attrs = {
-            'tenant_id': 'new_fake_project_id',
+            'project_id': 'new_fake_project_id',
             'name': 'fake_name',
             'type': 'l2',
             'vni': 100,
@@ -103,10 +103,12 @@ class TestCreateBgpvpn(fakes.TestNeutronClientBgpvpn):
         }
         fake_bgpvpn = fakes.create_one_bgpvpn(attrs)
         self.network_client.create_bgpvpn.return_value = fake_bgpvpn
-        mock_find_project.return_value = mock.Mock(id=fake_bgpvpn['tenant_id'])
+        mock_find_project.return_value = mock.Mock(
+            id=fake_bgpvpn['project_id']
+        )
         arglist = [
             '--project',
-            fake_bgpvpn['tenant_id'],
+            fake_bgpvpn['project_id'],
             '--name',
             fake_bgpvpn['name'],
             '--type',
@@ -125,7 +127,7 @@ class TestCreateBgpvpn(fakes.TestNeutronClientBgpvpn):
         for rd in fake_bgpvpn['route_distinguishers']:
             arglist.extend(['--route-distinguisher', rd])
         verifylist = [
-            ('project', fake_bgpvpn['tenant_id']),
+            ('project', fake_bgpvpn['project_id']),
             ('name', fake_bgpvpn['name']),
             ('type', fake_bgpvpn['type']),
             ('vni', fake_bgpvpn['vni']),
@@ -495,7 +497,7 @@ class TestListBgpvpn(fakes.TestNeutronClientBgpvpn):
     def test_list_project_bgpvpn(self, mock_find_project):
         count = 3
         project_id = 'list_fake_project_id'
-        attrs = {'tenant_id': project_id}
+        attrs = {'project_id': project_id}
         fake_bgpvpns = fakes.create_bgpvpns(count=count, attrs=attrs)
         self.network_client.bgpvpns.return_value = fake_bgpvpns
         mock_find_project.return_value = mock.Mock(id=project_id)
@@ -512,7 +514,7 @@ class TestListBgpvpn(fakes.TestNeutronClientBgpvpn):
         headers, data = self.cmd.take_action(parsed_args)
 
         self.network_client.bgpvpns.assert_called_once_with(
-            tenant_id=project_id
+            project_id=project_id
         )
         self.assertEqual(headers, list(headers_short))
         self.assertListEqual(

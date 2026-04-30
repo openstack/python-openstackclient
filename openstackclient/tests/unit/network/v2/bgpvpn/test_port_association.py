@@ -83,18 +83,18 @@ class TestCreatePortAssoc(fakes.TestNeutronClientBgpvpn):
             fake_assoc
         )
         mock_find_project.return_value = mock.Mock(
-            id=self.fake_bgpvpn['tenant_id']
+            id=self.fake_bgpvpn['project_id']
         )
         arglist = [
             self.fake_bgpvpn['id'],
             self.fake_port['id'],
             '--project',
-            self.fake_bgpvpn['tenant_id'],
+            self.fake_bgpvpn['project_id'],
         ]
         verifylist = [
             ('bgpvpn', self.fake_bgpvpn['id']),
             ('port', self.fake_port['id']),
-            ('project', self.fake_bgpvpn['tenant_id']),
+            ('project', self.fake_bgpvpn['project_id']),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -104,7 +104,7 @@ class TestCreatePortAssoc(fakes.TestNeutronClientBgpvpn):
         self.network_client.create_bgpvpn_port_association.assert_called_once_with(
             self.fake_bgpvpn['id'],
             port_id=self.fake_port['id'],
-            tenant_id='fake_project_id',
+            project_id='fake_project_id',
             routes=[],
         )
         self.assertIn('id', cols)

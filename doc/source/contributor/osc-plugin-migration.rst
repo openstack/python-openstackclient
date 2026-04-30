@@ -16,7 +16,7 @@ Background
 Historically, advanced Neutron services provided their CLI commands through
 ``python-neutronclient`` as OSC plugins. As the old python-xclient libraries
 were deprecated and their functionality were moved to python-openstackclient
-these plugins were also decided to move to python-openstackclient, see the
+it was also decided to move these plugins to python-openstackclient, see the
 2025 October PTG etherpad:
 https://etherpad.opendev.org/p/oct2025-ptg-neutron#L156
 
@@ -31,7 +31,7 @@ Migration Steps
 ---------------------------------------
 
 Create a new python module under ``openstackclient/network/v2/`` for your
-service with apropriate name, for example for tap-as-a-service ``taas``.
+service with appropriate name, for example for tap-as-a-service ``taas``.
 
 2. Migrate the Command Classes
 -------------------------------

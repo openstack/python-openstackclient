@@ -80,7 +80,7 @@ class TestCreateRouterAssoc(fakes.TestNeutronClientBgpvpn):
             self.fake_bgpvpn['id'],
             self.fake_router['id'],
             '--project',
-            self.fake_bgpvpn['tenant_id'],
+            self.fake_bgpvpn['project_id'],
         ]
         if param is not None:
             if isinstance(param, list):
@@ -93,7 +93,7 @@ class TestCreateRouterAssoc(fakes.TestNeutronClientBgpvpn):
         verifylist = [
             ('bgpvpn', self.fake_bgpvpn['id']),
             ('resource', self.fake_router['id']),
-            ('project', self.fake_bgpvpn['tenant_id']),
+            ('project', self.fake_bgpvpn['project_id']),
         ]
         if param is not None:
             verifylist.append(param)
@@ -111,7 +111,7 @@ class TestCreateRouterAssoc(fakes.TestNeutronClientBgpvpn):
 
         fake_assoc_call = {
             'router_id': self.fake_router['id'],
-            'tenant_id': 'fake_project_id',
+            'project_id': 'fake_project_id',
         }
         if verifylist:
             for key, value in verifylist:

@@ -78,17 +78,19 @@ class TestCreateNetAssoc(fakes.TestNeutronClientBgpvpn):
         self.network_client.create_bgpvpn_network_association.return_value = (
             fake_assoc
         )
-        mock_find_project.return_value = mock.Mock(id=fake_bgpvpn['tenant_id'])
+        mock_find_project.return_value = mock.Mock(
+            id=fake_bgpvpn['project_id']
+        )
         arglist = [
             fake_bgpvpn['id'],
             fake_res['id'],
             '--project',
-            fake_bgpvpn['tenant_id'],
+            fake_bgpvpn['project_id'],
         ]
         verifylist = [
             ('bgpvpn', fake_bgpvpn['id']),
             ('resource', fake_res['id']),
-            ('project', fake_bgpvpn['tenant_id']),
+            ('project', fake_bgpvpn['project_id']),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -98,7 +100,7 @@ class TestCreateNetAssoc(fakes.TestNeutronClientBgpvpn):
         self.network_client.create_bgpvpn_network_association.assert_called_once_with(
             fake_bgpvpn['id'],
             network_id=fake_res['id'],
-            tenant_id='fake_project_id',
+            project_id='fake_project_id',
         )
         self.assertEqual(sorted_columns, cols)
         self.assertEqual(_get_data(fake_assoc), data)
