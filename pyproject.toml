@@ -786,8 +786,13 @@ ignore_missing_imports = true
 follow_imports = "normal"
 incremental = true
 check_untyped_defs = true
+disallow_untyped_defs = true
 warn_unused_ignores = true
 exclude = "(?x)(doc | examples | hacking | releasenotes)"
+
+[[tool.mypy.overrides]]
+module = ["openstackclient.tests.functional.*"]
+disallow_untyped_defs = false
 
 [[tool.mypy.overrides]]
 module = ["openstackclient.tests.unit.*"]
