@@ -12,5 +12,6 @@
    command-errors
    command-logs
    plugins
+   osc-plugin-migration
    humaninterfaceguide
    api/modules
