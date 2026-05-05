@@ -305,7 +305,7 @@ class CreateBgpvpn(command.ShowOne):
                 parsed_args.project,
                 parsed_args.project_domain,
             ).id
-            attrs['tenant_id'] = project_id
+            attrs['project_id'] = project_id
         obj = client.create_bgpvpn(**attrs)
         display_columns, columns = _get_columns(obj)
         data = osc_utils.get_dict_properties(
@@ -422,7 +422,7 @@ class ListBgpvpn(command.Lister):
                 parsed_args.project,
                 parsed_args.project_domain,
             ).id
-            params['tenant_id'] = project_id
+            params['project_id'] = project_id
         if parsed_args.property:
             params.update(parsed_args.property)
         objs = client.bgpvpns(**params)

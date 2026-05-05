@@ -31,7 +31,7 @@ LOG = logging.getLogger(__name__)
 
 _attr_map = (
     ('id', 'ID', column_util.LIST_BOTH),
-    ('tenant_id', 'Project', column_util.LIST_LONG_ONLY),
+    ('project_id', 'Project', column_util.LIST_LONG_ONLY),
     ('network_id', 'Network ID', column_util.LIST_BOTH),
 )
 _formatters: dict[str, ty.Any] = {}
@@ -39,7 +39,7 @@ _formatters: dict[str, ty.Any] = {}
 
 def _get_columns(item):
     column_map: dict[str, str] = {}
-    hidden_columns = ['location', 'name', 'project_id']
+    hidden_columns = ['location', 'name', 'tenant_id']
     return osc_utils.get_osc_show_columns_for_sdk_resource(
         item, column_map, hidden_columns
     )
@@ -76,7 +76,7 @@ class CreateBgpvpnNetAssoc(command.ShowOne):
                 parsed_args.project,
                 parsed_args.project_domain,
             ).id
-            body['tenant_id'] = project_id
+            body['project_id'] = project_id
 
         obj = client.create_bgpvpn_network_association(bgpvpn['id'], **body)
         display_columns, columns = _get_columns(obj)

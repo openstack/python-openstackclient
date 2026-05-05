@@ -40,7 +40,7 @@ def create_one_bgpvpn(attrs=None):
     # Set default attributes.
     bgpvpn_attrs = {
         'id': 'fake_bgpvpn_id',
-        'tenant_id': _FAKE_PROJECT_ID,
+        'project_id': _FAKE_PROJECT_ID,
         'name': '',
         'type': 'l3',
         'route_targets': [],
@@ -105,7 +105,7 @@ def create_one_network_association(attrs=None):
     assoc_attrs = {
         'id': 'fake_association_id',
         'network_id': 'fake_resource_id',
-        'tenant_id': _FAKE_PROJECT_ID,
+        'project_id': _FAKE_PROJECT_ID,
     }
     assoc_attrs.update(attrs)
     return _net_assoc.BgpVpnNetworkAssociation(**assoc_attrs)
@@ -119,7 +119,7 @@ def create_network_associations(count=1):
             {
                 'id': f'fake_association_id{idx}',
                 'network_id': f'fake_resource_id{idx}',
-                'tenant_id': _FAKE_PROJECT_ID,
+                'project_id': _FAKE_PROJECT_ID,
             }
         )
     return assocs
@@ -131,7 +131,7 @@ def create_one_router_association(attrs=None):
     assoc_attrs = {
         'id': 'fake_association_id',
         'router_id': 'fake_resource_id',
-        'tenant_id': _FAKE_PROJECT_ID,
+        'project_id': _FAKE_PROJECT_ID,
     }
     assoc_attrs.update(attrs)
     return _router_assoc.BgpVpnRouterAssociation(**assoc_attrs)
@@ -145,7 +145,7 @@ def create_router_associations(count=1):
             {
                 'id': f'fake_association_id{idx}',
                 'router_id': f'fake_resource_id{idx}',
-                'tenant_id': _FAKE_PROJECT_ID,
+                'project_id': _FAKE_PROJECT_ID,
             }
         )
     return assocs
@@ -157,7 +157,7 @@ def create_one_port_association(attrs=None):
     assoc_attrs = {
         'id': 'fake_association_id',
         'port_id': 'fake_resource_id',
-        'tenant_id': _FAKE_PROJECT_ID,
+        'project_id': _FAKE_PROJECT_ID,
         'routes': [],
     }
     assoc_attrs.update(attrs)
@@ -172,7 +172,7 @@ def create_port_associations(count=1):
             {
                 'id': f'fake_association_id{idx}',
                 'port_id': f'fake_resource_id{idx}',
-                'tenant_id': _FAKE_PROJECT_ID,
+                'project_id': _FAKE_PROJECT_ID,
                 'routes': [],
             }
         )

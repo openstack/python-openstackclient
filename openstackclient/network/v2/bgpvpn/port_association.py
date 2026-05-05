@@ -31,7 +31,7 @@ LOG = logging.getLogger(__name__)
 
 _attr_map = (
     ('id', 'ID', column_util.LIST_BOTH),
-    ('tenant_id', 'Project', column_util.LIST_LONG_ONLY),
+    ('project_id', 'Project', column_util.LIST_LONG_ONLY),
     ('port_id', 'Port ID', column_util.LIST_BOTH),
     (
         'prefix_routes',
@@ -57,7 +57,7 @@ _formatters = {
 
 def _get_columns(item):
     column_map: dict[str, str] = {}
-    hidden_columns = ['location', 'name', 'project_id']
+    hidden_columns = ['location', 'name', 'tenant_id']
     return osc_utils.get_osc_show_columns_for_sdk_resource(
         item, column_map, hidden_columns
     )
@@ -314,7 +314,7 @@ class CreateBgpvpnPortAssoc(command.ShowOne):
                 parsed_args.project,
                 parsed_args.project_domain,
             ).id
-            body['tenant_id'] = project_id
+            body['project_id'] = project_id
 
         body.update(_args2body(client, 'create', bgpvpn['id'], parsed_args))
 
