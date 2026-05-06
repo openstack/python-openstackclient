@@ -13,18 +13,22 @@
 """IP Floating action implementations"""
 
 import argparse
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
+import logging
 from typing import Any
 
 from openstack import exceptions as sdk_exceptions
 from osc_lib.cli import format_columns
+from osc_lib import exceptions
 from osc_lib import utils
 from osc_lib.utils import tags as _tag
 
-from openstackclient.api import compute_v2
+from openstackclient import command
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
 from openstackclient.network import common
+
+LOG = logging.getLogger(__name__)
 
 _formatters = {
     'port_details': format_columns.DictColumn,
@@ -98,110 +102,82 @@ def _get_attrs(
     return attrs
 
 
-class CreateFloatingIP(
-    common.NetworkAndComputeShowOne, common.NeutronCommandWithExtraArgs
-):
+class CreateFloatingIP(command.ShowOne, common.NeutronCommandWithExtraArgs):
     _description = _("Create floating IP")
 
-    def update_parser_common(
-        self, parser: argparse.ArgumentParser
-    ) -> argparse.ArgumentParser:
-        # In Compute v2 network, floating IPs could be allocated from floating
-        # IP pools, which are actually external networks. So deprecate the
-        # parameter "pool", and use "network" instead.
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'network',
             metavar='<network>',
             help=_("Network to allocate floating IP from (name or ID)"),
         )
-        return parser
-
-    def update_parser_network(
-        self, parser: argparse.ArgumentParser
-    ) -> argparse.ArgumentParser:
         parser.add_argument(
             '--subnet',
             metavar='<subnet>',
-            help=self.enhance_help_neutron(
-                _(
-                    "Subnet on which you want to create the floating IP "
-                    "(name or ID)"
-                )
+            help=_(
+                "Subnet on which you want to create the floating IP "
+                "(name or ID)"
             ),
         )
         parser.add_argument(
             '--port',
             metavar='<port>',
-            help=self.enhance_help_neutron(
-                _("Port to be associated with the floating IP (name or ID)")
-            ),
+            help=_("Port to be associated with the floating IP (name or ID)"),
         )
         parser.add_argument(
             '--floating-ip-address',
             metavar='<ip-address>',
             dest='floating_ip_address',
-            help=self.enhance_help_neutron(_("Floating IP address")),
+            help=_("Floating IP address"),
         )
         parser.add_argument(
             '--fixed-ip-address',
             metavar='<ip-address>',
             dest='fixed_ip_address',
-            help=self.enhance_help_neutron(
-                _("Fixed IP address mapped to the floating IP")
-            ),
+            help=_("Fixed IP address mapped to the floating IP"),
         )
         parser.add_argument(
             '--qos-policy',
             metavar='<qos-policy>',
-            help=self.enhance_help_neutron(
-                _("Attach QoS policy to the floating IP (name or ID)")
-            ),
+            help=_("Attach QoS policy to the floating IP (name or ID)"),
         )
         parser.add_argument(
             '--description',
             metavar='<description>',
-            help=self.enhance_help_neutron(_('Set floating IP description')),
+            help=_('Set floating IP description'),
         )
         parser.add_argument(
             '--project',
             metavar='<project>',
-            help=self.enhance_help_neutron(_("Owner's project (name or ID)")),
+            help=_("Owner's project (name or ID)"),
         )
         parser.add_argument(
             '--dns-domain',
             metavar='<dns-domain>',
             dest='dns_domain',
-            help=self.enhance_help_neutron(
-                _("Set DNS domain for this floating IP")
-            ),
+            help=_("Set DNS domain for this floating IP"),
         )
         parser.add_argument(
             '--dns-name',
             metavar='<dns-name>',
             dest='dns_name',
-            help=self.enhance_help_neutron(
-                _("Set DNS name for this floating IP")
-            ),
+            help=_("Set DNS name for this floating IP"),
         )
 
-        identity_common.add_project_domain_option_to_parser(
-            parser, enhance_help=self.enhance_help_neutron
-        )
-        _tag.add_tag_option_to_parser_for_create(
-            parser, _('floating IP'), enhance_help=self.enhance_help_neutron
-        )
+        identity_common.add_project_domain_option_to_parser(parser)
+        _tag.add_tag_option_to_parser_for_create(parser, _('floating IP'))
         return parser
 
-    def take_action_network(
-        self, client: Any, parsed_args: argparse.Namespace
-    ) -> tuple[tuple[str, ...], Iterable[Any]]:
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
+        client = self.app.client_manager.network
         attrs = _get_attrs(self.app.client_manager, parsed_args)
         attrs.update(
             self._parse_extra_properties(parsed_args.extra_properties)
         )
-        with common.check_missing_extension_if_error(
-            self.app.client_manager.network, attrs
-        ):
+        with common.check_missing_extension_if_error(client, attrs):
             obj = client.create_ip(**attrs)
 
         # tags cannot be set when created, so tags need to be set later.
@@ -211,25 +187,12 @@ class CreateFloatingIP(
         data = utils.get_item_properties(obj, columns)
         return (display_columns, data)
 
-    def take_action_compute(
-        self, client: Any, parsed_args: argparse.Namespace
-    ) -> tuple[tuple[str, ...], Iterable[Any]]:
-        obj = compute_v2.create_floating_ip(client, parsed_args.network)
-        columns = _get_columns(obj)
-        data = utils.get_dict_properties(obj, columns)
-        return (columns, data)
 
-
-class DeleteFloatingIP(common.NetworkAndComputeDelete):
+class DeleteFloatingIP(command.Command):
     _description = _("Delete floating IP(s)")
 
-    # Used by base class to find resources in parsed_args.
-    resource = 'floating_ip'
-    r: str
-
-    def update_parser_common(
-        self, parser: argparse.ArgumentParser
-    ) -> argparse.ArgumentParser:
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'floating_ip',
             metavar="<floating-ip>",
@@ -238,41 +201,52 @@ class DeleteFloatingIP(common.NetworkAndComputeDelete):
         )
         return parser
 
-    def take_action_network(
-        self, client: Any, parsed_args: argparse.Namespace
-    ) -> None:
-        obj = client.find_ip(
-            self.r,
-            ignore_missing=False,
-        )
-        client.delete_ip(obj)
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
+        client = self.app.client_manager.network
+        result = 0
 
-    def take_action_compute(
-        self, client: Any, parsed_args: argparse.Namespace
-    ) -> None:
-        compute_v2.delete_floating_ip(client, self.r)
+        for fip in parsed_args.floating_ip:
+            try:
+                obj = client.find_ip(fip, ignore_missing=False)
+                client.delete_ip(obj)
+            except Exception as e:
+                result += 1
+                LOG.error(
+                    _(
+                        "Failed to delete floating IP with "
+                        "name or ID '%(fip)s': %(e)s"
+                    ),
+                    {'fip': fip, 'e': e},
+                )
+
+        if result > 0:
+            total = len(parsed_args.floating_ip)
+            msg = _(
+                "%(result)s of %(total)s floating IPs failed to delete."
+            ) % {
+                'result': result,
+                'total': total,
+            }
+            raise exceptions.CommandError(msg)
 
 
-class ListFloatingIP(common.NetworkAndComputeLister):
+class ListFloatingIP(command.Lister):
     # TODO(songminglong): Use SDK resource mapped attribute names once
     # the OSC minimum requirements include SDK 1.0
 
     _description = _("List floating IP(s)")
 
-    def update_parser_network(
-        self, parser: argparse.ArgumentParser
-    ) -> argparse.ArgumentParser:
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             '--network',
             metavar='<network>',
             dest='networks',
             action='append',
-            help=self.enhance_help_neutron(
-                _(
-                    "List only floating IP(s) with the specified network "
-                    "(name or ID) "
-                    "(repeat option to fiter on multiple networks)"
-                )
+            help=_(
+                "List only floating IP(s) with the specified network "
+                "(name or ID) "
+                "(repeat option to fiter on multiple networks)"
             ),
         )
         parser.add_argument(
@@ -280,53 +254,42 @@ class ListFloatingIP(common.NetworkAndComputeLister):
             metavar='<port>',
             dest='ports',
             action='append',
-            help=self.enhance_help_neutron(
-                _(
-                    "List only floating IP(s) with the specified port "
-                    "(name or ID) "
-                    "(repeat option to fiter on multiple ports)"
-                )
+            help=_(
+                "List only floating IP(s) with the specified port "
+                "(name or ID) "
+                "(repeat option to fiter on multiple ports)"
             ),
         )
         parser.add_argument(
             '--fixed-ip-address',
             metavar='<ip-address>',
-            help=self.enhance_help_neutron(
-                _(
-                    "List only floating IP(s) with the specified fixed IP "
-                    "address"
-                )
+            help=_(
+                "List only floating IP(s) with the specified fixed IP address"
             ),
         )
         parser.add_argument(
             '--floating-ip-address',
             metavar='<ip-address>',
-            help=self.enhance_help_neutron(
-                _(
-                    "List only floating IP(s) with the specified floating IP "
-                    "address"
-                )
+            help=_(
+                "List only floating IP(s) with the specified floating IP "
+                "address"
             ),
         )
         parser.add_argument(
             '--status',
             metavar='<status>',
             choices=['ACTIVE', 'DOWN'],
-            help=self.enhance_help_neutron(
-                _(
-                    "List only floating IP(s) with the specified status "
-                    "('ACTIVE', 'DOWN')"
-                )
+            help=_(
+                "List only floating IP(s) with the specified status "
+                "('ACTIVE', 'DOWN')"
             ),
         )
         parser.add_argument(
             '--project',
             metavar='<project>',
-            help=self.enhance_help_neutron(
-                _(
-                    "List only floating IP(s) with the specified project "
-                    "(name or ID)"
-                )
+            help=_(
+                "List only floating IP(s) with the specified project "
+                "(name or ID)"
             ),
         )
         identity_common.add_project_domain_option_to_parser(parser)
@@ -335,31 +298,24 @@ class ListFloatingIP(common.NetworkAndComputeLister):
             metavar='<router>',
             dest='routers',
             action='append',
-            help=self.enhance_help_neutron(
-                _(
-                    "List only floating IP(s) with the specified router "
-                    "(name or ID) "
-                    "(repeat option to fiter on multiple routers)"
-                )
+            help=_(
+                "List only floating IP(s) with the specified router "
+                "(name or ID) "
+                "(repeat option to fiter on multiple routers)"
             ),
         )
-        _tag.add_tag_filtering_option_to_parser(
-            parser, _('floating IP'), enhance_help=self.enhance_help_neutron
-        )
+        _tag.add_tag_filtering_option_to_parser(parser, _('floating IP'))
         parser.add_argument(
             '--long',
             action='store_true',
             default=False,
-            help=self.enhance_help_neutron(
-                _("List additional fields in output")
-            ),
+            help=_("List additional fields in output"),
         )
-
         return parser
 
-    def take_action_network(
-        self, client: Any, parsed_args: argparse.Namespace
-    ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         network_client = self.app.client_manager.network
         identity_client = self.app.client_manager.identity
 
@@ -446,7 +402,7 @@ class ListFloatingIP(common.NetworkAndComputeLister):
         _tag.get_tag_filtering_args(parsed_args, query)
 
         try:
-            data = list(client.ips(**query))
+            data = list(network_client.ips(**query))
         except sdk_exceptions.NotFoundException:
             data = []
 
@@ -459,37 +415,6 @@ class ListFloatingIP(common.NetworkAndComputeLister):
                     formatters={},
                 )
                 for s in data
-            ),
-        )
-
-    def take_action_compute(
-        self, client: Any, parsed_args: argparse.Namespace
-    ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
-        columns: tuple[str, ...] = (
-            'ID',
-            'IP',
-            'Fixed IP',
-            'Instance ID',
-            'Pool',
-        )
-        headers: tuple[str, ...] = (
-            'ID',
-            'Floating IP Address',
-            'Fixed IP Address',
-            'Server',
-            'Pool',
-        )
-
-        objs = compute_v2.list_floating_ips(client)
-        return (
-            headers,
-            (
-                utils.get_dict_properties(
-                    s,
-                    columns,
-                    formatters={},
-                )
-                for s in objs
             ),
         )
 
@@ -576,12 +501,11 @@ class SetFloatingIP(common.NeutronCommandWithExtraArgs):
         _tag.update_tags_for_set(client, obj, parsed_args)
 
 
-class ShowFloatingIP(common.NetworkAndComputeShowOne):
+class ShowFloatingIP(command.ShowOne):
     _description = _("Display floating IP details")
 
-    def update_parser_common(
-        self, parser: argparse.ArgumentParser
-    ) -> argparse.ArgumentParser:
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             'floating_ip',
             metavar="<floating-ip>",
@@ -589,9 +513,10 @@ class ShowFloatingIP(common.NetworkAndComputeShowOne):
         )
         return parser
 
-    def take_action_network(
-        self, client: Any, parsed_args: argparse.Namespace
-    ) -> tuple[tuple[str, ...], Iterable[Any]]:
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
+        client = self.app.client_manager.network
         obj = client.find_ip(
             parsed_args.floating_ip,
             ignore_missing=False,
@@ -599,14 +524,6 @@ class ShowFloatingIP(common.NetworkAndComputeShowOne):
         display_columns, columns = _get_network_columns(obj)
         data = utils.get_item_properties(obj, columns, formatters=_formatters)
         return (display_columns, data)
-
-    def take_action_compute(
-        self, client: Any, parsed_args: argparse.Namespace
-    ) -> tuple[tuple[str, ...], Iterable[Any]]:
-        obj = compute_v2.get_floating_ip(client, parsed_args.floating_ip)
-        columns = _get_columns(obj)
-        data = utils.get_dict_properties(obj, columns)
-        return (columns, data)
 
 
 class UnsetFloatingIP(common.NeutronCommandWithExtraArgs):

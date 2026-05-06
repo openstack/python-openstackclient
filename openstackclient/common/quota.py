@@ -28,7 +28,6 @@ from osc_lib import utils
 
 from openstackclient import command
 from openstackclient.i18n import _
-from openstackclient.network import common
 
 LOG = logging.getLogger(__name__)
 
@@ -62,13 +61,6 @@ IMPACT_VOLUME_TYPE_QUOTAS = [
     'snapshots',
     'volumes',
 ]
-
-NOVA_NETWORK_QUOTAS = {
-    'fixed_ips': 'fixed-ips',
-    'floating_ips': 'floating-ips',
-    'security_group_rules': 'secgroup-rules',
-    'security_groups': 'secgroups',
-}
 
 NETWORK_QUOTAS = {
     'floatingip': 'floating-ips',
@@ -490,41 +482,20 @@ class ListQuota(command.Lister):
         return ((), ())
 
 
-class SetQuota(common.NetDetectionMixin, command.Command):
+class SetQuota(command.Command):
     _description = _("Set quotas for project or class")
 
     def _build_options_list(self) -> list[tuple[str, str, str]]:
         help_fmt = _('New value for the %s quota')
-        # Compute and volume quota options are always the same
+        # Compute volume and network quota options are always the same
         rets = [
             (k, v, help_fmt % v)
             for k, v in itertools.chain(
                 COMPUTE_QUOTAS.items(),
                 VOLUME_QUOTAS.items(),
+                NETWORK_QUOTAS.items(),
             )
         ]
-        # For docs build, we want to produce helps for both neutron and
-        # nova-network options. They overlap, so we have to figure out which
-        # need to be tagged as specific to one network type or the other.
-        if self.is_docs_build:
-            # NOTE(efried): This takes advantage of the fact that we know the
-            # nova-net options are a subset of the neutron options. If that
-            # ever changes, this algorithm will need to be adjusted accordingly
-            inv_compute = set(NOVA_NETWORK_QUOTAS.values())
-            for k, v in NETWORK_QUOTAS.items():
-                _help = help_fmt % v
-                if v not in inv_compute:
-                    # This one is unique to neutron
-                    _help = self.enhance_help_neutron(_help)
-                rets.append((k, v, _help))
-        elif self.is_neutron:
-            rets.extend(
-                [(k, v, help_fmt % v) for k, v in NETWORK_QUOTAS.items()]
-            )
-        elif self.is_nova_network:
-            rets.extend(
-                [(k, v, help_fmt % v) for k, v in NOVA_NETWORK_QUOTAS.items()]
-            )
         return rets
 
     def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
@@ -654,11 +625,6 @@ class SetQuota(common.NetDetectionMixin, command.Command):
                 value = getattr(parsed_args, k, None)
                 if value is not None:
                     network_kwargs[k] = value
-        elif self.app.client_manager.is_compute_endpoint_enabled():
-            for k, v in NOVA_NETWORK_QUOTAS.items():
-                value = getattr(parsed_args, k, None)
-                if value is not None:
-                    compute_kwargs[k] = value
 
         if network_kwargs:
             if parsed_args.force is True:
@@ -843,7 +809,6 @@ and ``server-group-members`` output for a given quota class."""
             # in nova will be replaced by neutron's.
             for k, v in itertools.chain(
                 COMPUTE_QUOTAS.items(),
-                NOVA_NETWORK_QUOTAS.items(),
                 VOLUME_QUOTAS.items(),
                 NETWORK_QUOTAS.items(),
             ):

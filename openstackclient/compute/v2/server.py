@@ -39,7 +39,6 @@ from openstackclient.common import envvars
 from openstackclient.common import pagination
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
-from openstackclient.network import common as network_common
 
 LOG = logging.getLogger(__name__)
 
@@ -461,12 +460,11 @@ class AddFixedIP(command.ShowOne):
         )
 
 
-class AddFloatingIP(network_common.NetworkAndComputeCommand):
+class AddFloatingIP(command.Command):
     _description = _("Add floating IP address to server")
 
-    def update_parser_common(
-        self, parser: argparse.ArgumentParser
-    ) -> argparse.ArgumentParser:
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             "server",
             metavar="<server>",
@@ -491,9 +489,8 @@ class AddFloatingIP(network_common.NetworkAndComputeCommand):
         )
         return parser
 
-    def take_action_network(
-        self, client: Any, parsed_args: argparse.Namespace
-    ) -> None:
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
+        client = self.app.client_manager.network
         compute_client = self.app.client_manager.compute
 
         attrs = {}
@@ -551,16 +548,6 @@ class AddFloatingIP(network_common.NetworkAndComputeCommand):
                     break
             if error:
                 raise error
-
-    def take_action_compute(
-        self, client: Any, parsed_args: argparse.Namespace
-    ) -> None:
-        server = client.find_server(parsed_args.server, ignore_missing=False)
-        client.add_floating_ip_to_server(
-            server,
-            parsed_args.ip_address,
-            fixed_address=parsed_args.fixed_ip_address,
-        )
 
 
 class AddPort(command.Command):
@@ -4068,12 +4055,11 @@ class RemoveFixedIP(command.Command):
         )
 
 
-class RemoveFloatingIP(network_common.NetworkAndComputeCommand):
+class RemoveFloatingIP(command.Command):
     _description = _("Remove floating IP address from server")
 
-    def update_parser_common(
-        self, parser: argparse.ArgumentParser
-    ) -> argparse.ArgumentParser:
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
+        parser = super().get_parser(prog_name)
         parser.add_argument(
             "server",
             metavar="<server>",
@@ -4088,21 +4074,14 @@ class RemoveFloatingIP(network_common.NetworkAndComputeCommand):
         )
         return parser
 
-    def take_action_network(
-        self, client: Any, parsed_args: argparse.Namespace
-    ) -> None:
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
+        client = self.app.client_manager.network
         obj = client.find_ip(
             parsed_args.ip_address,
             ignore_missing=False,
         )
 
         client.update_ip(obj, port_id=None)
-
-    def take_action_compute(
-        self, client: Any, parsed_args: argparse.Namespace
-    ) -> None:
-        server = client.find_server(parsed_args.server, ignore_missing=False)
-        client.remove_floating_ip_from_server(server, parsed_args.ip_address)
 
 
 class RemovePort(command.Command):

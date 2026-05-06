@@ -16,6 +16,18 @@ from this backwards incompatible change handling.
 Backwards Incompatible Changes
 ==============================
 
+Release 10.0
+------------
+
+1. Nova network support was removed from the networking commands.
+
+   As Neutron has been the preferred networking solution in
+   Openstack for close to ten years, the old Nova network
+   code was finally removed. All networking API calls are still
+   supported, but they will only use the Neutron API endpoint.
+
+   * Commit: https://review.opendev.org/981613
+
 Release 4.0
 -----------
 

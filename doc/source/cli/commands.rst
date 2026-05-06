@@ -99,7 +99,6 @@ referring to both Compute and Volume quotas.
 * ``flavor``: (**Compute**) predefined server configurations: ram, root disk and so on
 * ``fixed ip``: (**Compute**) - an internal IP address assigned to a server
 * ``floating ip``: (**Network**) - a public IP address that can be mapped to a server
-* ``floating ip pool``: (**Network**) - a pool of public IP addresses
 * ``group``: (**Identity**) a grouping of users
 * ``host``: (**Compute**) - the physical computer running compute services
 * ``hypervisor``: (**Compute**) the virtual machine manager

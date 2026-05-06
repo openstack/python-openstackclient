@@ -382,8 +382,6 @@ class TestQuotaSet(TestQuota):
         self.cmd = quota.SetQuota(self.app, None)
 
     def test_quota_set(self):
-        floating_ip_num = 100
-        fix_ip_num = 100
         injected_file_num = 100
         injected_file_size_num = 10240
         injected_path_size_num = 255
@@ -392,16 +390,10 @@ class TestQuotaSet(TestQuota):
         ram_num = 51200
         instance_num = 10
         property_num = 128
-        secgroup_rule_num = 20
-        secgroup_num = 10
         servgroup_num = 10
         servgroup_members_num = 10
 
         arglist = [
-            '--floating-ips',
-            str(floating_ip_num),
-            '--fixed-ips',
-            str(fix_ip_num),
             '--injected-files',
             str(injected_file_num),
             '--injected-file-size',
@@ -418,10 +410,6 @@ class TestQuotaSet(TestQuota):
             str(instance_num),
             '--properties',
             str(property_num),
-            '--secgroup-rules',
-            str(secgroup_rule_num),
-            '--secgroups',
-            str(secgroup_num),
             '--server-groups',
             str(servgroup_num),
             '--server-group-members',
@@ -429,8 +417,6 @@ class TestQuotaSet(TestQuota):
             self.projects[0].name,
         ]
         verifylist = [
-            ('floating_ips', floating_ip_num),
-            ('fixed_ips', fix_ip_num),
             ('injected_files', injected_file_num),
             (
                 'injected_file_content_bytes',
@@ -442,8 +428,6 @@ class TestQuotaSet(TestQuota):
             ('ram', ram_num),
             ('instances', instance_num),
             ('metadata_items', property_num),
-            ('security_group_rules', secgroup_rule_num),
-            ('security_groups', secgroup_num),
             ('server_groups', servgroup_num),
             ('server_group_members', servgroup_members_num),
             ('force', False),
@@ -455,8 +439,6 @@ class TestQuotaSet(TestQuota):
         result = self.cmd.take_action(parsed_args)
 
         kwargs = {
-            'floating_ips': floating_ip_num,
-            'fixed_ips': fix_ip_num,
             'injected_files': injected_file_num,
             'injected_file_content_bytes': injected_file_size_num,
             'injected_file_path_bytes': injected_path_size_num,
@@ -465,8 +447,6 @@ class TestQuotaSet(TestQuota):
             'ram': ram_num,
             'instances': instance_num,
             'metadata_items': property_num,
-            'security_group_rules': secgroup_rule_num,
-            'security_groups': secgroup_num,
             'server_groups': servgroup_num,
             'server_group_members': servgroup_members_num,
         }
@@ -1155,7 +1135,7 @@ class TestQuotaShow(TestQuota):
 
         self.assertEqual(
             [
-                ('floating-ips', 30, 7, 20),
+                ('floating_ips', 30, 7, 20),
                 ('health_monitors', 0, 0, 0),
                 ('l7_policies', 0, 0, 0),
                 ('listeners', 0, 0, 0),
@@ -1165,8 +1145,8 @@ class TestQuotaShow(TestQuota):
                 ('ports', 0, 0, 0),
                 ('rbac_policies', 0, 0, 0),
                 ('routers', 0, 0, 0),
-                ('secgroup-rules', 9, 5, 7),
-                ('secgroups', 0, 0, 0),
+                ('security_group_rules', 9, 5, 7),
+                ('security_groups', 0, 0, 0),
                 ('subnet_pools', 0, 0, 0),
                 ('subnets', 0, 0, 0),
             ],

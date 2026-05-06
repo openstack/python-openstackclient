@@ -437,17 +437,14 @@ def add_group_domain_option_to_parser(parser: argparse.ArgumentParser) -> None:
 
 def add_project_domain_option_to_parser(
     parser: argparse.ArgumentParser,
-    enhance_help: Callable[[str], str] = lambda _h: _h,
 ) -> None:
     parser.add_argument(
         '--project-domain',
         metavar='<project-domain>',
-        help=enhance_help(
-            _(
-                'Domain the project belongs to (name or ID). This '
-                'can be used in case collisions between project '
-                'names exist.'
-            )
+        help=_(
+            'Domain the project belongs to (name or ID). This '
+            'can be used in case collisions between project '
+            'names exist.'
         ),
     )
 
