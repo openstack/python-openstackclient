@@ -20,6 +20,7 @@ import typing as ty
 
 from cliff import columns as cliff_columns
 from openstack.block_storage.v3 import snapshot as _snapshot
+from openstack import utils as sdk_utils
 from osc_lib.cli import format_columns
 from osc_lib.cli import parseractions
 from osc_lib.command import command
@@ -123,7 +124,9 @@ class CreateVolumeSnapshot(command.ShowOne):
             action="store_true",
             default=False,
             help=_(
-                "Create a snapshot attached to an instance. Default is False"
+                "Allow snapshot of in-use (attached) volume. "
+                "Only needed for microversions prior to 3.66; "
+                "ignored for 3.66+"
             ),
         )
         parser.add_argument(
@@ -176,13 +179,23 @@ class CreateVolumeSnapshot(command.ShowOne):
             )
         else:
             # Create a new snapshot from scratch
-            snapshot = volume_client.create_snapshot(
-                volume_id=volume_id,
-                force=parsed_args.force,
-                name=parsed_args.snapshot_name,
-                description=parsed_args.description,
-                metadata=parsed_args.properties,
-            )
+            # only for microversion < 3.66, pass force parameter
+            # for backward compatibility
+            if not sdk_utils.supports_microversion(volume_client, '3.66'):
+                snapshot = volume_client.create_snapshot(
+                    volume_id=volume_id,
+                    force=parsed_args.force,
+                    name=parsed_args.snapshot_name,
+                    description=parsed_args.description,
+                    metadata=parsed_args.properties,
+                )
+            else:
+                snapshot = volume_client.create_snapshot(
+                    volume_id=volume_id,
+                    name=parsed_args.snapshot_name,
+                    description=parsed_args.description,
+                    metadata=parsed_args.properties,
+                )
 
         data = _format_snapshot(snapshot)
         return zip(*sorted(data.items()))
