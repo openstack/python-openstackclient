@@ -150,11 +150,11 @@ class ShowConsoleURL(command.ShowOne):
             parsed_args.server, ignore_missing=False
         )
 
-        data = compute_client.create_console(
+        console = compute_client.create_console(
             server.id, console_type=parsed_args.url_type
         )
 
-        display_columns, columns = _get_console_columns(data)
-        data = utils.get_dict_properties(data, columns)
+        display_columns, columns = _get_console_columns(console)
+        data = utils.get_dict_properties(console, columns)
 
         return (display_columns, data)
