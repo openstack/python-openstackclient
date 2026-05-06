@@ -17,6 +17,7 @@ import logging
 from collections.abc import Iterable, Sequence
 from typing import Any
 
+from openstack.network.v2 import tap_service as _tap_service
 from osc_lib.cli import identity as identity_utils
 from osc_lib import exceptions
 from osc_lib import utils as osc_utils
@@ -47,7 +48,9 @@ def _add_updatable_args(parser: argparse.ArgumentParser) -> None:
     )
 
 
-def _get_columns(item: Any) -> tuple[tuple[str, ...], tuple[str, ...]]:
+def _get_columns(
+    item: _tap_service.TapService,
+) -> tuple[tuple[str, ...], tuple[str, ...]]:
     column_map: dict[str, str] = {}
     hidden_columns = ['location', 'tenant_id']
     return osc_utils.get_osc_show_columns_for_sdk_resource(

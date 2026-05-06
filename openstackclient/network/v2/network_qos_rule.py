@@ -18,6 +18,13 @@ from collections.abc import Iterable, Sequence
 import itertools
 from typing import Any, cast
 
+from openstack.network.v2 import (
+    qos_bandwidth_limit_rule as _qos_bandwidth_limit_rule,
+    qos_dscp_marking_rule as _qos_dscp_marking_rule,
+    qos_minimum_bandwidth_rule as _qos_minimum_bandwidth_rule,
+    qos_minimum_packet_rate_rule as _qos_minimum_packet_rate_rule,
+    qos_packet_rate_limit_rule as _qos_packet_rate_limit_rule,
+)
 from osc_lib import exceptions
 from osc_lib import utils
 
@@ -75,7 +82,15 @@ ACTION_SET = 'update'
 ACTION_SHOW = 'get'
 
 
-def _get_columns(item: Any) -> tuple[tuple[str, ...], tuple[str, ...]]:
+def _get_columns(
+    item: (
+        _qos_bandwidth_limit_rule.QoSBandwidthLimitRule
+        | _qos_dscp_marking_rule.QoSDSCPMarkingRule
+        | _qos_minimum_bandwidth_rule.QoSMinimumBandwidthRule
+        | _qos_minimum_packet_rate_rule.QoSMinimumPacketRateRule
+        | _qos_packet_rate_limit_rule.QoSPacketRateLimitRule
+    ),
+) -> tuple[tuple[str, ...], tuple[str, ...]]:
     hidden_columns = ['location', 'name', 'tenant_id']
     return utils.get_osc_show_columns_for_sdk_resource(
         item, {}, hidden_columns

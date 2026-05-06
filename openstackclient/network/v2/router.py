@@ -22,6 +22,7 @@ import logging
 from typing import Any
 
 from cliff import columns as cliff_columns
+from openstack.network.v2 import router as _router
 from osc_lib.cli import format_columns
 from osc_lib.cli import parseractions
 from osc_lib import exceptions
@@ -69,7 +70,9 @@ _formatters = {
 }
 
 
-def _get_columns(item: Any) -> tuple[tuple[str, ...], tuple[str, ...]]:
+def _get_columns(
+    item: _router.Router,
+) -> tuple[tuple[str, ...], tuple[str, ...]]:
     column_map = {
         'is_ha': 'ha',
         'is_distributed': 'distributed',

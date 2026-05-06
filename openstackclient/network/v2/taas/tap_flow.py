@@ -17,6 +17,7 @@ import logging
 from collections.abc import Iterable, Sequence
 from typing import Any
 
+from openstack.network.v2 import tap_flow as _tap_flow
 from osc_lib.cli import format_columns
 from osc_lib.cli import identity as identity_utils
 from osc_lib import exceptions
@@ -26,7 +27,6 @@ from osc_lib.utils import columns as column_util
 from openstackclient import command
 from openstackclient.i18n import _
 from openstackclient.identity import common
-from openstackclient.network.v2.taas import tap_service
 
 LOG = logging.getLogger(__name__)
 
@@ -52,6 +52,16 @@ def _add_updatable_args(parser: argparse.ArgumentParser) -> None:
     parser.add_argument('--name', help=_('Name of the tap flow.'))
     parser.add_argument(
         '--description', help=_('Description of the tap flow.')
+    )
+
+
+def _get_columns(
+    item: _tap_flow.TapFlow,
+) -> tuple[tuple[str, ...], tuple[str, ...]]:
+    column_map: dict[str, str] = {}
+    hidden_columns = ['location', 'tenant_id']
+    return osc_utils.get_osc_show_columns_for_sdk_resource(
+        item, column_map, hidden_columns
     )
 
 
@@ -125,7 +135,7 @@ class CreateTapFlow(command.ShowOne):
                 parsed_args.project_domain,
             ).id
         obj = client.create_tap_flow(**attrs)
-        display_columns, columns = tap_service._get_columns(obj)
+        display_columns, columns = _get_columns(obj)
         data = osc_utils.get_dict_properties(obj, columns)
         return display_columns, data
 
@@ -185,7 +195,7 @@ class ShowTapFlow(command.ShowOne):
             parsed_args.tap_flow, ignore_missing=False
         ).id
         obj = client.get_tap_flow(id)
-        display_columns, columns = tap_service._get_columns(obj)
+        display_columns, columns = _get_columns(obj)
         data = osc_utils.get_dict_properties(obj, columns)
         return display_columns, data
 

@@ -18,6 +18,7 @@ import logging
 from typing import Any
 
 from cliff import columns as cliff_columns
+from openstack.network.v2 import network as _network
 from osc_lib.cli import format_columns
 from osc_lib import exceptions
 from osc_lib import utils
@@ -54,7 +55,9 @@ _formatters = {
 }
 
 
-def _get_columns_network(item: Any) -> tuple[tuple[str, ...], tuple[str, ...]]:
+def _get_columns_network(
+    item: _network.Network,
+) -> tuple[tuple[str, ...], tuple[str, ...]]:
     column_map = {
         'subnet_ids': 'subnets',
         'is_admin_state_up': 'admin_state_up',

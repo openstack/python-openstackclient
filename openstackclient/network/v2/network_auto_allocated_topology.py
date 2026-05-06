@@ -18,6 +18,9 @@ import logging
 from collections.abc import Iterable, Sequence
 from typing import Any
 
+from openstack.network.v2 import (
+    auto_allocated_topology as _auto_allocated_topology,
+)
 from osc_lib import utils
 
 from openstackclient import command
@@ -27,7 +30,9 @@ from openstackclient.identity import common as identity_common
 LOG = logging.getLogger(__name__)
 
 
-def _get_columns(item: Any) -> tuple[tuple[str, ...], tuple[str, ...]]:
+def _get_columns(
+    item: _auto_allocated_topology.AutoAllocatedTopology,
+) -> tuple[tuple[str, ...], tuple[str, ...]]:
     hidden_columns = ['name', 'location', 'tenant_id']
     return utils.get_osc_show_columns_for_sdk_resource(
         item, {}, hidden_columns

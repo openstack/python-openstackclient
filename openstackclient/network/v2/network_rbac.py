@@ -18,6 +18,7 @@ from collections.abc import Iterable, Sequence
 import logging
 from typing import Any
 
+from openstack.network.v2 import rbac_policy as _rbac_policy
 from osc_lib import exceptions
 from osc_lib import utils
 
@@ -29,7 +30,9 @@ from openstackclient.network import common
 LOG = logging.getLogger(__name__)
 
 
-def _get_columns(item: Any) -> tuple[tuple[str, ...], tuple[str, ...]]:
+def _get_columns(
+    item: _rbac_policy.RBACPolicy,
+) -> tuple[tuple[str, ...], tuple[str, ...]]:
     column_map = {
         'target_tenant': 'target_project_id',
     }

@@ -22,6 +22,7 @@ import logging
 from typing import Any
 
 from cliff import columns as cliff_columns
+from openstack.network.v2 import trunk as _trunk
 from osc_lib.cli import format_columns
 from osc_lib.cli import identity as identity_utils
 from osc_lib.cli import parseractions
@@ -367,7 +368,9 @@ _formatters = {
 }
 
 
-def _get_columns(item: Any) -> tuple[tuple[str, ...], tuple[str, ...]]:
+def _get_columns(
+    item: _trunk.Trunk,
+) -> tuple[tuple[str, ...], tuple[str, ...]]:
     hidden_columns = ['location', 'tenant_id']
     return osc_utils.get_osc_show_columns_for_sdk_resource(
         item, {}, hidden_columns

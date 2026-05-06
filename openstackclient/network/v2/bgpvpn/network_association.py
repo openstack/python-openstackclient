@@ -18,6 +18,9 @@ from collections.abc import Iterable, Sequence
 import logging
 from typing import Any
 
+from openstack.network.v2 import (
+    bgpvpn_network_association as _bgpvpn_network_association,
+)
 from osc_lib.cli import identity as osc_id
 from osc_lib.cli import parseractions
 from osc_lib import exceptions
@@ -38,7 +41,9 @@ _attr_map = (
 _formatters: dict[str, Any] = {}
 
 
-def _get_columns(item: Any) -> tuple[tuple[str, ...], tuple[str, ...]]:
+def _get_columns(
+    item: _bgpvpn_network_association.BgpVpnNetworkAssociation,
+) -> tuple[tuple[str, ...], tuple[str, ...]]:
     column_map: dict[str, str] = {}
     hidden_columns = ['location', 'name', 'tenant_id']
     return osc_utils.get_osc_show_columns_for_sdk_resource(
