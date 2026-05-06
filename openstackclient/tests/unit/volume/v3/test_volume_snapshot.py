@@ -180,6 +180,59 @@ class TestVolumeSnapshotCreate(volume_fakes.TestVolume):
         )
         self.volume_sdk_client.create_snapshot.assert_not_called()
 
+    def test_snapshot_create_pre_v366(self):
+        self.set_volume_api_version('3.65')
+
+        arglist = ["--force", self.snapshot.name]
+        verifylist = [("force", True), ("snapshot_name", self.snapshot.name)]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+
+        # force parameter should be passed
+        self.volume_sdk_client.create_snapshot.assert_called_with(
+            volume_id=self.snapshot.volume_id,
+            force=True,
+            name=self.snapshot.name,
+            description=None,
+            metadata=None,
+        )
+
+    def test_snapshot_create_v366_or_later(self):
+        self.set_volume_api_version('3.66')
+
+        arglist = [self.snapshot.name]
+        verifylist = [("force", False), ("snapshot_name", self.snapshot.name)]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+
+        # force parameter should not be passed, for >=3.66
+        self.volume_sdk_client.create_snapshot.assert_called_with(
+            volume_id=self.snapshot.volume_id,
+            name=self.snapshot.name,
+            description=None,
+            metadata=None,
+        )
+
+    def test_snapshot_create_v366_or_later_with_force(self):
+        """--force should be ignored for microversion >= 3.66."""
+        self.set_volume_api_version('3.66')
+
+        arglist = ["--force", self.snapshot.name]
+        verifylist = [("force", True), ("snapshot_name", self.snapshot.name)]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+
+        # passed but ignored
+        self.volume_sdk_client.create_snapshot.assert_called_with(
+            volume_id=self.snapshot.volume_id,
+            name=self.snapshot.name,
+            description=None,
+            metadata=None,
+        )
+
 
 class TestVolumeSnapshotDelete(volume_fakes.TestVolume):
     def setUp(self):
