@@ -221,6 +221,9 @@ class CreateApplicationCredential(command.ShowOne):
             raise exceptions.CommandError('invalid authentication info')
 
         user_id = auth.get_user_id(conn.session)
+        if user_id is None:
+            msg = _("failed to retrieve auth info for current session")
+            raise exceptions.CommandError(msg)
 
         role_ids = []
         for role in parsed_args.roles:

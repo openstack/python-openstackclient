@@ -90,11 +90,16 @@ class CreateServerImage(command.ShowOne):
         else:
             image_name = server.name
 
-        image_id = compute_client.create_server_image(
+        image = compute_client.create_server_image(
             server.id,
             image_name,
             parsed_args.properties,
-        ).id
+        )
+        if not image:
+            msg = _('Error creating server image: %s')
+            raise exceptions.CommandError(msg, parsed_args.server)
+
+        image_id = image.id
 
         if parsed_args.wait:
             if utils.wait_for_status(
@@ -104,10 +109,8 @@ class CreateServerImage(command.ShowOne):
             ):
                 self.app.stdout.write('\n')
             else:
-                LOG.error(
-                    _('Error creating server image: %s'), parsed_args.server
-                )
-                raise exceptions.CommandError
+                msg = _('Error creating server image: %s')
+                raise exceptions.CommandError(msg, parsed_args.server)
 
         image = image_client.find_image(image_id, ignore_missing=False)
 
