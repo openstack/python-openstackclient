@@ -1,0 +1,9 @@
+---
+fixes:
+  - |
+    Fix ``volume snapshot create`` to work with Cinder API microversion 3.66
+    and later. Since version 3.66, the 'force' parameter is no longer
+    needed for snapshot creation as in-use volumes can be snapshotted by
+    default. The command now only passes the 'force' parameter for version
+    prior to 3.66.
+    [Bug `2089188 <https://bugs.launchpad.net/python-openstackclient/+bug/2089188>`_]
