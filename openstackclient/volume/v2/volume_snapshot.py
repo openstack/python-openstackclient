@@ -18,6 +18,7 @@ import copy
 import functools
 import logging
 
+from cinderclient import api_versions
 from cliff import columns as cliff_columns
 from osc_lib.cli import format_columns
 from osc_lib.cli import parseractions
@@ -88,8 +89,9 @@ class CreateVolumeSnapshot(command.ShowOne):
             action="store_true",
             default=False,
             help=_(
-                "Create a snapshot attached to an instance. "
-                "Default is False"
+                "Allow snapshot of in-use (attached) volume. "
+                "Only needed for microversions prior to 3.66; "
+                "ignored for 3.66+"
             ),
         )
         parser.add_argument(
@@ -138,13 +140,23 @@ class CreateVolumeSnapshot(command.ShowOne):
             )
         else:
             # create a new snapshot from scratch
-            snapshot = volume_client.volume_snapshots.create(
-                volume_id,
-                force=parsed_args.force,
-                name=parsed_args.snapshot_name,
-                description=parsed_args.description,
-                metadata=parsed_args.property,
-            )
+            # only for microversion < 3.66, pass force parameter
+            # for backward compatibility
+            if volume_client.api_version < api_versions.APIVersion('3.66'):
+                snapshot = volume_client.volume_snapshots.create(
+                    volume_id,
+                    force=parsed_args.force,
+                    name=parsed_args.snapshot_name,
+                    description=parsed_args.description,
+                    metadata=parsed_args.property,
+                )
+            else:
+                snapshot = volume_client.volume_snapshots.create(
+                    volume_id,
+                    name=parsed_args.snapshot_name,
+                    description=parsed_args.description,
+                    metadata=parsed_args.property,
+                )
         snapshot._info.update(
             {
                 'properties': format_columns.DictColumn(

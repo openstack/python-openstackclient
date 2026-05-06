@@ -13,6 +13,7 @@
 
 from unittest import mock
 
+from cinderclient import api_versions
 from osc_lib.cli import format_columns
 from osc_lib import exceptions
 from osc_lib import utils
@@ -69,6 +70,10 @@ class TestVolumeSnapshotCreate(TestVolumeSnapshot):
         self.volumes_mock.get.return_value = self.volume
         self.snapshots_mock.create.return_value = self.new_snapshot
         self.snapshots_mock.manage.return_value = self.new_snapshot
+        # Set default api_version for all tests
+        # CreateVolumeSnapshot now checks api_version to handle mv 3.66 logic
+        # in take_action()
+        self.volume_client.api_version = api_versions.APIVersion('3.0')
         # Get the command object to test
         self.cmd = volume_snapshot.CreateVolumeSnapshot(self.app, None)
 
@@ -180,6 +185,77 @@ class TestVolumeSnapshotCreate(TestVolumeSnapshot):
             metadata=None,
         )
         self.snapshots_mock.create.assert_not_called()
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
+
+    def test_snapshot_create_pre_v366(self):
+        self.volume_client.api_version = api_versions.APIVersion('3.65')
+
+        arglist = ["--force", self.new_snapshot.name]
+        verifylist = [
+            ("force", True),
+            ("snapshot_name", self.new_snapshot.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # force parameter should be passed
+        self.snapshots_mock.create.assert_called_with(
+            self.new_snapshot.volume_id,
+            force=True,
+            name=self.new_snapshot.name,
+            description=None,
+            metadata=None,
+        )
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
+
+    def test_snapshot_create_v366_or_later(self):
+        self.volume_client.api_version = api_versions.APIVersion('3.66')
+
+        arglist = [self.new_snapshot.name]
+        verifylist = [
+            ("force", False),
+            ("snapshot_name", self.new_snapshot.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # force parameter should not be passed, for >=3.66
+        self.snapshots_mock.create.assert_called_with(
+            self.new_snapshot.volume_id,
+            name=self.new_snapshot.name,
+            description=None,
+            metadata=None,
+        )
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
+
+    def test_snapshot_create_v366_or_later_with_force(self):
+        """--force should be ignored for microversion >= 3.66."""
+        self.volume_client.api_version = api_versions.APIVersion('3.66')
+
+        arglist = ["--force", self.new_snapshot.name]
+        verifylist = [
+            ("force", True),
+            ("snapshot_name", self.new_snapshot.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        # passed but ignored
+        self.snapshots_mock.create.assert_called_with(
+            self.new_snapshot.volume_id,
+            name=self.new_snapshot.name,
+            description=None,
+            metadata=None,
+        )
+
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 
