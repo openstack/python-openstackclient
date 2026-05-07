@@ -389,6 +389,45 @@ class RemoveRouterFromAgent(command.Command):
             client.remove_router_from_agent(agent, router)
 
 
+class SetNetworkAgentRouter(command.Command):
+    _description = _("Set properties of a router associated to an agent")
+
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
+        parser = super().get_parser(prog_name)
+        parser.add_argument(
+            '--ha-chassis-priority',
+            metavar='<ha-chassis-priority>',
+            type=int,
+            required=True,
+            help=_(
+                "HA Chassis priority, ranging from [0, 32767]. "
+                "Only used with --l3 and for ML2/OVN L3 agents"
+            ),
+        )
+        parser.add_argument(
+            'agent_id',
+            metavar='<agent-id>',
+            help=_("L3 agent to modify (ID only)"),
+        )
+        parser.add_argument(
+            'router',
+            metavar='<router>',
+            help=_("Router to update (name or ID)"),
+        )
+
+        return parser
+
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
+        client = self.app.client_manager.network
+        agent = client.get_agent(parsed_args.agent_id)
+        router = client.find_router(parsed_args.router, ignore_missing=False)
+        client.update_router_in_agent(
+            agent,
+            router,
+            ha_chassis_priority=parsed_args.ha_chassis_priority,
+        )
+
+
 class SetNetworkAgent(command.Command):
     _description = _("Set network agent properties")
 

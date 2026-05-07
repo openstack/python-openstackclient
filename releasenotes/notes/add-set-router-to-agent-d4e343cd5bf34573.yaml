@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Add a new ``network agent router set`` command that allows updating
+    properties of a router associated to an ML2/OVN L3 agent. Currently
+    supports setting ``--ha-chassis-priority``.

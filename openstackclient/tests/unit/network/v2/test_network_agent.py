@@ -499,6 +499,66 @@ class TestRemoveRouterAgent(TestNetworkAgent):
         self.assertIsNone(result)
 
 
+class TestSetNetworkAgentRouter(TestNetworkAgent):
+    def setUp(self):
+        super().setUp()
+        self._router = network_fakes.create_one_router()
+        self._agent = network_fakes.create_one_network_agent()
+        self.network_client.get_agent.return_value = self._agent
+        self.network_client.find_router.return_value = self._router
+        self.cmd = network_agent.SetNetworkAgentRouter(self.app, None)
+
+    def test_set_no_options(self):
+        arglist = []
+        verifylist = []
+
+        self.assertRaises(
+            tests_utils.ParserException,
+            self.check_parser,
+            self.cmd,
+            arglist,
+            verifylist,
+        )
+
+    def test_set_router_missing_ha_chassis_priority(self):
+        arglist = [
+            self._agent.id,
+            self._router.id,
+        ]
+        verifylist = []
+
+        self.assertRaises(
+            tests_utils.ParserException,
+            self.check_parser,
+            self.cmd,
+            arglist,
+            verifylist,
+        )
+
+    def test_set_router_with_ha_chassis_priority(self):
+        arglist = [
+            '--ha-chassis-priority',
+            '200',
+            self._agent.id,
+            self._router.id,
+        ]
+        verifylist = [
+            ('agent_id', self._agent.id),
+            ('router', self._router.id),
+            ('ha_chassis_priority', 200),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+
+        self.network_client.update_router_in_agent.assert_called_with(
+            self._agent,
+            self._router,
+            ha_chassis_priority=200,
+        )
+        self.assertIsNone(result)
+
+
 class TestSetNetworkAgent(TestNetworkAgent):
     _network_agent = network_fakes.create_one_network_agent()
 
