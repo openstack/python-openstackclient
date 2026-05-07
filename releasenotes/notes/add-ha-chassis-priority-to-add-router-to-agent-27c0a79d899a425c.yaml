@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Add a new option ``--ha-chassis-priority`` to the
+    ``network agent add router`` command. This allows setting
+    the HA Chassis priority when adding a router to an L3 agent.

@@ -109,7 +109,32 @@ class TestAddRouterAgent(TestNetworkAgent):
         result = self.cmd.take_action(parsed_args)
 
         self.network_client.add_router_to_agent.assert_called_with(
-            self._agent, self._router
+            self._agent, self._router, ha_chassis_priority=None
+        )
+        self.assertIsNone(result)
+
+    def test_add_router_with_ha_chassis_priority(self):
+        arglist = [
+            self._agent.id,
+            self._router.id,
+            '--l3',
+            '--ha-chassis-priority',
+            '100',
+        ]
+        verifylist = [
+            ('l3', True),
+            ('agent_id', self._agent.id),
+            ('router', self._router.id),
+            ('ha_chassis_priority', 100),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+
+        self.network_client.add_router_to_agent.assert_called_with(
+            self._agent,
+            self._router,
+            ha_chassis_priority=100,
         )
         self.assertIsNone(result)
 

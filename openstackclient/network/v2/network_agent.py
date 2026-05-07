@@ -119,6 +119,15 @@ class AddRouterToAgent(command.Command):
             '--l3', action='store_true', help=_('Add router to an L3 agent')
         )
         parser.add_argument(
+            '--ha-chassis-priority',
+            metavar='<ha-chassis-priority>',
+            type=int,
+            help=_(
+                "HA Chassis priority, ranging from [0, 32767]. "
+                "Only used with --l3 and for ML2/OVN L3 agents"
+            ),
+        )
+        parser.add_argument(
             'agent_id',
             metavar='<agent-id>',
             help=_("Agent to which a router is added (ID only)"),
@@ -136,7 +145,11 @@ class AddRouterToAgent(command.Command):
         agent = client.get_agent(parsed_args.agent_id)
         router = client.find_router(parsed_args.router, ignore_missing=False)
         if parsed_args.l3:
-            client.add_router_to_agent(agent, router)
+            client.add_router_to_agent(
+                agent,
+                router,
+                ha_chassis_priority=parsed_args.ha_chassis_priority,
+            )
 
 
 class DeleteNetworkAgent(command.Command):
