@@ -11,12 +11,8 @@
 #   under the License.
 #
 
-import pbr.version
+import importlib.metadata
 
 __all__ = ['__version__']
 
-version_info = pbr.version.VersionInfo('python-openstackclient')
-try:
-    __version__ = version_info.version_string()
-except AttributeError:
-    __version__ = None
+__version__ = importlib.metadata.version('python-openstackclient')
