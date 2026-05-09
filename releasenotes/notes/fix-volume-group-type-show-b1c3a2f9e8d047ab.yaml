@@ -1,0 +1,7 @@
+---
+fixes:
+  - |
+    Fixed ``volume group type show`` command which was failing with
+    ``AttributeError: 'Namespace' object has no attribute 'group'`` due to
+    a typo in the ``take_action`` method.
+    [Bug `2150856 <https://bugs.launchpad.net/bugs/2150856>`_]
