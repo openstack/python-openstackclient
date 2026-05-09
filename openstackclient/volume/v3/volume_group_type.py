@@ -399,7 +399,7 @@ class ShowVolumeGroupType(command.ShowOne):
 
         group_type = utils.find_resource(
             volume_client.group_types,
-            parsed_args.group,
+            parsed_args.group_type,
         )
 
         return _format_group_type(group_type)
