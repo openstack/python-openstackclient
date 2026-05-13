@@ -1,0 +1,11 @@
+---
+features:
+  - |
+    ``Neutron Dynamic routing`` OSC commands were moved from
+    ``python-neutronclient``. The following commands are included:
+
+    - ``bgp peer create|delete|list|show|set``
+    - ``bgp speaker create|delete|list|show|set``
+    - ``bgp speaker add network|add peer|remove network|remove peer``
+    - ``bgp speaker list advertised routes``
+    - ``bgp dragent add speaker|remove speaker|list``

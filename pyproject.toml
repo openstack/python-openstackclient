@@ -563,6 +563,26 @@ bgpvpn_port_association_delete = "openstackclient.network.v2.bgpvpn.port_associa
 bgpvpn_port_association_list = "openstackclient.network.v2.bgpvpn.port_association:ListBgpvpnPortAssoc"
 bgpvpn_port_association_show = "openstackclient.network.v2.bgpvpn.port_association:ShowBgpvpnPortAssoc"
 
+[project.entry-points."openstack.network.v2.dynamic_routing"]
+bgp_peer_create = "openstackclient.network.v2.dynamic_routing.bgp_peer:CreateBgpPeer"
+bgp_peer_delete = "openstackclient.network.v2.dynamic_routing.bgp_peer:DeleteBgpPeer"
+bgp_peer_list = "openstackclient.network.v2.dynamic_routing.bgp_peer:ListBgpPeer"
+bgp_peer_set = "openstackclient.network.v2.dynamic_routing.bgp_peer:SetBgpPeer"
+bgp_peer_show = "openstackclient.network.v2.dynamic_routing.bgp_peer:ShowBgpPeer"
+bgp_speaker_create = "openstackclient.network.v2.dynamic_routing.bgp_speaker:CreateBgpSpeaker"
+bgp_speaker_delete = "openstackclient.network.v2.dynamic_routing.bgp_speaker:DeleteBgpSpeaker"
+bgp_speaker_list = "openstackclient.network.v2.dynamic_routing.bgp_speaker:ListBgpSpeaker"
+bgp_speaker_set = "openstackclient.network.v2.dynamic_routing.bgp_speaker:SetBgpSpeaker"
+bgp_speaker_show = "openstackclient.network.v2.dynamic_routing.bgp_speaker:ShowBgpSpeaker"
+bgp_speaker_add_network = "openstackclient.network.v2.dynamic_routing.bgp_speaker:AddNetworkToSpeaker"
+bgp_speaker_add_peer = "openstackclient.network.v2.dynamic_routing.bgp_speaker:AddPeerToSpeaker"
+bgp_speaker_remove_network = "openstackclient.network.v2.dynamic_routing.bgp_speaker:RemoveNetworkFromSpeaker"
+bgp_speaker_remove_peer = "openstackclient.network.v2.dynamic_routing.bgp_speaker:RemovePeerFromSpeaker"
+bgp_speaker_list_advertised_routes = "openstackclient.network.v2.dynamic_routing.bgp_speaker:ListRoutesAdvertisedBySpeaker"
+bgp_dragent_add_speaker = "openstackclient.network.v2.dynamic_routing.bgp_dragent:AddBgpSpeakerToDRAgent"
+bgp_dragent_remove_speaker = "openstackclient.network.v2.dynamic_routing.bgp_dragent:RemoveBgpSpeakerFromDRAgent"
+bgp_dragent_list = "openstackclient.network.v2.dynamic_routing.bgp_dragent:ListDRAgent"
+
 [project.entry-points."openstack.network.v2.fwaas"]
 firewall_group_create = "openstackclient.network.v2.fwaas.group:CreateFirewallGroup"
 firewall_group_delete = "openstackclient.network.v2.fwaas.group:DeleteFirewallGroup"
@@ -795,7 +815,11 @@ module = ["openstackclient.tests.functional.*"]
 disallow_untyped_defs = false
 
 [[tool.mypy.overrides]]
-module = ["openstackclient.tests.unit.*"]
+module = [
+    # TODO: Remove all non-functional tests exceptions here
+    "openstackclient.network.v2.dynamic_routing.*",
+    "openstackclient.tests.unit.*",
+]
 ignore_errors = true
 
 [tool.ruff]
