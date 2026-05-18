@@ -12,10 +12,11 @@
 #   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #   License for the specific language governing permissions and limitations
 #   under the License.
-#
 
+import argparse
+from collections.abc import Iterable, Sequence
 import logging
-import typing as ty
+from typing import Any
 
 from osc_lib.cli import format_columns
 from osc_lib.cli import identity as osc_id
@@ -59,7 +60,7 @@ _formatters = {
 }
 
 
-def _get_columns(item):
+def _get_columns(item: Any) -> tuple[tuple[str, ...], tuple[str, ...]]:
     column_map: dict[str, str] = {}
     hidden_columns = ['location', 'tenant_id']
     return osc_utils.get_osc_show_columns_for_sdk_resource(
@@ -67,7 +68,9 @@ def _get_columns(item):
     )
 
 
-def _get_common_parser(parser, update=None):
+def _get_common_parser(
+    parser: argparse.ArgumentParser, update: str | None = None
+) -> None:
     """Adds to parser arguments common to create, set and unset commands.
 
     :params ArgumentParser parser: argparse object contains all command's
@@ -95,7 +98,7 @@ def _get_common_parser(parser, update=None):
     REPEAT_RT = _("repeat option for multiple Route Targets")
     REPEAT_RD = _("repeat option for multiple Route Distinguishers")
 
-    def is_appended():
+    def is_appended() -> bool:
         return update is None or update == 'set'
 
     if update is None or update == 'set':
@@ -183,7 +186,9 @@ def _get_common_parser(parser, update=None):
     )
 
 
-def _args2body(client_manager, id, action, args):
+def _args2body(
+    client_manager: Any, id: str, action: str, args: argparse.Namespace
+) -> dict[str, Any]:
 
     if not (
         args.purge_route_target
@@ -198,7 +203,7 @@ def _args2body(client_manager, id, action, args):
     ):
         bgpvpn = client_manager.network.get_bgpvpn(id)
 
-    attrs: dict[str, ty.Any] = {}
+    attrs: dict[str, Any] = {}
 
     if 'name' in args and args.name is not None:
         attrs['name'] = str(args.name)
@@ -265,7 +270,7 @@ def _args2body(client_manager, id, action, args):
 class CreateBgpvpn(command.ShowOne):
     _description = _("Create BGP VPN resource")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         osc_id.add_project_owner_option_to_parser(parser)
         _get_common_parser(parser)
@@ -280,7 +285,9 @@ class CreateBgpvpn(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         client = self.app.client_manager.network
         attrs = {}
         if parsed_args.name is not None:
@@ -317,7 +324,7 @@ class CreateBgpvpn(command.ShowOne):
 class SetBgpvpn(command.Command):
     _description = _("Set BGP VPN properties")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'bgpvpn',
@@ -327,7 +334,7 @@ class SetBgpvpn(command.Command):
         _get_common_parser(parser, update='set')
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
         id = client.find_bgpvpn(parsed_args.bgpvpn, ignore_missing=False)['id']
         body = _args2body(self.app.client_manager, id, 'set', parsed_args)
@@ -337,7 +344,7 @@ class SetBgpvpn(command.Command):
 class UnsetBgpvpn(command.Command):
     _description = _("Unset BGP VPN properties")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'bgpvpn',
@@ -347,7 +354,7 @@ class UnsetBgpvpn(command.Command):
         _get_common_parser(parser, update='unset')
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
         id = client.find_bgpvpn(parsed_args.bgpvpn, ignore_missing=False)['id']
         body = _args2body(self.app.client_manager, id, 'unset', parsed_args)
@@ -357,7 +364,7 @@ class UnsetBgpvpn(command.Command):
 class DeleteBgpvpn(command.Command):
     _description = _("Delete BGP VPN resource(s)")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'bgpvpns',
@@ -367,7 +374,7 @@ class DeleteBgpvpn(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
         fails = 0
         for id_or_name in parsed_args.bgpvpns:
@@ -393,7 +400,7 @@ class DeleteBgpvpn(command.Command):
 class ListBgpvpn(command.Lister):
     _description = _("List BGP VPN resources")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         osc_id.add_project_owner_option_to_parser(parser)
         parser.add_argument(
@@ -413,7 +420,9 @@ class ListBgpvpn(command.Lister):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[tuple[Any, ...]]]:
         client = self.app.client_manager.network
         params = {}
         if parsed_args.project is not None:
@@ -443,7 +452,7 @@ class ListBgpvpn(command.Lister):
 class ShowBgpvpn(command.ShowOne):
     _description = _("Show information of a given BGP VPN")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'bgpvpn',
@@ -452,7 +461,9 @@ class ShowBgpvpn(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         client = self.app.client_manager.network
         id = client.find_bgpvpn(parsed_args.bgpvpn, ignore_missing=False)['id']
         obj = client.get_bgpvpn(id)

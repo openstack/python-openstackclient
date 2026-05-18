@@ -12,10 +12,11 @@
 #   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #   License for the specific language governing permissions and limitations
 #   under the License.
-#
 
+import argparse
+from collections.abc import Iterable, Sequence
 import logging
-import typing as ty
+from typing import Any
 
 from osc_lib.cli import identity as osc_id
 from osc_lib.cli import parseractions
@@ -34,10 +35,10 @@ _attr_map = (
     ('project_id', 'Project', column_util.LIST_LONG_ONLY),
     ('network_id', 'Network ID', column_util.LIST_BOTH),
 )
-_formatters: dict[str, ty.Any] = {}
+_formatters: dict[str, Any] = {}
 
 
-def _get_columns(item):
+def _get_columns(item: Any) -> tuple[tuple[str, ...], tuple[str, ...]]:
     column_map: dict[str, str] = {}
     hidden_columns = ['location', 'name', 'tenant_id']
     return osc_utils.get_osc_show_columns_for_sdk_resource(
@@ -48,7 +49,7 @@ def _get_columns(item):
 class CreateBgpvpnNetAssoc(command.ShowOne):
     _description = _("Create a BGP VPN network association")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         osc_id.add_project_owner_option_to_parser(parser)
         parser.add_argument(
@@ -63,13 +64,15 @@ class CreateBgpvpnNetAssoc(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         client = self.app.client_manager.network
         bgpvpn = client.find_bgpvpn(parsed_args.bgpvpn, ignore_missing=False)
         network = client.find_network(
             parsed_args.resource, ignore_missing=False
         )
-        body: dict[str, ty.Any] = {'network_id': network['id']}
+        body: dict[str, Any] = {'network_id': network['id']}
         if 'project' in parsed_args and parsed_args.project is not None:
             project_id = osc_id.find_project(
                 self.app.client_manager.sdk_connection,
@@ -91,7 +94,7 @@ class DeleteBgpvpnNetAssoc(command.Command):
         "Delete a BGP VPN network association(s) for a given BGP VPN"
     )
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'resource_association_ids',
@@ -106,7 +109,7 @@ class DeleteBgpvpnNetAssoc(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
         bgpvpn = client.find_bgpvpn(parsed_args.bgpvpn, ignore_missing=False)
         fails = 0
@@ -138,7 +141,7 @@ class DeleteBgpvpnNetAssoc(command.Command):
 class ListBgpvpnNetAssoc(command.Lister):
     _description = _("List BGP VPN network associations for a given BGP VPN")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'bgpvpn',
@@ -161,7 +164,9 @@ class ListBgpvpnNetAssoc(command.Lister):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[tuple[Any, ...]]]:
         client = self.app.client_manager.network
         bgpvpn = client.find_bgpvpn(parsed_args.bgpvpn, ignore_missing=False)
         params = {}
@@ -187,7 +192,7 @@ class ListBgpvpnNetAssoc(command.Lister):
 class ShowBgpvpnNetAssoc(command.ShowOne):
     _description = _("Show information of a given BGP VPN network association")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'resource_association_id',
@@ -201,7 +206,9 @@ class ShowBgpvpnNetAssoc(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         client = self.app.client_manager.network
         bgpvpn = client.find_bgpvpn(parsed_args.bgpvpn, ignore_missing=False)
         obj = client.get_bgpvpn_network_association(
