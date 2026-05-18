@@ -41,14 +41,14 @@ def _format_image_cache(cached_images: dict[str, Any]) -> list[dict[str, Any]]:
                 image_obj['state'] = 'cached'
                 image_obj['last_accessed'] = (
                     datetime.datetime.fromtimestamp(
-                        image['last_accessed'], tz=datetime.timezone.utc
+                        image['last_accessed'], tz=datetime.UTC
                     )
                     .replace(tzinfo=None)
                     .isoformat()
                 )
                 image_obj['last_modified'] = (
                     datetime.datetime.fromtimestamp(
-                        image['last_modified'], tz=datetime.timezone.utc
+                        image['last_modified'], tz=datetime.UTC
                     )
                     .replace(tzinfo=None)
                     .isoformat()

@@ -107,7 +107,7 @@ class ApplicationCredentialTests(common.IdentityTests):
         secret = data_utils.rand_name('secret')
         description = data_utils.rand_name('description')
         tomorrow = (
-            datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None)
+            datetime.datetime.now(datetime.UTC).replace(tzinfo=None)
             + datetime.timedelta(days=1)
         ).strftime('%Y-%m-%dT%H:%M:%S%z')
         role1, role2 = self._create_role_assignments()
