@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Added ``--limit`` and ``--marker`` options to the
+    ``openstack user list`` and ``openstack project list`` commands to enable
+    marker-based pagination through large result sets.

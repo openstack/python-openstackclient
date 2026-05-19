@@ -1273,6 +1273,29 @@ class TestProjectList(identity_fakes.TestIdentityv3):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, tuple(data))
 
+    def test_project_list_with_pagination(self):
+        self.identity_sdk_client.projects.return_value = [self.project]
+
+        arglist = [
+            '--limit',
+            '2',
+            '--marker',
+            'some-marker',
+        ]
+        verifylist = [
+            ('limit', 2),
+            ('marker', 'some-marker'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        kwargs = {'limit': 2, 'marker': 'some-marker'}
+        self.identity_sdk_client.projects.assert_called_with(**kwargs)
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, tuple(data))
+
 
 class TestProjectSet(identity_fakes.TestIdentityv3):
     domain = sdk_fakes.generate_fake_resource(_domain.Domain)

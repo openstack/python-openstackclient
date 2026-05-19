@@ -1034,6 +1034,73 @@ class TestUserList(identity_fakes.TestIdentityv3):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist, tuple(data))
 
+    def test_user_list_with_pagination(self):
+        arglist = [
+            '--limit',
+            '2',
+            '--marker',
+            'some-marker',
+        ]
+        verifylist = [
+            ('limit', 2),
+            ('marker', 'some-marker'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        kwargs = {
+            'domain_id': None,
+            'limit': 2,
+            'marker': 'some-marker',
+        }
+        self.identity_sdk_client.users.assert_called_with(**kwargs)
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, tuple(data))
+
+    def test_user_list_with_pagination_and_group(self):
+        arglist = [
+            '--group',
+            self.group.name,
+            '--limit',
+            '5',
+        ]
+        verifylist = [
+            ('group', self.group.name),
+            ('limit', 5),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        kwargs = {
+            'domain_id': None,
+            'group': self.group.id,
+            'limit': 5,
+        }
+        self.identity_sdk_client.group_users.assert_called_with(**kwargs)
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist, tuple(data))
+
+    def test_user_list_pagination_with_project_fails(self):
+        arglist = [
+            '--project',
+            self.project.name,
+            '--limit',
+            '2',
+        ]
+        verifylist = [
+            ('project', self.project.name),
+            ('limit', 2),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.assertRaises(
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
+
 
 class TestUserSet(identity_fakes.TestIdentityv3):
     project = sdk_fakes.generate_fake_resource(_project.Project)

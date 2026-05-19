@@ -27,6 +27,7 @@ from osc_lib import exceptions
 from osc_lib import utils
 
 from openstackclient import command
+from openstackclient.common import pagination
 from openstackclient.i18n import _
 from openstackclient.identity import common
 
@@ -448,11 +449,18 @@ class ListUser(command.Lister):
                 '--project and --group'
             ),
         )
+        pagination.add_marker_pagination_option_to_parser(parser)
         return parser
 
     def take_action(
         self, parsed_args: argparse.Namespace
     ) -> tuple[Sequence[str], Iterable[tuple[Any, ...]]]:
+        if parsed_args.project and (
+            parsed_args.limit is not None or parsed_args.marker is not None
+        ):
+            msg = _('--limit and --marker are not supported with --project')
+            raise exceptions.CommandError(msg)
+
         identity_client = sdk_utils.ensure_service_version(
             self.app.client_manager.sdk_connection.identity, '3'
         )
@@ -474,6 +482,12 @@ class ListUser(command.Lister):
 
         if parsed_args.is_enabled is not None:
             enabled = parsed_args.is_enabled
+
+        pagination_kwargs: dict[str, Any] = {}
+        if parsed_args.limit is not None:
+            pagination_kwargs['limit'] = parsed_args.limit
+        if parsed_args.marker is not None:
+            pagination_kwargs['marker'] = parsed_args.marker
 
         if parsed_args.project:
             if domain is not None:
@@ -509,16 +523,19 @@ class ListUser(command.Lister):
             data = identity_client.group_users(
                 domain_id=domain,
                 group=group,
+                **pagination_kwargs,
             )
         else:
             if parsed_args.is_enabled is not None:
                 data = identity_client.users(
                     domain_id=domain,
                     is_enabled=enabled,
+                    **pagination_kwargs,
                 )
             else:
                 data = identity_client.users(
                     domain_id=domain,
+                    **pagination_kwargs,
                 )
 
         # Column handling

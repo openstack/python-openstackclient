@@ -27,6 +27,7 @@ from osc_lib import exceptions
 from osc_lib import utils
 
 from openstackclient import command
+from openstackclient.common import pagination
 from openstackclient.i18n import _
 from openstackclient.identity import common
 from openstackclient.identity.v3 import tag
@@ -297,6 +298,7 @@ class ListProject(command.Lister):
             help=_('List only disabled projects'),
         )
         tag.add_tag_filtering_option_to_parser(parser, _('projects'))
+        pagination.add_marker_pagination_option_to_parser(parser)
         return parser
 
     def take_action(
@@ -347,6 +349,11 @@ class ListProject(command.Lister):
 
         if parsed_args.is_enabled is not None:
             kwargs['is_enabled'] = parsed_args.is_enabled
+
+        if parsed_args.limit is not None:
+            kwargs['limit'] = parsed_args.limit
+        if parsed_args.marker is not None:
+            kwargs['marker'] = parsed_args.marker
 
         tag.get_tag_filtering_args(parsed_args, kwargs)
 
