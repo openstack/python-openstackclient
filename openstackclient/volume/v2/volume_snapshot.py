@@ -231,11 +231,9 @@ class DeleteVolumeSnapshot(command.Command):
                 snapshot_id = volume_client.find_snapshot(
                     snapshot, ignore_missing=False
                 ).id
-                # FIXME(stephenfin): This parameter is missing from sdk
-                # https://review.opendev.org/c/openstack/openstacksdk/+/984529
                 volume_client.delete_snapshot(
                     snapshot_id,
-                    force=parsed_args.force,  # type: ignore
+                    force=parsed_args.force,
                 )
             except Exception as e:
                 result += 1
