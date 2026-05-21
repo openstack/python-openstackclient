@@ -486,6 +486,8 @@ class ListUser(command.Lister):
         pagination_kwargs: dict[str, Any] = {}
         if parsed_args.limit is not None:
             pagination_kwargs['limit'] = parsed_args.limit
+        if parsed_args.max_items is not None:
+            pagination_kwargs['max_items'] = parsed_args.max_items
         if parsed_args.marker is not None:
             pagination_kwargs['marker'] = parsed_args.marker
 

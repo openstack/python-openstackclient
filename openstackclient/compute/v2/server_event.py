@@ -171,6 +171,9 @@ class ListServerEvent(command.Lister):
             kwargs['limit'] = parsed_args.limit
             kwargs['paginated'] = False
 
+        if parsed_args.max_items is not None:
+            kwargs['max_items'] = parsed_args.max_items
+
         if parsed_args.changes_since:
             if not sdk_utils.supports_microversion(compute_client, '2.58'):
                 msg = _(

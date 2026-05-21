@@ -336,6 +336,8 @@ class ListKeypair(command.Lister):
                 raise exceptions.CommandError(msg)
 
             kwargs['limit'] = parsed_args.limit
+        if parsed_args.max_items is not None:
+            kwargs['max_items'] = parsed_args.max_items
 
         if parsed_args.project:
             if not sdk_utils.supports_microversion(compute_client, '2.10'):

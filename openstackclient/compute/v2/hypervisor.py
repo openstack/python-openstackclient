@@ -122,6 +122,8 @@ class ListHypervisor(command.Lister):
                 )
                 raise exceptions.CommandError(msg)
             list_opts['limit'] = parsed_args.limit
+        if parsed_args.max_items is not None:
+            list_opts['max_items'] = parsed_args.max_items
 
         if parsed_args.matching:
             list_opts['hypervisor_hostname_pattern'] = parsed_args.matching

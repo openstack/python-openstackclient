@@ -884,6 +884,8 @@ class ListImage(command.Lister):
             kwargs['visibility'] = parsed_args.visibility
         if parsed_args.limit:
             kwargs['limit'] = parsed_args.limit
+        if parsed_args.max_items is not None:
+            kwargs['max_items'] = parsed_args.max_items
         if parsed_args.marker:
             kwargs['marker'] = image_client.find_image(
                 parsed_args.marker,

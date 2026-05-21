@@ -495,6 +495,7 @@ class TestVolumeAttachmentList(TestVolumeAttachment):
             },
             marker=None,
             limit=None,
+            max_items=None,
         )
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(tuple(self.data), data)
@@ -535,6 +536,7 @@ class TestVolumeAttachmentList(TestVolumeAttachment):
             },
             marker='volume-attachment-id',
             limit=2,
+            max_items=None,
         )
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(tuple(self.data), data)

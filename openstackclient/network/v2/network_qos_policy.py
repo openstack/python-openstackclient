@@ -238,6 +238,8 @@ class ListNetworkQosPolicy(command.Lister):
             attrs['marker'] = parsed_args.marker
         if parsed_args.limit is not None:
             attrs['limit'] = parsed_args.limit
+        if parsed_args.max_items is not None:
+            attrs['max_items'] = parsed_args.max_items
 
         data = client.qos_policies(**attrs)
         return (

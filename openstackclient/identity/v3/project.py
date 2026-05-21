@@ -352,6 +352,8 @@ class ListProject(command.Lister):
 
         if parsed_args.limit is not None:
             kwargs['limit'] = parsed_args.limit
+        if parsed_args.max_items is not None:
+            kwargs['max_items'] = parsed_args.max_items
         if parsed_args.marker is not None:
             kwargs['marker'] = parsed_args.marker
 

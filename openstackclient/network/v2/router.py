@@ -800,6 +800,8 @@ class ListRouter(command.Lister):
             args['marker'] = parsed_args.marker
         if parsed_args.limit is not None:
             args['limit'] = parsed_args.limit
+        if parsed_args.max_items is not None:
+            args['max_items'] = parsed_args.max_items
 
         _tag.get_tag_filtering_args(parsed_args, args)
 

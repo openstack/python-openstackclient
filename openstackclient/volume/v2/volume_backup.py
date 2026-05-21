@@ -322,6 +322,7 @@ class ListVolumeBackup(command.Lister):
             all_tenants=parsed_args.all_projects,
             marker=marker_backup_id,
             limit=parsed_args.limit,
+            max_items=parsed_args.max_items,
         )
 
         return (

@@ -219,6 +219,8 @@ class ListServerGroup(command.Lister):
 
         if parsed_args.limit:
             kwargs['limit'] = parsed_args.limit
+        if parsed_args.max_items is not None:
+            kwargs['max_items'] = parsed_args.max_items
 
         data = compute_client.server_groups(**kwargs)
 

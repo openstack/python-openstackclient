@@ -82,7 +82,9 @@ class ListMessages(command.Lister):
             help=_('Filter results by project (name or ID) (admin only)'),
         )
         identity_common.add_project_domain_option_to_parser(parser)
-        pagination.add_marker_pagination_option_to_parser(parser)
+        pagination.add_marker_pagination_option_to_parser(
+            parser, include_max_items=False
+        )
 
         return parser
 

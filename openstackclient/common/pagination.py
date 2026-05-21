@@ -21,8 +21,11 @@ from openstackclient.i18n import _
 # useful
 
 
+# TODO(stephenfin): include_max_items should not be necessary once we need to
+# migrate remaining users to openstacksdk
 def add_marker_pagination_option_to_parser(
     parser: argparse.ArgumentParser,
+    include_max_items: bool = True,
 ) -> None:
     """Add marker-based pagination options to the parser.
 
@@ -39,8 +42,11 @@ def add_marker_pagination_option_to_parser(
         type=int,
         action=parseractions.NonNegativeAction,
         help=_(
-            'The maximum number of entries to return. If the value exceeds '
-            'the server-defined maximum, then the maximum value will be used.'
+            'The maximum number of entries to return per page. If the value '
+            'exceeds the server-defined maximum, then the server-defined '
+            'value will be used. Note that this controls the page size, not '
+            'the total number of entries returned. Use --max-items to limit '
+            'the total number of entries returned.'
         ),
     )
     parser.add_argument(
@@ -52,10 +58,26 @@ def add_marker_pagination_option_to_parser(
             'This should be a value that was returned in a previous request.'
         ),
     )
+    if include_max_items:
+        parser.add_argument(
+            '--max-items',
+            metavar='<max-items>',
+            type=int,
+            action=parseractions.NonNegativeAction,
+            default=None,
+            help=_(
+                'The maximum number of entries to return in total, paging '
+                'through multiple requests if needed. Use --limit to control '
+                'the page size.'
+            ),
+        )
 
 
+# TODO(stephenfin): include_max_items should not be necessary once we need to
+# migrate remaining users to openstacksdk
 def add_offset_pagination_option_to_parser(
     parser: argparse.ArgumentParser,
+    include_max_items: bool = True,
 ) -> None:
     """Add offset-based pagination options to the parser.
 
@@ -71,8 +93,11 @@ def add_offset_pagination_option_to_parser(
         type=int,
         action=parseractions.NonNegativeAction,
         help=_(
-            'The maximum number of entries to return. If the value exceeds '
-            'the server-defined maximum, then the maximum value will be used.'
+            'The maximum number of entries to return per page. If the value '
+            'exceeds the server-defined maximum, then the maximum value will '
+            'be used. Note that this controls the page size, not the total '
+            'number of entries returned. Use --max-items to limit the total '
+            'number of entries returned.'
         ),
     )
     parser.add_argument(
@@ -86,3 +111,16 @@ def add_offset_pagination_option_to_parser(
             'return.'
         ),
     )
+    if include_max_items:
+        parser.add_argument(
+            '--max-items',
+            metavar='<max-items>',
+            type=int,
+            action=parseractions.NonNegativeAction,
+            default=None,
+            help=_(
+                'The maximum number of entries to return in total, paging '
+                'through multiple requests if needed. Use --limit to control '
+                'the page size.'
+            ),
+        )

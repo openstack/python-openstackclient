@@ -367,6 +367,8 @@ class ListSubnetPool(command.Lister):
             filters['marker'] = parsed_args.marker
         if parsed_args.limit is not None:
             filters['limit'] = parsed_args.limit
+        if parsed_args.max_items is not None:
+            filters['max_items'] = parsed_args.max_items
         _tag.get_tag_filtering_args(parsed_args, filters)
 
         data = network_client.subnet_pools(**filters)

@@ -132,7 +132,9 @@ class ListContainer(command.Lister):
             metavar="<prefix>",
             help=_("Filter list using <prefix>"),
         )
-        pagination.add_marker_pagination_option_to_parser(parser)
+        pagination.add_marker_pagination_option_to_parser(
+            parser, include_max_items=False
+        )
         parser.add_argument(
             "--end-marker",
             metavar="<end-marker>",

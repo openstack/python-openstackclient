@@ -343,6 +343,7 @@ class TestVolumeSnapshotList(volume_fakes.TestVolume):
         self.volume_sdk_client.snapshots.assert_called_once_with(
             limit=None,
             marker=None,
+            max_items=None,
             all_projects=False,
             name=None,
             status=None,
@@ -376,6 +377,7 @@ class TestVolumeSnapshotList(volume_fakes.TestVolume):
         self.volume_sdk_client.snapshots.assert_called_once_with(
             limit=2,
             marker=self.snapshots[0].id,
+            max_items=None,
             all_projects=True,
             project_id=self.project.id,
             name=None,
@@ -397,6 +399,7 @@ class TestVolumeSnapshotList(volume_fakes.TestVolume):
         self.volume_sdk_client.snapshots.assert_called_once_with(
             limit=None,
             marker=None,
+            max_items=None,
             all_projects=True,
             name=None,
             status=None,
@@ -423,6 +426,7 @@ class TestVolumeSnapshotList(volume_fakes.TestVolume):
         self.volume_sdk_client.snapshots.assert_called_once_with(
             limit=None,
             marker=None,
+            max_items=None,
             all_projects=False,
             name=self.snapshots[0].name,
             status=None,
@@ -449,6 +453,7 @@ class TestVolumeSnapshotList(volume_fakes.TestVolume):
         self.volume_sdk_client.snapshots.assert_called_once_with(
             limit=None,
             marker=None,
+            max_items=None,
             all_projects=False,
             name=None,
             status='available',
@@ -475,6 +480,7 @@ class TestVolumeSnapshotList(volume_fakes.TestVolume):
         self.volume_sdk_client.snapshots.assert_called_once_with(
             limit=None,
             marker=None,
+            max_items=None,
             all_projects=False,
             name=None,
             status=None,
