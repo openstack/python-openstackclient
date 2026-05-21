@@ -231,9 +231,6 @@ class DeleteFloatingIP(command.Command):
 
 
 class ListFloatingIP(command.Lister):
-    # TODO(songminglong): Use SDK resource mapped attribute names once
-    # the OSC minimum requirements include SDK 1.0
-
     _description = _("List floating IP(s)")
 
     def get_parser(self, prog_name: str) -> argparse.ArgumentParser:

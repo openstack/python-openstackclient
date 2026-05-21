@@ -36,8 +36,6 @@ def _get_columns(item: Any) -> tuple[tuple[str, ...], tuple[str, ...]]:
     )
 
 
-# TODO(ankur-gupta-f): Use the SDK resource mapped attribute names once
-# the OSC minimum requirements include SDK 1.0.
 class ListIPAvailability(command.Lister):
     _description = _("List IP availability for network")
 

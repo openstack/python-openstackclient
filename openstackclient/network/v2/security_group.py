@@ -105,8 +105,6 @@ def _get_columns(item: Any) -> tuple[tuple[str, ...], tuple[str, ...]]:
     )
 
 
-# TODO(abhiraut): Use the SDK resource mapped attribute names once the
-# OSC minimum requirements include SDK 1.0.
 class CreateSecurityGroup(command.ShowOne, common.NeutronCommandWithExtraArgs):
     _description = _("Create a new security group")
 
@@ -223,8 +221,6 @@ class DeleteSecurityGroup(command.Command):
             raise exceptions.CommandError(msg)
 
 
-# TODO(rauta): Use the SDK resource mapped attribute names once
-# the OSC minimum requirements include SDK 1.0.
 class ListSecurityGroup(command.Lister):
     _description = _("List security groups")
     FIELDS_TO_RETRIEVE = [

@@ -82,8 +82,6 @@ def _get_attrs(
     return attrs
 
 
-# TODO(abhiraut): Use the SDK resource mapped attribute names once the
-# OSC minimum requirements include SDK 1.0.
 class CreateNetworkQosPolicy(
     command.ShowOne, common.NeutronCommandWithExtraArgs
 ):
@@ -186,8 +184,6 @@ class DeleteNetworkQosPolicy(command.Command):
             raise exceptions.CommandError(msg)
 
 
-# TODO(abhiraut): Use only the SDK resource mapped attribute names once the
-# OSC minimum requirements include SDK 1.0.
 class ListNetworkQosPolicy(command.Lister):
     _description = _("List QoS policies")
 
@@ -248,8 +244,6 @@ class ListNetworkQosPolicy(command.Lister):
         )
 
 
-# TODO(abhiraut): Use the SDK resource mapped attribute names once the
-# OSC minimum requirements include SDK 1.0.
 class SetNetworkQosPolicy(common.NeutronCommandWithExtraArgs):
     _description = _("Set QoS policy properties")
 

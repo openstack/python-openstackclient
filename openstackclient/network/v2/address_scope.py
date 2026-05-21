@@ -61,8 +61,6 @@ def _get_attrs(
     return attrs
 
 
-# TODO(rtheis): Use the SDK resource mapped attribute names once the
-# OSC minimum requirements include SDK 1.0.
 class CreateAddressScope(command.ShowOne, common.NeutronCommandWithExtraArgs):
     _description = _("Create a new Address Scope")
 
@@ -156,8 +154,6 @@ class DeleteAddressScope(command.Command):
             raise exceptions.CommandError(msg)
 
 
-# TODO(yanxing'an): Use the SDK resource mapped attribute names once the
-# OSC minimum requirements include SDK 1.0.
 class ListAddressScope(command.Lister):
     _description = _("List address scopes")
 
@@ -253,8 +249,6 @@ class ListAddressScope(command.Lister):
         )
 
 
-# TODO(rtheis): Use the SDK resource mapped attribute names once the
-# OSC minimum requirements include SDK 1.0.
 class SetAddressScope(common.NeutronCommandWithExtraArgs):
     _description = _("Set address scope properties")
 

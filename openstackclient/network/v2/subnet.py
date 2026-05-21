@@ -302,8 +302,6 @@ def _get_attrs(
     return attrs
 
 
-# TODO(abhiraut): Use the SDK resource mapped attribute names once the
-# OSC minimum requirements include SDK 1.0.
 class CreateSubnet(command.ShowOne, common.NeutronCommandWithExtraArgs):
     _description = _("Create a subnet")
 
@@ -490,8 +488,6 @@ class DeleteSubnet(command.Command):
             raise exceptions.CommandError(msg)
 
 
-# TODO(abhiraut): Use only the SDK resource mapped attribute names once the
-# OSC minimum requirements include SDK 1.0.
 class ListSubnet(command.Lister):
     _description = _("List subnets")
 
@@ -664,8 +660,6 @@ class ListSubnet(command.Lister):
         )
 
 
-# TODO(abhiraut): Use the SDK resource mapped attribute names once the
-# OSC minimum requirements include SDK 1.0.
 class SetSubnet(common.NeutronCommandWithExtraArgs):
     _description = _("Set subnet properties")
 

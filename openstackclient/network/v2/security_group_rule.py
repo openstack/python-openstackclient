@@ -38,8 +38,6 @@ def _get_columns(item: Any) -> tuple[tuple[str, ...], tuple[str, ...]]:
     )
 
 
-# TODO(abhiraut): Use the SDK resource mapped attribute names once the
-# OSC minimum requirements include SDK 1.0.
 class CreateSecurityGroupRule(
     command.ShowOne, common.NeutronCommandWithExtraArgs
 ):

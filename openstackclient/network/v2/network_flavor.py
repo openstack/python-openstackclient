@@ -92,8 +92,6 @@ class AddNetworkFlavorToProfile(command.Command):
         )
 
 
-# TODO(dasanind): Use the SDK resource mapped attribute names once the
-# OSC minimum requirements include SDK 1.0.
 class CreateNetworkFlavor(command.ShowOne, common.NeutronCommandWithExtraArgs):
     _description = _("Create new network flavor")
 
@@ -247,8 +245,6 @@ class RemoveNetworkFlavorFromProfile(command.Command):
         )
 
 
-# TODO(dasanind): Use only the SDK resource mapped attribute names once the
-# OSC minimum requirements include SDK 1.0.
 class SetNetworkFlavor(common.NeutronCommandWithExtraArgs):
     _description = _("Set network flavor properties")
 

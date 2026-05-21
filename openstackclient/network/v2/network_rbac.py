@@ -95,8 +95,6 @@ def _get_attrs(
     return attrs
 
 
-# TODO(abhiraut): Use the SDK resource mapped attribute names once the
-# OSC minimum requirements include SDK 1.0.
 class CreateNetworkRBAC(command.ShowOne, common.NeutronCommandWithExtraArgs):
     _description = _("Create network RBAC policy")
 
@@ -321,8 +319,6 @@ class ListNetworkRBAC(command.Lister):
         )
 
 
-# TODO(abhiraut): Use the SDK resource mapped attribute names once the
-# OSC minimum requirements include SDK 1.0.
 class SetNetworkRBAC(common.NeutronCommandWithExtraArgs):
     _description = _("Set network RBAC policy properties")
 

@@ -64,8 +64,6 @@ def _get_attrs(
     return attrs
 
 
-# TODO(ankur-gupta-f): Use the SDK resource mapped attribute names once the
-# OSC minimum requirements include SDK 1.0.
 class CreateMeter(command.ShowOne, common.NeutronCommandWithExtraArgs):
     _description = _("Create network meter")
 
@@ -119,8 +117,6 @@ class CreateMeter(command.ShowOne, common.NeutronCommandWithExtraArgs):
         return (display_columns, data)
 
 
-# TODO(ankur-gupta-f): Use the SDK resource mapped attribute names once the
-# OSC minimum requirements include SDK 1.0.
 class DeleteMeter(command.Command):
     _description = _("Delete network meter")
 

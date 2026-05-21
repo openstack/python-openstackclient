@@ -55,8 +55,6 @@ def _get_attrs(
     return attrs
 
 
-# TODO(ndahiwade): Use the SDK resource mapped attribute names once the
-# OSC minimum requirements include SDK 1.0.
 class CreateNetworkFlavorProfile(
     command.ShowOne, common.NeutronCommandWithExtraArgs
 ):
@@ -194,8 +192,6 @@ class ListNetworkFlavorProfile(command.Lister):
         )
 
 
-# TODO(ndahiwade): Use the SDK resource mapped attribute names once the
-# OSC minimum requirements include SDK 1.0.
 class SetNetworkFlavorProfile(common.NeutronCommandWithExtraArgs):
     _description = _("Set network flavor profile properties")
 
