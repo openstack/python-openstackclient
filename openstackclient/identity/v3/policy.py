@@ -20,6 +20,8 @@ from collections.abc import Iterable, Sequence
 import logging
 from typing import Any
 
+from openstack.identity.v3 import policy as _policy
+from openstack import utils as sdk_utils
 from osc_lib import exceptions
 from osc_lib import utils
 
@@ -28,6 +30,14 @@ from openstackclient.i18n import _
 
 
 LOG = logging.getLogger(__name__)
+
+
+def _format_policy(
+    policy: _policy.Policy,
+) -> tuple[tuple[str, ...], tuple[str, ...]]:
+    columns = ('id', 'blob', 'type')
+    column_headers = ('id', 'rules', 'type')
+    return (column_headers, utils.get_item_properties(policy, columns))
 
 
 class CreatePolicy(command.ShowOne):
@@ -56,15 +66,14 @@ class CreatePolicy(command.ShowOne):
     ) -> tuple[Sequence[str], Iterable[Any]]:
         blob = utils.read_blob_file_contents(parsed_args.rules)
 
-        identity_client = self.app.client_manager.identity
-        policy = identity_client.policies.create(
+        identity_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.identity, '3'
+        )
+        policy = identity_client.create_policy(
             blob=blob, type=parsed_args.type
         )
 
-        policy._info.pop('links')
-        policy._info.update({'rules': policy._info.pop('blob')})
-        col_headers, col_data = zip(*sorted(policy._info.items()))
-        return col_headers, col_data
+        return _format_policy(policy)
 
 
 class DeletePolicy(command.Command):
@@ -81,11 +90,13 @@ class DeletePolicy(command.Command):
         return parser
 
     def take_action(self, parsed_args: argparse.Namespace) -> None:
-        identity_client = self.app.client_manager.identity
+        identity_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.identity, '3'
+        )
         result = 0
         for i in parsed_args.policy:
             try:
-                identity_client.policies.delete(i)
+                identity_client.delete_policy(i, ignore_missing=False)
             except Exception as e:
                 result += 1
                 LOG.error(
@@ -126,17 +137,20 @@ class ListPolicy(command.Lister):
         if parsed_args.long:
             columns += ('Blob',)
             column_headers += ('Rules',)
-        data = self.app.client_manager.identity.policies.list()
+        identity_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.identity, '3'
+        )
+        data = identity_client.policies()
         return (
             column_headers,
-            (
+            [
                 utils.get_item_properties(
                     s,
                     columns,
                     formatters={},
                 )
                 for s in data
-            ),
+            ],
         )
 
 
@@ -163,19 +177,19 @@ class SetPolicy(command.Command):
         return parser
 
     def take_action(self, parsed_args: argparse.Namespace) -> None:
-        identity_client = self.app.client_manager.identity
-        blob = None
-
-        if parsed_args.rules:
-            blob = utils.read_blob_file_contents(parsed_args.rules)
+        identity_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.identity, '3'
+        )
 
         kwargs = {}
-        if blob:
-            kwargs['blob'] = blob
+
+        if parsed_args.rules:
+            kwargs['blob'] = utils.read_blob_file_contents(parsed_args.rules)
+
         if parsed_args.type:
             kwargs['type'] = parsed_args.type
 
-        identity_client.policies.update(parsed_args.policy, **kwargs)
+        identity_client.update_policy(parsed_args.policy, **kwargs)
 
 
 class ShowPolicy(command.ShowOne):
@@ -193,12 +207,9 @@ class ShowPolicy(command.ShowOne):
     def take_action(
         self, parsed_args: argparse.Namespace
     ) -> tuple[Sequence[str], Iterable[Any]]:
-        identity_client = self.app.client_manager.identity
-        policy = utils.find_resource(
-            identity_client.policies, parsed_args.policy
+        identity_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.identity, '3'
         )
+        policy = identity_client.get_policy(parsed_args.policy)
 
-        policy._info.pop('links')
-        policy._info.update({'rules': policy._info.pop('blob')})
-        col_headers, col_data = zip(*sorted(policy._info.items()))
-        return col_headers, col_data
+        return _format_policy(policy)

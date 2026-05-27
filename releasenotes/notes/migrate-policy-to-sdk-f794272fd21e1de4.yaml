@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    Migrate ``policy`` commands from keystoneclient to SDK.
+upgrade:
+  - |
+    Filtering in ``policy`` commands is now case sensitive.

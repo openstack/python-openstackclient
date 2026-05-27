@@ -154,6 +154,21 @@ class IdentityTests(base.TestCase):
         'Region ID',
     ]
 
+    POLICY_FIELDS = [
+        'id',
+        'rules',
+        'type',
+    ]
+    POLICY_LIST_HEADERS = [
+        'ID',
+        'Type',
+    ]
+    POLICY_LIST_LONG_HEADERS = [
+        'ID',
+        'Type',
+        'Rules',
+    ]
+
     DOMAIN_NAME: ClassVar[str]
     DOMAIN_DESCRIPTION: ClassVar[str]
     PROJECT_NAME: ClassVar[str]
@@ -520,3 +535,30 @@ class IdentityTests(base.TestCase):
 
         self.assert_show_fields(items, self.LIMIT_FIELDS)
         return limit_id
+
+    def _create_dummy_policy(self, add_clean_up=True):
+        # Create rules file
+        with tempfile.NamedTemporaryFile(mode='w+') as f:
+            RULES = [
+                {
+                    "local": [{"group": {"id": "85a868"}}],
+                    "remote": [
+                        {"type": "orgPersonType", "any_one_of": ["Employee"]},
+                        {"type": "sn", "any_one_of": ["Young"]},
+                    ],
+                }
+            ]
+            f.write(json.dumps(RULES))
+            f.flush()
+            raw_output = self.openstack(f'policy create {f.name}')
+            items = self.parse_show(raw_output)
+            policy_id = self._extract_value_from_items('id', items)
+
+        if add_clean_up:
+            self.addCleanup(
+                self.openstack,
+                f'policy delete {policy_id}',
+            )
+        items = self.parse_show(raw_output)
+        self.assert_show_fields(items, self.POLICY_FIELDS)
+        return policy_id
