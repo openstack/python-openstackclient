@@ -49,7 +49,7 @@ class TestProtocolCreate(identity_fakes.TestFederatedIdentity):
         columns, data = self.cmd.take_action(parsed_args)
         self.identity_sdk_client.create_federation_protocol.assert_called_with(
             name=self.proto.id,
-            idp_id=self.proto.idp_id,
+            idp=self.proto.idp_id,
             mapping_id=self.proto.mapping_id,
         )
 
@@ -89,7 +89,7 @@ class TestProtocolDelete(identity_fakes.TestFederatedIdentity):
         result = self.cmd.take_action(parsed_args)
 
         self.identity_sdk_client.delete_federation_protocol.assert_called_with(
-            idp_id=self.proto.idp_id,
+            idp=self.proto.idp_id,
             protocol=self.proto.id,
             ignore_missing=False,
         )
@@ -208,7 +208,7 @@ class TestProtocolShow(identity_fakes.TestFederatedIdentity):
 
         columns, data = self.cmd.take_action(parsed_args)
         self.identity_sdk_client.get_federation_protocol.assert_called_with(
-            idp_id=self.proto.idp_id, protocol=self.proto.name
+            idp=self.proto.idp_id, protocol=self.proto.name
         )
 
         collist = ('id', 'identity_provider', 'mapping')

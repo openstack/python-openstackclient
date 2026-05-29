@@ -371,9 +371,10 @@ class ListTrust(command.Lister):
                 except sdk_exceptions.ForbiddenException:
                     trustee = parsed_args.trustee
 
-            data = identity_client.trusts(
-                trustor_user_id=trustor,
-                trustee_user_id=trustee,
+            data = list(
+                identity_client.trusts(
+                    trustor_user_id=trustor, trustee_user_id=trustee
+                )
             )
 
         column_headers = (

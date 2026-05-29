@@ -79,7 +79,7 @@ class CreateProtocol(command.ShowOne):
 
         protocol = identity_client.create_federation_protocol(
             name=parsed_args.federation_protocol,
-            idp_id=parsed_args.identity_provider,
+            idp=parsed_args.identity_provider,
             mapping_id=parsed_args.mapping,
         )
 
@@ -118,7 +118,7 @@ class DeleteProtocol(command.Command):
         for i in parsed_args.federation_protocol:
             try:
                 identity_client.delete_federation_protocol(
-                    idp_id=parsed_args.identity_provider,
+                    idp=parsed_args.identity_provider,
                     protocol=i,
                     ignore_missing=False,
                 )
@@ -246,7 +246,7 @@ class ShowProtocol(command.ShowOne):
         )
 
         protocol = identity_client.get_federation_protocol(
-            idp_id=parsed_args.identity_provider,
+            idp=parsed_args.identity_provider,
             protocol=parsed_args.federation_protocol,
         )
         return _format_protocol(protocol)

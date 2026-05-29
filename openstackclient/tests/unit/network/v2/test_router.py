@@ -70,10 +70,7 @@ class TestAddPortToRouter(TestRouter):
         result = self.cmd.take_action(parsed_args)
 
         self.network_client.add_interface_to_router.assert_called_with(
-            self._router,
-            **{
-                'port_id': self._router.port,
-            },
+            self._router, port=self._router.port
         )
         self.assertIsNone(result)
 
@@ -117,7 +114,7 @@ class TestAddSubnetToRouter(TestRouter):
 
         result = self.cmd.take_action(parsed_args)
         self.network_client.add_interface_to_router.assert_called_with(
-            self._router, **{'subnet_id': self._router.subnet}
+            self._router, subnet=self._router.subnet
         )
 
         self.assertIsNone(result)
@@ -1064,7 +1061,7 @@ class TestRemovePortFromRouter(TestRouter):
         result = self.cmd.take_action(parsed_args)
 
         self.network_client.remove_interface_from_router.assert_called_with(
-            self._router, **{'port_id': self._router.port}
+            self._router, port=self._router.port
         )
         self.assertIsNone(result)
 
@@ -1108,7 +1105,7 @@ class TestRemoveSubnetFromRouter(TestRouter):
 
         result = self.cmd.take_action(parsed_args)
         self.network_client.remove_interface_from_router.assert_called_with(
-            self._router, **{'subnet_id': self._router.subnet}
+            self._router, subnet=self._router.subnet
         )
         self.assertIsNone(result)
 

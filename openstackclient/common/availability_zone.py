@@ -130,7 +130,7 @@ class ListAvailabilityZone(command.Lister):
             data = list(compute_client.availability_zones(details=True))
         except sdk_exceptions.ForbiddenException:  # policy doesn't allow
             try:
-                data = compute_client.availability_zones(details=False)
+                data = list(compute_client.availability_zones(details=False))
             except Exception:
                 raise
 

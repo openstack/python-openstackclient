@@ -477,9 +477,7 @@ class RestoreVolumeBackup(command.ShowOne):
                 raise exceptions.CommandError(msg % parsed_args.volume)
 
         restore = volume_client.restore_backup(
-            backup.id,
-            volume_id=volume_id,
-            name=volume_name,
+            backup.id, volume=volume_id, name=volume_name
         )
 
         data = utils.get_dict_properties(restore, columns)

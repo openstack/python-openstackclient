@@ -22,6 +22,7 @@ import logging
 from typing import Any
 
 from openstack import exceptions as sdk_exc
+from openstack.identity.v3 import user as _user
 from openstack import utils as sdk_utils
 from osc_lib import exceptions
 from osc_lib import utils
@@ -489,6 +490,7 @@ class ListUser(command.Lister):
         if parsed_args.marker is not None:
             pagination_kwargs['marker'] = parsed_args.marker
 
+        data: list[_user.User]
         if parsed_args.project:
             if domain is not None:
                 project = identity_client.find_project(
@@ -518,24 +520,28 @@ class ListUser(command.Lister):
             for user_id in user_ids:
                 user = identity_client.find_user(user_id, ignore_missing=False)
                 data.append(user)
-
         elif parsed_args.group:
-            data = identity_client.group_users(
-                domain_id=domain,
-                group=group,
-                **pagination_kwargs,
+            assert group is not None
+            data = list(
+                identity_client.group_users(
+                    domain_id=domain, group=group, **pagination_kwargs
+                )
             )
         else:
             if parsed_args.is_enabled is not None:
-                data = identity_client.users(
-                    domain_id=domain,
-                    is_enabled=enabled,
-                    **pagination_kwargs,
+                data = list(
+                    identity_client.users(
+                        domain_id=domain,
+                        is_enabled=enabled,
+                        **pagination_kwargs,
+                    )
                 )
             else:
-                data = identity_client.users(
-                    domain_id=domain,
-                    **pagination_kwargs,
+                data = list(
+                    identity_client.users(
+                        domain_id=domain,
+                        **pagination_kwargs,
+                    )
                 )
 
         # Column handling
@@ -735,6 +741,9 @@ class SetPasswordUser(command.Command):
             raise exceptions.CommandError('invalid authentication info')
 
         user_id = auth.get_user_id(conn.session)
+        if user_id is None:
+            # this will never happen
+            raise exceptions.CommandError('invalid authentication info')
 
         # FIXME(gyee): there are two scenarios:
         #

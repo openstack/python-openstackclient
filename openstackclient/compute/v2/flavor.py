@@ -351,7 +351,7 @@ class ListFlavor(command.Lister):
         if parsed_args.min_ram:
             query_attrs['min_ram'] = parsed_args.min_ram
 
-        data = list(compute_client.flavors(**query_attrs))
+        data = list(compute_client.flavors(**query_attrs))  # type: ignore[arg-type]
         # Even if server supports 2.61 some policy might stop it sending us
         # extra_specs. So try to fetch them if they are absent
         for f in data:

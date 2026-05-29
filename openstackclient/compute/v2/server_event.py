@@ -295,6 +295,8 @@ class ShowServerEvent(command.ShowOne):
             parsed_args.request_id,
             server_id,
         )
+        # this is a bug is SDK
+        assert server_action is not None
 
         column_headers, columns = _get_server_event_columns(
             server_action,

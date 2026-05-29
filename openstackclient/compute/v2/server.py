@@ -3102,8 +3102,8 @@ class ListServer(command.Lister):
             else:
                 try:
                     flavors_list = compute_client.flavors(is_public=None)
-                    for i in flavors_list:
-                        flavors[i.id] = i
+                    for f in flavors_list:
+                        flavors[f.id] = f
                 except Exception:  # noqa: S110
                     # retrieving flavor names is not crucial, so we swallow any
                     # exceptions
@@ -3124,29 +3124,33 @@ class ListServer(command.Lister):
             if 'id' in s.image and s.image.id is not None:
                 image = images.get(s.image['id'])
                 if image:
-                    s.image_name = image.name
+                    setattr(s, 'image_name', image.name)
                 s.image_id = s.image['id']
             else:
                 # NOTE(melwitt): An server booted from a volume will have no
                 # image associated with it. We fill in the Image Name and ID
                 # with "N/A (booted from volume)" to help users who want to be
                 # able to grep for boot-from-volume servers when using the CLI.
-                s.image_name = IMAGE_STRING_FOR_BFV
+                setattr(s, 'image_name', IMAGE_STRING_FOR_BFV)
                 s.image_id = IMAGE_STRING_FOR_BFV
 
             if not sdk_utils.supports_microversion(compute_client, '2.47'):
                 if s.flavor['id'] in flavors:
-                    s.flavor_name = flavors[s.flavor['id']].name
+                    setattr(s, 'flavor_name', flavors[s.flavor['id']].name)
                 s.flavor_id = s.flavor['id']
             else:
-                s.flavor_name = s.flavor['original_name']
+                setattr(s, 'flavor_name', s.flavor['original_name'])
 
         # Add a list with security group name as attribute
         for s in data:
             if hasattr(s, 'security_groups') and s.security_groups is not None:
-                s.security_groups_name = [x["name"] for x in s.security_groups]
+                setattr(
+                    s,
+                    'security_groups_name',
+                    [x["name"] for x in s.security_groups],
+                )
             else:
-                s.security_groups_name = []
+                setattr(s, 'security_groups_name', [])
 
         # The host_status field contains the status of the compute host the
         # server is on. It is only returned by the API when the nova-api
@@ -4256,7 +4260,9 @@ volume from a server with status ``SHELVED`` or ``SHELVED_OFFLOADED``."""
 
     def take_action(self, parsed_args: argparse.Namespace) -> None:
         compute_client = self.app.client_manager.compute
-        volume_client = self.app.client_manager.sdk_connection.volume
+        volume_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.volume, '3'
+        )
 
         server = compute_client.find_server(
             parsed_args.server,
@@ -4268,8 +4274,8 @@ volume from a server with status ``SHELVED`` or ``SHELVED_OFFLOADED``."""
         )
 
         compute_client.delete_volume_attachment(
-            volume,
             server,
+            volume,
             ignore_missing=False,
         )
 
@@ -4919,8 +4925,8 @@ information for the server."""
         )
 
         if parsed_args.diagnostics:
-            data = compute_client.get_server_diagnostics(server)
-            col_headers, col_data = zip(*sorted(data.items()))
+            diagnostics = compute_client.get_server_diagnostics(server)
+            col_headers, col_data = zip(*sorted(diagnostics.items()))
             return col_headers, col_data
 
         topology = None

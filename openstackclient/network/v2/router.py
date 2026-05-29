@@ -344,7 +344,7 @@ class AddPortToRouter(command.Command):
         port = client.find_port(parsed_args.port, ignore_missing=False)
         client.add_interface_to_router(
             client.find_router(parsed_args.router, ignore_missing=False),
-            port_id=port.id,
+            port=port.id,
         )
 
 
@@ -370,7 +370,7 @@ class AddSubnetToRouter(command.Command):
         subnet = client.find_subnet(parsed_args.subnet, ignore_missing=False)
         client.add_interface_to_router(
             client.find_router(parsed_args.router, ignore_missing=False),
-            subnet_id=subnet.id,
+            subnet=subnet.id,
         )
 
 
@@ -800,14 +800,17 @@ class ListRouter(command.Lister):
 
         _tag.get_tag_filtering_args(parsed_args, args)
 
-        if parsed_args.agent is not None:
+        if parsed_args.agent is None:
+            data = list(client.routers(**args))
+        else:
             agent = client.get_agent(parsed_args.agent)
-            data = client.agent_hosted_routers(agent)
             # NOTE: Networking API does not support filtering by parameters,
             # so we need filtering in the client side.
-            data = [d for d in data if self._filter_match(d, args)]
-        else:
-            data = client.routers(**args)
+            data = [
+                d
+                for d in client.agent_hosted_routers(agent)
+                if self._filter_match(d, args)
+            ]
 
         # check if "HA" and "Distributed" columns should be displayed also
         data = list(data)
@@ -887,7 +890,7 @@ class RemovePortFromRouter(command.Command):
         port = client.find_port(parsed_args.port, ignore_missing=False)
         client.remove_interface_from_router(
             client.find_router(parsed_args.router, ignore_missing=False),
-            port_id=port.id,
+            port=port.id,
         )
 
 
@@ -915,7 +918,7 @@ class RemoveSubnetFromRouter(command.Command):
         subnet = client.find_subnet(parsed_args.subnet, ignore_missing=False)
         client.remove_interface_from_router(
             client.find_router(parsed_args.router, ignore_missing=False),
-            subnet_id=subnet.id,
+            subnet=subnet.id,
         )
 
 

@@ -20,6 +20,7 @@ from collections.abc import Iterable, Sequence
 import logging
 from typing import Any
 
+from openstack.identity.v3 import endpoint as _endpoint
 from openstack import utils as sdk_utils
 from osc_lib import exceptions
 from osc_lib import utils
@@ -269,54 +270,65 @@ class ListEndpoint(command.Lister):
                 domain_id=project_domain_id,
             )
 
+        # FIXME(stephenfin): This belongs under the project list command
         if endpoint:
             column_headers: tuple[str, ...] = ('ID', 'Name')
             columns: tuple[str, ...] = ('id', 'name')
-            data = identity_client.endpoint_projects(endpoint=endpoint.id)
+            projects = identity_client.endpoint_projects(endpoint=endpoint.id)
+            return (
+                column_headers,
+                (
+                    utils.get_item_properties(
+                        s,
+                        columns,
+                        formatters={},
+                    )
+                    for s in projects
+                ),
+            )
+
+        column_headers = (
+            'ID',
+            'Region',
+            'Service Name',
+            'Service Type',
+            'Enabled',
+            'Interface',
+            'URL',
+        )
+        columns = (
+            'id',
+            'region_id',
+            'service_name',
+            'service_type',
+            'is_enabled',
+            'interface',
+            'url',
+        )
+        kwargs = {}
+        if parsed_args.service:
+            service = common.find_service_sdk(
+                identity_client, parsed_args.service
+            )
+            kwargs['service_id'] = service.id
+        if parsed_args.interface:
+            kwargs['interface'] = parsed_args.interface
+        if parsed_args.region:
+            region = identity_client.get_region(parsed_args.region)
+            kwargs['region_id'] = region.id
+
+        data: list[_endpoint.Endpoint]
+        if project_id:
+            data = list(identity_client.project_endpoints(project=project_id))
         else:
-            column_headers = (
-                'ID',
-                'Region',
-                'Service Name',
-                'Service Type',
-                'Enabled',
-                'Interface',
-                'URL',
-            )
-            columns = (
-                'id',
-                'region_id',
-                'service_name',
-                'service_type',
-                'is_enabled',
-                'interface',
-                'url',
-            )
-            kwargs = {}
-            if parsed_args.service:
-                service = common.find_service_sdk(
-                    identity_client, parsed_args.service
-                )
-                kwargs['service_id'] = service.id
-            if parsed_args.interface:
-                kwargs['interface'] = parsed_args.interface
-            if parsed_args.region:
-                region = identity_client.get_region(parsed_args.region)
-                kwargs['region_id'] = region.id
+            data = list(identity_client.endpoints(**kwargs))
 
-            if project_id:
-                data = list(
-                    identity_client.project_endpoints(project=project_id)
-                )
-            else:
-                data = list(identity_client.endpoints(**kwargs))
-
-            for ep in data:
-                service = identity_client.find_service(
-                    ep.service_id, ignore_missing=False
-                )
-                ep.service_name = getattr(service, 'name', '')
-                ep.service_type = service.type
+        for ep in data:
+            service = identity_client.find_service(
+                ep.service_id, ignore_missing=False
+            )
+            setattr(ep, 'service_name', getattr(service, 'name', ''))
+            setattr(ep, 'service_type', service.type)
 
         return (
             column_headers,

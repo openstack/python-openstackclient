@@ -803,6 +803,7 @@ docstring-code-format = true
 [tool.ruff.lint]
 select = ["E4", "E5", "E7", "E9", "F", "G", "RUF", "S", "UP"]
 ignore = [
+    "S101",  # Asserts are used for type narrowing
     # the following are ignored because they don't provide enough value for the
     # changes required
     "RUF012",  # Mutable default value for class attribute

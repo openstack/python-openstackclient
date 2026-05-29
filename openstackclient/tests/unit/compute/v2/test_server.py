@@ -967,8 +967,8 @@ class TestServerRemoveVolume(TestServerVolume):
 
         self.assertIsNone(result)
         self.compute_client.delete_volume_attachment.assert_called_once_with(
-            self.volume,
             self.server,
+            self.volume,
             ignore_missing=False,
         )
 

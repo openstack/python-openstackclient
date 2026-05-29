@@ -290,8 +290,10 @@ class SetService(command.Command):
                 msg = _('--os-compute-api-version 2.11 or later is required')
                 raise exceptions.CommandError(msg)
             try:
+                # FIXME(stephenfin): This is broken between 2.11 and 2.53. What
+                # is the expected ID here?
                 compute_client.update_service_forced_down(
-                    service_id,
+                    service_id,  # type: ignore[arg-type]
                     parsed_args.host,
                     parsed_args.service,
                     force_down,

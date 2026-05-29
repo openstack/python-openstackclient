@@ -55,6 +55,9 @@ class DeleteAccessRule(command.Command):
             # this will never happen
             raise exceptions.CommandError('invalid authentication info')
         user_id = auth.get_user_id(conn.session)
+        if user_id is None:
+            # this will never happen
+            raise exceptions.CommandError('invalid authentication info')
 
         errors = 0
         for ac in parsed_args.access_rule:
@@ -146,6 +149,9 @@ class ShowAccessRule(command.ShowOne):
             # this will never happen
             raise exceptions.CommandError('invalid authentication info')
         user_id = auth.get_user_id(conn.session)
+        if user_id is None:
+            # this will never happen
+            raise exceptions.CommandError('invalid authentication info')
 
         access_rule = identity_client.get_access_rule(
             user_id, parsed_args.access_rule

@@ -19,6 +19,7 @@ from collections.abc import Iterable, Sequence
 from typing import Any
 
 from cliff import columns as cliff_columns
+from openstack.network.v2 import agent as _agent
 from osc_lib.cli import format_columns
 from osc_lib import exceptions
 from osc_lib import utils
@@ -276,11 +277,12 @@ class ListNetworkAgent(command.Lister):
 
         filters = {}
 
+        data: list[_agent.Agent]
         if parsed_args.network is not None:
             network = client.find_network(
                 parsed_args.network, ignore_missing=False
             )
-            data = client.network_hosting_dhcp_agents(network)
+            data = list(client.network_hosting_dhcp_agents(network))
         elif parsed_args.router is not None:
             if parsed_args.long:
                 columns += ('ha_state',)
@@ -288,7 +290,7 @@ class ListNetworkAgent(command.Lister):
             router = client.find_router(
                 parsed_args.router, ignore_missing=False
             )
-            data = client.routers_hosting_l3_agents(router)
+            data = list(client.routers_hosting_l3_agents(router))
         else:
             if parsed_args.agent_type is not None:
                 filters['agent_type'] = self._supported_agents[
@@ -297,7 +299,8 @@ class ListNetworkAgent(command.Lister):
             if parsed_args.host is not None:
                 filters['host'] = parsed_args.host
 
-            data = client.agents(**filters)
+            data = list(client.agents(**filters))
+
         return (
             column_headers,
             (

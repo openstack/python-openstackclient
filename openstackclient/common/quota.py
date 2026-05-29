@@ -103,7 +103,7 @@ def _xform_get_quota(
     return res
 
 
-def get_project(app: Any, project: str | None) -> dict[str, str | None]:
+def get_project(app: Any, project: str | None) -> dict[str, str]:
     if project is not None:
         identity_client = sdk_utils.ensure_service_version(
             app.client_manager.sdk_connection.identity, '3'
@@ -113,14 +113,11 @@ def get_project(app: Any, project: str | None) -> dict[str, str | None]:
         )
         project_id = found_project.id
         project_name = found_project.name
-    elif app.client_manager.auth_ref:
+    else:
         # Get the project from the current auth
         auth_ref = app.client_manager.auth_ref
         project_id = auth_ref.project_id
         project_name = auth_ref.project_name
-    else:
-        project_id = None
-        project_name = None
 
     return {
         'id': project_id,

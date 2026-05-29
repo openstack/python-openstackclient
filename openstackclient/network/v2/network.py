@@ -585,7 +585,6 @@ class ListNetwork(command.Lister):
             )
             client = self.app.client_manager.network
             dhcp_agent = client.get_agent(parsed_args.agent_id)
-            data = client.dhcp_agent_hosting_networks(dhcp_agent)
 
             return (
                 column_headers,
@@ -595,7 +594,7 @@ class ListNetwork(command.Lister):
                         columns,
                         formatters=_formatters,
                     )
-                    for s in data
+                    for s in client.dhcp_agent_hosting_networks(dhcp_agent)
                 ),
             )
         else:
@@ -655,8 +654,6 @@ class ListNetwork(command.Lister):
 
         _tag.get_tag_filtering_args(parsed_args, args)
 
-        data = client.networks(**args)
-
         return (
             column_headers,
             (
@@ -665,7 +662,7 @@ class ListNetwork(command.Lister):
                     columns,
                     formatters=_formatters,
                 )
-                for s in data
+                for s in client.networks(**args)
             ),
         )
 

@@ -1358,6 +1358,7 @@ class SetImage(command.Command):
             # our own membership
             if not project_id:
                 project_id = self.app.client_manager.auth_ref.project_id
+                assert project_id is not None, 'this should not happen'
             image_client.update_member(
                 image=image.id,
                 member=project_id,

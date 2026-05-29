@@ -325,8 +325,12 @@ class ListGroup(command.Lister):
                 identity_client, parsed_args.domain
             )
 
-        data = []
-        if parsed_args.user:
+        if not parsed_args.user:
+            if domain:
+                data = list(identity_client.groups(domain_id=domain))
+            else:
+                data = list(identity_client.groups())
+        else:
             user = common.find_user_id_sdk(
                 identity_client,
                 parsed_args.user,
@@ -335,12 +339,7 @@ class ListGroup(command.Lister):
             # NOTE(0weng): The API doesn't actually support filtering
             # additionally by domain_id, so this doesn't really do
             # anything.
-            data = identity_client.user_groups(user)
-        else:
-            if domain:
-                data = identity_client.groups(domain_id=domain)
-            else:
-                data = identity_client.groups()
+            data = list(identity_client.user_groups(user))
 
         # List groups
         columns: tuple[str, ...] = ('ID', 'Name')

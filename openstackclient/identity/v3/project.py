@@ -362,9 +362,7 @@ class ListProject(command.Lister):
             kwargs = {}
             user = self.app.client_manager.auth_ref.user_id
 
-        if user:
-            data = list(identity_client.user_projects(user, **kwargs))
-        else:
+        if not user:
             try:
                 data = list(identity_client.projects(**kwargs))
             except sdk_exc.ForbiddenException:
@@ -372,9 +370,12 @@ class ListProject(command.Lister):
                 # wanting their own project list.
                 if not kwargs:
                     user = self.app.client_manager.auth_ref.user_id
+                    assert user is not None, 'this should not happen'
                     data = list(identity_client.user_projects(user))
                 else:
                     raise
+        else:
+            data = list(identity_client.user_projects(user, **kwargs))
 
         if parsed_args.sort:
             data = list(utils.sort_items(data, parsed_args.sort))
