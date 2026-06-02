@@ -9,45 +9,12 @@
 #   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #   License for the specific language governing permissions and limitations
 #   under the License.
-#
 
-from collections.abc import Iterable, Sequence
 from typing import Any, cast
 
 from osc_lib import exceptions
 
 from openstackclient.i18n import _
-
-
-# Transform compute security group rule for display.
-def transform_compute_security_group_rule(
-    sg_rule: dict[str, Any],
-) -> dict[str, Any]:
-    info = {}
-    info.update(sg_rule)
-    from_port = info.pop('from_port')
-    to_port = info.pop('to_port')
-    if isinstance(from_port, int) and isinstance(to_port, int):
-        port_range = {'port_range': f"{from_port}:{to_port}"}
-    elif from_port is None and to_port is None:
-        port_range = {'port_range': ""}
-    else:
-        port_range = {'port_range': f"{from_port}:{to_port}"}
-    info.update(port_range)
-    if 'cidr' in info['ip_range']:
-        info['ip_range'] = info['ip_range']['cidr']
-    else:
-        info['ip_range'] = ''
-    if info['ip_protocol'] is None:
-        info['ip_protocol'] = ''
-    elif info['ip_protocol'].lower() == 'icmp':
-        info['port_range'] = ''
-    group = info.pop('group')
-    if 'name' in group:
-        info['remote_security_group'] = group['name']
-    else:
-        info['remote_security_group'] = ''
-    return info
 
 
 def str2bool(strbool: str | None) -> bool | None:
@@ -86,14 +53,6 @@ def str2dict(strdict: str) -> dict[str, str]:
         key, value = kv.split(':', 1)
         result[key] = value
     return result
-
-
-def format_security_group_rule_show(
-    obj: dict[str, Any],
-) -> tuple[Sequence[str], Iterable[Any]]:
-    data = transform_compute_security_group_rule(obj)
-    col_headers, col_data = zip(*sorted(data.items()))
-    return col_headers, col_data
 
 
 def format_network_port_range(rule: dict[str, Any]) -> str:
