@@ -1,0 +1,8 @@
+---
+features:
+  - |
+    Added ``--router-routes`` option to the ``quota set`` command and
+    ``router_routes`` to the ``quota show`` and ``quota list --network``
+    output. This exposes the new Neutron ``router_route`` per-project
+    quota that controls the total number of extra routes across all
+    routers in a project.
