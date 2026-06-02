@@ -102,7 +102,7 @@ class AttachmentsColumn(cliff_columns.FormattableColumn[list[Any]]):
         return msg
 
 
-def _format_volume(volume: _volume.Volume) -> dict[str, Any]:
+def _format_volume(volume: _volume.Volume) -> dict[str, object]:
     # Some columns returned by openstacksdk should not be shown because they're
     # either irrelevant or duplicates
     ignored_columns = {

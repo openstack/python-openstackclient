@@ -21,6 +21,7 @@ import logging
 from typing import Any
 
 from openstack import exceptions as sdk_exc
+from openstack.identity.v3 import role as _role
 from openstack import utils as sdk_utils
 from osc_lib import exceptions
 from osc_lib import utils
@@ -33,7 +34,7 @@ from openstackclient.identity import common
 LOG = logging.getLogger(__name__)
 
 
-def _format_role(role: Any) -> tuple[tuple[str, ...], Any]:
+def _format_role(role: _role.Role) -> tuple[tuple[str, ...], Iterable[Any]]:
     columns = (
         "id",
         "name",

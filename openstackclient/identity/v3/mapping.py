@@ -21,6 +21,7 @@ import json
 import logging
 from typing import Any
 
+from openstack.identity.v3 import mapping as _mapping
 from openstack import utils as sdk_utils
 from osc_lib import exceptions
 from osc_lib import utils
@@ -32,7 +33,9 @@ from openstackclient.i18n import _
 LOG = logging.getLogger(__name__)
 
 
-def _format_mapping(mapping: Any) -> tuple[tuple[str, ...], tuple[Any, ...]]:
+def _format_mapping(
+    mapping: _mapping.Mapping,
+) -> tuple[tuple[str, ...], tuple[Any, ...]]:
     columns = ('id', 'rules', 'schema_version')
     column_headers = ('id', 'rules', 'schema_version')
     return (

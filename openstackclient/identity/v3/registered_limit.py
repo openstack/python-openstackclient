@@ -18,6 +18,7 @@ from collections.abc import Iterable, Sequence
 import logging
 from typing import Any
 
+from openstack.identity.v3 import registered_limit as _registered_limit
 from openstack import utils as sdk_utils
 from osc_lib import exceptions
 from osc_lib import utils
@@ -30,8 +31,8 @@ LOG = logging.getLogger(__name__)
 
 
 def _format_registered_limit(
-    registered_limit: Any,
-) -> tuple[tuple[str, ...], Any]:
+    registered_limit: _registered_limit.RegisteredLimit,
+) -> tuple[tuple[str, ...], tuple[Any, ...]]:
     columns = (
         'default_limit',
         'description',

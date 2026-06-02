@@ -18,6 +18,7 @@ from collections.abc import Iterable, Sequence
 import logging
 from typing import Any
 
+from openstack.identity.v3 import identity_provider as _identity_provider
 from openstack import utils as sdk_utils
 from osc_lib.cli import format_columns
 from osc_lib import exceptions
@@ -32,7 +33,7 @@ LOG = logging.getLogger(__name__)
 
 
 def _format_identity_provider(
-    idp: Any,
+    idp: _identity_provider.IdentityProvider,
 ) -> tuple[tuple[str, ...], tuple[Any, ...]]:
     columns = (
         'authorization_ttl',

@@ -15,6 +15,7 @@ from collections.abc import Iterable, Sequence
 import logging
 from typing import Any
 
+from openstack.block_storage.v3 import attachment as _attachment
 from openstack import utils as sdk_utils
 from osc_lib.cli import format_columns
 from osc_lib import exceptions
@@ -34,7 +35,9 @@ _FILTER_DEPRECATED = _(
 )
 
 
-def _format_attachment(attachment: Any) -> tuple[tuple[str, ...], Any]:
+def _format_attachment(
+    attachment: _attachment.Attachment,
+) -> tuple[tuple[str, ...], Iterable[Any]]:
     columns = (
         'id',
         'volume_id',

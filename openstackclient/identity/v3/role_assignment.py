@@ -17,6 +17,7 @@ import argparse
 from collections.abc import Iterable
 from typing import Any
 
+from openstack.identity.v3 import role_assignment as _role_assignment
 from openstack import utils as sdk_utils
 from osc_lib import exceptions
 
@@ -26,7 +27,7 @@ from openstackclient.identity import common
 
 
 def _format_role_assignment_(
-    assignment: Any, include_names: Any
+    assignment: _role_assignment.RoleAssignment, include_names: bool
 ) -> tuple[Any, ...]:
     def _get_names(attr: Any) -> str:
         return (
@@ -250,7 +251,7 @@ class ListRoleAssignment(command.Lister):
         data_parsed = []
         for assignment in data:
             data_parsed.append(
-                _format_role_assignment_(assignment, include_names)
+                _format_role_assignment_(assignment, bool(include_names))
             )
 
         return columns, tuple(data_parsed)

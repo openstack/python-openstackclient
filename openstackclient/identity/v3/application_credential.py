@@ -24,6 +24,9 @@ from typing import Any
 import uuid
 
 from cliff import columns as cliff_columns
+from openstack.identity.v3 import (
+    application_credential as _application_credential,
+)
 from openstack import utils as sdk_utils
 from osc_lib import exceptions
 from osc_lib import utils
@@ -43,8 +46,10 @@ class RolesColumn(cliff_columns.FormattableColumn[Any]):
 
 
 def _format_application_credential(
-    application_credential: Any, *, include_secret: bool = False
-) -> tuple[tuple[str, ...], Any]:
+    application_credential: _application_credential.ApplicationCredential,
+    *,
+    include_secret: bool = False,
+) -> tuple[tuple[str, ...], Iterable[Any]]:
     column_headers: tuple[str, ...] = (
         'ID',
         'Name',
@@ -78,7 +83,9 @@ def _format_application_credential(
 
 
 def _format_application_credentials(
-    application_credentials: Any,
+    application_credentials: Iterable[
+        _application_credential.ApplicationCredential
+    ],
 ) -> tuple[tuple[str, ...], Any]:
     column_headers = (
         'ID',

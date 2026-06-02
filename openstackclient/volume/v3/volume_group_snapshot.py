@@ -15,6 +15,7 @@ from collections.abc import Iterable, Sequence
 import logging
 from typing import Any
 
+from openstack.block_storage.v3 import group_snapshot as _group_snapshot
 from openstack import utils as sdk_utils
 from osc_lib import exceptions
 from osc_lib import utils
@@ -27,8 +28,8 @@ LOG = logging.getLogger(__name__)
 
 
 def _format_group_snapshot(
-    snapshot: Any,
-) -> tuple[Sequence[str], Iterable[Any]]:
+    snapshot: _group_snapshot.GroupSnapshot,
+) -> tuple[tuple[str, ...], Iterable[Any]]:
     columns = (
         'id',
         'status',
@@ -48,10 +49,7 @@ def _format_group_snapshot(
 
     return (
         column_headers,
-        utils.get_item_properties(
-            snapshot,
-            columns,
-        ),
+        utils.get_item_properties(snapshot, columns),
     )
 
 

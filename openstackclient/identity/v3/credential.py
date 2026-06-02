@@ -20,6 +20,7 @@ from collections.abc import Iterable, Sequence
 import logging
 from typing import Any
 
+from openstack.identity.v3 import credential as _credential
 from openstack import utils as sdk_utils
 from osc_lib import exceptions
 from osc_lib import utils
@@ -28,11 +29,12 @@ from openstackclient import command
 from openstackclient.i18n import _
 from openstackclient.identity import common
 
-
 LOG = logging.getLogger(__name__)
 
 
-def _format_credential(credential: Any) -> tuple[tuple[str, ...], Any]:
+def _format_credential(
+    credential: _credential.Credential,
+) -> tuple[tuple[str, ...], Iterable[Any]]:
     columns = (
         'blob',
         'id',

@@ -18,6 +18,7 @@ import json
 import logging
 from typing import Any
 
+from openstack.image.v2 import metadef_property as _metadef_property
 from osc_lib import exceptions
 from osc_lib import utils
 
@@ -28,10 +29,12 @@ from openstackclient.i18n import _
 LOG = logging.getLogger(__name__)
 
 
-def _format_property(prop: Any) -> dict[str, Any]:
-    prop = prop.to_dict(ignore_none=True, original_names=True)
+def _format_property(
+    prop: _metadef_property.MetadefProperty,
+) -> dict[str, Any]:
+    data = prop.to_dict(ignore_none=True, original_names=True)
     return {
-        key: prop[key]
+        key: data[key]
         for key in [
             'namespace_name',
             'name',
@@ -53,7 +56,7 @@ def _format_property(prop: Any) -> dict[str, Any]:
             'max_items',
             'allow_additional_items',
         ]
-        if key in prop
+        if key in data
     }
 
 

@@ -20,6 +20,7 @@ from collections.abc import Iterable, Sequence
 import logging
 from typing import Any
 
+from openstack.image.v2 import metadef_object as _metadef_object
 from osc_lib import exceptions
 from osc_lib import utils
 
@@ -30,7 +31,9 @@ from openstackclient.i18n import _
 LOG = logging.getLogger(__name__)
 
 
-def _format_object(md_object: Any) -> tuple[tuple[str, ...], Any]:
+def _format_object(
+    md_object: _metadef_object.MetadefObject,
+) -> tuple[tuple[str, ...], Iterable[Any]]:
     fields_to_show = (
         'created_at',
         'description',
@@ -43,10 +46,7 @@ def _format_object(md_object: Any) -> tuple[tuple[str, ...], Any]:
 
     return (
         fields_to_show,
-        utils.get_item_properties(
-            md_object,
-            fields_to_show,
-        ),
+        utils.get_item_properties(md_object, fields_to_show),
     )
 
 

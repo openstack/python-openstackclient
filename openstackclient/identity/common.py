@@ -25,6 +25,8 @@ from keystoneclient.v3 import groups
 from keystoneclient.v3 import projects
 from keystoneclient.v3 import users
 from openstack import exceptions as sdk_exceptions
+from openstack.identity import v3 as identity
+from openstack.identity.v3 import service as _service
 from osc_lib import exceptions
 from osc_lib import utils
 
@@ -78,7 +80,9 @@ def find_service(identity_client: Any, name_type_or_id: str) -> Any:
         raise exceptions.CommandError(msg % name_type_or_id)
 
 
-def find_service_sdk(identity_client: Any, name_type_or_id: str) -> Any:
+def find_service_sdk(
+    identity_client: identity.Proxy, name_type_or_id: str
+) -> _service.Service:
     """Find a service by id, name or type."""
 
     try:

@@ -32,11 +32,10 @@ from openstackclient.common import pagination
 from openstackclient.i18n import _
 from openstackclient.identity import common
 
-
 LOG = logging.getLogger(__name__)
 
 
-def _format_user(user: Any) -> tuple[tuple[str, ...], Any]:
+def _format_user(user: _user.User) -> tuple[tuple[str, ...], tuple[Any, ...]]:
     columns = (
         'default_project_id',
         'domain_id',

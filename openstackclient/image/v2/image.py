@@ -27,6 +27,7 @@ import urllib.parse
 
 from openstack import exceptions as sdk_exceptions
 from openstack.image import image_signer
+from openstack.image.v2 import image as _image
 from openstack import utils as sdk_utils
 from osc_lib.api import utils as api_utils
 from osc_lib.cli import format_columns
@@ -74,11 +75,13 @@ MEMBER_STATUS_CHOICES = ["accepted", "pending", "rejected", "all"]
 LOG = logging.getLogger(__name__)
 
 
-def _format_image(image: Any, human_readable: bool = False) -> dict[str, Any]:
+def _format_image(
+    image: _image.Image, human_readable: bool = False
+) -> dict[str, object]:
     """Format an image to make it more consistent with OSC operations."""
 
     info = {}
-    properties = {}
+    properties: dict[str, object] = {}
 
     # the only fields we're not including is "links", "tags" and the properties
     fields_to_show = [
@@ -106,25 +109,25 @@ def _format_image(image: Any, human_readable: bool = False) -> dict[str, Any]:
 
     # TODO(gtema/anybody): actually it should be possible to drop this method,
     # since SDK already delivers a proper object
-    image = image.to_dict(ignore_none=True, original_names=True)
+    data = image.to_dict(ignore_none=True, original_names=True)
 
     # split out the usual key and the properties which are top-level
-    for key in image:
+    for key in data:
         if key in fields_to_show:
-            info[key] = image.get(key)
+            info[key] = data[key]
         elif key == 'tags':
             continue  # handle this later
         elif key == 'properties':
             # NOTE(gtema): flatten content of properties
-            properties.update(image.get(key))
+            properties.update(data[key])
         elif key != 'location':
-            properties[key] = image.get(key)
+            properties[key] = data[key]
 
     if human_readable:
-        info['size'] = utils.format_size(image['size'])
+        info['size'] = utils.format_size(data['size'])
 
     # format the tags if they are there
-    info['tags'] = format_columns.ListColumn(image.get('tags'))
+    info['tags'] = format_columns.ListColumn(data.get('tags') or [])
 
     # add properties back into the dictionary as a top-level key
     if properties:
