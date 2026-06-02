@@ -478,8 +478,6 @@ class RemoveExtraRoutesFromRouter(command.ShowOne):
         return (display_columns, data)
 
 
-# TODO(yanxing'an): Use the SDK resource mapped attribute names once the
-# OSC minimum requirements include SDK 1.0.
 class CreateRouter(command.ShowOne, common.NeutronCommandWithExtraArgs):
     _description = _("Create a new router")
 
@@ -713,8 +711,6 @@ class DeleteRouter(command.Command):
             raise exceptions.CommandError(msg)
 
 
-# TODO(yanxing'an): Use the SDK resource mapped attribute names once the
-# OSC minimum requirements include SDK 1.0.
 class ListRouter(command.Lister):
     _description = _("List routers")
 
@@ -922,8 +918,6 @@ class RemoveSubnetFromRouter(command.Command):
         )
 
 
-# TODO(yanxing'an): Use the SDK resource mapped attribute names once the
-# OSC minimum requirements include SDK 1.0.
 class SetRouter(common.NeutronCommandWithExtraArgs):
     _description = _("Set router properties")
 

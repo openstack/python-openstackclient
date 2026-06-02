@@ -63,8 +63,6 @@ def _get_attrs(
     return attrs
 
 
-# TODO(ankur-gupta-f): Use the SDK resource mapped attribute names once the
-# OSC minimum requirements include SDK 1.0.
 class CreateAutoAllocatedTopology(command.ShowOne):
     _description = _("Create the  auto allocated topology for project")
 
@@ -130,8 +128,6 @@ class CreateAutoAllocatedTopology(command.ShowOne):
         return (columns, data)
 
 
-# TODO(ankur-gupta-f): Use the SDK resource mapped attribute names once the
-# OSC minimum requirements include SDK 1.0.
 class DeleteAutoAllocatedTopology(command.Command):
     _description = _("Delete auto allocated topology for project")
 

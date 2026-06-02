@@ -191,8 +191,6 @@ class DeleteNetworkAgent(command.Command):
             raise exceptions.CommandError(msg)
 
 
-# TODO(huanxuan): Use the SDK resource mapped attribute names once the
-# OSC minimum requirements include SDK 1.0.
 class ListNetworkAgent(command.Lister):
     _description = _("List network agents")
     _supported_agents = {
@@ -381,8 +379,6 @@ class RemoveRouterFromAgent(command.Command):
             client.remove_router_from_agent(agent, router)
 
 
-# TODO(huanxuan): Use the SDK resource mapped attribute names once the
-# OSC minimum requirements include SDK 1.0.
 class SetNetworkAgent(command.Command):
     _description = _("Set network agent properties")
 

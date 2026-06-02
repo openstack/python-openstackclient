@@ -156,8 +156,6 @@ def _add_default_options(parser: argparse.ArgumentParser) -> None:
     )
 
 
-# TODO(rtheis): Use the SDK resource mapped attribute names once the
-# OSC minimum requirements include SDK 1.0.
 class CreateSubnetPool(command.ShowOne, common.NeutronCommandWithExtraArgs):
     _description = _("Create subnet pool")
 
@@ -270,8 +268,6 @@ class DeleteSubnetPool(command.Command):
             raise exceptions.CommandError(msg)
 
 
-# TODO(rtheis): Use only the SDK resource mapped attribute names once the
-# OSC minimum requirements include SDK 1.0.
 class ListSubnetPool(command.Lister):
     _description = _("List subnet pools")
 
@@ -400,8 +396,6 @@ class ListSubnetPool(command.Lister):
         )
 
 
-# TODO(rtheis): Use the SDK resource mapped attribute names once the
-# OSC minimum requirements include SDK 1.0.
 class SetSubnetPool(common.NeutronCommandWithExtraArgs):
     _description = _("Set subnet pool properties")
 

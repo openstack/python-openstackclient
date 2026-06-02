@@ -191,8 +191,6 @@ def _get_attrs(
     if 'network' in parsed_args and parsed_args.network is not None:
         attrs['network_id'] = parsed_args.network
     if 'project' in parsed_args and parsed_args.project is not None:
-        # TODO(singhj): since 'project' logic is common among
-        # router, network, port etc., maybe move it to a common file.
         identity_client = client_manager.identity
         project_id = identity_common.find_project(
             identity_client,
@@ -508,8 +506,6 @@ def _add_updatable_args(
     )
 
 
-# TODO(abhiraut): Use the SDK resource mapped attribute names once the
-# OSC minimum requirements include SDK 1.0.
 def _convert_address_pairs(
     parsed_args: argparse.Namespace,
 ) -> list[dict[str, Any]]:
@@ -848,8 +844,6 @@ class DeletePort(command.Command):
             raise exceptions.CommandError(msg)
 
 
-# TODO(abhiraut): Use only the SDK resource mapped attribute names once the
-# OSC minimum requirements include SDK 1.0.
 class ListPort(command.Lister):
     _description = _("List ports")
 
@@ -1047,8 +1041,6 @@ class ListPort(command.Lister):
         )
 
 
-# TODO(abhiraut): Use the SDK resource mapped attribute names once the
-# OSC minimum requirements include SDK 1.0.
 class SetPort(common.NeutronCommandWithExtraArgs):
     _description = _("Set port properties")
 
@@ -1329,8 +1321,6 @@ class ShowPort(command.ShowOne):
         return (display_columns, data)
 
 
-# TODO(abhiraut): Use the SDK resource mapped attribute names once the
-# OSC minimum requirements include SDK 1.0.
 class UnsetPort(common.NeutronUnsetCommandWithExtraArgs):
     _description = _("Unset port properties")
 

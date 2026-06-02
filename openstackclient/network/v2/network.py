@@ -215,8 +215,6 @@ def _add_additional_network_options(parser: argparse.ArgumentParser) -> None:
     )
 
 
-# TODO(sindhu): Use the SDK resource mapped attribute names once the
-# OSC minimum requirements include SDK 1.0.
 class CreateNetwork(command.ShowOne, common.NeutronCommandWithExtraArgs):
     _description = _("Create new network")
 
@@ -477,8 +475,6 @@ class DeleteNetwork(command.Command):
             raise exceptions.CommandError(msg)
 
 
-# TODO(sindhu): Use the SDK resource mapped attribute names once the
-# OSC minimum requirements include SDK 1.0.
 class ListNetwork(command.Lister):
     _description = _("List networks")
 
@@ -706,8 +702,6 @@ class ListNetwork(command.Lister):
         )
 
 
-# TODO(sindhu): Use the SDK resource mapped attribute names once the
-# OSC minimum requirements include SDK 1.0.
 class SetNetwork(common.NeutronCommandWithExtraArgs):
     _description = _("Set network properties")
 
