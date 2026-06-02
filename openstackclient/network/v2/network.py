@@ -614,7 +614,15 @@ class ListNetwork(command.Lister):
                 'Availability Zones',
                 'Tags',
             )
-        elif parsed_args.agent_id:
+        else:
+            columns = ('id', 'name', 'subnet_ids')
+            column_headers = (
+                'ID',
+                'Name',
+                'Subnets',
+            )
+
+        if parsed_args.agent_id:
             columns = ('id', 'name', 'subnet_ids')
             column_headers = (
                 'ID',
@@ -634,13 +642,6 @@ class ListNetwork(command.Lister):
                     )
                     for s in client.dhcp_agent_hosting_networks(dhcp_agent)
                 ),
-            )
-        else:
-            columns = ('id', 'name', 'subnet_ids')
-            column_headers = (
-                'ID',
-                'Name',
-                'Subnets',
             )
 
         args = {}
