@@ -146,6 +146,13 @@ def _get_attrs_network(
         attrs['qos_policy_id'] = _qos_policy.id
     if 'no_qos_policy' in parsed_args and parsed_args.no_qos_policy:
         attrs['qos_policy_id'] = None
+
+    # Set pvlan
+    if parsed_args.pvlan:
+        attrs['pvlan'] = True
+    if parsed_args.no_pvlan:
+        attrs['pvlan'] = False
+
     # Update DNS network options
     if parsed_args.dns_domain is not None:
         attrs['dns_domain'] = parsed_args.dns_domain
@@ -348,6 +355,24 @@ class CreateNetwork(command.ShowOne, common.NeutronCommandWithExtraArgs):
             help=_("Disable VLAN QinQ (S-Tag ethtype 0x8a88) for the network"),
         )
 
+        pvlan_grp = parser.add_mutually_exclusive_group()
+        pvlan_grp.add_argument(
+            '--pvlan',
+            action='store_true',
+            help=_(
+                "Enable Private VLAN for the network "
+                "(PVLAN extension required)"
+            ),
+        )
+        pvlan_grp.add_argument(
+            '--no-pvlan',
+            action='store_true',
+            help=_(
+                "Disable Private VLAN for the network "
+                "(PVLAN extension required)"
+            ),
+        )
+
         _add_additional_network_options(parser)
         _tag.add_tag_option_to_parser_for_create(parser, _('network'))
         return parser
@@ -367,6 +392,11 @@ class CreateNetwork(command.ShowOne, common.NeutronCommandWithExtraArgs):
         if parsed_args.no_qinq_vlan:
             attrs['vlan_qinq'] = False
 
+        if parsed_args.pvlan:
+            attrs['pvlan'] = True
+        if parsed_args.no_pvlan:
+            attrs['pvlan'] = False
+
         if attrs.get('vlan_transparent') and attrs.get('vlan_qinq'):
             msg = _(
                 "--transparent-vlan and --qinq-vlan can not be both enabled "
@@ -374,6 +404,14 @@ class CreateNetwork(command.ShowOne, common.NeutronCommandWithExtraArgs):
             )
             raise exceptions.CommandError(msg)
 
+        if (
+            attrs.get('port_security_enabled') is False
+            and attrs.get('pvlan') is True
+        ):
+            msg = _(
+                "--disable-port-security and --pvlan can not be used together."
+            )
+            raise exceptions.CommandError(msg)
         if (
             parsed_args.segmentation_id
             and not parsed_args.provider_network_type
@@ -767,6 +805,23 @@ class SetNetwork(common.NeutronCommandWithExtraArgs):
             action='store_true',
             help=_("Remove the QoS policy attached to this network"),
         )
+        pvlan_grp = parser.add_mutually_exclusive_group()
+        pvlan_grp.add_argument(
+            '--pvlan',
+            action='store_true',
+            help=_(
+                "Enable Private VLAN for the network. PVLAN extension "
+                "required."
+            ),
+        )
+        pvlan_grp.add_argument(
+            '--no-pvlan',
+            action='store_true',
+            help=_(
+                "Disable Private VLAN for the network (Default). "
+                "PVLAN extension required."
+            ),
+        )
         _tag.add_tag_option_to_parser_for_set(parser, _('network'))
         _add_additional_network_options(parser)
         return parser
@@ -779,6 +834,14 @@ class SetNetwork(common.NeutronCommandWithExtraArgs):
         attrs.update(
             self._parse_extra_properties(parsed_args.extra_properties)
         )
+        if (
+            attrs.get('port_security_enabled') is False
+            and attrs.get('pvlan') is True
+        ):
+            msg = _(
+                "--disable-port-security and --pvlan can not be used together."
+            )
+            raise exceptions.CommandError(msg)
         if attrs:
             with common.check_missing_extension_if_error(
                 self.app.client_manager.network, attrs
