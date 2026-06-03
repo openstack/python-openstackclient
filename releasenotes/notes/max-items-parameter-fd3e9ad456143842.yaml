@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    A number of list commands now accept a ``--max-items`` parameter. When
+    specified, this configures the amount of resources to retrieve from the
+    server.

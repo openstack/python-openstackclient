@@ -19,6 +19,7 @@ from osc_lib.cli import format_columns
 from osc_lib import utils
 
 from openstackclient import command
+from openstackclient.common import pagination
 from openstackclient.i18n import _
 
 
@@ -114,22 +115,7 @@ class ListTask(command.Lister):
                 'by comma)'
             ),
         )
-        parser.add_argument(
-            '--limit',
-            metavar='<num-tasks>',
-            type=int,
-            help=_('Maximum number of tasks to display.'),
-        )
-        parser.add_argument(
-            '--marker',
-            metavar='<task>',
-            help=_(
-                'The last task of the previous page. '
-                'Display list of tasks after marker. '
-                'Display all tasks if not specified. '
-                '(name or ID)'
-            ),
-        )
+        pagination.add_marker_pagination_option_to_parser(parser)
         parser.add_argument(
             '--type',
             metavar='<type>',
