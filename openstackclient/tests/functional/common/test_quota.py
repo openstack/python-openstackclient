@@ -253,7 +253,10 @@ class QuotaTests(base.TestCase):
             self.assertEqual(sorted(expected_headers), sorted(row_headers))
             resources.append(row['Resource'])
             for header in expected_headers[1:]:
-                self.assertIsInstance(row[header], int)
+                if row['Resource'] == 'key-pairs' and header == 'In Use':
+                    self.assertEqual(row[header], "N/A")
+                else:
+                    self.assertIsInstance(row[header], int)
         # Ensure that returned quota has network quota...
         self.assertIn("networks", resources)
         # ...and compute quota
