@@ -32,6 +32,7 @@ CONVERT_MAP = {
     'egress_firewall_policy': 'egress_firewall_policy_id',
     'no_ingress_firewall_policy': 'ingress_firewall_policy_id',
     'no_egress_firewall_policy': 'egress_firewall_policy_id',
+    'positional_name': 'name',
     'project': 'project_id',
     'port': 'ports',
 }
@@ -247,7 +248,6 @@ class TestCreateFirewallGroup(TestFirewallGroup):
         self.network_client.find_port.side_effect = _mock_find
         project_id = 'my-project'
         arglist = [
-            '--name',
             name,
             '--description',
             description,
@@ -263,7 +263,7 @@ class TestCreateFirewallGroup(TestFirewallGroup):
             '--disable',
         ]
         verifylist = [
-            ('name', name),
+            ('positional_name', name),
             ('description', description),
             ('ingress_firewall_policy', ingress_policy),
             ('egress_firewall_policy', egress_policy),
@@ -278,6 +278,32 @@ class TestCreateFirewallGroup(TestFirewallGroup):
         headers, data = self.cmd.take_action(parsed_args)
 
         self.check_results(headers, data, request)
+
+    def test_create_with_name_option_deprecated(self):
+        name = 'my-name'
+        arglist = ['--name', name]
+        verifylist = [('name', name)]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        with mock.patch.object(fwaas_group.LOG, 'warning') as mock_warning:
+            headers, _data = self.cmd.take_action(parsed_args)
+            mock_warning.assert_called_once_with(
+                'The --name option is deprecated for the "firewall group '
+                'create" command, please pass the name as a positional '
+                'argument instead.'
+            )
+        self.assertEqual(self.ordered_headers, tuple(sorted(headers)))
+
+    def test_create_with_both_positional_and_option_name(self):
+        name = 'my-name'
+        arglist = [name, '--name', 'other-name']
+        verifylist = [
+            ('positional_name', name),
+            ('name', 'other-name'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.assertRaises(
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
 
     def test_create_with_shared_and_no_share(self):
         arglist = [

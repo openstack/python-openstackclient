@@ -29,6 +29,7 @@ from openstackclient.tests.unit import utils as test_utils
 
 
 CONVERT_MAP = {
+    'positional_name': 'name',
     'project': 'project_id',
 }
 
@@ -222,10 +223,9 @@ class TestCreateFirewallRule(TestFirewallRule):
         destination_port = args.get('destination_port') or '0:65535'
         project_id = args.get('project_id') or 'my-tenant'
         arglist = [
+            name,
             '--description',
             description,
-            '--name',
-            name,
             '--protocol',
             protocol,
             '--ip-version',
@@ -247,7 +247,7 @@ class TestCreateFirewallRule(TestFirewallRule):
         ]
 
         verifylist = [
-            ('name', name),
+            ('positional_name', name),
             ('description', description),
             ('shared', True),
             ('protocol', protocol),
@@ -319,6 +319,31 @@ class TestCreateFirewallRule(TestFirewallRule):
                 arglist,
                 verifylist,
             )
+
+    def test_create_with_name_option_deprecated(self):
+        name = 'my-name'
+        arglist = ['--name', name]
+        verifylist = [('name', name)]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        with mock.patch.object(fwaas_rule.LOG, 'warning') as mock_warning:
+            _headers, _data = self.cmd.take_action(parsed_args)
+            mock_warning.assert_called_once_with(
+                'The --name option is deprecated for the "firewall group '
+                'rule create" command, please pass the name as a positional '
+                'argument instead.'
+            )
+
+    def test_create_with_both_positional_and_option_name(self):
+        name = 'my-name'
+        arglist = [name, '--name', 'other-name']
+        verifylist = [
+            ('positional_name', name),
+            ('name', 'other-name'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.assertRaises(
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
 
 
 class TestListFirewallRule(TestFirewallRule):
