@@ -207,6 +207,9 @@ class ListMigration(command.Lister):
             search_opts['limit'] = parsed_args.limit
             search_opts['paginated'] = False
 
+        if parsed_args.max_items is not None:
+            search_opts['max_items'] = parsed_args.max_items
+
         if parsed_args.changes_since:
             if not sdk_utils.supports_microversion(compute_client, "2.59"):
                 msg = _(

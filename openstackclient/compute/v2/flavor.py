@@ -339,6 +339,8 @@ class ListFlavor(command.Lister):
 
         if parsed_args.limit:
             query_attrs['limit'] = parsed_args.limit
+        if parsed_args.max_items is not None:
+            query_attrs['max_items'] = parsed_args.max_items
 
         if parsed_args.limit or parsed_args.marker:
             # User passed explicit pagination request, switch off SDK

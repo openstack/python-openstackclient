@@ -313,6 +313,8 @@ class ListNetworkRBAC(command.Lister):
             query['marker'] = parsed_args.marker
         if parsed_args.limit is not None:
             query['limit'] = parsed_args.limit
+        if parsed_args.max_items is not None:
+            query['max_items'] = parsed_args.max_items
 
         data = client.rbac_policies(**query)
 

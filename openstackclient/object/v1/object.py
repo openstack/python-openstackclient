@@ -146,7 +146,9 @@ class ListObject(command.Lister):
             metavar="<delimiter>",
             help=_("Roll up items with <delimiter>"),
         )
-        pagination.add_marker_pagination_option_to_parser(parser)
+        pagination.add_marker_pagination_option_to_parser(
+            parser, include_max_items=False
+        )
         parser.add_argument(
             "--end-marker",
             metavar="<end-marker>",

@@ -293,6 +293,7 @@ class TestBackupList(volume_fakes.TestVolume):
             all_tenants=False,
             marker=None,
             limit=None,
+            max_items=None,
         )
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, list(data))
@@ -338,6 +339,7 @@ class TestBackupList(volume_fakes.TestVolume):
             all_tenants=True,
             marker=self.backups[0].id,
             limit=3,
+            max_items=None,
         )
         self.assertEqual(self.columns_long, columns)
         self.assertCountEqual(self.data_long, list(data))

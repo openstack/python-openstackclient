@@ -337,6 +337,8 @@ class ListKeypair(command.Lister):
                 raise exceptions.CommandError(msg)
 
             kwargs['limit'] = parsed_args.limit
+        if parsed_args.max_items is not None:
+            kwargs['max_items'] = parsed_args.max_items
 
         data: list[_keypair.Keypair]
         if parsed_args.project:

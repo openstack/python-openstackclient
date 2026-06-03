@@ -405,6 +405,7 @@ class ListVolumeSnapshot(command.Lister):
         data = volume_client.snapshots(
             marker=parsed_args.marker,
             limit=parsed_args.limit,
+            max_items=parsed_args.max_items,
             all_projects=all_projects,
             project_id=project_id,
             name=parsed_args.name,

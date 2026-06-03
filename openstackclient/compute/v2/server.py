@@ -2854,6 +2854,9 @@ class ListServer(command.Lister):
             search_opts['limit'] = parsed_args.limit
             search_opts['paginated'] = False
 
+        if parsed_args.max_items is not None:
+            search_opts['max_items'] = parsed_args.max_items
+
         LOG.debug('search options: %s', search_opts)
 
         if search_opts['changes-before']:

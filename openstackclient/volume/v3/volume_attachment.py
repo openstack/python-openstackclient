@@ -487,6 +487,7 @@ class ListVolumeAttachment(command.Lister):
             search_opts=search_opts,
             marker=parsed_args.marker,
             limit=parsed_args.limit,
+            max_items=parsed_args.max_items,
         )
 
         column_headers = (
