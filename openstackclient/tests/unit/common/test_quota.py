@@ -135,10 +135,7 @@ class TestQuotaList(TestQuota):
             self.network_quotas[0].networks,
             self.network_quotas[0].ports,
             self.network_quotas[0].rbac_policies,
-            # TODO(ralonsoh): restore once [1] is merged and released.
-            # [1]https://review.opendev.org/c/openstack/openstacksdk/+/991063
-            # self.network_quotas[0].router_routes,
-            getattr(self.network_quotas[0], 'router_routes', ''),
+            self.network_quotas[0].router_routes,
             self.network_quotas[0].routers,
             self.network_quotas[0].security_groups,
             self.network_quotas[0].security_group_rules,
