@@ -358,7 +358,7 @@ class ShowMetadefNamespace(command.ShowOne):
 class UnsetMetadefNamespace(command.Command):
     _description = _("Unset metadef namespace tags")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             "namespace",
@@ -385,7 +385,7 @@ class UnsetMetadefNamespace(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         image_client = self.app.client_manager.image
 
         namespace = image_client.get_metadef_namespace(parsed_args.namespace)

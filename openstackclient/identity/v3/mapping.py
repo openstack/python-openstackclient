@@ -32,7 +32,7 @@ from openstackclient.i18n import _
 LOG = logging.getLogger(__name__)
 
 
-def _format_mapping(mapping):
+def _format_mapping(mapping: Any) -> tuple[tuple[str, ...], tuple[Any, ...]]:
     columns = ('id', 'rules', 'schema_version')
     column_headers = ('id', 'rules', 'schema_version')
     return (

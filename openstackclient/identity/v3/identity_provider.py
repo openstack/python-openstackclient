@@ -31,7 +31,9 @@ from openstackclient.identity import common
 LOG = logging.getLogger(__name__)
 
 
-def _format_identity_provider(idp):
+def _format_identity_provider(
+    idp: Any,
+) -> tuple[tuple[str, ...], tuple[Any, ...]]:
     columns = (
         'authorization_ttl',
         'description',
