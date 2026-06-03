@@ -18,6 +18,7 @@ from collections.abc import Iterable, Sequence
 import logging
 from typing import Any
 
+from openstack.network.v2 import security_group_rule as _security_group_rule
 from osc_lib.cli import parseractions
 from osc_lib import exceptions
 from osc_lib import utils
@@ -31,7 +32,9 @@ from openstackclient.network import utils as network_utils
 LOG = logging.getLogger(__name__)
 
 
-def _get_columns(item: Any) -> tuple[tuple[str, ...], tuple[str, ...]]:
+def _get_columns(
+    item: _security_group_rule.SecurityGroupRule,
+) -> tuple[tuple[str, ...], tuple[str, ...]]:
     hidden_columns = ['location', 'name', 'tenant_id', 'tags']
     return utils.get_osc_show_columns_for_sdk_resource(
         item, {}, hidden_columns

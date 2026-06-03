@@ -49,7 +49,9 @@ _formatters = {
 }
 
 
-def _get_network_columns(item: Any) -> tuple[tuple[str, ...], tuple[str, ...]]:
+def _get_network_columns(
+    item: _agent.Agent,
+) -> tuple[tuple[str, ...], tuple[str, ...]]:
     column_data_mapping = {
         'admin_state_up': 'is_admin_state_up',
         'agent_type': 'agent_type',

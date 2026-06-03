@@ -20,6 +20,7 @@ import logging
 from typing import Any
 
 from cliff import columns as cliff_columns
+from openstack.network.v2 import subnet as _subnet
 from osc_lib.cli import format_columns
 from osc_lib.cli import parseractions
 from osc_lib import exceptions
@@ -166,7 +167,9 @@ def _get_common_parse_arguments(
     )
 
 
-def _get_columns(item: Any) -> tuple[tuple[str, ...], tuple[str, ...]]:
+def _get_columns(
+    item: _subnet.Subnet,
+) -> tuple[tuple[str, ...], tuple[str, ...]]:
     column_map = {
         'is_dhcp_enabled': 'enable_dhcp',
         'subnet_pool_id': 'subnetpool_id',

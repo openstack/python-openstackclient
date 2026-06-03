@@ -18,6 +18,7 @@ import logging
 from typing import Any
 
 from openstack import exceptions as sdk_exceptions
+from openstack.network.v2 import floating_ip as _floating_ip
 from osc_lib.cli import format_columns
 from osc_lib import exceptions
 from osc_lib import utils
@@ -35,7 +36,9 @@ _formatters = {
 }
 
 
-def _get_network_columns(item: Any) -> tuple[tuple[str, ...], tuple[str, ...]]:
+def _get_network_columns(
+    item: _floating_ip.FloatingIP,
+) -> tuple[tuple[str, ...], tuple[str, ...]]:
     hidden_columns = ['location', 'tenant_id']
     return utils.get_osc_show_columns_for_sdk_resource(
         item, {}, hidden_columns

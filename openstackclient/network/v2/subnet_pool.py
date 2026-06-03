@@ -18,6 +18,7 @@ from collections.abc import Iterable, Sequence
 import logging
 from typing import Any
 
+from openstack.network.v2 import subnet_pool as _subnet_pool
 from osc_lib.cli import format_columns
 from osc_lib.cli import parseractions
 from osc_lib import exceptions
@@ -33,7 +34,9 @@ from openstackclient.network import common
 LOG = logging.getLogger(__name__)
 
 
-def _get_columns(item: Any) -> tuple[tuple[str, ...], tuple[str, ...]]:
+def _get_columns(
+    item: _subnet_pool.SubnetPool,
+) -> tuple[tuple[str, ...], tuple[str, ...]]:
     column_map = {
         'default_prefix_length': 'default_prefixlen',
         'is_shared': 'shared',

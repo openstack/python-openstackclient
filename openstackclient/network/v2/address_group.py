@@ -19,6 +19,7 @@ from collections.abc import Iterable, Sequence
 from typing import Any
 
 import netaddr
+from openstack.network.v2 import address_group as _address_group
 from osc_lib import exceptions
 from osc_lib import utils
 
@@ -30,7 +31,9 @@ from openstackclient.network import common
 LOG = logging.getLogger(__name__)
 
 
-def _get_columns(item: Any) -> tuple[tuple[str, ...], tuple[str, ...]]:
+def _get_columns(
+    item: _address_group.AddressGroup,
+) -> tuple[tuple[str, ...], tuple[str, ...]]:
     hidden_columns = ['location', 'tenant_id']
     return utils.get_osc_show_columns_for_sdk_resource(
         item, {}, hidden_columns

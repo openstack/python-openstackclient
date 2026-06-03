@@ -18,6 +18,7 @@ import logging
 from collections.abc import Iterable, Sequence
 from typing import Any
 
+from openstack.network.v2 import port_forwarding as _port_forwarding
 from osc_lib import exceptions
 from osc_lib import utils
 
@@ -91,7 +92,9 @@ def validate_port(port: int) -> None:
         raise exceptions.CommandError(msg)
 
 
-def _get_columns(item: Any) -> tuple[tuple[str, ...], tuple[str, ...]]:
+def _get_columns(
+    item: _port_forwarding.PortForwarding,
+) -> tuple[tuple[str, ...], tuple[str, ...]]:
     hidden_columns = ['location', 'tenant_id']
     return utils.get_osc_show_columns_for_sdk_resource(
         item, {}, hidden_columns

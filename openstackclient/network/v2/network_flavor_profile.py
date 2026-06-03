@@ -16,6 +16,7 @@ import logging
 from collections.abc import Iterable, Sequence
 from typing import Any
 
+from openstack.network.v2 import service_profile as _service_profile
 from osc_lib import exceptions
 from osc_lib import utils
 
@@ -26,7 +27,9 @@ from openstackclient.network import common
 LOG = logging.getLogger(__name__)
 
 
-def _get_columns(item: Any) -> tuple[tuple[str, ...], tuple[str, ...]]:
+def _get_columns(
+    item: _service_profile.ServiceProfile,
+) -> tuple[tuple[str, ...], tuple[str, ...]]:
     column_map = {
         'is_enabled': 'enabled',
     }

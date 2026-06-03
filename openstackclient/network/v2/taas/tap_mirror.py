@@ -15,6 +15,7 @@ import logging
 from collections.abc import Iterable, Sequence
 from typing import Any
 
+from openstack.network.v2 import tap_mirror as _tap_mirror
 from osc_lib.cli import identity as identity_utils
 from osc_lib import exceptions
 from osc_lib import utils as osc_utils
@@ -42,7 +43,9 @@ _attr_map = [
 ]
 
 
-def _get_columns(item: Any) -> tuple[tuple[str, ...], tuple[str, ...]]:
+def _get_columns(
+    item: _tap_mirror.TapMirror,
+) -> tuple[tuple[str, ...], tuple[str, ...]]:
     column_map: dict[str, str] = {}
     hidden_columns = ['location', 'tenant_id']
     return osc_utils.get_osc_show_columns_for_sdk_resource(
@@ -118,7 +121,7 @@ class CreateTapMirror(command.ShowOne):
                 parsed_args.project_domain,
             ).id
         obj = client.create_tap_mirror(**attrs)
-        display_columns, columns = tap_service._get_columns(obj)
+        display_columns, columns = _get_columns(obj)
         data = osc_utils.get_dict_properties(obj, columns)
         return display_columns, data
 
@@ -173,7 +176,7 @@ class ShowTapMirror(command.ShowOne):
             parsed_args.tap_mirror, ignore_missing=False
         ).id
         obj = client.get_tap_mirror(id)
-        display_columns, columns = tap_service._get_columns(obj)
+        display_columns, columns = _get_columns(obj)
         data = osc_utils.get_dict_properties(obj, columns)
         return display_columns, data
 
@@ -243,6 +246,6 @@ class UpdateTapMirror(command.ShowOne):
         if parsed_args.description is not None:
             attrs['description'] = parsed_args.description
         obj = client.update_tap_mirror(original_t_s, **attrs)
-        display_columns, columns = tap_service._get_columns(obj)
+        display_columns, columns = _get_columns(obj)
         data = osc_utils.get_dict_properties(obj, columns)
         return display_columns, data

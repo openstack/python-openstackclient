@@ -17,13 +17,16 @@ import argparse
 from collections.abc import Iterable, Sequence
 from typing import Any
 
+from openstack.network.v2 import qos_rule_type as _qos_rule_type
 from osc_lib import utils
 
 from openstackclient import command
 from openstackclient.i18n import _
 
 
-def _get_columns(item: Any) -> tuple[tuple[str, ...], tuple[str, ...]]:
+def _get_columns(
+    item: _qos_rule_type.QoSRuleType,
+) -> tuple[tuple[str, ...], tuple[str, ...]]:
     column_map = {
         "type": "rule_type_name",
         "drivers": "drivers",

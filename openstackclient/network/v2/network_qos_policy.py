@@ -19,6 +19,7 @@ import logging
 from typing import Any
 
 from cliff import columns as cliff_columns
+from openstack.network.v2 import qos_policy as _qos_policy
 from osc_lib import exceptions
 from osc_lib import utils
 
@@ -40,7 +41,9 @@ _formatters = {
 }
 
 
-def _get_columns(item: Any) -> tuple[tuple[str, ...], tuple[str, ...]]:
+def _get_columns(
+    item: _qos_policy.QoSPolicy,
+) -> tuple[tuple[str, ...], tuple[str, ...]]:
     column_map = {
         'is_shared': 'shared',
     }

@@ -18,6 +18,7 @@ import logging
 from typing import Any, cast
 
 from cliff import columns as cliff_columns
+from openstack.network.v2 import security_group as _security_group
 from osc_lib import exceptions
 from osc_lib import utils
 from osc_lib.utils import tags as _tag
@@ -55,7 +56,9 @@ _formatters = {
 }
 
 
-def _get_columns(item: Any) -> tuple[tuple[str, ...], tuple[str, ...]]:
+def _get_columns(
+    item: _security_group.SecurityGroup,
+) -> tuple[tuple[str, ...], tuple[str, ...]]:
     # We still support Nova managed security groups, where we have tenant_id.
     column_map = {
         'security_group_rules': 'rules',

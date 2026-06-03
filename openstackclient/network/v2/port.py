@@ -21,6 +21,7 @@ import logging
 from typing import Any
 
 from cliff import columns as cliff_columns
+from openstack.network.v2 import port as _port
 from osc_lib.cli import format_columns
 from osc_lib.cli import parseractions
 from osc_lib import exceptions
@@ -74,7 +75,9 @@ _list_formatters = copy.deepcopy(_formatters)
 _list_formatters.update({'trunk_details': SubPortColumn})
 
 
-def _get_columns(item: Any) -> tuple[tuple[str, ...], tuple[str, ...]]:
+def _get_columns(
+    item: _port.Port,
+) -> tuple[tuple[str, ...], tuple[str, ...]]:
     column_data_mapping = {
         'admin_state_up': 'is_admin_state_up',
         'allowed_address_pairs': 'allowed_address_pairs',
