@@ -9,7 +9,6 @@
 #   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #   License for the specific language governing permissions and limitations
 #   under the License.
-#
 
 """Security Group action implementations"""
 
@@ -27,7 +26,6 @@ from openstackclient import command
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
 from openstackclient.network import common
-from openstackclient.network import utils as network_utils
 
 LOG = logging.getLogger(__name__)
 
@@ -35,9 +33,8 @@ LOG = logging.getLogger(__name__)
 def _format_network_security_group_rules(
     sg_rules: list[dict[str, Any]],
 ) -> str:
-    # For readability and to align with formatting compute security group
-    # rules, trim keys with caller known (e.g. security group and tenant ID)
-    # or empty values.
+    # For readability, trim keys with caller known (e.g. security group and
+    # tenant ID) or empty values.
     for sg_rule in sg_rules:
         empty_keys = [k for k, v in sg_rule.items() if not v]
         for key in empty_keys:
@@ -48,49 +45,13 @@ def _format_network_security_group_rules(
     return utils.format_list_of_dicts(sg_rules) or ""
 
 
-def _format_compute_security_group_rule(sg_rule: dict[str, Any]) -> str:
-    info = network_utils.transform_compute_security_group_rule(sg_rule)
-    # Trim parent security group ID since caller has this information.
-    info.pop('parent_group_id', None)
-    # Trim keys with empty string values.
-    keys_to_trim = [
-        'ip_protocol',
-        'ip_range',
-        'port_range',
-        'remote_security_group',
-    ]
-    for key in keys_to_trim:
-        if key in info and not info[key]:
-            info.pop(key)
-    return utils.format_dict(info)
-
-
-def _format_compute_security_group_rules(
-    sg_rules: list[dict[str, Any]],
-) -> str:
-    rules = []
-    for sg_rule in sg_rules:
-        rules.append(_format_compute_security_group_rule(sg_rule))
-    return utils.format_list(rules, separator='\n') or ""
-
-
 class NetworkSecurityGroupRulesColumn(cliff_columns.FormattableColumn[Any]):
     def human_readable(self) -> str:
         return _format_network_security_group_rules(self._value)
 
 
-class ComputeSecurityGroupRulesColumn(cliff_columns.FormattableColumn[Any]):
-    def human_readable(self) -> str:
-        return _format_compute_security_group_rules(self._value)
-
-
-_formatters_network = {
+_formatters = {
     'security_group_rules': NetworkSecurityGroupRulesColumn,
-}
-
-
-_formatters_compute = {
-    'rules': ComputeSecurityGroupRulesColumn,
 }
 
 
@@ -176,7 +137,7 @@ class CreateSecurityGroup(command.ShowOne, common.NeutronCommandWithExtraArgs):
         _tag.update_tags_for_set(client, obj, parsed_args)
         display_columns, property_columns = _get_columns(obj)
         data = utils.get_item_properties(
-            obj, property_columns, formatters=_formatters_network
+            obj, property_columns, formatters=_formatters
         )
         return (display_columns, data)
 
@@ -394,7 +355,7 @@ class ShowSecurityGroup(command.ShowOne):
         )
         display_columns, property_columns = _get_columns(obj)
         data = utils.get_item_properties(
-            obj, property_columns, formatters=_formatters_network
+            obj, property_columns, formatters=_formatters
         )
         return (display_columns, data)
 
