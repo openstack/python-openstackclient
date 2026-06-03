@@ -25,6 +25,7 @@ from osc_lib import utils
 from osc_lib.utils import tags as _tag
 
 from openstackclient import command
+from openstackclient.common import pagination
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
 from openstackclient.network import common
@@ -311,6 +312,7 @@ class ListFloatingIP(command.Lister):
             default=False,
             help=_("List additional fields in output"),
         )
+        pagination.add_marker_pagination_option_to_parser(parser)
         return parser
 
     def take_action(
@@ -398,6 +400,10 @@ class ListFloatingIP(command.Lister):
                 ).id
                 router_ids.append(router_id)
             query['router_id'] = router_ids
+        if parsed_args.marker is not None:
+            query['marker'] = parsed_args.marker
+        if parsed_args.limit is not None:
+            query['limit'] = parsed_args.limit
 
         _tag.get_tag_filtering_args(parsed_args, query)
 

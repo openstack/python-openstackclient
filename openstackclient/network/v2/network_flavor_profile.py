@@ -21,6 +21,7 @@ from osc_lib import exceptions
 from osc_lib import utils
 
 from openstackclient import command
+from openstackclient.common import pagination
 from openstackclient.i18n import _
 from openstackclient.network import common
 
@@ -162,6 +163,11 @@ class DeleteNetworkFlavorProfile(command.Command):
 class ListNetworkFlavorProfile(command.Lister):
     _description = _("List network flavor profile(s)")
 
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
+        parser = super().get_parser(prog_name)
+        pagination.add_marker_pagination_option_to_parser(parser)
+        return parser
+
     def take_action(
         self, parsed_args: argparse.Namespace
     ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
@@ -182,7 +188,14 @@ class ListNetworkFlavorProfile(command.Lister):
             'Description',
         )
 
-        data = client.service_profiles()
+        filters = {}
+        if parsed_args.marker is not None:
+            filters['marker'] = parsed_args.marker
+        if parsed_args.limit is not None:
+            filters['limit'] = parsed_args.limit
+
+        data = client.service_profiles(**filters)
+
         return (
             column_headers,
             (

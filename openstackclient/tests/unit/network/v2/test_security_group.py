@@ -310,6 +310,28 @@ class TestListSecurityGroupNetwork(TestSecurityGroupNetwork):
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, list(data))
 
+    def test_security_groups_list_pagination(self):
+        arglist = [
+            '--marker',
+            self._security_groups[0].id,
+            '--limit',
+            '1',
+        ]
+        verifylist = [
+            ('marker', self._security_groups[0].id),
+            ('limit', 1),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network_client.security_groups.assert_called_once_with(
+            fields=security_group.ListSecurityGroup.FIELDS_TO_RETRIEVE,
+            **{'marker': self._security_groups[0].id, 'limit': 1},
+        )
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+
     def test_security_group_list_project(self):
         project = identity_fakes.FakeProject.create_one_project()
         self.projects_mock.get.return_value = project

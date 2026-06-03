@@ -541,6 +541,30 @@ class TestListSubnetPool(TestSubnetPool):
         self.assertEqual(self.columns_long, columns)
         self.assertCountEqual(self.data_long, list(data))
 
+    def test_subnet_pool_list_pagination(self):
+        arglist = [
+            '--marker',
+            self._subnet_pools[0].id,
+            '--limit',
+            '1',
+        ]
+        verifylist = [
+            ('marker', self._subnet_pools[0].id),
+            ('limit', 1),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network_client.subnet_pools.assert_called_once_with(
+            **{
+                'marker': self._subnet_pools[0].id,
+                'limit': 1,
+            }
+        )
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+
     def test_subnet_pool_list_no_share(self):
         arglist = [
             '--no-share',

@@ -21,6 +21,7 @@ from openstack.network.v2 import qos_rule_type as _qos_rule_type
 from osc_lib import utils
 
 from openstackclient import command
+from openstackclient.common import pagination
 from openstackclient.i18n import _
 
 
@@ -59,6 +60,7 @@ class ListNetworkQosRuleType(command.Lister):
                 "List all QoS rule types implemented in Neutron QoS driver"
             ),
         )
+        pagination.add_marker_pagination_option_to_parser(parser)
         return parser
 
     def take_action(
@@ -68,12 +70,16 @@ class ListNetworkQosRuleType(command.Lister):
         columns = ('type',)
         column_headers = ('Type',)
 
-        args = {}
+        filters = {}
+        if parsed_args.marker is not None:
+            filters['marker'] = parsed_args.marker
+        if parsed_args.limit is not None:
+            filters['limit'] = parsed_args.limit
         if parsed_args.all_supported:
-            args['all_supported'] = True
+            filters['all_supported'] = True
         elif parsed_args.all_rules:
-            args['all_rules'] = True
-        data = client.qos_rule_types(**args)
+            filters['all_rules'] = True
+        data = client.qos_rule_types(**filters)
 
         return (
             column_headers,

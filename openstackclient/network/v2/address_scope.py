@@ -23,6 +23,7 @@ from osc_lib import exceptions
 from osc_lib import utils
 
 from openstackclient import command
+from openstackclient.common import pagination
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
 from openstackclient.network import common
@@ -188,7 +189,7 @@ class ListAddressScope(command.Lister):
             ),
         )
         identity_common.add_project_domain_option_to_parser(parser)
-
+        pagination.add_marker_pagination_option_to_parser(parser)
         shared_group = parser.add_mutually_exclusive_group()
         shared_group.add_argument(
             '--share',
@@ -200,6 +201,7 @@ class ListAddressScope(command.Lister):
             action='store_true',
             help=_("List only address scopes not shared between projects"),
         )
+
         return parser
 
     def take_action(
@@ -237,6 +239,10 @@ class ListAddressScope(command.Lister):
                 parsed_args.project_domain,
             ).id
             attrs['project_id'] = project_id
+        if parsed_args.marker is not None:
+            attrs['marker'] = parsed_args.marker
+        if parsed_args.limit is not None:
+            attrs['limit'] = parsed_args.limit
         data = client.address_scopes(**attrs)
 
         return (

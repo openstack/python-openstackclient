@@ -1,0 +1,35 @@
+---
+features:
+  - |
+    A number of networking-related *list* commands now support the ``--marker``
+    and ``--limit`` options for marker-based pagination:
+
+    - ``address group list``
+    - ``address scope list``
+    - ``floating ip list``
+    - ``floating ip port forwarding list``
+    - ``ip availability list``
+    - ``network agent list``
+    - ``network flavor list``
+    - ``network flavor profile list``
+    - ``network list``
+    - ``network l3 conntrack helper list``
+    - ``network meter list``
+    - ``network meter rule list``
+    - ``network qos policy list``
+    - ``network qos rule type list``
+    - ``network rbac list``
+    - ``network segment list``
+    - ``network segment range list``
+    - ``network service provider list``
+    - ``port list``
+    - ``router list``
+    - ``security group list``
+    - ``security group rule list``
+    - ``subnet list``
+    - ``subnet pool list``
+
+    For more information on this feature, refer to the API documentation for
+    the `Networking service`__.
+
+    .. __: https://docs.openstack.org/api-ref/network/v2/#pagination

@@ -27,10 +27,10 @@ from osc_lib import exceptions
 from osc_lib import utils
 
 from openstackclient import command
+from openstackclient.common import pagination
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
 from openstackclient.network import common
-
 
 LOG = logging.getLogger(__name__)
 
@@ -361,6 +361,7 @@ class ListNetworkSegmentRange(command.Lister):
                 'List only network segment ranges without available segments'
             ),
         )
+        pagination.add_marker_pagination_option_to_parser(parser)
         return parser
 
     def take_action(
@@ -379,7 +380,13 @@ class ListNetworkSegmentRange(command.Lister):
             ) % {'e': e}
             raise exceptions.CommandError(msg)
 
-        data = network_client.network_segment_ranges()
+        filters = {}
+        if parsed_args.marker is not None:
+            filters['marker'] = parsed_args.marker
+        if parsed_args.limit is not None:
+            filters['limit'] = parsed_args.limit
+
+        data = network_client.network_segment_ranges(**filters)
 
         headers: tuple[str, ...] = (
             'ID',

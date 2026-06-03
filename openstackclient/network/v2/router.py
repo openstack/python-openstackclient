@@ -30,6 +30,7 @@ from osc_lib import utils
 from osc_lib.utils import tags as _tag
 
 from openstackclient import command
+from openstackclient.common import pagination
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
 from openstackclient.network import common
@@ -753,6 +754,7 @@ class ListRouter(command.Lister):
             ),
         )
         _tag.add_tag_filtering_option_to_parser(parser, _('routers'))
+        pagination.add_marker_pagination_option_to_parser(parser)
 
         return parser
 
@@ -796,6 +798,11 @@ class ListRouter(command.Lister):
                 parsed_args.project_domain,
             ).id
             args['project_id'] = project_id
+
+        if parsed_args.marker is not None:
+            args['marker'] = parsed_args.marker
+        if parsed_args.limit is not None:
+            args['limit'] = parsed_args.limit
 
         _tag.get_tag_filtering_args(parsed_args, args)
 

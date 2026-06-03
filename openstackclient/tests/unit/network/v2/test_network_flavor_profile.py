@@ -332,6 +332,30 @@ class TestListFlavorProfile(TestFlavorProfile):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, list(data))
 
+    def test_network_flavor_profile_list_pagination(self):
+        arglist = [
+            '--marker',
+            self._network_flavor_profiles[0].id,
+            '--limit',
+            '1',
+        ]
+        verifylist = [
+            ('marker', self._network_flavor_profiles[0].id),
+            ('limit', 1),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network_client.service_profiles.assert_called_once_with(
+            **{
+                'marker': self._network_flavor_profiles[0].id,
+                'limit': 1,
+            }
+        )
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+
 
 class TestShowFlavorProfile(TestFlavorProfile):
     # The network flavor profile to show.

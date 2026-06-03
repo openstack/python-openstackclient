@@ -29,6 +29,7 @@ from osc_lib import utils
 from osc_lib.utils import tags as _tag
 
 from openstackclient import command
+from openstackclient.common import pagination
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
 from openstackclient.network import common
@@ -946,6 +947,7 @@ class ListPort(command.Lister):
             ),
         )
         _tag.add_tag_filtering_option_to_parser(parser, _('ports'))
+        pagination.add_marker_pagination_option_to_parser(parser)
         return parser
 
     def take_action(
@@ -977,7 +979,6 @@ class ListPort(command.Lister):
             column_headers.extend(
                 ['Security Groups', 'Device Owner', 'Tags', 'Trunk subports']
             )
-
         if parsed_args.device_owner is not None:
             filters['device_owner'] = parsed_args.device_owner
         if parsed_args.device_id is not None:
@@ -1020,6 +1021,10 @@ class ListPort(command.Lister):
             )
         if parsed_args.security_groups:
             filters['security_group_ids'] = parsed_args.security_groups
+        if parsed_args.marker is not None:
+            filters['marker'] = parsed_args.marker
+        if parsed_args.limit is not None:
+            filters['limit'] = parsed_args.limit
 
         _tag.get_tag_filtering_args(parsed_args, filters)
 

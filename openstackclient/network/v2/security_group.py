@@ -24,6 +24,7 @@ from osc_lib import utils
 from osc_lib.utils import tags as _tag
 
 from openstackclient import command
+from openstackclient.common import pagination
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
 from openstackclient.network import common
@@ -225,6 +226,7 @@ class ListSecurityGroup(command.Lister):
         )
 
         _tag.add_tag_filtering_option_to_parser(parser, _('security group'))
+        pagination.add_marker_pagination_option_to_parser(parser)
         return parser
 
     def take_action(
@@ -232,6 +234,7 @@ class ListSecurityGroup(command.Lister):
     ) -> tuple[Sequence[str], Iterable[Any]]:
         client = self.app.client_manager.network
         filters = {}
+
         if parsed_args.project:
             identity_client = self.app.client_manager.identity
             project_id = identity_common.find_project(
@@ -243,6 +246,10 @@ class ListSecurityGroup(command.Lister):
 
         if parsed_args.shared is not None:
             filters['shared'] = parsed_args.shared
+        if parsed_args.marker is not None:
+            filters['marker'] = parsed_args.marker
+        if parsed_args.limit is not None:
+            filters['limit'] = parsed_args.limit
 
         _tag.get_tag_filtering_args(parsed_args, filters)
         data = client.security_groups(

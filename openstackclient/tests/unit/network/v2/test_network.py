@@ -596,7 +596,7 @@ class TestDeleteNetwork(TestNetwork):
 
 class TestListNetwork(TestNetwork):
     # The networks going to be listed up.
-    _network = network_fakes.create_networks(count=3)
+    _networks = network_fakes.create_networks(count=3)
 
     columns = (
         'ID',
@@ -618,7 +618,7 @@ class TestListNetwork(TestNetwork):
     )
 
     data = []
-    for net in _network:
+    for net in _networks:
         data.append(
             (
                 net.id,
@@ -628,7 +628,7 @@ class TestListNetwork(TestNetwork):
         )
 
     data_long = []
-    for net in _network:
+    for net in _networks:
         data_long.append(
             (
                 net.id,
@@ -651,13 +651,13 @@ class TestListNetwork(TestNetwork):
         # Get the command object to test
         self.cmd = network.ListNetwork(self.app, None)
 
-        self.network_client.networks.return_value = self._network
+        self.network_client.networks.return_value = self._networks
 
         self._agent = network_fakes.create_one_network_agent()
         self.network_client.get_agent.return_value = self._agent
 
         self.network_client.dhcp_agent_hosting_networks.return_value = (
-            self._network
+            self._networks
         )
 
         # TestListTagMixin
@@ -680,7 +680,31 @@ class TestListNetwork(TestNetwork):
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, list(data))
 
-    def test_list_external(self):
+    def test_network_list_pagination(self):
+        arglist = [
+            '--marker',
+            self._networks[0].id,
+            '--limit',
+            '1',
+        ]
+        verifylist = [
+            ('marker', self._networks[0].id),
+            ('limit', 1),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network_client.networks.assert_called_once_with(
+            **{
+                'marker': self._networks[0].id,
+                'limit': 1,
+            }
+        )
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+
+    def test_network_list_external(self):
         arglist = [
             '--external',
         ]
@@ -701,7 +725,7 @@ class TestListNetwork(TestNetwork):
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, list(data))
 
-    def test_list_internal(self):
+    def test_network_list_internal(self):
         arglist = [
             '--internal',
         ]
@@ -737,7 +761,7 @@ class TestListNetwork(TestNetwork):
         self.assertEqual(self.columns_long, columns)
         self.assertCountEqual(self.data_long, list(data))
 
-    def test_list_name(self):
+    def test_network_list_name(self):
         test_name = "fakename"
         arglist = [
             '--name',
@@ -885,7 +909,7 @@ class TestListNetwork(TestNetwork):
         self.assertCountEqual(self.data, list(data))
 
     def test_network_list_provider_network_type(self):
-        network_type = self._network[0].provider_network_type
+        network_type = self._networks[0].provider_network_type
         arglist = [
             '--provider-network-type',
             network_type,
@@ -906,7 +930,7 @@ class TestListNetwork(TestNetwork):
         self.assertCountEqual(self.data, list(data))
 
     def test_network_list_provider_physical_network(self):
-        physical_network = self._network[0].provider_physical_network
+        physical_network = self._networks[0].provider_physical_network
         arglist = [
             '--provider-physical-network',
             physical_network,
@@ -927,7 +951,7 @@ class TestListNetwork(TestNetwork):
         self.assertCountEqual(self.data, list(data))
 
     def test_network_list_provider_segment(self):
-        segmentation_id = self._network[0].provider_segmentation_id
+        segmentation_id = self._networks[0].provider_segmentation_id
         arglist = [
             '--provider-segment',
             segmentation_id,

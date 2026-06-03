@@ -26,10 +26,10 @@ from osc_lib import utils
 from osc_lib.utils import tags as _tag
 
 from openstackclient import command
+from openstackclient.common import pagination
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
 from openstackclient.network import common
-
 
 LOG = logging.getLogger(__name__)
 
@@ -333,6 +333,7 @@ class ListSubnetPool(command.Lister):
             ),
         )
         _tag.add_tag_filtering_option_to_parser(parser, _('subnet pools'))
+        pagination.add_marker_pagination_option_to_parser(parser)
         return parser
 
     def take_action(
@@ -365,7 +366,12 @@ class ListSubnetPool(command.Lister):
                 parsed_args.address_scope, ignore_missing=False
             )
             filters['address_scope_id'] = address_scope.id
+        if parsed_args.marker is not None:
+            filters['marker'] = parsed_args.marker
+        if parsed_args.limit is not None:
+            filters['limit'] = parsed_args.limit
         _tag.get_tag_filtering_args(parsed_args, filters)
+
         data = network_client.subnet_pools(**filters)
 
         headers: tuple[str, ...] = ('ID', 'Name', 'Prefixes')

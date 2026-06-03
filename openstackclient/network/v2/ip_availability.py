@@ -22,6 +22,7 @@ from osc_lib.cli import format_columns
 from osc_lib import utils
 
 from openstackclient import command
+from openstackclient.common import pagination
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
 
@@ -65,6 +66,7 @@ class ListIPAvailability(command.Lister):
             ),
         )
         identity_common.add_project_domain_option_to_parser(parser)
+        pagination.add_marker_pagination_option_to_parser(parser)
         return parser
 
     def take_action(
@@ -88,7 +90,6 @@ class ListIPAvailability(command.Lister):
         filters = {}
         if parsed_args.ip_version:
             filters['ip_version'] = parsed_args.ip_version
-
         if parsed_args.project:
             identity_client = self.app.client_manager.identity
             project_id = identity_common.find_project(
@@ -97,6 +98,11 @@ class ListIPAvailability(command.Lister):
                 parsed_args.project_domain,
             ).id
             filters['project_id'] = project_id
+        if parsed_args.marker is not None:
+            filters['marker'] = parsed_args.marker
+        if parsed_args.limit is not None:
+            filters['limit'] = parsed_args.limit
+
         data = client.network_ip_availabilities(**filters)
         return (
             column_headers,

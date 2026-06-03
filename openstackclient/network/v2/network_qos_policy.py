@@ -24,6 +24,7 @@ from osc_lib import exceptions
 from osc_lib import utils
 
 from openstackclient import command
+from openstackclient.common import pagination
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
 from openstackclient.network import common
@@ -212,6 +213,7 @@ class ListNetworkQosPolicy(command.Lister):
             action='store_true',
             help=_("List only QoS policies not shared between projects"),
         )
+        pagination.add_marker_pagination_option_to_parser(parser)
         return parser
 
     def take_action(
@@ -232,7 +234,14 @@ class ListNetworkQosPolicy(command.Lister):
             'Default',
             'Project',
         )
+
         attrs = _get_attrs(self.app.client_manager, parsed_args)
+
+        if parsed_args.marker is not None:
+            attrs['marker'] = parsed_args.marker
+        if parsed_args.limit is not None:
+            attrs['limit'] = parsed_args.limit
+
         data = client.qos_policies(**attrs)
         return (
             column_headers,

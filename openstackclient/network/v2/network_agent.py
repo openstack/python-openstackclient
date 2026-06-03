@@ -25,6 +25,7 @@ from osc_lib import exceptions
 from osc_lib import utils
 
 from openstackclient import command
+from openstackclient.common import pagination
 from openstackclient.i18n import _
 
 LOG = logging.getLogger(__name__)
@@ -249,6 +250,7 @@ class ListNetworkAgent(command.Lister):
             default=False,
             help=_("List additional fields in output"),
         )
+        pagination.add_marker_pagination_option_to_parser(parser)
 
         return parser
 
@@ -276,6 +278,10 @@ class ListNetworkAgent(command.Lister):
         )
 
         filters = {}
+        if parsed_args.marker is not None:
+            filters['marker'] = parsed_args.marker
+        if parsed_args.limit is not None:
+            filters['limit'] = parsed_args.limit
 
         data: list[_agent.Agent]
         if parsed_args.network is not None:

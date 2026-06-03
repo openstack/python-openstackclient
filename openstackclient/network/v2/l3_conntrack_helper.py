@@ -23,6 +23,7 @@ from osc_lib import exceptions
 from osc_lib import utils
 
 from openstackclient import command
+from openstackclient.common import pagination
 from openstackclient.i18n import _
 
 LOG = logging.getLogger(__name__)
@@ -179,6 +180,7 @@ class ListConntrackHelper(command.Lister):
                 'the netfilter conntrack target rule (name or ID)'
             ),
         )
+        pagination.add_marker_pagination_option_to_parser(parser)
 
         return parser
 
@@ -200,7 +202,13 @@ class ListConntrackHelper(command.Lister):
             'Protocol',
             'Port',
         )
+
         attrs = _get_attrs(client, parsed_args)
+        if parsed_args.marker is not None:
+            attrs['marker'] = parsed_args.marker
+        if parsed_args.limit is not None:
+            attrs['limit'] = parsed_args.limit
+
         data = client.conntrack_helpers(attrs.pop('router_id'), **attrs)
 
         return (
