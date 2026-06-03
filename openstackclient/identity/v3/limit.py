@@ -18,6 +18,7 @@ from collections.abc import Iterable, Sequence
 import logging
 from typing import Any
 
+from openstack.identity.v3 import limit as _limit
 from openstack import utils as sdk_utils
 from osc_lib import exceptions
 from osc_lib import utils
@@ -29,7 +30,9 @@ from openstackclient.identity import common as common_utils
 LOG = logging.getLogger(__name__)
 
 
-def _format_limit(limit: Any) -> tuple[tuple[str, ...], Any]:
+def _format_limit(
+    limit: _limit.Limit,
+) -> tuple[tuple[str, ...], Iterable[Any]]:
     columns = (
         "description",
         "id",
@@ -164,7 +167,7 @@ class ListLimit(command.Lister):
             self.app.client_manager.sdk_connection.identity, '3'
         )
 
-        kwargs = {}
+        kwargs: dict[str, object] = {}
         if parsed_args.service:
             kwargs["service_id"] = common_utils.find_service_sdk(
                 identity_client, parsed_args.service

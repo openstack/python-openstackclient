@@ -282,13 +282,16 @@ class DeleteSecurityGroupRule(command.Command):
 class ListSecurityGroupRule(command.Lister):
     _description = _("List security group rules")
 
-    def _format_network_security_group_rule(self, rule: Any) -> dict[str, Any]:
+    @staticmethod
+    def _format_network_security_group_rule(
+        rule: _security_group_rule.SecurityGroupRule,
+    ) -> dict[str, object]:
         """Transform the SDK SecurityGroupRule object to a dict
 
         The SDK object gets in the way of reformatting columns...
         Create port_range column from port_range_min and port_range_max
         """
-        data: dict[str, Any] = rule.to_dict()
+        data = rule.to_dict()
         data['port_range'] = network_utils.format_network_port_range(data)
         data['remote_ip_prefix'] = network_utils.format_remote_ip_prefix(data)
         return data

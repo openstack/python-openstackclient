@@ -18,6 +18,7 @@ from collections.abc import Iterable, Sequence
 import logging
 from typing import Any
 
+from openstack.identity.v3 import region as _region
 from openstack import utils as sdk_utils
 from osc_lib import exceptions
 from osc_lib import utils
@@ -25,11 +26,12 @@ from osc_lib import utils
 from openstackclient import command
 from openstackclient.i18n import _
 
-
 LOG = logging.getLogger(__name__)
 
 
-def _format_region(region: Any) -> tuple[tuple[str, ...], Any]:
+def _format_region(
+    region: _region.Region,
+) -> tuple[tuple[str, ...], tuple[Any, ...]]:
     columns = ('id', 'description', 'parent_region_id')
     column_headers = ('region', 'description', 'parent_region')
     return (

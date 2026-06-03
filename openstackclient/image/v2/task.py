@@ -14,18 +14,15 @@ import argparse
 from collections.abc import Iterable, Sequence
 from typing import Any
 
+from openstack.image.v2 import task as _task
 from osc_lib.cli import format_columns
 from osc_lib import utils
 
 from openstackclient import command
 from openstackclient.i18n import _
 
-_formatters = {
-    'tags': format_columns.ListColumn,
-}
 
-
-def _format_task(task: Any) -> dict[str, Any]:
+def _format_task(task: _task.Task) -> dict[str, Any]:
     """Format an task to make it more consistent with OSC operations."""
 
     info = {}
@@ -182,7 +179,13 @@ class ListTask(command.Lister):
         return (
             column_headers,
             (
-                utils.get_item_properties(s, columns, formatters=_formatters)
+                utils.get_item_properties(
+                    s,
+                    columns,
+                    formatters={
+                        'tags': format_columns.ListColumn,
+                    },
+                )
                 for s in data
             ),
         )

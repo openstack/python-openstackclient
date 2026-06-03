@@ -23,6 +23,7 @@ import uuid
 
 from cliff import columns
 import iso8601
+from openstack.compute.v2 import server_action as _server_action
 from openstack import exceptions as sdk_exceptions
 from openstack import utils as sdk_utils
 from osc_lib import exceptions
@@ -67,7 +68,8 @@ class ServerActionEventColumn(columns.FormattableColumn[Any]):
     objects as we'd like.
     """
 
-    def _format_event(self, event: Any) -> dict[str, Any]:
+    @staticmethod
+    def _format_event(event: _server_action.ServerAction) -> dict[str, Any]:
         hidden_columns = ['id', 'name', 'location']
         _, columns = utils.get_osc_show_columns_for_sdk_resource(
             event, {}, hidden_columns

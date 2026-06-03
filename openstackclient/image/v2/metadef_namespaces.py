@@ -20,6 +20,7 @@ from collections.abc import Iterable, Sequence
 import logging
 from typing import Any
 
+from openstack.image.v2 import metadef_namespace as _metadef_namespace
 from osc_lib.cli import format_columns
 from osc_lib import exceptions
 from osc_lib import utils
@@ -34,7 +35,9 @@ _formatters = {
 LOG = logging.getLogger(__name__)
 
 
-def _format_namespace(namespace: Any) -> dict[str, Any]:
+def _format_namespace(
+    namespace: _metadef_namespace.MetadefNamespace,
+) -> dict[str, Any]:
     info = {}
 
     fields_to_show = [
@@ -50,18 +53,16 @@ def _format_namespace(namespace: Any) -> dict[str, Any]:
         'visibility',
     ]
 
-    namespace = namespace.to_dict(ignore_none=True, original_names=True)
+    data = namespace.to_dict(ignore_none=True, original_names=True)
 
     # split out the usual key and the properties which are top-level
-    for key in namespace:
+    for key in data:
         if key in fields_to_show:
-            info[key] = namespace.get(key)
+            info[key] = data.get(key)
         elif key == "resource_type_associations":
-            info[key] = [
-                resource_type['name'] for resource_type in namespace.get(key)
-            ]
+            info[key] = [resource_type['name'] for resource_type in data[key]]
         elif key == 'properties':
-            info['properties'] = list(namespace.get(key).keys())
+            info['properties'] = list(data[key].keys())
 
     return info
 

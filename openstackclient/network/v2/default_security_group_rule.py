@@ -291,16 +291,19 @@ class ListDefaultSecurityGroupRule(command.Lister):
     security groups.
     """
 
-    def _format_network_security_group_rule(self, rule: Any) -> Any:
+    @staticmethod
+    def _format_network_security_group_rule(
+        rule: _default_security_group_rule.DefaultSecurityGroupRule,
+    ) -> dict[str, object]:
         """Transform the SDK DefaultSecurityGroupRule object to a dict
 
         The SDK object gets in the way of reformatting columns...
         Create port_range column from port_range_min and port_range_max
         """
-        rule = rule.to_dict()
-        rule['port_range'] = network_utils.format_network_port_range(rule)
-        rule['remote_ip_prefix'] = network_utils.format_remote_ip_prefix(rule)
-        return rule
+        data = rule.to_dict()
+        data['port_range'] = network_utils.format_network_port_range(data)
+        data['remote_ip_prefix'] = network_utils.format_remote_ip_prefix(data)
+        return data
 
     def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)

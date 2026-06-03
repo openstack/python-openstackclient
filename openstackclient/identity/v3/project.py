@@ -21,6 +21,7 @@ import logging
 from typing import Any
 
 from openstack import exceptions as sdk_exc
+from openstack.identity.v3 import project as _project
 from openstack import utils as sdk_utils
 from osc_lib.cli import parseractions
 from osc_lib import exceptions
@@ -35,10 +36,12 @@ from openstackclient.identity.v3 import tag
 LOG = logging.getLogger(__name__)
 
 
-def _format_project(project: Any) -> tuple[tuple[str, ...], Any]:
+def _format_project(
+    project: _project.Project,
+) -> tuple[tuple[str, ...], tuple[Any, ...]]:
     # NOTE(0weng): Projects allow unknown attributes in the body, so extract
     # the column names separately.
-    (column_headers, columns) = utils.get_osc_show_columns_for_sdk_resource(
+    column_headers, columns = utils.get_osc_show_columns_for_sdk_resource(
         project,
         {'is_enabled': 'enabled'},
         ['links', 'location', 'parents_as_ids', 'subtree_as_ids'],

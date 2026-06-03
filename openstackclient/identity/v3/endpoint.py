@@ -21,6 +21,7 @@ import logging
 from typing import Any
 
 from openstack.identity.v3 import endpoint as _endpoint
+from openstack.identity.v3 import service as _service
 from openstack import utils as sdk_utils
 from osc_lib import exceptions
 from osc_lib import utils
@@ -29,12 +30,11 @@ from openstackclient import command
 from openstackclient.i18n import _
 from openstackclient.identity import common
 
-
 LOG = logging.getLogger(__name__)
 
 
 def _format_endpoint(
-    endpoint: Any, service: Any
+    endpoint: _endpoint.Endpoint, service: _service.Service
 ) -> tuple[tuple[str, ...], Any]:
     columns = (
         'is_enabled',
@@ -433,7 +433,7 @@ class SetEndpoint(command.Command):
             parsed_args.endpoint, ignore_missing=False
         )
 
-        kwargs = {}
+        kwargs: dict[str, object] = {}
 
         if parsed_args.service:
             service = common.find_service_sdk(
