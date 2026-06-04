@@ -16,6 +16,7 @@
 """Module action implementation"""
 
 import argparse
+import importlib.metadata
 import sys
 from collections.abc import Iterable, Sequence
 from typing import Any
@@ -93,36 +94,29 @@ class ListModule(command.ShowOne):
     ) -> tuple[Sequence[str], Iterable[Any]]:
         data = {}
         # Get module versions
-        mods = sys.modules
-        for k in mods.keys():
-            k = k.split('.')[0]
+        package_distributions = importlib.metadata.packages_distributions()
+        for k in sys.modules.keys():
+            module = k.split('.')[0]
             # Skip private modules and the modules that had been added,
             # like: keystoneclient, keystoneclient.exceptions and
             # keystoneclient.auth
-            if not k.startswith('_') and k not in data:
-                # TODO(dtroyer): Need a better way to decide which modules to
-                #                show for the default (not --all) invocation.
-                #                It should be just the things we actually care
-                #                about like client and plugin modules...
-                if (
-                    parsed_args.all
-                    or
-                    # Handle xxxclient and openstacksdk
-                    (k.endswith('client') or k == 'openstack')
-                ):
-                    try:
-                        # NOTE(RuiChen): openstacksdk bug/1588823 exist,
-                        #                no good way to add __version__ for
-                        #                openstack module properly, hard code
-                        #                looks bad, but openstacksdk module
-                        #                information is important.
-                        if k == 'openstack':
-                            data[k] = mods[k].version.__version__
-                        else:
-                            data[k] = mods[k].__version__
-                    except Exception:  # noqa: S110
-                        # Catch all exceptions, just skip it
-                        pass
+            if module.startswith('_') or module in data:
+                continue
+
+            # TODO(dtroyer): Need a better way to decide which modules to
+            #                show for the default (not --all) invocation.
+            #                It should be just the things we actually care
+            #                about like client and plugin modules...
+            # Handle xxxclient and openstacksdk
+            if parsed_args.all or (
+                module.endswith('client') or module == 'openstack'
+            ):
+                try:
+                    package = package_distributions[module][0]
+                    data[module] = importlib.metadata.version(package)
+                except Exception:  # noqa: S110
+                    # Catch all exceptions, just skip it
+                    pass
 
         col_headers, col_data = zip(*sorted(data.items()))
         return col_headers, col_data

@@ -22,42 +22,61 @@ from openstackclient.tests.unit import utils
 
 
 class FakeModule:
-    def __init__(self, name, version):
+    def __init__(self, name):
         self.name = name
-        self.__version__ = version
-        # Workaround for openstacksdk case
-        self.version = mock.Mock()
-        self.version.__version__ = version
 
 
 # NOTE(dtroyer): module_1 must match the version list filter (not --all)
 #                currently == '*client*'
 module_name_1 = 'fakeclient'
-module_version_1 = '0.1.2'
+package_name_1 = 'python-fakeclient'
+package_version_1 = '0.1.2'
 
-module_name_2 = 'zlib'
-module_version_2 = '1.1'
+# module_2 match openstacksdk
+module_name_2 = 'openstack'
+package_name_2 = 'openstacksdk'
+package_version_2 = '0.9.13'
 
-# module_3 match openstacksdk
-module_name_3 = 'openstack'
-module_version_3 = '0.9.13'
+# module_3 match sub module of fakeclient
+module_name_3 = 'fakeclient.submodule'
+package_name_3 = 'python-fakeclient'
+package_version_3 = '0.2.2'
 
-# module_4 match sub module of fakeclient
-module_name_4 = 'fakeclient.submodule'
-module_version_4 = '0.2.2'
+# module_4 match non-client package
+module_name_4 = 'requests'
+package_name_4 = 'requests'
+package_version_4 = '2.34.2'
 
 # module_5 match private module
 module_name_5 = '_private_module.lib'
-module_version_5 = '0.0.1'
 
 MODULES = {
     'sys': sys,
-    module_name_1: FakeModule(module_name_1, module_version_1),
-    module_name_2: FakeModule(module_name_2, module_version_2),
-    module_name_3: FakeModule(module_name_3, module_version_3),
-    module_name_4: FakeModule(module_name_4, module_version_4),
-    module_name_5: FakeModule(module_name_5, module_version_5),
+    module_name_1: FakeModule(module_name_1),
+    module_name_2: FakeModule(module_name_2),
+    module_name_3: FakeModule(module_name_3),
+    module_name_4: FakeModule(module_name_4),
+    module_name_5: FakeModule(module_name_5),
 }
+PACKAGES = {
+    module_name_1: [package_name_1],
+    module_name_2: [package_name_2],
+    module_name_3: [package_name_3],
+    module_name_4: [package_name_4],
+}
+
+
+def fake_metadata_version(package):
+    if package == package_name_1:
+        return package_version_1
+    if package == package_name_2:
+        return package_version_2
+    if package == package_name_3:
+        return package_version_3
+    if package == package_name_4:
+        return package_version_4
+
+    raise Exception('unrecognised package')
 
 
 class TestCommandList(utils.TestCommand):
@@ -145,25 +164,31 @@ class TestModuleList(utils.TestCommand):
         # In base command class Lister in cliff, abstract method take_action()
         # returns a tuple containing the column names and an iterable
         # containing the data to be listed.
-        with mock.patch.dict(
-            'openstackclient.common.module.sys.modules',
-            values=MODULES,
-            clear=True,
+        with (
+            mock.patch(
+                'openstackclient.common.module.importlib.metadata.packages_distributions',
+                return_value=PACKAGES,
+            ),
+            mock.patch(
+                'openstackclient.common.module.importlib.metadata.version',
+                side_effect=fake_metadata_version,
+            ),
+            mock.patch.dict(
+                'openstackclient.common.module.sys.modules',
+                values=MODULES,
+                clear=True,
+            ),
         ):
             columns, data = self.cmd.take_action(parsed_args)
 
         # Output xxxclient and openstacksdk, but not regular module, like: zlib
         self.assertIn(module_name_1, columns)
-        self.assertIn(module_version_1, data)
-        self.assertNotIn(module_name_2, columns)
-        self.assertNotIn(module_version_2, data)
-        self.assertIn(module_name_3, columns)
-        self.assertIn(module_version_3, data)
+        self.assertIn(package_version_1, data)
+        self.assertIn(module_name_2, columns)
+        self.assertIn(package_version_2, data)
         # Filter sub and private modules
-        self.assertNotIn(module_name_4, columns)
-        self.assertNotIn(module_version_4, data)
+        self.assertNotIn(module_name_3, columns)
         self.assertNotIn(module_name_5, columns)
-        self.assertNotIn(module_version_5, data)
 
     def test_module_list_all(self):
         arglist = [
@@ -177,22 +202,30 @@ class TestModuleList(utils.TestCommand):
         # In base command class Lister in cliff, abstract method take_action()
         # returns a tuple containing the column names and an iterable
         # containing the data to be listed.
-        with mock.patch.dict(
-            'openstackclient.common.module.sys.modules',
-            values=MODULES,
-            clear=True,
+        with (
+            mock.patch(
+                'openstackclient.common.module.importlib.metadata.packages_distributions',
+                return_value=PACKAGES,
+            ),
+            mock.patch(
+                'openstackclient.common.module.importlib.metadata.version',
+                side_effect=fake_metadata_version,
+            ),
+            mock.patch.dict(
+                'openstackclient.common.module.sys.modules',
+                values=MODULES,
+                clear=True,
+            ),
         ):
             columns, data = self.cmd.take_action(parsed_args)
 
-        # Output xxxclient, openstacksdk and regular module, like: zlib
+        # Output xxxclient, openstacksdk and regular modules like requests
         self.assertIn(module_name_1, columns)
-        self.assertIn(module_version_1, data)
+        self.assertIn(package_version_1, data)
         self.assertIn(module_name_2, columns)
-        self.assertIn(module_version_2, data)
-        self.assertIn(module_name_3, columns)
-        self.assertIn(module_version_3, data)
+        self.assertIn(package_version_2, data)
+        self.assertIn(module_name_4, columns)
+        self.assertIn(package_version_4, data)
         # Filter sub and private modules
-        self.assertNotIn(module_name_4, columns)
-        self.assertNotIn(module_version_4, data)
+        self.assertNotIn(module_name_3, columns)
         self.assertNotIn(module_name_5, columns)
-        self.assertNotIn(module_version_5, data)
