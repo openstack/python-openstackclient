@@ -367,15 +367,36 @@ class AddSubnetToRouter(command.Command):
             metavar='<subnet>',
             help=_("Subnet to be added (name or ID)"),
         )
+        parser.add_argument(
+            '--advertise-host',
+            action='store_true',
+            default=False,
+            dest='advertise_host',
+            help=_(
+                "Mark the subnet's prefixes to be advertised as host "
+                "routes within the router's EVPN VNI. "
+                "Only valid for EVPN routers."
+            ),
+        )
         return parser
 
     def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
         subnet = client.find_subnet(parsed_args.subnet, ignore_missing=False)
-        client.add_interface_to_router(
-            client.find_router(parsed_args.router, ignore_missing=False),
-            subnet=subnet.id,
-        )
+        if parsed_args.advertise_host:
+            # TODO(evpn): switch to client.add_interface_to_router() once
+            # openstacksdk supports the advertise_host parameter.
+            router = client.find_router(
+                parsed_args.router, ignore_missing=False
+            )
+            router.add_interface(
+                client, subnet_id=subnet.id, advertise_host=True
+            )
+        else:
+            client.add_interface_to_router(
+                client.find_router(parsed_args.router, ignore_missing=False),
+                subnet=subnet.id,
+            )
 
 
 class AddExtraRoutesToRouter(command.ShowOne):
