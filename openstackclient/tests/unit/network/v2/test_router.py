@@ -108,7 +108,7 @@ class TestAddSubnetToRouter(network_fakes.TestNetworkV2):
 
         result = self.cmd.take_action(parsed_args)
         self.network_client.add_interface_to_router.assert_called_with(
-            self._router, subnet=self._router.subnet
+            self._router, subnet=self._router.subnet, advertise_host=False
         )
 
         self.assertIsNone(result)
@@ -127,12 +127,9 @@ class TestAddSubnetToRouter(network_fakes.TestNetworkV2):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
-        self._router.add_interface.assert_called_once_with(
-            self.network_client,
-            subnet_id=self._subnet.id,
-            advertise_host=True,
+        self.network_client.add_interface_to_router.assert_called_once_with(
+            self._router, subnet=self._router.subnet, advertise_host=True
         )
-        self.network_client.add_interface_to_router.assert_not_called()
 
         self.assertIsNone(result)
 
@@ -150,9 +147,8 @@ class TestAddSubnetToRouter(network_fakes.TestNetworkV2):
 
         result = self.cmd.take_action(parsed_args)
         self.network_client.add_interface_to_router.assert_called_once_with(
-            self._router, subnet=self._subnet.id
+            self._router, subnet=self._subnet.id, advertise_host=False
         )
-        self._router.add_interface.assert_not_called()
 
         self.assertIsNone(result)
 
