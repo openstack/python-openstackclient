@@ -613,6 +613,150 @@ class TestCreateRouter(TestRouter):
             parsed_args,
         )
 
+    def test_create_with_evpn_vni_auto(self):
+        arglist = [
+            '--auto-evpn-vni',
+            self.new_router.name,
+        ]
+        verifylist = [
+            ('name', self.new_router.name),
+            ('enable', True),
+            ('distributed', False),
+            ('ha', False),
+            ('evpn_vni', 0),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network_client.create_router.assert_called_once_with(
+            **{
+                'admin_state_up': True,
+                'name': self.new_router.name,
+                'evpn_vni': 0,
+            }
+        )
+        self.assertEqual(self.columns, columns)
+        self.assertCountEqual(self.data, data)
+
+    def test_create_with_evpn_vni_explicit(self):
+        arglist = [
+            '--evpn-vni',
+            '10000',
+            self.new_router.name,
+        ]
+        verifylist = [
+            ('name', self.new_router.name),
+            ('enable', True),
+            ('distributed', False),
+            ('ha', False),
+            ('evpn_vni', 10000),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network_client.create_router.assert_called_once_with(
+            **{
+                'admin_state_up': True,
+                'name': self.new_router.name,
+                'evpn_vni': 10000,
+            }
+        )
+        self.assertEqual(self.columns, columns)
+        self.assertCountEqual(self.data, data)
+
+    def test_create_without_evpn_vni(self):
+        arglist = [
+            self.new_router.name,
+        ]
+        verifylist = [
+            ('name', self.new_router.name),
+            ('enable', True),
+            ('distributed', False),
+            ('ha', False),
+            ('evpn_vni', None),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        _columns, _data = self.cmd.take_action(parsed_args)
+
+        self.network_client.create_router.assert_called_once_with(
+            **{
+                'admin_state_up': True,
+                'name': self.new_router.name,
+            }
+        )
+        self.assertNotIn(
+            'evpn_vni',
+            self.network_client.create_router.call_args[1],
+        )
+
+    def test_create_with_evpn_vni_invalid_string(self):
+        arglist = [
+            '--evpn-vni',
+            'foo',
+            self.new_router.name,
+        ]
+        verifylist = []
+
+        self.assertRaises(
+            tests_utils.ParserException,
+            self.check_parser,
+            self.cmd,
+            arglist,
+            verifylist,
+        )
+
+    def test_create_with_evpn_vni_zero(self):
+        arglist = [
+            '--evpn-vni',
+            '0',
+            self.new_router.name,
+        ]
+        verifylist = []
+
+        self.assertRaises(
+            tests_utils.ParserException,
+            self.check_parser,
+            self.cmd,
+            arglist,
+            verifylist,
+        )
+
+    def test_create_with_evpn_vni_negative(self):
+        arglist = [
+            '--evpn-vni',
+            '-1',
+            self.new_router.name,
+        ]
+        verifylist = []
+
+        self.assertRaises(
+            tests_utils.ParserException,
+            self.check_parser,
+            self.cmd,
+            arglist,
+            verifylist,
+        )
+
+    def test_create_with_evpn_vni_mutually_exclusive_args(self):
+        arglist = [
+            '--evpn-vni',
+            '10000',
+            '--auto-evpn-vni',
+            self.new_router.name,
+        ]
+        verifylist = []
+
+        self.assertRaises(
+            tests_utils.ParserException,
+            self.check_parser,
+            self.cmd,
+            arglist,
+            verifylist,
+        )
+
 
 class TestDeleteRouter(TestRouter):
     # The routers to delete.

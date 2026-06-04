@@ -260,12 +260,29 @@ def _get_attrs(
         flavor = n_client.find_flavor(parsed_args.flavor, ignore_missing=False)
         attrs['flavor_id'] = flavor.id
 
-    for attr in ('enable_default_route_bfd', 'enable_default_route_ecmp'):
+    for attr in (
+        'enable_default_route_bfd',
+        'enable_default_route_ecmp',
+        'evpn_vni',
+    ):
         value = getattr(parsed_args, attr, None)
         if value is not None:
             attrs[attr] = value
 
     return attrs
+
+
+def _parse_evpn_vni(value: str) -> int:
+    try:
+        vni = int(value)
+    except ValueError:
+        raise argparse.ArgumentTypeError(
+            _("'%(value)s' is not a valid VNI (use a positive integer)")
+            % {'value': value}
+        )
+    if vni <= 0:
+        raise argparse.ArgumentTypeError(_("VNI must be a positive integer"))
+    return vni
 
 
 def _parser_add_bfd_ecmp_arguments(parser: argparse.ArgumentParser) -> None:
@@ -608,6 +625,24 @@ class CreateRouter(command.ShowOne, common.NeutronCommandWithExtraArgs):
             '--qos-policy',
             metavar='<qos-policy>',
             help=_('Attach QoS policy to router gateway IPs'),
+        )
+        evpn_group = parser.add_mutually_exclusive_group()
+        evpn_group.add_argument(
+            '--evpn-vni',
+            metavar='<vni>',
+            default=None,
+            type=_parse_evpn_vni,
+            dest='evpn_vni',
+            help=_("Associate the router with an EVPN identified by a VNI."),
+        )
+        evpn_group.add_argument(
+            '--auto-evpn-vni',
+            action='store_const',
+            dest='evpn_vni',
+            const=0,
+            help=_(
+                "Associate the router with an EVPN using an auto-assigned VNI."
+            ),
         )
 
         return parser
