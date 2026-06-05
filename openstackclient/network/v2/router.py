@@ -88,6 +88,8 @@ def _get_columns(
     if item.is_distributed is None:
         hidden_columns.append('is_distributed')
         column_map.pop('is_distributed')
+    if not hasattr(item, 'evpn_vni'):
+        hidden_columns.append('evpn_vni')
     return utils.get_osc_show_columns_for_sdk_resource(
         item, column_map, hidden_columns
     )
