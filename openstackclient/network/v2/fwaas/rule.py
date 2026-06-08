@@ -75,9 +75,6 @@ def _get_common_parser(
     parser: argparse.ArgumentParser,
 ) -> argparse.ArgumentParser:
     parser.add_argument(
-        '--name', metavar='<name>', help=_('Name of the firewall rule')
-    )
-    parser.add_argument(
         '--description',
         metavar='<description>',
         help=_('Description of the firewall rule'),
@@ -288,6 +285,24 @@ class CreateFirewallRule(command.ShowOne):
     def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         _get_common_parser(parser)
+        # TODO(slaweq): Remove the deprecated --name option and make the
+        # positional name argument required (remove nargs='?') once the
+        # deprecation period is over.
+        parser.add_argument(
+            'positional_name',
+            nargs='?',
+            metavar='<name>',
+            default=None,
+            help=_('Name of the firewall rule'),
+        )
+        parser.add_argument(
+            '--name',
+            metavar='<name>',
+            help=_(
+                '(Deprecated, please pass name as a positional argument) '
+                'Name of the firewall rule'
+            ),
+        )
         identity_utils.add_project_owner_option_to_parser(parser)
         return parser
 
@@ -295,6 +310,22 @@ class CreateFirewallRule(command.ShowOne):
         self, parsed_args: argparse.Namespace
     ) -> tuple[Sequence[str], Iterable[Any]]:
         client = self.app.client_manager.network
+        # TODO(slaweq): Remove this --name deprecation handling once the
+        # deprecation period is over.
+        if parsed_args.positional_name and parsed_args.name:
+            msg = _(
+                "Cannot specify name as both a positional argument "
+                "and with the --name option."
+            )
+            raise exceptions.CommandError(msg)
+        if parsed_args.name:
+            LOG.warning(
+                'The --name option is deprecated for the "firewall group '
+                'rule create" command, please pass the name as a positional '
+                'argument instead.'
+            )
+        elif parsed_args.positional_name:
+            parsed_args.name = parsed_args.positional_name
         attrs = _get_common_attrs(self.app.client_manager, parsed_args)
         if 'project' in parsed_args and parsed_args.project is not None:
             attrs['project_id'] = identity_common.find_project(
@@ -414,6 +445,11 @@ class SetFirewallRule(command.Command):
             'firewall_rule',
             metavar='<firewall-rule>',
             help=_('Firewall rule to set (name or ID)'),
+        )
+        parser.add_argument(
+            '--name',
+            metavar='<name>',
+            help=_('Name of the firewall rule'),
         )
         return parser
 
