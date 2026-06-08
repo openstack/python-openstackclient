@@ -8605,6 +8605,49 @@ class TestServerSet(TestServer):
             exceptions.CommandError, self.cmd.take_action, parsed_args
         )
 
+    def test_server_set_with_pinned_availability_zone(self):
+        self.set_compute_api_version('2.104')
+
+        arglist = [
+            '--pinned-availability-zone',
+            'az1',
+            self.server.id,
+        ]
+        verifylist = [
+            ('pinned_availability_zone', 'az1'),
+            ('server', self.server.id),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+
+        self.compute_client.update_server.assert_called_once_with(
+            self.server, pinned_availability_zone='az1'
+        )
+        self.compute_client.set_server_metadata.assert_not_called()
+        self.compute_client.reset_server_state.assert_not_called()
+        self.compute_client.change_server_password.assert_not_called()
+        self.compute_client.clear_server_password.assert_not_called()
+        self.compute_client.add_tag_to_server.assert_not_called()
+        self.assertIsNone(result)
+
+    def test_server_set_with_pinned_availability_zone_pre_v2104(self):
+        self.set_compute_api_version('2.103')
+
+        arglist = [
+            '--pinned-availability-zone',
+            'az1',
+            self.server.id,
+        ]
+        verifylist = [
+            ('pinned_availability_zone', 'az1'),
+            ('server', self.server.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.assertRaises(
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
+
 
 class TestServerShelve(TestServer):
     def setUp(self):
@@ -9406,6 +9449,46 @@ class TestServerUnset(TestServer):
         )
         self.assertIn(
             '--os-compute-api-version 2.26 or greater is required', str(ex)
+        )
+
+    def test_server_unset_with_pinned_availability_zone(self):
+        self.set_compute_api_version('2.104')
+
+        arglist = [
+            '--pinned-availability-zone',
+            self.server.id,
+        ]
+        verifylist = [
+            ('pinned_availability_zone', True),
+            ('server', self.server.id),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+
+        self.compute_client.update_server.assert_called_once_with(
+            self.server, pinned_availability_zone=None
+        )
+        self.assertIsNone(result)
+
+    def test_server_unset_with_pinned_availability_zone_pre_v2104(self):
+        self.set_compute_api_version('2.103')
+
+        arglist = [
+            '--pinned-availability-zone',
+            self.server.id,
+        ]
+        verifylist = [
+            ('pinned_availability_zone', True),
+            ('server', self.server.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        ex = self.assertRaises(
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
+        self.assertIn(
+            '--os-compute-api-version 2.104 or greater is required', str(ex)
         )
 
 

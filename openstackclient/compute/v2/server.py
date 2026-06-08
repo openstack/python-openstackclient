@@ -4677,6 +4677,16 @@ class SetServer(command.Command):
                 '(supported by --os-compute-api-version 2.90 or above)'
             ),
         )
+        parser.add_argument(
+            '--pinned-availability-zone',
+            metavar='<availability-zone>',
+            help=_(
+                'Pin the server to the given availability zone. '
+                'The server must currently be in the given zone. '
+                'To unpin, use "server unset --pinned-availability-zone" '
+                '(supported by --os-compute-api-version 2.104 or above)'
+            ),
+        )
         return parser
 
     @staticmethod
@@ -4723,6 +4733,14 @@ class SetServer(command.Command):
                 )
                 raise exceptions.CommandError(msg)
 
+        if parsed_args.pinned_availability_zone:
+            if not sdk_utils.supports_microversion(compute_client, '2.104'):
+                msg = _(
+                    '--os-compute-api-version 2.104 or greater is required '
+                    'to support the --pinned-availability-zone option'
+                )
+                raise exceptions.CommandError(msg)
+
         update_kwargs = {}
 
         if parsed_args.name:
@@ -4733,6 +4751,11 @@ class SetServer(command.Command):
 
         if parsed_args.hostname:
             update_kwargs['hostname'] = parsed_args.hostname
+
+        if parsed_args.pinned_availability_zone:
+            update_kwargs['pinned_availability_zone'] = (
+                parsed_args.pinned_availability_zone
+            )
 
         if update_kwargs:
             compute_client.update_server(server, **update_kwargs)
@@ -5330,6 +5353,15 @@ class UnsetServer(command.Command):
                 '(supported by --os-compute-api-version 2.26 or above)'
             ),
         )
+        parser.add_argument(
+            '--pinned-availability-zone',
+            dest='pinned_availability_zone',
+            action='store_true',
+            help=_(
+                'Unpin the server from its availability zone '
+                '(supported by --os-compute-api-version 2.104 or above)'
+            ),
+        )
         return parser
 
     def take_action(self, parsed_args: argparse.Namespace) -> None:
@@ -5353,6 +5385,16 @@ class UnsetServer(command.Command):
                 raise exceptions.CommandError(msg)
 
             compute_client.update_server(server, description="")
+
+        if parsed_args.pinned_availability_zone:
+            if not sdk_utils.supports_microversion(compute_client, '2.104'):
+                msg = _(
+                    '--os-compute-api-version 2.104 or greater is required '
+                    'to support the --pinned-availability-zone option'
+                )
+                raise exceptions.CommandError(msg)
+
+            compute_client.update_server(server, pinned_availability_zone=None)
 
         if parsed_args.tags or parsed_args.all_tags:
             if not sdk_utils.supports_microversion(compute_client, '2.26'):
