@@ -46,6 +46,8 @@ class FakeVolumeClient:
         self.availability_zones.resource_class = fakes.FakeResource(None, {})
         self.backups = mock.Mock()
         self.backups.resource_class = fakes.FakeResource(None, {})
+        self.cgsnapshots = mock.Mock()
+        self.cgsnapshots.resource_class = fakes.FakeResource(None, {})
         self.consistencygroups = mock.Mock()
         self.consistencygroups.resource_class = fakes.FakeResource(None, {})
         self.clusters = mock.Mock()
@@ -232,6 +234,99 @@ def create_consistency_groups(attrs=None, count=2):
         consistency_groups.append(consistency_group)
 
     return consistency_groups
+
+
+def get_consistency_groups(consistency_groups=None, count=2):
+    """Note:
+
+    Get an iterable MagicMock object with a list of faked
+    consistency_groups.
+
+    If consistency_groups list is provided, then initialize
+    the Mock object with the list. Otherwise create one.
+
+    :param List consistency_groups:
+        A list of FakeResource objects faking consistency_groups
+    :param Integer count:
+        The number of consistency_groups to be faked
+    :return
+        An iterable Mock object with side_effect set to a list of faked
+        consistency_groups
+    """
+    if consistency_groups is None:
+        consistency_groups = create_consistency_groups(count)
+
+    return mock.Mock(side_effect=consistency_groups)
+
+
+def create_one_consistency_group_snapshot(attrs=None):
+    """Create a fake consistency group snapshot.
+
+    :param dict attrs:
+        A dictionary with all attributes
+    :return:
+        A FakeResource object with id, name, description, etc.
+    """
+    attrs = attrs or {}
+
+    # Set default attributes.
+    consistency_group_snapshot_info = {
+        "id": 'id-' + uuid.uuid4().hex,
+        "name": 'backup-name-' + uuid.uuid4().hex,
+        "description": 'description-' + uuid.uuid4().hex,
+        "status": "error",
+        "consistencygroup_id": 'consistency-group-id' + uuid.uuid4().hex,
+        "created_at": 'time-' + uuid.uuid4().hex,
+    }
+
+    # Overwrite default attributes.
+    consistency_group_snapshot_info.update(attrs)
+
+    consistency_group_snapshot = fakes.FakeResource(
+        info=copy.deepcopy(consistency_group_snapshot_info), loaded=True
+    )
+    return consistency_group_snapshot
+
+
+def create_consistency_group_snapshots(attrs=None, count=2):
+    """Create multiple fake consistency group snapshots.
+
+    :param dict attrs:
+        A dictionary with all attributes
+    :param int count:
+        The number of consistency group snapshots to fake
+    :return:
+        A list of FakeResource objects faking the
+        consistency group snapshots
+    """
+    consistency_group_snapshots = []
+    for i in range(0, count):
+        consistency_group_snapshot = create_one_consistency_group_snapshot(
+            attrs,
+        )
+        consistency_group_snapshots.append(consistency_group_snapshot)
+
+    return consistency_group_snapshots
+
+
+def get_consistency_group_snapshots(snapshots=None, count=2):
+    """Get an iterable MagicMock object with a list of faked cgsnapshots.
+
+    If consistenct group snapshots list is provided, then initialize
+    the Mock object with the list. Otherwise create one.
+
+    :param List snapshots:
+        A list of FakeResource objects faking consistency group snapshots
+    :param Integer count:
+        The number of consistency group snapshots to be faked
+    :return
+        An iterable Mock object with side_effect set to a list of faked
+        consistency groups
+    """
+    if snapshots is None:
+        snapshots = create_consistency_group_snapshots(count)
+
+    return mock.Mock(side_effect=snapshots)
 
 
 def create_one_extension(attrs=None):
