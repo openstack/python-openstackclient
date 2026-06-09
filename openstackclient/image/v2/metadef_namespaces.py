@@ -393,9 +393,7 @@ class UnsetMetadefNamespace(command.Command):
 
         errors = 0
         if parsed_args.all_tags:
-            namespace = image_client.remove_tags_from_metadef_namespace(
-                namespace
-            )
+            image_client.remove_tags_from_metadef_namespace(namespace)
         elif parsed_args.tags:
             for tag in parsed_args.tags:
                 try:

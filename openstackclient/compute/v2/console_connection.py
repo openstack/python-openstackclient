@@ -49,8 +49,10 @@ class ShowConsoleConnectionInformation(command.ShowOne):
         self, parsed_args: argparse.Namespace
     ) -> tuple[Sequence[str], Iterable[Any]]:
         compute_client = self.app.client_manager.compute
-        data = compute_client.validate_console_auth_token(parsed_args.token)
-        display_columns, columns = _get_console_connection_columns(data)
-        data = utils.get_dict_properties(data, columns)
+        auth_token = compute_client.validate_console_auth_token(
+            parsed_args.token
+        )
+        display_columns, columns = _get_console_connection_columns(auth_token)
+        data = utils.get_dict_properties(auth_token, columns)
 
         return (display_columns, data)

@@ -7539,7 +7539,7 @@ class TestServerRescue(compute_fakes.TestCompute):
             self.server.id, ignore_missing=False
         )
         self.compute_client.rescue_server.assert_called_once_with(
-            self.server, admin_pass=None, image_ref=None
+            self.server, admin_pass=None, image=None
         )
         self.assertIsNone(result)
 
@@ -7566,7 +7566,7 @@ class TestServerRescue(compute_fakes.TestCompute):
             self.server.id, ignore_missing=False
         )
         self.compute_client.rescue_server.assert_called_once_with(
-            self.server, admin_pass=None, image_ref=new_image.id
+            self.server, admin_pass=None, image=new_image.id
         )
         self.assertIsNone(result)
 
@@ -7589,7 +7589,7 @@ class TestServerRescue(compute_fakes.TestCompute):
             self.server.id, ignore_missing=False
         )
         self.compute_client.rescue_server.assert_called_once_with(
-            self.server, admin_pass=password, image_ref=None
+            self.server, admin_pass=password, image=None
         )
         self.assertIsNone(result)
 

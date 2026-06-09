@@ -703,9 +703,10 @@ class AddServerSecurityGroup(command.Command):
         errors = 0
         for security_group in security_groups:
             try:
+                # SDK wants a SecurityGroup object but will handle a dict
                 compute_client.add_security_group_to_server(
                     server,
-                    {'name': security_group},
+                    {'name': security_group},  # type: ignore[arg-type]
                 )
             except sdk_exceptions.HttpException as e:
                 errors += 1
@@ -4214,9 +4215,10 @@ class RemoveServerSecurityGroup(command.Command):
         errors = 0
         for security_group in security_groups:
             try:
+                # SDK wants a SecurityGroup object but will handle a dict
                 compute_client.remove_security_group_from_server(
                     server,
-                    {'name': security_group},
+                    {'name': security_group},  # type: ignore[arg-type]
                 )
             except sdk_exceptions.HttpException as e:
                 errors += 1
@@ -4320,9 +4322,9 @@ server booted from a volume."""
         compute_client = self.app.client_manager.compute
         image_client = self.app.client_manager.image
 
-        image_ref = None
+        image = None
         if parsed_args.image:
-            image_ref = image_client.find_image(
+            image = image_client.find_image(
                 parsed_args.image, ignore_missing=False
             ).id
 
@@ -4330,7 +4332,7 @@ server booted from a volume."""
             parsed_args.server, ignore_missing=False
         )
         compute_client.rescue_server(
-            server, admin_pass=parsed_args.password, image_ref=image_ref
+            server, admin_pass=parsed_args.password, image=image
         )
 
 

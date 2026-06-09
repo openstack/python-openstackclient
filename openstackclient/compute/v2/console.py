@@ -155,6 +155,8 @@ class ShowConsoleURL(command.ShowOne):
         )
 
         display_columns, columns = _get_console_columns(console)
-        data = utils.get_dict_properties(console, columns)
+        # this is a bug in SDK
+        # https://review.opendev.org/c/openstack/openstacksdk/+/992548
+        data = utils.get_dict_properties(console, columns)  # type: ignore[arg-type]
 
         return (display_columns, data)

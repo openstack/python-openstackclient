@@ -20,6 +20,7 @@ from collections.abc import Iterable
 import logging
 from typing import Any
 
+from openstack.compute.v2 import service as _service
 from openstack import utils as sdk_utils
 from osc_lib import exceptions
 from osc_lib import utils
@@ -199,7 +200,7 @@ class SetService(command.Command):
     @staticmethod
     def _find_service_by_host_and_binary(
         compute_client: Any, host: str, binary: str
-    ) -> Any:
+    ) -> _service.Service:
         """Utility method to find a compute service by host and binary
 
         :param host: the name of the compute service host
@@ -264,13 +265,17 @@ class SetService(command.Command):
                 enabled = False
 
             if enabled is not None:
+                # these are bugs in SDK
+                # https://review.opendev.org/c/openstack/openstacksdk/+/992549
                 if enabled:
                     compute_client.enable_service(
-                        service_id, parsed_args.host, parsed_args.service
+                        service_id,  # type: ignore[arg-type]
+                        parsed_args.host,
+                        parsed_args.service,
                     )
                 else:
                     compute_client.disable_service(
-                        service_id,
+                        service_id,  # type: ignore[arg-type]
                         parsed_args.host,
                         parsed_args.service,
                         parsed_args.disable_reason,
