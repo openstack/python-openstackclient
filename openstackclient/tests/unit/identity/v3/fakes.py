@@ -582,8 +582,6 @@ class FakeIdentityClient:
     def __init__(self, **kwargs):
         self.domains = mock.Mock()
         self.domains.resource_class = fakes.FakeResource(None, {})
-        self.credentials = mock.Mock()
-        self.credentials.resource_class = fakes.FakeResource(None, {})
         self.endpoints = mock.Mock()
         self.endpoints.resource_class = fakes.FakeResource(None, {})
         self.endpoint_filter = mock.Mock()
@@ -596,24 +594,14 @@ class FakeIdentityClient:
         self.oauth1.resource_class = fakes.FakeResource(None, {})
         self.projects = mock.Mock()
         self.projects.resource_class = fakes.FakeResource(None, {})
-        self.regions = mock.Mock()
-        self.regions.resource_class = fakes.FakeResource(None, {})
         self.roles = mock.Mock()
         self.roles.resource_class = fakes.FakeResource(None, {})
         self.services = mock.Mock()
         self.services.resource_class = fakes.FakeResource(None, {})
-        self.session = mock.Mock()
-        self.session.auth.auth_ref.service_catalog.resource_class = (
-            fakes.FakeResource(None, {})
-        )
         self.tokens = mock.Mock()
         self.tokens.resource_class = fakes.FakeResource(None, {})
-        self.trusts = mock.Mock()
-        self.trusts.resource_class = fakes.FakeResource(None, {})
         self.users = mock.Mock()
         self.users.resource_class = fakes.FakeResource(None, {})
-        self.role_assignments = mock.Mock()
-        self.role_assignments.resource_class = fakes.FakeResource(None, {})
         self.auth_token = kwargs['token']
         self.management_url = kwargs['endpoint']
         self.auth = FakeAuth()
@@ -623,30 +611,16 @@ class FakeIdentityClient:
         self.application_credentials.resource_class = fakes.FakeResource(
             None, {}
         )
-        self.access_rules = mock.Mock()
-        self.access_rules.resource_class = fakes.FakeResource(None, {})
         self.inference_rules = mock.Mock()
         self.inference_rules.resource_class = fakes.FakeResource(None, {})
-        self.registered_limits = mock.Mock()
-        self.registered_limits.resource_class = fakes.FakeResource(None, {})
-        self.limits = mock.Mock()
-        self.limits.resource_class = fakes.FakeResource(None, {})
 
 
 class FakeFederationManager:
     def __init__(self, **kwargs):
-        self.identity_providers = mock.Mock()
-        self.identity_providers.resource_class = fakes.FakeResource(None, {})
-        self.mappings = mock.Mock()
-        self.mappings.resource_class = fakes.FakeResource(None, {})
-        self.protocols = mock.Mock()
-        self.protocols.resource_class = fakes.FakeResource(None, {})
         self.projects = mock.Mock()
         self.projects.resource_class = fakes.FakeResource(None, {})
         self.domains = mock.Mock()
         self.domains.resource_class = fakes.FakeResource(None, {})
-        self.service_providers = mock.Mock()
-        self.service_providers.resource_class = fakes.FakeResource(None, {})
 
 
 class FakeFederatedClient(FakeIdentityClient):
@@ -658,13 +632,6 @@ class FakeFederatedClient(FakeIdentityClient):
 class FakeOAuth1Client(FakeIdentityClient):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-
-        self.access_tokens = mock.Mock()
-        self.access_tokens.resource_class = fakes.FakeResource(None, {})
-        self.consumers = mock.Mock()
-        self.consumers.resource_class = fakes.FakeResource(None, {})
-        self.request_tokens = mock.Mock()
-        self.request_tokens.resource_class = fakes.FakeResource(None, {})
 
 
 class FakeClientMixin:

@@ -167,14 +167,10 @@ class FakeIdentityClient:
         self.tokens.resource_class = fakes.FakeResource(None, {})
         self.users = mock.Mock()
         self.users.resource_class = fakes.FakeResource(None, {})
-        self.ec2 = mock.Mock()
-        self.ec2.resource_class = fakes.FakeResource(None, {})
         self.endpoints = mock.Mock()
         self.endpoints.resource_class = fakes.FakeResource(None, {})
         self.extensions = mock.Mock()
         self.extensions.resource_class = fakes.FakeResource(None, {})
-        self.auth_token = kwargs['token']
-        self.management_url = kwargs['endpoint']
 
     def __getattr__(self, name):
         # Map v3 'projects' back to v2 'tenants'

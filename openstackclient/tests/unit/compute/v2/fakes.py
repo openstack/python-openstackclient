@@ -104,20 +104,6 @@ def create_one_agent(attrs=None):
     return agent_attrs
 
 
-def create_agents(attrs=None, count=2):
-    """Create multiple fake agents.
-
-    :param dict attrs: A dictionary with all attributes
-    :param int count: The number of agents to fake
-    :return: A list of dictionaries faking the agents
-    """
-    agents = []
-    for i in range(0, count):
-        agents.append(create_one_agent(attrs))
-
-    return agents
-
-
 def create_one_extension(attrs=None):
     """Create a fake extension.
 
@@ -352,20 +338,6 @@ def create_one_flavor(attrs=None):
     return flavor
 
 
-def create_flavors(attrs=None, count=2):
-    """Create multiple fake flavors.
-
-    :param dict attrs: A dictionary with all attributes
-    :param int count: The number of flavors to fake
-    :return: A list of fake :class:`openstack.compute.v2.flavor.Flavor` objects
-    """
-    flavors = []
-    for i in range(0, count):
-        flavors.append(create_one_flavor(attrs))
-
-    return flavors
-
-
 def create_one_flavor_access(attrs=None):
     """Create a fake flavor access.
 
@@ -497,19 +469,6 @@ def create_one_floating_ip_pool(attrs=None):
     floating_ip_pool_attrs.update(attrs)
 
     return floating_ip_pool_attrs
-
-
-def create_floating_ip_pools(attrs=None, count=2):
-    """Create multiple fake floating IP pools.
-
-    :param dict attrs: A dictionary with all attributes
-    :param int count: The number of floating IP pools to fake
-    :return: A list of dictionaries faking the floating IP pools
-    """
-    floating_ip_pools = []
-    for i in range(0, count):
-        floating_ip_pools.append(create_one_floating_ip_pool(attrs))
-    return floating_ip_pools
 
 
 def create_one_network(attrs=None):
@@ -728,21 +687,6 @@ def create_one_server_migration(attrs=None):
 
     migration = _server_migration.ServerMigration(**migration_info)
     return migration
-
-
-def create_server_migrations(attrs=None, methods=None, count=2):
-    """Create multiple server migrations.
-
-    :param dict attrs: A dictionary with all attributes
-    :param int count: The number of server migrations to fake
-    :return A list of fake
-        openstack.compute.v2.server_migration.ServerMigration objects
-    """
-    migrations = []
-    for i in range(0, count):
-        migrations.append(create_one_server_migration(attrs, methods))
-
-    return migrations
 
 
 def create_one_volume_attachment(attrs=None):

@@ -38,24 +38,14 @@ class FakeVolumeClient:
         self.management_url = kwargs['endpoint']
         self.api_version = api_versions.APIVersion('2.0')
 
-        self.availability_zones = mock.Mock()
-        self.availability_zones.resource_class = fakes.FakeResource(None, {})
         self.backups = mock.Mock()
         self.backups.resource_class = fakes.FakeResource(None, {})
-        self.capabilities = mock.Mock()
-        self.capabilities.resource_class = fakes.FakeResource(None, {})
         self.cgsnapshots = mock.Mock()
         self.cgsnapshots.resource_class = fakes.FakeResource(None, {})
         self.consistencygroups = mock.Mock()
         self.consistencygroups.resource_class = fakes.FakeResource(None, {})
-        self.limits = mock.Mock()
-        self.limits.resource_class = fakes.FakeResource(None, {})
-        self.pools = mock.Mock()
-        self.pools.resource_class = fakes.FakeResource(None, {})
         self.qos_specs = mock.Mock()
         self.qos_specs.resource_class = fakes.FakeResource(None, {})
-        self.restores = mock.Mock()
-        self.restores.resource_class = fakes.FakeResource(None, {})
         self.services = mock.Mock()
         self.services.resource_class = fakes.FakeResource(None, {})
         self.transfers = mock.Mock()
@@ -243,23 +233,6 @@ def create_one_service(attrs=None):
     return service
 
 
-def create_services(attrs=None, count=2):
-    """Create multiple fake services.
-
-    :param dict attrs:
-        A dictionary with all attributes of service
-    :param Integer count:
-        The number of services to be faked
-    :return:
-        A list of FakeResource objects
-    """
-    services = []
-    for n in range(0, count):
-        services.append(create_one_service(attrs))
-
-    return services
-
-
 def create_one_capability(attrs=None):
     """Create a fake volume backend capability.
 
@@ -400,6 +373,26 @@ def create_volumes(attrs=None, count=2):
     return volumes
 
 
+def get_volumes(volumes=None, count=2):
+    """Get an iterable MagicMock object with a list of faked volumes.
+
+    If volumes list is provided, then initialize the Mock object with the
+    list. Otherwise create one.
+
+    :param List volumes:
+        A list of FakeResource objects faking volumes
+    :param Integer count:
+        The number of volumes to be faked
+    :return
+        An iterable Mock object with side_effect set to a list of faked
+        volumes
+    """
+    if volumes is None:
+        volumes = create_volumes(count)
+
+    return mock.Mock(side_effect=volumes)
+
+
 def create_one_sdk_volume(attrs=None):
     """Create a fake volume.
 
@@ -439,43 +432,6 @@ def create_one_sdk_volume(attrs=None):
     return _volume.Volume(**volume_info)
 
 
-def create_sdk_volumes(attrs=None, count=2):
-    """Create multiple fake volumes.
-
-    :param dict attrs:
-        A dictionary with all attributes of volume
-    :param Integer count:
-        The number of volumes to be faked
-    :return:
-        A list of FakeResource objects
-    """
-    volumes = []
-    for n in range(0, count):
-        volumes.append(create_one_sdk_volume(attrs))
-
-    return volumes
-
-
-def get_volumes(volumes=None, count=2):
-    """Get an iterable MagicMock object with a list of faked volumes.
-
-    If volumes list is provided, then initialize the Mock object with the
-    list. Otherwise create one.
-
-    :param List volumes:
-        A list of FakeResource objects faking volumes
-    :param Integer count:
-        The number of volumes to be faked
-    :return
-        An iterable Mock object with side_effect set to a list of faked
-        volumes
-    """
-    if volumes is None:
-        volumes = create_volumes(count)
-
-    return mock.Mock(side_effect=volumes)
-
-
 def create_one_backup(attrs=None):
     """Create a fake backup.
 
@@ -511,44 +467,6 @@ def create_one_backup(attrs=None):
 
     backup = _backup.Backup(**backup_info)
     return backup
-
-
-def create_backups(attrs=None, count=2):
-    """Create multiple fake backups.
-
-    :param dict attrs:
-        A dictionary with all attributes
-    :param int count:
-        The number of backups to fake
-    :return: A list of fake
-        openstack.block_storage.v2.backup.Backup objects
-    """
-    backups = []
-    for i in range(0, count):
-        backup = create_one_backup(attrs)
-        backups.append(backup)
-
-    return backups
-
-
-def get_backups(backups=None, count=2):
-    """Get an iterable MagicMock object with a list of faked backups.
-
-    If backups list is provided, then initialize the Mock object with the
-    list. Otherwise create one.
-
-    :param List backups:
-        A list of FakeResource objects faking backups
-    :param Integer count:
-        The number of backups to be faked
-    :return
-        An iterable Mock object with side_effect set to a list of faked
-        backups
-    """
-    if backups is None:
-        backups = create_backups(count)
-
-    return mock.Mock(side_effect=backups)
 
 
 def create_backup_record():
@@ -839,44 +757,6 @@ def create_one_snapshot(attrs=None):
         info=copy.deepcopy(snapshot_info), loaded=True
     )
     return snapshot
-
-
-def create_snapshots(attrs=None, count=2):
-    """Create multiple fake snapshots.
-
-    :param dict attrs:
-        A dictionary with all attributes
-    :param int count:
-        The number of snapshots to fake
-    :return:
-        A list of FakeResource objects faking the snapshots
-    """
-    snapshots = []
-    for i in range(0, count):
-        snapshot = create_one_snapshot(attrs)
-        snapshots.append(snapshot)
-
-    return snapshots
-
-
-def get_snapshots(snapshots=None, count=2):
-    """Get an iterable MagicMock object with a list of faked snapshots.
-
-    If snapshots list is provided, then initialize the Mock object with the
-    list. Otherwise create one.
-
-    :param List snapshots:
-        A list of FakeResource objects faking snapshots
-    :param Integer count:
-        The number of snapshots to be faked
-    :return
-        An iterable Mock object with side_effect set to a list of faked
-        snapshots
-    """
-    if snapshots is None:
-        snapshots = create_snapshots(count)
-
-    return mock.Mock(side_effect=snapshots)
 
 
 def create_one_volume_type(attrs=None, methods=None):

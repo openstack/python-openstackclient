@@ -1314,25 +1314,6 @@ def create_network_agents(attrs=None, count=2):
     return agents
 
 
-def get_network_agents(agents=None, count=2):
-    """Get an iterable Mock object with a list of faked network agents.
-
-    If network agents list is provided, then initialize the Mock object
-    with the list. Otherwise create one.
-
-    :param List agents:
-        A list of Agent objects faking network agents
-    :param int count:
-        The number of network agents to fake
-    :return:
-        An iterable Mock object with side_effect set to a list of faked
-        network agents
-    """
-    if agents is None:
-        agents = create_network_agents(count)
-    return mock.Mock(side_effect=agents)
-
-
 def create_one_network_rbac(attrs=None):
     """Create a fake network rbac
 
@@ -1967,26 +1948,6 @@ def create_local_ip_associations(attrs=None, count=2):
     return local_ip_associations
 
 
-def get_local_ip_associations(local_ip_associations=None, count=2):
-    """Get a list of faked local ip associations
-
-    If local ip association list is provided, then initialize
-    the Mock object with the list. Otherwise create one.
-
-    :param List local_ip_associations:
-        A list of FakeResource objects faking local ip associations
-    :param int count:
-        The number of local ip associations to fake
-    :return:
-        An iterable Mock object with side_effect set to a list of faked
-        local ip associations
-    """
-    if local_ip_associations is None:
-        local_ip_associations = create_local_ip_associations(count)
-
-    return mock.Mock(side_effect=local_ip_associations)
-
-
 def create_one_ndp_proxy(attrs=None):
     """Create a fake NDP proxy.
 
@@ -2030,25 +1991,6 @@ def create_ndp_proxies(attrs=None, count=2):
     for i in range(0, count):
         ndp_proxies.append(create_one_ndp_proxy(attrs))
     return ndp_proxies
-
-
-def get_ndp_proxies(ndp_proxies=None, count=2):
-    """Get a list of faked NDP proxies.
-
-    If ndp_proxy list is provided, then initialize the Mock object
-    with the list. Otherwise create one.
-
-    :param List ndp_proxies:
-        A list of FakeResource objects faking ndp proxy
-    :param int count:
-        The number of ndp proxy to fake
-    :return:
-        An iterable Mock object with side_effect set to a list of faked
-        ndp proxy
-    """
-    if ndp_proxies is None:
-        ndp_proxies = create_ndp_proxies(count)
-    return mock.Mock(side_effect=ndp_proxies)
 
 
 def create_one_trunk(attrs=None):
@@ -2101,22 +2043,3 @@ def create_trunks(attrs=None, count=2):
         trunks.append(create_one_trunk(attrs))
 
     return trunks
-
-
-def get_trunks(trunks=None, count=2):
-    """Get an iterable Mock object with a list of faked trunks.
-
-    If trunk list is provided, then initialize the Mock object
-    with the list. Otherwise create one.
-
-    :param List trunks:
-        A list of FakeResource objects faking trunks
-    :param int count:
-        The number of trunks to fake
-    :return:
-        An iterable Mock object with side_effect set to a list of faked
-        trunks
-    """
-    if trunks is None:
-        trunks = create_trunks(count)
-    return mock.Mock(side_effect=trunks)

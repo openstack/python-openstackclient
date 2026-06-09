@@ -40,10 +40,6 @@ class FakeVolumeClient:
         self.management_url = kwargs['endpoint']
         self.api_version = api_versions.APIVersion('3.0')
 
-        self.attachments = mock.Mock()
-        self.attachments.resource_class = fakes.FakeResource(None, {})
-        self.availability_zones = mock.Mock()
-        self.availability_zones.resource_class = fakes.FakeResource(None, {})
         self.backups = mock.Mock()
         self.backups.resource_class = fakes.FakeResource(None, {})
         self.cgsnapshots = mock.Mock()
@@ -60,12 +56,10 @@ class FakeVolumeClient:
         self.group_types.resource_class = fakes.FakeResource(None, {})
         self.messages = mock.Mock()
         self.messages.resource_class = fakes.FakeResource(None, {})
-        self.resource_filters = mock.Mock()
-        self.resource_filters.resource_class = fakes.FakeResource(None, {})
         self.qos_specs = mock.Mock()
         self.qos_specs.resource_class = fakes.FakeResource(None, {})
-        self.restores = mock.Mock()
-        self.restores.resource_class = fakes.FakeResource(None, {})
+        self.services = mock.Mock()
+        self.services.resource_class = fakes.FakeResource(None, {})
         self.transfers = mock.Mock()
         self.transfers.resource_class = fakes.FakeResource(None, {})
         self.volume_encryption_types = mock.Mock()
@@ -80,8 +74,6 @@ class FakeVolumeClient:
         self.volume_types.resource_class = fakes.FakeResource(None, {})
         self.volumes = mock.Mock()
         self.volumes.resource_class = fakes.FakeResource(None, {})
-        self.services = mock.Mock()
-        self.services.resource_class = fakes.FakeResource(None, {})
         self.workers = mock.Mock()
         self.workers.resource_class = fakes.FakeResource(None, {})
 
@@ -401,44 +393,6 @@ def create_one_backup(attrs=None):
 
     backup = _backup.Backup(**backup_info)
     return backup
-
-
-def create_backups(attrs=None, count=2):
-    """Create multiple fake backups.
-
-    :param dict attrs:
-        A dictionary with all attributes
-    :param int count:
-        The number of backups to fake
-    :return: A list of fake
-        openstack.block_storage.v3.backup.Backup objects
-    """
-    backups = []
-    for i in range(0, count):
-        backup = create_one_backup(attrs)
-        backups.append(backup)
-
-    return backups
-
-
-def get_backups(backups=None, count=2):
-    """Get an iterable MagicMock object with a list of faked backups.
-
-    If backups list is provided, then initialize the Mock object with the
-    list. Otherwise create one.
-
-    :param List backups:
-        A list of FakeResource objects faking backups
-    :param Integer count:
-        The number of backups to be faked
-    :return
-        An iterable Mock object with side_effect set to a list of faked
-        backups
-    """
-    if backups is None:
-        backups = create_backups(count)
-
-    return mock.Mock(side_effect=backups)
 
 
 def create_backup_record():
@@ -841,23 +795,6 @@ def create_one_sdk_volume(attrs=None):
     return _volume.Volume(**volume_info)
 
 
-def create_sdk_volumes(attrs=None, count=2):
-    """Create multiple fake volumes.
-
-    :param dict attrs:
-        A dictionary with all attributes of volume
-    :param Integer count:
-        The number of volumes to be faked
-    :return:
-        A list of FakeResource objects
-    """
-    volumes = []
-    for n in range(0, count):
-        volumes.append(create_one_sdk_volume(attrs))
-
-    return volumes
-
-
 def create_one_volume_group(attrs=None):
     """Create a fake group.
 
@@ -937,20 +874,6 @@ def create_one_volume_group_snapshot(attrs=None, methods=None):
         None, group_snapshot_info, methods=methods, loaded=True
     )
     return group_snapshot
-
-
-def create_volume_group_snapshots(attrs=None, count=2):
-    """Create multiple fake group snapshots.
-
-    :param attrs: A dictionary with all attributes of group snapshot
-    :param count: The number of group snapshots to be faked
-    :return: A list of FakeResource objects
-    """
-    group_snapshots = []
-    for n in range(0, count):
-        group_snapshots.append(create_one_volume_group_snapshot(attrs))
-
-    return group_snapshots
 
 
 def create_one_volume_group_type(attrs=None, methods=None):
@@ -1122,24 +1045,6 @@ def create_volume_attachments(attrs=None, count=2):
     return attachments
 
 
-def get_volume_attachments(attachments=None, count=2):
-    """Get an iterable MagicMock object with a list of faked volumes.
-
-    If attachments list is provided, then initialize the Mock object with
-    the list. Otherwise create one.
-
-    :param attachments: A list of FakeResource objects faking volume
-        attachments
-    :param count: The number of volume attachments to be faked
-    :return An iterable Mock object with side_effect set to a list of faked
-        volume attachments
-    """
-    if attachments is None:
-        attachments = create_volume_attachments(count)
-
-    return mock.Mock(side_effect=attachments)
-
-
 def create_one_qos(attrs=None):
     """Create a fake Qos specification.
 
@@ -1296,24 +1201,6 @@ def get_volume_types(volume_types=None, count=2):
         volume_types = create_volume_types(count)
 
     return mock.Mock(side_effect=volume_types)
-
-
-def create_service_log_level_entry(attrs=None):
-    service_log_level_info = {
-        'host': 'host_test',
-        'binary': 'cinder-api',
-        'prefix': 'cinder.api.common',
-        'level': 'DEBUG',
-    }
-    # Overwrite default attributes if there are some attributes set
-    attrs = attrs or {}
-
-    service_log_level_info.update(attrs)
-
-    service_log_level = fakes.FakeResource(
-        None, service_log_level_info, loaded=True
-    )
-    return service_log_level
 
 
 def create_cleanup_records():
