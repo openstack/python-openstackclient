@@ -62,6 +62,8 @@ class FakeVolumeClient:
         self.messages.resource_class = fakes.FakeResource(None, {})
         self.resource_filters = mock.Mock()
         self.resource_filters.resource_class = fakes.FakeResource(None, {})
+        self.qos_specs = mock.Mock()
+        self.qos_specs.resource_class = fakes.FakeResource(None, {})
         self.restores = mock.Mock()
         self.restores.resource_class = fakes.FakeResource(None, {})
         self.transfers = mock.Mock()
@@ -1136,6 +1138,95 @@ def get_volume_attachments(attachments=None, count=2):
         attachments = create_volume_attachments(count)
 
     return mock.Mock(side_effect=attachments)
+
+
+def create_one_qos(attrs=None):
+    """Create a fake Qos specification.
+
+    :param dict attrs:
+        A dictionary with all attributes
+    :return:
+        A FakeResource object with id, name, consumer, etc.
+    """
+    attrs = attrs or {}
+
+    # Set default attributes.
+    qos_info = {
+        "id": 'qos-id-' + uuid.uuid4().hex,
+        "name": 'qos-name-' + uuid.uuid4().hex,
+        "consumer": 'front-end',
+        "specs": {"foo": "bar", "iops": "9001"},
+    }
+
+    # Overwrite default attributes.
+    qos_info.update(attrs)
+
+    qos = fakes.FakeResource(info=copy.deepcopy(qos_info), loaded=True)
+    return qos
+
+
+def create_one_qos_association(attrs=None):
+    """Create a fake Qos specification association.
+
+    :param dict attrs:
+        A dictionary with all attributes
+    :return:
+        A FakeResource object with id, name, association_type, etc.
+    """
+    attrs = attrs or {}
+
+    # Set default attributes.
+    qos_association_info = {
+        "id": 'type-id-' + uuid.uuid4().hex,
+        "name": 'type-name-' + uuid.uuid4().hex,
+        "association_type": 'volume_type',
+    }
+
+    # Overwrite default attributes.
+    qos_association_info.update(attrs)
+
+    qos_association = fakes.FakeResource(
+        info=copy.deepcopy(qos_association_info), loaded=True
+    )
+    return qos_association
+
+
+def create_qoses(attrs=None, count=2):
+    """Create multiple fake Qos specifications.
+
+    :param dict attrs:
+        A dictionary with all attributes
+    :param int count:
+        The number of Qos specifications to fake
+    :return:
+        A list of FakeResource objects faking the Qos specifications
+    """
+    qoses = []
+    for i in range(0, count):
+        qos = create_one_qos(attrs)
+        qoses.append(qos)
+
+    return qoses
+
+
+def get_qoses(qoses=None, count=2):
+    """Get an iterable MagicMock object with a list of faked qoses.
+
+    If qoses list is provided, then initialize the Mock object with the
+    list. Otherwise create one.
+
+    :param List qoses:
+        A list of FakeResource objects faking qoses
+    :param Integer count:
+        The number of qoses to be faked
+    :return
+        An iterable Mock object with side_effect set to a list of faked
+        qoses
+    """
+    if qoses is None:
+        qoses = create_qoses(count)
+
+    return mock.Mock(side_effect=qoses)
 
 
 def create_one_volume_type(attrs=None, methods=None):
