@@ -22,7 +22,7 @@ from openstackclient.compute.v2 import service
 from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
 
 
-class TestServiceDelete(compute_fakes.TestComputev2):
+class TestServiceDelete(compute_fakes.TestCompute):
     def setUp(self):
         super().setUp()
 
@@ -95,7 +95,7 @@ class TestServiceDelete(compute_fakes.TestComputev2):
         )
 
 
-class TestServiceList(compute_fakes.TestComputev2):
+class TestServiceList(compute_fakes.TestCompute):
     def setUp(self):
         super().setUp()
 
@@ -261,7 +261,7 @@ class TestServiceList(compute_fakes.TestComputev2):
         self.assertEqual(expected_data, list(data))
 
 
-class TestServiceSet(compute_fakes.TestComputev2):
+class TestServiceSet(compute_fakes.TestCompute):
     def setUp(self):
         super().setUp()
 

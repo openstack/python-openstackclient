@@ -21,7 +21,7 @@ from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
 from openstackclient.tests.unit.image.v2 import fakes as image_fakes
 
 
-class TestServerImageCreate(compute_fakes.TestComputev2):
+class TestServerImageCreate(compute_fakes.TestCompute):
     def image_columns(self, image):
         columnlist = (
             'id',

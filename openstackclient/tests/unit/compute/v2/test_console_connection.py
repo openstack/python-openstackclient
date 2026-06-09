@@ -19,7 +19,7 @@ from openstackclient.compute.v2 import console_connection
 from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
 
 
-class TestConsoleTokens(compute_fakes.TestComputev2):
+class TestConsoleTokens(compute_fakes.TestCompute):
     def setUp(self):
         super().setUp()
 

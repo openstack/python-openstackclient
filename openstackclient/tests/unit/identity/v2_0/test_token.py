@@ -16,7 +16,7 @@ from openstackclient.identity.v2_0 import token
 from openstackclient.tests.unit.identity.v2_0 import fakes as identity_fakes
 
 
-class TestTokenIssue(identity_fakes.TestIdentityv2):
+class TestTokenIssue(identity_fakes.TestIdentity):
     def setUp(self):
         super().setUp()
 
@@ -77,7 +77,7 @@ class TestTokenIssue(identity_fakes.TestIdentityv2):
         self.assertEqual(datalist, data)
 
 
-class TestTokenRevoke(identity_fakes.TestIdentityv2):
+class TestTokenRevoke(identity_fakes.TestIdentity):
     TOKEN = 'fob'
 
     def setUp(self):

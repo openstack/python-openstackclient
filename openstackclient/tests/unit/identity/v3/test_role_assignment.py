@@ -25,7 +25,7 @@ from openstackclient.identity.v3 import role_assignment
 from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 
 
-class TestRoleAssignmentList(identity_fakes.TestIdentityv3):
+class TestRoleAssignmentList(identity_fakes.TestIdentity):
     columns = (
         'Role',
         'User',

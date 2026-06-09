@@ -24,7 +24,7 @@ from openstackclient.compute.v2 import hypervisor
 from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
 
 
-class TestHypervisorList(compute_fakes.TestComputev2):
+class TestHypervisorList(compute_fakes.TestCompute):
     def setUp(self):
         super().setUp()
 
@@ -280,7 +280,7 @@ class TestHypervisorList(compute_fakes.TestComputev2):
         )
 
 
-class TestHypervisorShow(compute_fakes.TestComputev2):
+class TestHypervisorShow(compute_fakes.TestCompute):
     def setUp(self):
         super().setUp()
 

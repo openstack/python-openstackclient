@@ -21,7 +21,7 @@ from openstackclient.identity.v3 import registered_limit
 from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 
 
-class TestRegisteredLimitCreate(identity_fakes.TestIdentityv3):
+class TestRegisteredLimitCreate(identity_fakes.TestIdentity):
     def setUp(self):
         super().setUp()
 
@@ -165,7 +165,7 @@ class TestRegisteredLimitCreate(identity_fakes.TestIdentityv3):
         self.assertEqual(datalist, data)
 
 
-class TestRegisteredLimitDelete(identity_fakes.TestIdentityv3):
+class TestRegisteredLimitDelete(identity_fakes.TestIdentity):
     def setUp(self):
         super().setUp()
 
@@ -207,7 +207,7 @@ class TestRegisteredLimitDelete(identity_fakes.TestIdentityv3):
             )
 
 
-class TestRegisteredLimitShow(identity_fakes.TestIdentityv3):
+class TestRegisteredLimitShow(identity_fakes.TestIdentity):
     def setUp(self):
         super().setUp()
 
@@ -311,7 +311,7 @@ class TestRegisteredLimitShow(identity_fakes.TestIdentityv3):
         self.assertEqual(datalist, data)
 
 
-class TestRegisteredLimitSet(identity_fakes.TestIdentityv3):
+class TestRegisteredLimitSet(identity_fakes.TestIdentity):
     def setUp(self):
         super().setUp()
 
@@ -590,7 +590,7 @@ class TestRegisteredLimitSet(identity_fakes.TestIdentityv3):
         self.assertEqual(datalist, data)
 
 
-class TestRegisteredLimitList(identity_fakes.TestIdentityv3):
+class TestRegisteredLimitList(identity_fakes.TestIdentity):
     def setUp(self):
         super().setUp()
 

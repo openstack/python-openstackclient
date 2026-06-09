@@ -24,7 +24,7 @@ from openstackclient.identity.v3 import access_rule
 from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 
 
-class TestAccessRuleDelete(identity_fakes.TestIdentityv3):
+class TestAccessRuleDelete(identity_fakes.TestIdentity):
     access_rule = sdk_fakes.generate_fake_resource(_access_rule.AccessRule)
 
     def setUp(self):
@@ -93,7 +93,7 @@ class TestAccessRuleDelete(identity_fakes.TestIdentityv3):
         )
 
 
-class TestAccessRuleList(identity_fakes.TestIdentityv3):
+class TestAccessRuleList(identity_fakes.TestIdentity):
     access_rule = sdk_fakes.generate_fake_resource(_access_rule.AccessRule)
 
     def setUp(self):
@@ -129,7 +129,7 @@ class TestAccessRuleList(identity_fakes.TestIdentityv3):
         self.assertEqual(datalist, tuple(data))
 
 
-class TestAccessRuleShow(identity_fakes.TestIdentityv3):
+class TestAccessRuleShow(identity_fakes.TestIdentity):
     access_rule = sdk_fakes.generate_fake_resource(_access_rule.AccessRule)
 
     def setUp(self):

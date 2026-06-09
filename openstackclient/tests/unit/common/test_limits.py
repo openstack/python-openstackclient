@@ -16,7 +16,7 @@ from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
 from openstackclient.tests.unit.volume.v3 import fakes as volume_fakes
 
 
-class TestComputeLimits(compute_fakes.TestComputev2):
+class TestComputeLimits(compute_fakes.TestCompute):
     absolute_columns = ['Name', 'Value']
     rate_columns = ["Verb", "URI", "Value", "Remain", "Unit", "Next Available"]
 

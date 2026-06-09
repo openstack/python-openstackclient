@@ -19,7 +19,7 @@ from openstackclient.identity.v3 import region
 from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 
 
-class TestRegionCreate(identity_fakes.TestIdentityv3):
+class TestRegionCreate(identity_fakes.TestIdentity):
     region = sdk_fakes.generate_fake_resource(_region.Region)
     columns = (
         'region',
@@ -121,7 +121,7 @@ class TestRegionCreate(identity_fakes.TestIdentityv3):
         self.assertEqual(self.datalist, data)
 
 
-class TestRegionDelete(identity_fakes.TestIdentityv3):
+class TestRegionDelete(identity_fakes.TestIdentity):
     def setUp(self):
         super().setUp()
 
@@ -148,7 +148,7 @@ class TestRegionDelete(identity_fakes.TestIdentityv3):
         self.assertIsNone(result)
 
 
-class TestRegionList(identity_fakes.TestIdentityv3):
+class TestRegionList(identity_fakes.TestIdentity):
     region = sdk_fakes.generate_fake_resource(_region.Region)
     columns = (
         'Region',
@@ -207,7 +207,7 @@ class TestRegionList(identity_fakes.TestIdentityv3):
         self.assertEqual(self.datalist, tuple(data))
 
 
-class TestRegionSet(identity_fakes.TestIdentityv3):
+class TestRegionSet(identity_fakes.TestIdentity):
     def setUp(self):
         super().setUp()
 
@@ -280,7 +280,7 @@ class TestRegionSet(identity_fakes.TestIdentityv3):
         self.assertIsNone(result)
 
 
-class TestRegionShow(identity_fakes.TestIdentityv3):
+class TestRegionShow(identity_fakes.TestIdentity):
     def setUp(self):
         super().setUp()
 

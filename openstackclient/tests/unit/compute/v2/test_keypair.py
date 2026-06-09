@@ -28,7 +28,7 @@ from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
 from openstackclient.tests.unit import utils as tests_utils
 
 
-class TestKeypair(compute_fakes.TestComputev2):
+class TestKeypair(compute_fakes.TestCompute):
     def setUp(self):
         super().setUp()
 

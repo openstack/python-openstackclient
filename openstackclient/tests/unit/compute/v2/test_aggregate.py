@@ -27,7 +27,7 @@ from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
 from openstackclient.tests.unit.image.v2 import fakes as image_fakes
 
 
-class TestAggregate(compute_fakes.TestComputev2):
+class TestAggregate(compute_fakes.TestCompute):
     columns = (
         'availability_zone',
         'created_at',

@@ -66,7 +66,7 @@ class FakeClientMixin:
         )
 
 
-class TestComputev2(
+class TestCompute(
     identity_fakes.FakeClientMixin,
     network_fakes.FakeClientMixin,
     image_fakes.FakeClientMixin,

@@ -21,7 +21,7 @@ from openstackclient.identity.v3 import endpoint
 from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 
 
-class TestEndpoint(identity_fakes.TestIdentityv3):
+class TestEndpoint(identity_fakes.TestIdentity):
     def setUp(self):
         super().setUp()
 
@@ -44,7 +44,7 @@ class TestEndpoint(identity_fakes.TestIdentityv3):
         self.projects_mock.reset_mock()
 
 
-class TestEndpointCreate(identity_fakes.TestIdentityv3):
+class TestEndpointCreate(identity_fakes.TestIdentity):
     columns = (
         'enabled',
         'id',
@@ -265,7 +265,7 @@ class TestEndpointCreate(identity_fakes.TestIdentityv3):
         self.assertEqual(datalist, data)
 
 
-class TestEndpointDelete(identity_fakes.TestIdentityv3):
+class TestEndpointDelete(identity_fakes.TestIdentity):
     def setUp(self):
         super().setUp()
 
@@ -294,7 +294,7 @@ class TestEndpointDelete(identity_fakes.TestIdentityv3):
         self.assertIsNone(result)
 
 
-class TestEndpointList(identity_fakes.TestIdentityv3):
+class TestEndpointList(identity_fakes.TestIdentity):
     columns = (
         'ID',
         'Region',
@@ -494,7 +494,7 @@ class TestEndpointList(identity_fakes.TestIdentityv3):
         self.assertEqual(datalist, tuple(data))
 
 
-class TestEndpointSet(identity_fakes.TestIdentityv3):
+class TestEndpointSet(identity_fakes.TestIdentity):
     def setUp(self):
         super().setUp()
 
@@ -643,7 +643,7 @@ class TestEndpointSet(identity_fakes.TestIdentityv3):
         self.assertIsNone(result)
 
 
-class TestEndpointShow(identity_fakes.TestIdentityv3):
+class TestEndpointShow(identity_fakes.TestIdentity):
     def setUp(self):
         super().setUp()
 

@@ -21,7 +21,7 @@ from openstackclient.compute.v2 import server_event
 from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
 
 
-class TestListServerEvent(compute_fakes.TestComputev2):
+class TestListServerEvent(compute_fakes.TestCompute):
     fake_server = compute_fakes.create_one_server()
     fake_event = compute_fakes.create_one_server_action()
 
@@ -365,7 +365,7 @@ class TestListServerEvent(compute_fakes.TestComputev2):
         )
 
 
-class TestShowServerEvent(compute_fakes.TestComputev2):
+class TestShowServerEvent(compute_fakes.TestCompute):
     fake_server = compute_fakes.create_one_server()
     fake_event = compute_fakes.create_one_server_action()
     columns = (

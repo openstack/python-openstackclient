@@ -23,7 +23,7 @@ from openstackclient.identity.v2_0 import user
 from openstackclient.tests.unit.identity.v2_0 import fakes as identity_fakes
 
 
-class TestUser(identity_fakes.TestIdentityv2):
+class TestUser(identity_fakes.TestIdentity):
     fake_project = identity_fakes.FakeProject.create_one_project()
     attr = {
         'tenantId': fake_project.id,

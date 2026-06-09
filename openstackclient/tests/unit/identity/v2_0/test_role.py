@@ -23,7 +23,7 @@ from openstackclient.identity.v2_0 import role
 from openstackclient.tests.unit.identity.v2_0 import fakes as identity_fakes
 
 
-class TestRole(identity_fakes.TestIdentityv2):
+class TestRole(identity_fakes.TestIdentity):
     attr = {}
     attr['endpoints'] = [
         {

@@ -58,7 +58,7 @@ def _generate_fake_host():
     }
 
 
-class TestHostList(compute_fakes.TestComputev2):
+class TestHostList(compute_fakes.TestCompute):
     def setUp(self):
         super().setUp()
 
@@ -111,7 +111,7 @@ class TestHostList(compute_fakes.TestComputev2):
         self.assertEqual(self.data, list(data))
 
 
-class TestHostSet(compute_fakes.TestComputev2):
+class TestHostSet(compute_fakes.TestCompute):
     def setUp(self):
         super().setUp()
 
@@ -160,7 +160,7 @@ class TestHostSet(compute_fakes.TestComputev2):
         )
 
 
-class TestHostShow(compute_fakes.TestComputev2):
+class TestHostShow(compute_fakes.TestCompute):
     def setUp(self):
         super().setUp()
 

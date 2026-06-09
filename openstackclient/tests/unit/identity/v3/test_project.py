@@ -25,7 +25,7 @@ from openstackclient.identity.v3 import project
 from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 
 
-class TestProjectCreate(identity_fakes.TestIdentityv3):
+class TestProjectCreate(identity_fakes.TestIdentity):
     domain = sdk_fakes.generate_fake_resource(_domain.Domain)
 
     columns = (
@@ -863,7 +863,7 @@ class TestProjectCreate(identity_fakes.TestIdentityv3):
         )
 
 
-class TestProjectDelete(identity_fakes.TestIdentityv3):
+class TestProjectDelete(identity_fakes.TestIdentity):
     domain = sdk_fakes.generate_fake_resource(_domain.Domain)
 
     def setUp(self):
@@ -992,7 +992,7 @@ class TestProjectDelete(identity_fakes.TestIdentityv3):
         )
 
 
-class TestProjectList(identity_fakes.TestIdentityv3):
+class TestProjectList(identity_fakes.TestIdentity):
     domain = sdk_fakes.generate_fake_resource(_domain.Domain)
     project = sdk_fakes.generate_fake_resource(
         _project.Project, domain_id=domain.id
@@ -1297,7 +1297,7 @@ class TestProjectList(identity_fakes.TestIdentityv3):
         self.assertEqual(self.datalist, tuple(data))
 
 
-class TestProjectSet(identity_fakes.TestIdentityv3):
+class TestProjectSet(identity_fakes.TestIdentity):
     domain = sdk_fakes.generate_fake_resource(_domain.Domain)
 
     project_kwargs_no_options = {
@@ -1572,7 +1572,7 @@ class TestProjectSet(identity_fakes.TestIdentityv3):
         self.assertIsNone(result)
 
 
-class TestProjectShow(identity_fakes.TestIdentityv3):
+class TestProjectShow(identity_fakes.TestIdentity):
     domain = sdk_fakes.generate_fake_resource(_domain.Domain)
 
     columns = (

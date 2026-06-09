@@ -578,7 +578,7 @@ class FakeSession:
         self.auth = FakeAuth()
 
 
-class FakeIdentityv3Client:
+class FakeIdentityClient:
     def __init__(self, **kwargs):
         self.domains = mock.Mock()
         self.domains.resource_class = fakes.FakeResource(None, {})
@@ -649,13 +649,13 @@ class FakeFederationManager:
         self.service_providers.resource_class = fakes.FakeResource(None, {})
 
 
-class FakeFederatedClient(FakeIdentityv3Client):
+class FakeFederatedClient(FakeIdentityClient):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.federation = FakeFederationManager()
 
 
-class FakeOAuth1Client(FakeIdentityv3Client):
+class FakeOAuth1Client(FakeIdentityClient):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -671,7 +671,7 @@ class FakeClientMixin:
     def setUp(self):
         super().setUp()
 
-        self.app.client_manager.identity = FakeIdentityv3Client(
+        self.app.client_manager.identity = FakeIdentityClient(
             endpoint=fakes.AUTH_URL,
             token=fakes.AUTH_TOKEN,
         )
@@ -688,7 +688,7 @@ class FakeClientMixin:
         )
 
 
-class TestIdentityv3(
+class TestIdentity(
     FakeClientMixin,
     utils.TestCommand,
 ): ...

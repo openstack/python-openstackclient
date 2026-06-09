@@ -37,7 +37,7 @@ def _generate_fake_agent():
     }
 
 
-class TestAgentCreate(compute_fakes.TestComputev2):
+class TestAgentCreate(compute_fakes.TestCompute):
     def setUp(self):
         super().setUp()
 
@@ -106,7 +106,7 @@ class TestAgentCreate(compute_fakes.TestComputev2):
         self.assertEqual(self.data, data)
 
 
-class TestAgentDelete(compute_fakes.TestComputev2):
+class TestAgentDelete(compute_fakes.TestCompute):
     def setUp(self):
         super().setUp()
 
@@ -180,7 +180,7 @@ class TestAgentDelete(compute_fakes.TestComputev2):
         )
 
 
-class TestAgentList(compute_fakes.TestComputev2):
+class TestAgentList(compute_fakes.TestCompute):
     def setUp(self):
         super().setUp()
 
@@ -247,7 +247,7 @@ class TestAgentList(compute_fakes.TestComputev2):
         )
 
 
-class TestAgentSet(compute_fakes.TestComputev2):
+class TestAgentSet(compute_fakes.TestCompute):
     def setUp(self):
         super().setUp()
 

@@ -23,7 +23,7 @@ from openstackclient.identity.v3 import limit
 from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 
 
-class TestLimitCreate(identity_fakes.TestIdentityv3):
+class TestLimitCreate(identity_fakes.TestIdentity):
     def setUp(self):
         super().setUp()
 
@@ -180,7 +180,7 @@ class TestLimitCreate(identity_fakes.TestIdentityv3):
         self.assertEqual(datalist, data)
 
 
-class TestLimitDelete(identity_fakes.TestIdentityv3):
+class TestLimitDelete(identity_fakes.TestIdentity):
     def setUp(self):
         super().setUp()
         self.cmd = limit.DeleteLimit(self.app, None)
@@ -216,7 +216,7 @@ class TestLimitDelete(identity_fakes.TestIdentityv3):
             self.assertEqual('1 of 1 limits failed to delete.', str(e))
 
 
-class TestLimitShow(identity_fakes.TestIdentityv3):
+class TestLimitShow(identity_fakes.TestIdentity):
     def setUp(self):
         super().setUp()
 
@@ -275,7 +275,7 @@ class TestLimitShow(identity_fakes.TestIdentityv3):
         self.assertEqual(datalist, data)
 
 
-class TestLimitSet(identity_fakes.TestIdentityv3):
+class TestLimitSet(identity_fakes.TestIdentity):
     def setUp(self):
         super().setUp()
 
@@ -396,7 +396,7 @@ class TestLimitSet(identity_fakes.TestIdentityv3):
         self.assertEqual(datalist, data)
 
 
-class TestLimitList(identity_fakes.TestIdentityv3):
+class TestLimitList(identity_fakes.TestIdentity):
     def setUp(self):
         super().setUp()
 

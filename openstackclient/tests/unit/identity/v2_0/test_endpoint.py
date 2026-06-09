@@ -15,7 +15,7 @@ from openstackclient.identity.v2_0 import endpoint
 from openstackclient.tests.unit.identity.v2_0 import fakes as identity_fakes
 
 
-class TestEndpoint(identity_fakes.TestIdentityv2):
+class TestEndpoint(identity_fakes.TestIdentity):
     fake_service = identity_fakes.FakeService.create_one_service()
     attr = {
         'service_name': fake_service.name,

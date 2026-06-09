@@ -22,7 +22,7 @@ from openstackclient.compute.v2 import usage as usage_cmds
 from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
 
 
-class TestUsage(compute_fakes.TestComputev2):
+class TestUsage(compute_fakes.TestCompute):
     def setUp(self):
         super().setUp()
 

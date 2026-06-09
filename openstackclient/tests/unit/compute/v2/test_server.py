@@ -64,7 +64,7 @@ class TestPowerStateColumn(test_utils.TestCase):
         self.assertEqual('N/A', server.PowerStateColumn(0x08).human_readable())
 
 
-class TestServer(compute_fakes.TestComputev2):
+class TestServer(compute_fakes.TestCompute):
     def setUp(self):
         super().setUp()
 
@@ -1064,7 +1064,7 @@ class TestServerAddNetwork(TestServer):
         )
 
 
-class TestServerAddSecurityGroup(compute_fakes.TestComputev2):
+class TestServerAddSecurityGroup(compute_fakes.TestCompute):
     def setUp(self):
         super().setUp()
 
@@ -4318,7 +4318,7 @@ class TestServerCreate(TestServer):
         self.compute_client.create_server.assert_not_called()
 
 
-class TestServerDelete(compute_fakes.TestComputev2):
+class TestServerDelete(compute_fakes.TestCompute):
     def setUp(self):
         super().setUp()
 
@@ -5825,7 +5825,7 @@ class TestServerListV2100(_TestServerList):
         self.assertCountEqual(columns, set(columns))
 
 
-class TestServerAction(compute_fakes.TestComputev2):
+class TestServerAction(compute_fakes.TestCompute):
     def run_method_with_sdk_servers(self, method_name, server_count):
         servers = compute_fakes.create_servers(count=server_count)
         self.compute_client.find_server.side_effect = servers
@@ -7486,7 +7486,7 @@ class TestServerEvacuate(TestServer):
         )
 
 
-class TestServerRemoveFixedIP(compute_fakes.TestComputev2):
+class TestServerRemoveFixedIP(compute_fakes.TestCompute):
     def setUp(self):
         super().setUp()
 
@@ -7515,7 +7515,7 @@ class TestServerRemoveFixedIP(compute_fakes.TestComputev2):
         self.assertIsNone(result)
 
 
-class TestServerRescue(compute_fakes.TestComputev2):
+class TestServerRescue(compute_fakes.TestCompute):
     def setUp(self):
         super().setUp()
 
@@ -7786,7 +7786,7 @@ class TestServerRemoveSecurityGroup(TestServer):
         self.assertIsNone(result)
 
 
-class TestServerResize(compute_fakes.TestComputev2):
+class TestServerResize(compute_fakes.TestCompute):
     def setUp(self):
         super().setUp()
 
@@ -7992,7 +7992,7 @@ class TestServerResize(compute_fakes.TestComputev2):
         )
 
 
-class TestServerResizeConfirm(compute_fakes.TestComputev2):
+class TestServerResizeConfirm(compute_fakes.TestCompute):
     def setUp(self):
         super().setUp()
 
@@ -8024,7 +8024,7 @@ class TestServerResizeConfirm(compute_fakes.TestComputev2):
 
 
 # TODO(stephenfin): Remove in OSC 7.0
-class TestServerMigrateConfirm(compute_fakes.TestComputev2):
+class TestServerMigrateConfirm(compute_fakes.TestCompute):
     def setUp(self):
         super().setUp()
 
@@ -8062,7 +8062,7 @@ class TestServerMigrateConfirm(compute_fakes.TestComputev2):
         )
 
 
-class TestServerConfirmMigration(compute_fakes.TestComputev2):
+class TestServerConfirmMigration(compute_fakes.TestCompute):
     def setUp(self):
         super().setUp()
 
@@ -8093,7 +8093,7 @@ class TestServerConfirmMigration(compute_fakes.TestComputev2):
         self.assertIsNone(result)
 
 
-class TestServerResizeRevert(compute_fakes.TestComputev2):
+class TestServerResizeRevert(compute_fakes.TestCompute):
     def setUp(self):
         super().setUp()
 
@@ -8125,7 +8125,7 @@ class TestServerResizeRevert(compute_fakes.TestComputev2):
 
 
 # TODO(stephenfin): Remove in OSC 7.0
-class TestServerMigrateRevert(compute_fakes.TestComputev2):
+class TestServerMigrateRevert(compute_fakes.TestCompute):
     def setUp(self):
         super().setUp()
 
@@ -8163,7 +8163,7 @@ class TestServerMigrateRevert(compute_fakes.TestComputev2):
         )
 
 
-class TestServerRevertMigration(compute_fakes.TestComputev2):
+class TestServerRevertMigration(compute_fakes.TestCompute):
     def setUp(self):
         super().setUp()
 
@@ -9228,7 +9228,7 @@ class TestServerUnpause(TestServerAction):
         self.run_method_with_sdk_servers('unpause_server', 3)
 
 
-class TestServerUnrescue(compute_fakes.TestComputev2):
+class TestServerUnrescue(compute_fakes.TestCompute):
     def setUp(self):
         super().setUp()
 

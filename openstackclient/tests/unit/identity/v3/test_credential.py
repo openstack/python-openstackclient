@@ -24,7 +24,7 @@ from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 from openstackclient.tests.unit import utils
 
 
-class TestCredentialCreate(identity_fakes.TestIdentityv3):
+class TestCredentialCreate(identity_fakes.TestIdentity):
     user = sdk_fakes.generate_fake_resource(_user.User)
     project = sdk_fakes.generate_fake_resource(_project.Project)
     columns = (
@@ -118,7 +118,7 @@ class TestCredentialCreate(identity_fakes.TestIdentityv3):
         self.assertEqual(self.data, data)
 
 
-class TestCredentialDelete(identity_fakes.TestIdentityv3):
+class TestCredentialDelete(identity_fakes.TestIdentity):
     def setUp(self):
         super().setUp()
 
@@ -196,7 +196,7 @@ class TestCredentialDelete(identity_fakes.TestIdentityv3):
         )
 
 
-class TestCredentialList(identity_fakes.TestIdentityv3):
+class TestCredentialList(identity_fakes.TestIdentity):
     credential = sdk_fakes.generate_fake_resource(_credential.Credential)
 
     columns = ('ID', 'Type', 'User ID', 'Data', 'Project ID')
@@ -260,7 +260,7 @@ class TestCredentialList(identity_fakes.TestIdentityv3):
         self.assertEqual(self.data, tuple(data))
 
 
-class TestCredentialSet(identity_fakes.TestIdentityv3):
+class TestCredentialSet(identity_fakes.TestIdentity):
     credential = sdk_fakes.generate_fake_resource(_credential.Credential)
 
     def setUp(self):
@@ -350,7 +350,7 @@ class TestCredentialSet(identity_fakes.TestIdentityv3):
         self.assertIsNone(result)
 
 
-class TestCredentialShow(identity_fakes.TestIdentityv3):
+class TestCredentialShow(identity_fakes.TestIdentity):
     columns = (
         'blob',
         'id',

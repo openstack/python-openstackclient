@@ -29,12 +29,12 @@ from openstackclient.identity.v3 import role
 from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 
 
-class TestRoleInherited(identity_fakes.TestIdentityv3):
+class TestRoleInherited(identity_fakes.TestIdentity):
     def _is_inheritance_testcase(self):
         return True
 
 
-class TestRoleAdd(identity_fakes.TestIdentityv3):
+class TestRoleAdd(identity_fakes.TestIdentity):
     def _is_inheritance_testcase(self):
         return False
 
@@ -361,7 +361,7 @@ class TestRoleAddInherited(TestRoleAdd, TestRoleInherited):
     pass
 
 
-class TestRoleCreate(identity_fakes.TestIdentityv3):
+class TestRoleCreate(identity_fakes.TestIdentity):
     collist = ('id', 'name', 'domain_id', 'description')
     domain = sdk_fakes.generate_fake_resource(_domain.Domain)
 
@@ -573,7 +573,7 @@ class TestRoleCreate(identity_fakes.TestIdentityv3):
         self.assertEqual(datalist, data)
 
 
-class TestRoleDelete(identity_fakes.TestIdentityv3):
+class TestRoleDelete(identity_fakes.TestIdentity):
     def setUp(self):
         super().setUp()
 
@@ -680,7 +680,7 @@ class TestRoleDelete(identity_fakes.TestIdentityv3):
         )
 
 
-class TestRoleList(identity_fakes.TestIdentityv3):
+class TestRoleList(identity_fakes.TestIdentity):
     columns = (
         'ID',
         'Name',
@@ -767,7 +767,7 @@ class TestRoleList(identity_fakes.TestIdentityv3):
         self.assertEqual(datalist, tuple(data))
 
 
-class TestRoleRemove(identity_fakes.TestIdentityv3):
+class TestRoleRemove(identity_fakes.TestIdentity):
     def _is_inheritance_testcase(self):
         return False
 
@@ -1313,7 +1313,7 @@ class TestRoleRemove(identity_fakes.TestIdentityv3):
         )
 
 
-class TestRoleSet(identity_fakes.TestIdentityv3):
+class TestRoleSet(identity_fakes.TestIdentity):
     def setUp(self):
         super().setUp()
 
@@ -1474,7 +1474,7 @@ class TestRoleSet(identity_fakes.TestIdentityv3):
         self.assertIsNone(result)
 
 
-class TestRoleShow(identity_fakes.TestIdentityv3):
+class TestRoleShow(identity_fakes.TestIdentity):
     domain = sdk_fakes.generate_fake_resource(_domain.Domain)
 
     def setUp(self):

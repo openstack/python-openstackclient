@@ -23,7 +23,7 @@ from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
 from openstackclient.tests.unit import utils as tests_utils
 
 
-class TestServerGroup(compute_fakes.TestComputev2):
+class TestServerGroup(compute_fakes.TestCompute):
     def setUp(self):
         super().setUp()
 

@@ -18,7 +18,7 @@ from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
 from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 
 
-class TestListMigration(compute_fakes.TestComputev2):
+class TestListMigration(compute_fakes.TestCompute):
     """Test fetch all migrations."""
 
     MIGRATION_COLUMNS = [
@@ -690,7 +690,7 @@ class TestListMigrationV280(TestListMigration):
         )
 
 
-class TestServerMigrationShow(compute_fakes.TestComputev2):
+class TestServerMigrationShow(compute_fakes.TestCompute):
     def setUp(self):
         super().setUp()
 
@@ -893,7 +893,7 @@ class TestServerMigrationShow(compute_fakes.TestComputev2):
         )
 
 
-class TestServerMigrationAbort(compute_fakes.TestComputev2):
+class TestServerMigrationAbort(compute_fakes.TestCompute):
     def setUp(self):
         super().setUp()
 
@@ -1008,7 +1008,7 @@ class TestServerMigrationAbort(compute_fakes.TestComputev2):
         )
 
 
-class TestServerMigrationForceComplete(compute_fakes.TestComputev2):
+class TestServerMigrationForceComplete(compute_fakes.TestCompute):
     def setUp(self):
         super().setUp()
 

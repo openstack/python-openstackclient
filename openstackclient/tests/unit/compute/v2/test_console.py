@@ -22,7 +22,7 @@ from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
 from openstackclient.tests.unit import utils
 
 
-class TestConsoleLog(compute_fakes.TestComputev2):
+class TestConsoleLog(compute_fakes.TestCompute):
     def setUp(self):
         super().setUp()
 
@@ -77,7 +77,7 @@ class TestConsoleLog(compute_fakes.TestComputev2):
         )
 
 
-class TestConsoleUrlShow(compute_fakes.TestComputev2):
+class TestConsoleUrlShow(compute_fakes.TestCompute):
     def setUp(self):
         super().setUp()
 

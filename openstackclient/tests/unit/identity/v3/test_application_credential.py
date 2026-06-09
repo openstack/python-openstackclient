@@ -30,7 +30,7 @@ from openstackclient.identity.v3 import application_credential
 from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 
 
-class TestApplicationCredentialCreate(identity_fakes.TestIdentityv3):
+class TestApplicationCredentialCreate(identity_fakes.TestIdentity):
     def setUp(self):
         super().setUp()
 
@@ -235,7 +235,7 @@ class TestApplicationCredentialCreate(identity_fakes.TestIdentityv3):
         self.assertEqual(self.data, data)
 
 
-class TestApplicationCredentialDelete(identity_fakes.TestIdentityv3):
+class TestApplicationCredentialDelete(identity_fakes.TestIdentity):
     def setUp(self):
         super().setUp()
 
@@ -316,7 +316,7 @@ class TestApplicationCredentialDelete(identity_fakes.TestIdentityv3):
         )
 
 
-class TestApplicationCredentialList(identity_fakes.TestIdentityv3):
+class TestApplicationCredentialList(identity_fakes.TestIdentity):
     def setUp(self):
         super().setUp()
 
@@ -399,7 +399,7 @@ class TestApplicationCredentialList(identity_fakes.TestIdentityv3):
         )
 
 
-class TestApplicationCredentialShow(identity_fakes.TestIdentityv3):
+class TestApplicationCredentialShow(identity_fakes.TestIdentity):
     def setUp(self):
         super().setUp()
 

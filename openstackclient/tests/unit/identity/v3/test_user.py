@@ -31,7 +31,7 @@ from openstackclient.identity.v3 import user
 from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 
 
-class TestUserCreate(identity_fakes.TestIdentityv3):
+class TestUserCreate(identity_fakes.TestIdentity):
     domain = sdk_fakes.generate_fake_resource(_domain.Domain)
     project = sdk_fakes.generate_fake_resource(_project.Project)
 
@@ -777,7 +777,7 @@ class TestUserCreate(identity_fakes.TestIdentityv3):
         self.assertEqual(self.datalist, data)
 
 
-class TestUserDelete(identity_fakes.TestIdentityv3):
+class TestUserDelete(identity_fakes.TestIdentity):
     user = sdk_fakes.generate_fake_resource(_user.User)
 
     def setUp(self):
@@ -840,7 +840,7 @@ class TestUserDelete(identity_fakes.TestIdentityv3):
         )
 
 
-class TestUserList(identity_fakes.TestIdentityv3):
+class TestUserList(identity_fakes.TestIdentity):
     domain = sdk_fakes.generate_fake_resource(_domain.Domain)
     project = sdk_fakes.generate_fake_resource(_project.Project)
     user = sdk_fakes.generate_fake_resource(
@@ -1102,7 +1102,7 @@ class TestUserList(identity_fakes.TestIdentityv3):
         )
 
 
-class TestUserSet(identity_fakes.TestIdentityv3):
+class TestUserSet(identity_fakes.TestIdentity):
     project = sdk_fakes.generate_fake_resource(_project.Project)
     domain = sdk_fakes.generate_fake_resource(_domain.Domain)
     user = sdk_fakes.generate_fake_resource(
@@ -1751,7 +1751,7 @@ class TestUserSet(identity_fakes.TestIdentityv3):
         self.assertIsNone(result)
 
 
-class TestUserSetPassword(identity_fakes.TestIdentityv3):
+class TestUserSetPassword(identity_fakes.TestIdentity):
     def setUp(self):
         super().setUp()
         self.cmd = user.SetPasswordUser(self.app, None)
@@ -1830,7 +1830,7 @@ class TestUserSetPassword(identity_fakes.TestIdentityv3):
         )
 
 
-class TestUserShow(identity_fakes.TestIdentityv3):
+class TestUserShow(identity_fakes.TestIdentity):
     user = sdk_fakes.generate_fake_resource(_user.User)
 
     def setUp(self):

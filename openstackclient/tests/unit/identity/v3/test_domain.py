@@ -16,7 +16,7 @@ from openstackclient.identity.v3 import domain
 from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 
 
-class TestDomainCreate(identity_fakes.TestIdentityv3):
+class TestDomainCreate(identity_fakes.TestIdentity):
     columns = (
         'id',
         'name',
@@ -209,7 +209,7 @@ class TestDomainCreate(identity_fakes.TestIdentityv3):
         self.assertEqual(self.datalist, data)
 
 
-class TestDomainDelete(identity_fakes.TestIdentityv3):
+class TestDomainDelete(identity_fakes.TestIdentity):
     domain = sdk_fakes.generate_fake_resource(_domain.Domain)
 
     def setUp(self):
@@ -239,7 +239,7 @@ class TestDomainDelete(identity_fakes.TestIdentityv3):
         self.assertIsNone(result)
 
 
-class TestDomainList(identity_fakes.TestIdentityv3):
+class TestDomainList(identity_fakes.TestIdentity):
     domain = sdk_fakes.generate_fake_resource(
         resource_type=_domain.Domain, is_enabled=True
     )
@@ -313,7 +313,7 @@ class TestDomainList(identity_fakes.TestIdentityv3):
         self.assertEqual(self.datalist, tuple(data))
 
 
-class TestDomainSet(identity_fakes.TestIdentityv3):
+class TestDomainSet(identity_fakes.TestIdentity):
     domain = sdk_fakes.generate_fake_resource(_domain.Domain)
 
     def setUp(self):
@@ -478,7 +478,7 @@ class TestDomainSet(identity_fakes.TestIdentityv3):
         self.assertIsNone(result)
 
 
-class TestDomainShow(identity_fakes.TestIdentityv3):
+class TestDomainShow(identity_fakes.TestIdentity):
     columns = (
         'id',
         'name',

@@ -26,7 +26,7 @@ from openstackclient.identity.v3 import trust
 from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 
 
-class TestTrustCreate(identity_fakes.TestIdentityv3):
+class TestTrustCreate(identity_fakes.TestIdentity):
     def setUp(self):
         super().setUp()
 
@@ -109,7 +109,7 @@ class TestTrustCreate(identity_fakes.TestIdentityv3):
         self.assertEqual(datalist, data)
 
 
-class TestTrustDelete(identity_fakes.TestIdentityv3):
+class TestTrustDelete(identity_fakes.TestIdentity):
     def setUp(self):
         super().setUp()
 
@@ -166,7 +166,7 @@ class TestTrustDelete(identity_fakes.TestIdentityv3):
         )
 
 
-class TestTrustList(identity_fakes.TestIdentityv3):
+class TestTrustList(identity_fakes.TestIdentity):
     def setUp(self):
         super().setUp()
 
@@ -341,7 +341,7 @@ class TestTrustList(identity_fakes.TestIdentityv3):
         self.assertEqual(datalist, tuple(data))
 
 
-class TestTrustShow(identity_fakes.TestIdentityv3):
+class TestTrustShow(identity_fakes.TestIdentity):
     def setUp(self):
         super().setUp()
 

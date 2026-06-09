@@ -21,7 +21,7 @@ from openstackclient.tests.unit import fakes
 from openstackclient.tests.unit.identity.v2_0 import fakes as identity_fakes
 
 
-class TestRoleAssignment(identity_fakes.TestIdentityv2):
+class TestRoleAssignment(identity_fakes.TestIdentity):
     def setUp(self):
         super().setUp()
 

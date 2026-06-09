@@ -155,7 +155,7 @@ def fake_auth_ref(fake_token, fake_service=None):
     return auth_ref
 
 
-class FakeIdentityv2Client:
+class FakeIdentityClient:
     def __init__(self, **kwargs):
         self.roles = mock.Mock()
         self.roles.resource_class = fakes.FakeResource(None, {})
@@ -188,7 +188,7 @@ class FakeClientMixin:
     def setUp(self):
         super().setUp()
 
-        self.app.client_manager.identity = FakeIdentityv2Client(
+        self.app.client_manager.identity = FakeIdentityClient(
             endpoint=fakes.AUTH_URL,
             token=fakes.AUTH_TOKEN,
         )
@@ -204,7 +204,7 @@ class FakeClientMixin:
         )
 
 
-class TestIdentityv2(
+class TestIdentity(
     FakeClientMixin,
     utils.TestCommand,
 ): ...

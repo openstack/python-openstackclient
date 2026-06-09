@@ -20,7 +20,7 @@ from openstackclient.identity.v2_0 import service
 from openstackclient.tests.unit.identity.v2_0 import fakes as identity_fakes
 
 
-class TestService(identity_fakes.TestIdentityv2):
+class TestService(identity_fakes.TestIdentity):
     fake_service = identity_fakes.FakeService.create_one_service()
 
     def setUp(self):

@@ -19,7 +19,7 @@ from openstackclient.compute.v2 import server_share
 from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
 
 
-class TestServerShareList(compute_fakes.TestComputev2):
+class TestServerShareList(compute_fakes.TestCompute):
     def setUp(self):
         super().setUp()
 
@@ -75,7 +75,7 @@ class TestServerShareList(compute_fakes.TestComputev2):
         )
 
 
-class TestServerShareShow(compute_fakes.TestComputev2):
+class TestServerShareShow(compute_fakes.TestCompute):
     def setUp(self):
         super().setUp()
 
@@ -144,7 +144,7 @@ class TestServerShareShow(compute_fakes.TestComputev2):
         )
 
 
-class TestServerShareCreate(compute_fakes.TestComputev2):
+class TestServerShareCreate(compute_fakes.TestCompute):
     def setUp(self):
         super().setUp()
 
@@ -232,7 +232,7 @@ class TestServerShareCreate(compute_fakes.TestComputev2):
         )
 
 
-class TestServerShareDelete(compute_fakes.TestComputev2):
+class TestServerShareDelete(compute_fakes.TestCompute):
     def setUp(self):
         super().setUp()
 

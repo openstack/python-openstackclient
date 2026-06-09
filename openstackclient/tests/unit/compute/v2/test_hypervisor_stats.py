@@ -53,7 +53,7 @@ def create_one_hypervisor_stats(attrs=None):
     return stats_info
 
 
-class TestHypervisorStatsShow(compute_fakes.TestComputev2):
+class TestHypervisorStatsShow(compute_fakes.TestCompute):
     _stats = create_one_hypervisor_stats()
 
     def setUp(self):

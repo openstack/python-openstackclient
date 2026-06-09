@@ -17,7 +17,7 @@ from openstackclient.identity.v3 import endpoint_group
 from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 
 
-class TestEndpointGroup(identity_fakes.TestIdentityv3):
+class TestEndpointGroup(identity_fakes.TestIdentity):
     def setUp(self):
         super().setUp()
 

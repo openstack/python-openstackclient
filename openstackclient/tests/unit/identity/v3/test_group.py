@@ -25,7 +25,7 @@ from openstackclient.identity.v3 import group
 from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 
 
-class TestGroupAddUser(identity_fakes.TestIdentityv3):
+class TestGroupAddUser(identity_fakes.TestIdentity):
     def setUp(self):
         super().setUp()
 
@@ -107,7 +107,7 @@ class TestGroupAddUser(identity_fakes.TestIdentityv3):
         mock_error.assert_called_once_with(msg)
 
 
-class TestGroupCheckUser(identity_fakes.TestIdentityv3):
+class TestGroupCheckUser(identity_fakes.TestIdentity):
     def setUp(self):
         super().setUp()
 
@@ -156,7 +156,7 @@ class TestGroupCheckUser(identity_fakes.TestIdentityv3):
         )
 
 
-class TestGroupCreate(identity_fakes.TestIdentityv3):
+class TestGroupCreate(identity_fakes.TestIdentity):
     domain = sdk_fakes.generate_fake_resource(_domain.Domain)
 
     columns = (
@@ -300,7 +300,7 @@ class TestGroupCreate(identity_fakes.TestIdentityv3):
         self.assertEqual(datalist, data)
 
 
-class TestGroupDelete(identity_fakes.TestIdentityv3):
+class TestGroupDelete(identity_fakes.TestIdentity):
     domain = sdk_fakes.generate_fake_resource(_domain.Domain)
 
     def setUp(self):
@@ -428,7 +428,7 @@ class TestGroupDelete(identity_fakes.TestIdentityv3):
         )
 
 
-class TestGroupList(identity_fakes.TestIdentityv3):
+class TestGroupList(identity_fakes.TestIdentity):
     domain = sdk_fakes.generate_fake_resource(_domain.Domain)
 
     columns = (
@@ -599,7 +599,7 @@ class TestGroupList(identity_fakes.TestIdentityv3):
         self.assertEqual(datalist, tuple(data))
 
 
-class TestGroupRemoveUser(identity_fakes.TestIdentityv3):
+class TestGroupRemoveUser(identity_fakes.TestIdentity):
     def setUp(self):
         super().setUp()
 
@@ -681,7 +681,7 @@ class TestGroupRemoveUser(identity_fakes.TestIdentityv3):
         mock_error.assert_called_once_with(msg)
 
 
-class TestGroupSet(identity_fakes.TestIdentityv3):
+class TestGroupSet(identity_fakes.TestIdentity):
     domain = sdk_fakes.generate_fake_resource(_domain.Domain)
 
     def setUp(self):
@@ -770,7 +770,7 @@ class TestGroupSet(identity_fakes.TestIdentityv3):
         self.assertIsNone(result)
 
 
-class TestGroupShow(identity_fakes.TestIdentityv3):
+class TestGroupShow(identity_fakes.TestIdentity):
     domain = sdk_fakes.generate_fake_resource(_domain.Domain)
 
     columns = (

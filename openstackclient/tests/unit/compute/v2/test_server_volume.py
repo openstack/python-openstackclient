@@ -20,7 +20,7 @@ from openstackclient.compute.v2 import server_volume
 from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
 
 
-class TestServerVolumeList(compute_fakes.TestComputev2):
+class TestServerVolumeList(compute_fakes.TestCompute):
     def setUp(self):
         super().setUp()
 
@@ -220,7 +220,7 @@ class TestServerVolumeList(compute_fakes.TestComputev2):
         )
 
 
-class TestServerVolumeUpdate(compute_fakes.TestComputev2):
+class TestServerVolumeUpdate(compute_fakes.TestCompute):
     def setUp(self):
         super().setUp()
 

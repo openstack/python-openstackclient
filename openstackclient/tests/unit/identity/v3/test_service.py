@@ -22,7 +22,7 @@ from openstackclient.identity.v3 import service
 from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 
 
-class TestServiceCreate(identity_fakes.TestIdentityv3):
+class TestServiceCreate(identity_fakes.TestIdentity):
     columns = (
         'id',
         'name',
@@ -163,7 +163,7 @@ class TestServiceCreate(identity_fakes.TestIdentityv3):
         self.assertEqual(self.datalist, data)
 
 
-class TestServiceDelete(identity_fakes.TestIdentityv3):
+class TestServiceDelete(identity_fakes.TestIdentity):
     service = sdk_fakes.generate_fake_resource(_service.Service)
 
     def setUp(self):
@@ -195,7 +195,7 @@ class TestServiceDelete(identity_fakes.TestIdentityv3):
         self.assertIsNone(result)
 
 
-class TestServiceList(identity_fakes.TestIdentityv3):
+class TestServiceList(identity_fakes.TestIdentity):
     service = sdk_fakes.generate_fake_resource(_service.Service)
 
     def setUp(self):
@@ -259,7 +259,7 @@ class TestServiceList(identity_fakes.TestIdentityv3):
         self.assertEqual(datalist, tuple(data))
 
 
-class TestServiceSet(identity_fakes.TestIdentityv3):
+class TestServiceSet(identity_fakes.TestIdentity):
     service = sdk_fakes.generate_fake_resource(_service.Service)
 
     def setUp(self):
@@ -420,7 +420,7 @@ class TestServiceSet(identity_fakes.TestIdentityv3):
         self.assertIsNone(result)
 
 
-class TestServiceShow(identity_fakes.TestIdentityv3):
+class TestServiceShow(identity_fakes.TestIdentity):
     service = sdk_fakes.generate_fake_resource(_service.Service)
 
     def setUp(self):

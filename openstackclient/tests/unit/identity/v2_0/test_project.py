@@ -24,7 +24,7 @@ from openstackclient.identity.v2_0 import project
 from openstackclient.tests.unit.identity.v2_0 import fakes as identity_fakes
 
 
-class TestProject(identity_fakes.TestIdentityv2):
+class TestProject(identity_fakes.TestIdentity):
     fake_project = identity_fakes.FakeProject.create_one_project()
     fake_projects = identity_fakes.FakeProject.create_projects()
 
