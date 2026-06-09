@@ -140,6 +140,8 @@ class TestVolume(
 
 
 # TODO(stephenfin): Check if the responses are actually the same
+create_one_capability = volume_v2_fakes.create_one_capability
+create_one_pool = volume_v2_fakes.create_one_pool
 create_one_snapshot = volume_v2_fakes.create_one_snapshot
 create_one_service = volume_v2_fakes.create_one_service
 
