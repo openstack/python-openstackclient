@@ -439,6 +439,35 @@ def get_backups(backups=None, count=2):
     return mock.Mock(side_effect=backups)
 
 
+def create_backup_record():
+    """Gets a fake backup record for a given backup.
+
+    :return: An "exported" backup record.
+    """
+
+    return {
+        'backup_service': 'cinder.backup.drivers.swift.SwiftBackupDriver',
+        'backup_url': 'eyJzdGF0dXMiOiAiYXZh',
+    }
+
+
+def import_backup_record():
+    """Creates a fake backup record import response from a backup.
+
+    :return: The fake backup object that was encoded.
+    """
+    return {
+        'backup': {
+            'id': 'backup.id',
+            'name': 'backup.name',
+            'links': [
+                {'href': 'link1', 'rel': 'self'},
+                {'href': 'link2', 'rel': 'bookmark'},
+            ],
+        },
+    }
+
+
 def create_one_cluster(attrs=None):
     """Create a fake service cluster.
 
