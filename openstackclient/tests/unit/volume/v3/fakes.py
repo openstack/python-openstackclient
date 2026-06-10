@@ -48,12 +48,6 @@ class FakeVolumeClient:
         self.consistencygroups.resource_class = fakes.FakeResource(None, {})
         self.clusters = mock.Mock()
         self.clusters.resource_class = fakes.FakeResource(None, {})
-        self.groups = mock.Mock()
-        self.groups.resource_class = fakes.FakeResource(None, {})
-        self.group_snapshots = mock.Mock()
-        self.group_snapshots.resource_class = fakes.FakeResource(None, {})
-        self.group_types = mock.Mock()
-        self.group_types.resource_class = fakes.FakeResource(None, {})
         self.messages = mock.Mock()
         self.messages.resource_class = fakes.FakeResource(None, {})
         self.qos_specs = mock.Mock()
@@ -735,114 +729,6 @@ def create_one_sdk_volume(attrs=None):
     # Overwrite default attributes if there are some attributes set
     volume_info.update(attrs)
     return _volume.Volume(**volume_info)
-
-
-def create_one_volume_group(attrs=None):
-    """Create a fake group.
-
-    :param attrs: A dictionary with all attributes of group
-    :return: A FakeResource object with id, name, status, etc.
-    """
-    attrs = attrs or {}
-
-    group_type = attrs.pop('group_type', None) or uuid.uuid4().hex
-    volume_types = attrs.pop('volume_types', None) or [uuid.uuid4().hex]
-
-    # Set default attribute
-    group_info = {
-        'id': uuid.uuid4().hex,
-        'status': random.choice(
-            [
-                'available',
-            ]
-        ),
-        'availability_zone': f'az-{uuid.uuid4().hex}',
-        'created_at': '2015-09-16T09:28:52.000000',
-        'name': 'first_group',
-        'description': f'description-{uuid.uuid4().hex}',
-        'group_type': group_type,
-        'volume_types': volume_types,
-        'volumes': [f'volume-{uuid.uuid4().hex}'],
-        'group_snapshot_id': None,
-        'source_group_id': None,
-        'project_id': f'project-{uuid.uuid4().hex}',
-    }
-
-    # Overwrite default attributes if there are some attributes set
-    group_info.update(attrs)
-
-    group = fakes.FakeResource(None, group_info, loaded=True)
-    return group
-
-
-def create_volume_groups(attrs=None, count=2):
-    """Create multiple fake groups.
-
-    :param attrs: A dictionary with all attributes of group
-    :param count: The number of groups to be faked
-    :return: A list of FakeResource objects
-    """
-    groups = []
-    for n in range(0, count):
-        groups.append(create_one_volume_group(attrs))
-
-    return groups
-
-
-def create_one_volume_group_snapshot(attrs=None, methods=None):
-    """Create a fake group snapshot.
-
-    :param attrs: A dictionary with all attributes
-    :param methods: A dictionary with all methods
-    :return: A FakeResource object with id, name, description, etc.
-    """
-    attrs = attrs or {}
-
-    # Set default attribute
-    group_snapshot_info = {
-        'id': uuid.uuid4().hex,
-        'name': f'group-snapshot-{uuid.uuid4().hex}',
-        'description': f'description-{uuid.uuid4().hex}',
-        'status': random.choice(['available']),
-        'group_id': uuid.uuid4().hex,
-        'group_type_id': uuid.uuid4().hex,
-        'project_id': uuid.uuid4().hex,
-    }
-
-    # Overwrite default attributes if there are some attributes set
-    group_snapshot_info.update(attrs)
-
-    group_snapshot = fakes.FakeResource(
-        None, group_snapshot_info, methods=methods, loaded=True
-    )
-    return group_snapshot
-
-
-def create_one_volume_group_type(attrs=None, methods=None):
-    """Create a fake group type.
-
-    :param attrs: A dictionary with all attributes of group type
-    :param methods: A dictionary with all methods
-    :return: A FakeResource object with id, name, description, etc.
-    """
-    attrs = attrs or {}
-
-    # Set default attribute
-    group_type_info = {
-        'id': uuid.uuid4().hex,
-        'name': f'group-type-{uuid.uuid4().hex}',
-        'description': f'description-{uuid.uuid4().hex}',
-        'is_public': random.choice([True, False]),
-        'group_specs': {},
-    }
-
-    # Overwrite default attributes if there are some attributes set
-    group_type_info.update(attrs)
-
-    group_type = fakes.FakeResource(
-        None, group_type_info, methods=methods, loaded=True
-    )
-    return group_type
 
 
 def create_one_volume_message(attrs=None):

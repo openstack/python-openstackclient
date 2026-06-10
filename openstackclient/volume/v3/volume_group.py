@@ -14,7 +14,8 @@ import argparse
 from collections.abc import Iterable, Sequence
 from typing import Any
 
-from cinderclient import api_versions
+from openstack.block_storage.v3 import group as _group
+from openstack import utils as sdk_utils
 from osc_lib import exceptions
 from osc_lib import utils
 
@@ -23,7 +24,7 @@ from openstackclient.common import envvars
 from openstackclient.i18n import _
 
 
-def _format_group(group: Any) -> tuple[Sequence[str], Iterable[Any]]:
+def _format_group(group: _group.Group) -> tuple[Sequence[str], Iterable[Any]]:
     columns = (
         'id',
         'status',
@@ -173,7 +174,9 @@ class CreateVolumeGroup(command.ShowOne):
     def take_action(
         self, parsed_args: argparse.Namespace
     ) -> tuple[Sequence[str], Iterable[Any]]:
-        volume_client = self.app.client_manager.volume
+        volume_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.volume, '3'
+        )
 
         if parsed_args.volume_group_type_legacy:
             msg = _(
@@ -191,7 +194,7 @@ class CreateVolumeGroup(command.ShowOne):
         volume_types.extend(parsed_args.volume_types_legacy)
 
         if volume_group_type:
-            if volume_client.api_version < api_versions.APIVersion('3.13'):
+            if not sdk_utils.supports_microversion(volume_client, '3.13'):
                 msg = _(
                     "--os-volume-api-version 3.13 or greater is required to "
                     "support the 'volume group create' command"
@@ -204,32 +207,27 @@ class CreateVolumeGroup(command.ShowOne):
                 )
                 raise exceptions.CommandError(msg)
 
-            volume_group_type_id = utils.find_resource(
-                volume_client.group_types,
-                volume_group_type,
+            volume_group_type_id = volume_client.find_group_type(
+                volume_group_type, ignore_missing=False
             ).id
-            volume_types_ids = []
-            for volume_type in volume_types:
-                volume_types_ids.append(
-                    utils.find_resource(
-                        volume_client.volume_types,
-                        volume_type,
-                    ).id
-                )
+            volume_types_ids = [
+                volume_client.find_type(vt, ignore_missing=False).id
+                for vt in volume_types
+            ]
 
-            group = volume_client.groups.create(
-                volume_group_type_id,
-                ','.join(volume_types_ids),
-                parsed_args.name,
-                parsed_args.description,
+            group = volume_client.create_group(
+                group_type=volume_group_type_id,
+                volume_types=volume_types_ids,
+                name=parsed_args.name,
+                description=parsed_args.description,
                 availability_zone=parsed_args.availability_zone,
             )
 
-            group = volume_client.groups.get(group.id)
+            group = volume_client.get_group(group.id)
             return _format_group(group)
 
         else:
-            if volume_client.api_version < api_versions.APIVersion('3.14'):
+            if not sdk_utils.supports_microversion(volume_client, '3.14'):
                 msg = _(
                     "--os-volume-api-version 3.14 or greater is required to "
                     "support the 'volume group create "
@@ -254,23 +252,24 @@ class CreateVolumeGroup(command.ShowOne):
                 )
                 self.log.warning(msg)
 
-            source_group = None
+            source_group_id = None
             if parsed_args.source_group:
-                source_group = utils.find_resource(
-                    volume_client.groups, parsed_args.source_group
-                )
-            group_snapshot = None
+                source_group_id = volume_client.find_group(
+                    parsed_args.source_group, ignore_missing=False
+                ).id
+            group_snapshot_id = None
             if parsed_args.group_snapshot:
-                group_snapshot = utils.find_resource(
-                    volume_client.group_snapshots, parsed_args.group_snapshot
-                )
-            group = volume_client.groups.create_from_src(
-                group_snapshot.id if group_snapshot else None,
-                source_group.id if source_group else None,
-                parsed_args.name,
-                parsed_args.description,
+                group_snapshot_id = volume_client.find_group_snapshot(
+                    parsed_args.group_snapshot, ignore_missing=False
+                ).id
+
+            group = volume_client.create_group_from_source(
+                group_snapshot_id=group_snapshot_id,
+                source_group_id=source_group_id,
+                name=parsed_args.name,
+                description=parsed_args.description,
             )
-            group = volume_client.groups.get(group.id)
+            group = volume_client.get_group(group.id)
             return _format_group(group)
 
 
@@ -299,21 +298,23 @@ class DeleteVolumeGroup(command.Command):
         return parser
 
     def take_action(self, parsed_args: argparse.Namespace) -> None:
-        volume_client = self.app.client_manager.volume
+        volume_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.volume, '3'
+        )
 
-        if volume_client.api_version < api_versions.APIVersion('3.13'):
+        if not sdk_utils.supports_microversion(volume_client, '3.13'):
             msg = _(
                 "--os-volume-api-version 3.13 or greater is required to "
                 "support the 'volume group delete' command"
             )
             raise exceptions.CommandError(msg)
 
-        group = utils.find_resource(
-            volume_client.groups,
+        group = volume_client.find_group(
             parsed_args.group,
+            ignore_missing=False,
         )
 
-        volume_client.groups.delete(group.id, delete_volumes=parsed_args.force)
+        volume_client.delete_group(group, delete_volumes=parsed_args.force)
 
 
 class SetVolumeGroup(command.ShowOne):
@@ -339,7 +340,8 @@ class SetVolumeGroup(command.ShowOne):
             metavar='<description>',
             help=_('New description for group.'),
         )
-        parser.add_argument(
+        type_group = parser.add_mutually_exclusive_group()
+        type_group.add_argument(
             '--enable-replication',
             action='store_true',
             dest='enable_replication',
@@ -349,7 +351,7 @@ class SetVolumeGroup(command.ShowOne):
                 '(supported by --os-volume-api-version 3.38 or above)'
             ),
         )
-        parser.add_argument(
+        type_group.add_argument(
             '--disable-replication',
             action='store_false',
             dest='enable_replication',
@@ -363,22 +365,24 @@ class SetVolumeGroup(command.ShowOne):
     def take_action(
         self, parsed_args: argparse.Namespace
     ) -> tuple[Sequence[str], Iterable[Any]]:
-        volume_client = self.app.client_manager.volume
+        volume_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.volume, '3'
+        )
 
-        if volume_client.api_version < api_versions.APIVersion('3.13'):
+        if not sdk_utils.supports_microversion(volume_client, '3.13'):
             msg = _(
                 "--os-volume-api-version 3.13 or greater is required to "
                 "support the 'volume group set' command"
             )
             raise exceptions.CommandError(msg)
 
-        group = utils.find_resource(
-            volume_client.groups,
+        group = volume_client.find_group(
             parsed_args.group,
+            ignore_missing=False,
         )
 
         if parsed_args.enable_replication is not None:
-            if volume_client.api_version < api_versions.APIVersion('3.38'):
+            if not sdk_utils.supports_microversion(volume_client, '3.38'):
                 msg = _(
                     "--os-volume-api-version 3.38 or greater is required to "
                     "support the '--enable-replication' or "
@@ -387,9 +391,9 @@ class SetVolumeGroup(command.ShowOne):
                 raise exceptions.CommandError(msg)
 
             if parsed_args.enable_replication:
-                volume_client.groups.enable_replication(group.id)
+                volume_client.enable_group_replication(group)
             else:
-                volume_client.groups.disable_replication(group.id)
+                volume_client.disable_group_replication(group)
 
         kwargs = {}
 
@@ -400,7 +404,7 @@ class SetVolumeGroup(command.ShowOne):
             kwargs['description'] = parsed_args.description
 
         if kwargs:
-            group = volume_client.groups.update(group.id, **kwargs)
+            group = volume_client.update_group(group, **kwargs)
 
         return _format_group(group)
 
@@ -439,20 +443,20 @@ class ListVolumeGroup(command.Lister):
     def take_action(
         self, parsed_args: argparse.Namespace
     ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
-        volume_client = self.app.client_manager.volume
+        volume_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.volume, '3'
+        )
 
-        if volume_client.api_version < api_versions.APIVersion('3.13'):
+        if not sdk_utils.supports_microversion(volume_client, '3.13'):
             msg = _(
                 "--os-volume-api-version 3.13 or greater is required to "
                 "support the 'volume group list' command"
             )
             raise exceptions.CommandError(msg)
 
-        search_opts = {
-            'all_tenants': parsed_args.all_projects,
-        }
-
-        groups = volume_client.groups.list(search_opts=search_opts)
+        groups = list(
+            volume_client.groups(all_projects=parsed_args.all_projects)
+        )
 
         column_headers = (
             'ID',
@@ -528,48 +532,42 @@ class ShowVolumeGroup(command.ShowOne):
     def take_action(
         self, parsed_args: argparse.Namespace
     ) -> tuple[Sequence[str], Iterable[Any]]:
-        volume_client = self.app.client_manager.volume
+        volume_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.volume, '3'
+        )
 
-        if volume_client.api_version < api_versions.APIVersion('3.13'):
+        if not sdk_utils.supports_microversion(volume_client, '3.13'):
             msg = _(
                 "--os-volume-api-version 3.13 or greater is required to "
                 "support the 'volume group show' command"
             )
             raise exceptions.CommandError(msg)
 
-        kwargs = {}
-
         if parsed_args.show_volumes is not None:
-            if volume_client.api_version < api_versions.APIVersion('3.25'):
+            if not sdk_utils.supports_microversion(volume_client, '3.25'):
                 msg = _(
                     "--os-volume-api-version 3.25 or greater is required to "
                     "support the '--(no-)volumes' option"
                 )
                 raise exceptions.CommandError(msg)
 
-            kwargs['list_volume'] = parsed_args.show_volumes
-
         if parsed_args.show_replication_targets is not None:
-            if volume_client.api_version < api_versions.APIVersion('3.38'):
+            if not sdk_utils.supports_microversion(volume_client, '3.38'):
                 msg = _(
                     "--os-volume-api-version 3.38 or greater is required to "
                     "support the '--(no-)replication-targets' option"
                 )
                 raise exceptions.CommandError(msg)
 
-        group = utils.find_resource(
-            volume_client.groups,
+        group = volume_client.find_group(
             parsed_args.group,
+            ignore_missing=False,
         )
 
-        group = volume_client.groups.get(group.id, **kwargs)
-
-        if parsed_args.show_replication_targets:
-            replication_targets = (
-                volume_client.groups.list_replication_targets(group.id)
+        if parsed_args.show_volumes is not None:
+            group = volume_client.get_group(
+                group.id, list_volume=parsed_args.show_volumes
             )
-
-            group.replication_targets = replication_targets
 
         # TODO(stephenfin): Show replication targets
         return _format_group(group)
@@ -610,22 +608,24 @@ class FailoverVolumeGroup(command.Command):
         return parser
 
     def take_action(self, parsed_args: argparse.Namespace) -> None:
-        volume_client = self.app.client_manager.volume
+        volume_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.volume, '3'
+        )
 
-        if volume_client.api_version < api_versions.APIVersion('3.38'):
+        if not sdk_utils.supports_microversion(volume_client, '3.38'):
             msg = _(
                 "--os-volume-api-version 3.38 or greater is required to "
                 "support the 'volume group failover' command"
             )
             raise exceptions.CommandError(msg)
 
-        group = utils.find_resource(
-            volume_client.groups,
+        group = volume_client.find_group(
             parsed_args.group,
+            ignore_missing=False,
         )
 
-        volume_client.groups.failover_replication(
-            group.id,
-            allow_attached_volume=parsed_args.allow_attached_volume,
+        volume_client.failover_group_replication(
+            group,
+            allowed_attached_volume=parsed_args.allow_attached_volume,
             secondary_backend_id=parsed_args.secondary_backend_id,
         )
