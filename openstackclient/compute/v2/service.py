@@ -265,17 +265,15 @@ class SetService(command.Command):
                 enabled = False
 
             if enabled is not None:
-                # these are bugs in SDK
-                # https://review.opendev.org/c/openstack/openstacksdk/+/992549
                 if enabled:
                     compute_client.enable_service(
-                        service_id,  # type: ignore[arg-type]
+                        service_id,
                         parsed_args.host,
                         parsed_args.service,
                     )
                 else:
                     compute_client.disable_service(
-                        service_id,  # type: ignore[arg-type]
+                        service_id,
                         parsed_args.host,
                         parsed_args.service,
                         parsed_args.disable_reason,
@@ -295,10 +293,8 @@ class SetService(command.Command):
                 msg = _('--os-compute-api-version 2.11 or later is required')
                 raise exceptions.CommandError(msg)
             try:
-                # FIXME(stephenfin): This is broken between 2.11 and 2.53. What
-                # is the expected ID here?
                 compute_client.update_service_forced_down(
-                    service_id,  # type: ignore[arg-type]
+                    service_id,
                     parsed_args.host,
                     parsed_args.service,
                     force_down,

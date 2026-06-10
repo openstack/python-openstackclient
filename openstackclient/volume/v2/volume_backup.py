@@ -404,12 +404,10 @@ class RestoreVolumeBackup(command.ShowOne):
                 )
                 raise exceptions.CommandError(msg % parsed_args.volume)
 
-        # this is a bug in SDK
-        # https://review.opendev.org/c/openstack/openstacksdk/+/992473
         restore = volume_client.restore_backup(
             backup.id,
-            volume=volume_id,  # type: ignore[arg-type]
-            name=volume_name,  # type: ignore[arg-type]
+            volume=volume_id,
+            name=volume_name,
         )
 
         data = utils.get_dict_properties(restore, columns)
