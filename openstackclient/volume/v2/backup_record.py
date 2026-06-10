@@ -19,7 +19,7 @@ import logging
 from collections.abc import Iterable, Sequence
 from typing import Any
 
-from osc_lib import utils
+from openstack import utils as sdk_utils
 
 from openstackclient import command
 from openstackclient.i18n import _
@@ -48,9 +48,13 @@ restore."""
     def take_action(
         self, parsed_args: argparse.Namespace
     ) -> tuple[Sequence[str], Iterable[Any]]:
-        volume_client = self.app.client_manager.volume
-        backup = utils.find_resource(volume_client.backups, parsed_args.backup)
-        backup_data = volume_client.backups.export_record(backup.id)
+        volume_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.volume, '2'
+        )
+        backup = volume_client.find_backup(
+            parsed_args.backup, ignore_missing=False
+        )
+        backup_data = volume_client.export_backup(backup)['backup-record']
 
         # We only want to show "friendly" display names, but also want to keep
         # json structure compatibility with cinderclient
@@ -87,8 +91,10 @@ rebuilt service instance"""
     def take_action(
         self, parsed_args: argparse.Namespace
     ) -> tuple[Sequence[str], Iterable[Any]]:
-        volume_client = self.app.client_manager.volume
-        backup_data = volume_client.backups.import_record(
+        volume_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.volume, '2'
+        )
+        backup_data = volume_client.import_backup(
             parsed_args.backup_service, parsed_args.backup_metadata
         )
         backup_data.pop('links', None)
