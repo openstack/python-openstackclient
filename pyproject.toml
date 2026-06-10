@@ -776,7 +776,7 @@ volume_summary = "openstackclient.volume.v3.volume:VolumeSummary"
 volume_revert = "openstackclient.volume.v3.volume:VolumeRevertToSnapshot"
 
 [tool.setuptools.packages.find]
-include = ["openstackclient"]
+include = ["openstackclient*"]
 
 [tool.mypy]
 python_version = "3.11"
