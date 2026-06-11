@@ -86,6 +86,7 @@ class TestAddSubnetToRouter(TestRouter):
 
         self.network_client.find_router.return_value = self._router
         self.network_client.find_subnet.return_value = self._subnet
+        self._router.add_interface = mock.Mock()
 
         self.cmd = router.AddSubnetToRouter(self.app, None)
 
@@ -116,6 +117,49 @@ class TestAddSubnetToRouter(TestRouter):
         self.network_client.add_interface_to_router.assert_called_with(
             self._router, subnet=self._router.subnet
         )
+
+        self.assertIsNone(result)
+
+    def test_add_subnet_with_advertise_host(self):
+        arglist = [
+            self._router.id,
+            self._router.subnet,
+            '--advertise-host',
+        ]
+        verifylist = [
+            ('router', self._router.id),
+            ('subnet', self._router.subnet),
+            ('advertise_host', True),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+        self._router.add_interface.assert_called_once_with(
+            self.network_client,
+            subnet_id=self._subnet.id,
+            advertise_host=True,
+        )
+        self.network_client.add_interface_to_router.assert_not_called()
+
+        self.assertIsNone(result)
+
+    def test_add_subnet_without_advertise_host(self):
+        arglist = [
+            self._router.id,
+            self._router.subnet,
+        ]
+        verifylist = [
+            ('router', self._router.id),
+            ('subnet', self._router.subnet),
+            ('advertise_host', False),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+        self.network_client.add_interface_to_router.assert_called_once_with(
+            self._router, subnet=self._subnet.id
+        )
+        self._router.add_interface.assert_not_called()
 
         self.assertIsNone(result)
 
