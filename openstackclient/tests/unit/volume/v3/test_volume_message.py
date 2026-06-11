@@ -12,6 +12,8 @@
 
 from unittest.mock import call
 
+from openstack.block_storage.v3 import message as _message
+from openstack.test import fakes as sdk_fakes
 from osc_lib import exceptions
 
 from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
@@ -19,27 +21,15 @@ from openstackclient.tests.unit.volume.v3 import fakes as volume_fakes
 from openstackclient.volume.v3 import volume_message
 
 
-class TestVolumeMessage(volume_fakes.TestVolume):
-    def setUp(self):
-        super().setUp()
-
-        self.projects_mock = self.identity_client.projects
-        self.projects_mock.reset_mock()
-
-        self.volume_messages_mock = self.volume_client.messages
-        self.volume_messages_mock.reset_mock()
-
-
-class TestVolumeMessageDelete(TestVolumeMessage):
-    fake_messages = volume_fakes.create_volume_messages(count=2)
+class TestVolumeMessageDelete(volume_fakes.TestVolume):
+    fake_messages = list(
+        sdk_fakes.generate_fake_resources(_message.Message, count=2)
+    )
 
     def setUp(self):
         super().setUp()
 
-        self.volume_messages_mock.get = volume_fakes.get_volume_messages(
-            self.fake_messages,
-        )
-        self.volume_messages_mock.delete.return_value = None
+        self.volume_sdk_client.delete_message.return_value = None
 
         # Get the command object to mock
         self.cmd = volume_message.DeleteMessage(self.app, None)
@@ -57,8 +47,8 @@ class TestVolumeMessageDelete(TestVolumeMessage):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.volume_messages_mock.delete.assert_called_with(
-            self.fake_messages[0].id
+        self.volume_sdk_client.delete_message.assert_called_with(
+            self.fake_messages[0].id, ignore_missing=False
         )
         self.assertIsNone(result)
 
@@ -78,8 +68,8 @@ class TestVolumeMessageDelete(TestVolumeMessage):
 
         calls = []
         for m in self.fake_messages:
-            calls.append(call(m.id))
-        self.volume_messages_mock.delete.assert_has_calls(calls)
+            calls.append(call(m.id, ignore_missing=False))
+        self.volume_sdk_client.delete_message.assert_has_calls(calls)
         self.assertIsNone(result)
 
     def test_message_delete_multiple_messages_with_exception(self):
@@ -95,8 +85,8 @@ class TestVolumeMessageDelete(TestVolumeMessage):
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.volume_messages_mock.delete.side_effect = [
-            self.fake_messages[0],
+        self.volume_sdk_client.delete_message.side_effect = [
+            None,
             exceptions.CommandError,
         ]
 
@@ -105,12 +95,14 @@ class TestVolumeMessageDelete(TestVolumeMessage):
         )
         self.assertEqual('Failed to delete 1 of 2 messages.', str(exc))
 
-        self.volume_messages_mock.delete.assert_any_call(
-            self.fake_messages[0].id
+        self.volume_sdk_client.delete_message.assert_any_call(
+            self.fake_messages[0].id, ignore_missing=False
         )
-        self.volume_messages_mock.delete.assert_any_call('invalid_message')
+        self.volume_sdk_client.delete_message.assert_any_call(
+            'invalid_message', ignore_missing=False
+        )
 
-        self.assertEqual(2, self.volume_messages_mock.delete.call_count)
+        self.assertEqual(2, self.volume_sdk_client.delete_message.call_count)
 
     def test_message_delete_pre_v33(self):
         self.set_volume_api_version('3.2')
@@ -131,9 +123,11 @@ class TestVolumeMessageDelete(TestVolumeMessage):
         )
 
 
-class TestVolumeMessageList(TestVolumeMessage):
+class TestVolumeMessageList(volume_fakes.TestVolume):
     fake_project = identity_fakes.FakeProject.create_one_project()
-    fake_messages = volume_fakes.create_volume_messages(count=3)
+    fake_messages = list(
+        sdk_fakes.generate_fake_resources(_message.Message, count=3)
+    )
 
     columns = (
         'ID',
@@ -165,8 +159,8 @@ class TestVolumeMessageList(TestVolumeMessage):
     def setUp(self):
         super().setUp()
 
-        self.projects_mock.get.return_value = self.fake_project
-        self.volume_messages_mock.list.return_value = self.fake_messages
+        self.identity_client.projects.get.return_value = self.fake_project
+        self.volume_sdk_client.messages.return_value = self.fake_messages
         # Get the command to test
         self.cmd = volume_message.ListMessages(self.app, None)
 
@@ -183,11 +177,8 @@ class TestVolumeMessageList(TestVolumeMessage):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        search_opts = {
-            'project_id': None,
-        }
-        self.volume_messages_mock.list.assert_called_with(
-            search_opts=search_opts,
+        self.volume_sdk_client.messages.assert_called_once_with(
+            project_id=None,
             marker=None,
             limit=None,
         )
@@ -214,11 +205,8 @@ class TestVolumeMessageList(TestVolumeMessage):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        search_opts = {
-            'project_id': self.fake_project.id,
-        }
-        self.volume_messages_mock.list.assert_called_with(
-            search_opts=search_opts,
+        self.volume_sdk_client.messages.assert_called_once_with(
+            project_id=self.fake_project.id,
             marker=self.fake_messages[0].id,
             limit=3,
         )
@@ -245,19 +233,19 @@ class TestVolumeMessageList(TestVolumeMessage):
         )
 
 
-class TestVolumeMessageShow(TestVolumeMessage):
-    fake_message = volume_fakes.create_one_volume_message()
+class TestVolumeMessageShow(volume_fakes.TestVolume):
+    fake_message = sdk_fakes.generate_fake_resource(_message.Message)
 
     columns = (
-        'created_at',
-        'event_id',
-        'guaranteed_until',
-        'id',
-        'message_level',
-        'request_id',
-        'resource_type',
-        'resource_uuid',
-        'user_message',
+        'Created At',
+        'Event ID',
+        'Guaranteed Until',
+        'ID',
+        'Message Level',
+        'Request ID',
+        'Resource Type',
+        'Resource UUID',
+        'User Message',
     )
     data = (
         fake_message.created_at,
@@ -274,7 +262,7 @@ class TestVolumeMessageShow(TestVolumeMessage):
     def setUp(self):
         super().setUp()
 
-        self.volume_messages_mock.get.return_value = self.fake_message
+        self.volume_sdk_client.get_message.return_value = self.fake_message
         # Get the command object to test
         self.cmd = volume_message.ShowMessage(self.app, None)
 
@@ -286,7 +274,9 @@ class TestVolumeMessageShow(TestVolumeMessage):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        self.volume_messages_mock.get.assert_called_with(self.fake_message.id)
+        self.volume_sdk_client.get_message.assert_called_once_with(
+            self.fake_message.id
+        )
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)

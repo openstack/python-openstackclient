@@ -666,64 +666,6 @@ def create_one_sdk_volume(attrs=None):
     return _volume.Volume(**volume_info)
 
 
-def create_one_volume_message(attrs=None):
-    """Create a fake message.
-
-    :param attrs: A dictionary with all attributes of message
-    :return: A FakeResource object with id, name, status, etc.
-    """
-    attrs = attrs or {}
-
-    # Set default attribute
-    message_info = {
-        'created_at': '2016-02-11T11:17:37.000000',
-        'event_id': f'VOLUME_{random.randint(1, 999999):06d}',
-        'guaranteed_until': '2016-02-11T11:17:37.000000',
-        'id': uuid.uuid4().hex,
-        'message_level': 'ERROR',
-        'request_id': f'req-{uuid.uuid4().hex}',
-        'resource_type': 'VOLUME',
-        'resource_uuid': uuid.uuid4().hex,
-        'user_message': f'message-{uuid.uuid4().hex}',
-    }
-
-    # Overwrite default attributes if there are some attributes set
-    message_info.update(attrs)
-
-    return fakes.FakeResource(None, message_info, loaded=True)
-
-
-def create_volume_messages(attrs=None, count=2):
-    """Create multiple fake messages.
-
-    :param attrs: A dictionary with all attributes of message
-    :param count: The number of messages to be faked
-    :return: A list of FakeResource objects
-    """
-    messages = []
-    for n in range(0, count):
-        messages.append(create_one_volume_message(attrs))
-
-    return messages
-
-
-def get_volume_messages(messages=None, count=2):
-    """Get an iterable MagicMock object with a list of faked messages.
-
-    If messages list is provided, then initialize the Mock object with the
-    list. Otherwise create one.
-
-    :param messages: A list of FakeResource objects faking messages
-    :param count: The number of messages to be faked
-    :return An iterable Mock object with side_effect set to a list of faked
-        messages
-    """
-    if messages is None:
-        messages = create_volume_messages(count)
-
-    return mock.Mock(side_effect=messages)
-
-
 def create_one_volume_attachment(attrs=None):
     """Create a fake volume attachment.
 

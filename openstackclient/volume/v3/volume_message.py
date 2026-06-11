@@ -16,10 +16,11 @@
 
 import argparse
 from collections.abc import Iterable, Sequence
-import logging as LOG
+import logging
 from typing import Any
 
-from cinderclient import api_versions
+from openstack.block_storage.v3 import message as _message
+from openstack import utils as sdk_utils
 from osc_lib import exceptions
 from osc_lib import utils
 
@@ -27,6 +28,36 @@ from openstackclient import command
 from openstackclient.common import pagination
 from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
+
+LOG = logging.getLogger(__name__)
+
+
+def _format_message(
+    message: _message.Message,
+) -> tuple[tuple[str, ...], tuple[Any, ...]]:
+    column_headers = (
+        'Created At',
+        'Event ID',
+        'Guaranteed Until',
+        'ID',
+        'Message Level',
+        'Request ID',
+        'Resource Type',
+        'Resource UUID',
+        'User Message',
+    )
+    columns = (
+        'created_at',
+        'event_id',
+        'guaranteed_until',
+        'id',
+        'message_level',
+        'request_id',
+        'resource_type',
+        'resource_uuid',
+        'user_message',
+    )
+    return column_headers, utils.get_item_properties(message, columns)
 
 
 class DeleteMessage(command.Command):
@@ -44,9 +75,11 @@ class DeleteMessage(command.Command):
         return parser
 
     def take_action(self, parsed_args: argparse.Namespace) -> None:
-        volume_client = self.app.client_manager.volume
+        volume_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.volume, '3'
+        )
 
-        if volume_client.api_version < api_versions.APIVersion('3.3'):
+        if not sdk_utils.supports_microversion(volume_client, '3.3'):
             msg = _(
                 "--os-volume-api-version 3.3 or greater is required to "
                 "support the 'volume message delete' command"
@@ -56,7 +89,7 @@ class DeleteMessage(command.Command):
         errors = 0
         for message_id in parsed_args.message_ids:
             try:
-                volume_client.messages.delete(message_id)
+                volume_client.delete_message(message_id, ignore_missing=False)
             except Exception:
                 LOG.error(_('Failed to delete message: %s'), message_id)
                 errors += 1
@@ -91,10 +124,12 @@ class ListMessages(command.Lister):
     def take_action(
         self, parsed_args: argparse.Namespace
     ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
-        volume_client = self.app.client_manager.volume
+        volume_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.volume, '3'
+        )
         identity_client = self.app.client_manager.identity
 
-        if volume_client.api_version < api_versions.APIVersion('3.3'):
+        if not sdk_utils.supports_microversion(volume_client, '3.3'):
             msg = _(
                 "--os-volume-api-version 3.3 or greater is required to "
                 "support the 'volume message list' command"
@@ -112,6 +147,17 @@ class ListMessages(command.Lister):
             'Created At',
             'Guaranteed Until',
         )
+        columns = (
+            'id',
+            'event_id',
+            'resource_type',
+            'resource_uuid',
+            'message_level',
+            'user_message',
+            'request_id',
+            'created_at',
+            'guaranteed_until',
+        )
 
         project_id = None
         if parsed_args.project:
@@ -121,18 +167,15 @@ class ListMessages(command.Lister):
                 parsed_args.project_domain,
             ).id
 
-        search_opts = {
-            'project_id': project_id,
-        }
-        data = volume_client.messages.list(
-            search_opts=search_opts,
+        data = volume_client.messages(
+            project_id=project_id,
             marker=parsed_args.marker,
             limit=parsed_args.limit,
         )
 
         return (
             column_headers,
-            (utils.get_item_properties(s, column_headers) for s in data),
+            (utils.get_item_properties(s, columns) for s in data),
         )
 
 
@@ -152,16 +195,17 @@ class ShowMessage(command.ShowOne):
     def take_action(
         self, parsed_args: argparse.Namespace
     ) -> tuple[Sequence[str], Iterable[Any]]:
-        volume_client = self.app.client_manager.volume
+        volume_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.volume, '3'
+        )
 
-        if volume_client.api_version < api_versions.APIVersion('3.3'):
+        if not sdk_utils.supports_microversion(volume_client, '3.3'):
             msg = _(
                 "--os-volume-api-version 3.3 or greater is required to "
                 "support the 'volume message show' command"
             )
             raise exceptions.CommandError(msg)
 
-        message = volume_client.messages.get(parsed_args.message_id)
+        message = volume_client.get_message(parsed_args.message_id)
 
-        col_headers, col_data = zip(*sorted(message._info.items()))
-        return col_headers, col_data
+        return _format_message(message)
