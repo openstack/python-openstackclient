@@ -16,6 +16,9 @@
 
 import argparse
 
+from openstack.block_storage.v2 import service as _service
+from openstack import utils as sdk_utils
+
 from openstackclient import command
 from openstackclient.i18n import _
 
@@ -40,9 +43,12 @@ class FailoverVolumeHost(command.Command):
         return parser
 
     def take_action(self, parsed_args: argparse.Namespace) -> None:
-        service_client = self.app.client_manager.volume
-        service_client.services.failover_host(
-            parsed_args.host, parsed_args.volume_backend
+        volume_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.volume, '2'
+        )
+        service = _service.Service(host=parsed_args.host)
+        volume_client.failover_service(
+            service, backend_id=parsed_args.volume_backend
         )
 
 
@@ -68,8 +74,11 @@ class SetVolumeHost(command.Command):
         return parser
 
     def take_action(self, parsed_args: argparse.Namespace) -> None:
-        service_client = self.app.client_manager.volume
+        volume_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.volume, '2'
+        )
+        service = _service.Service(host=parsed_args.host)
         if parsed_args.enable:
-            service_client.services.thaw_host(parsed_args.host)
+            volume_client.thaw_service(service)
         if parsed_args.disable:
-            service_client.services.freeze_host(parsed_args.host)
+            volume_client.freeze_service(service)
