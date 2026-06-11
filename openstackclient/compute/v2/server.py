@@ -1596,7 +1596,7 @@ class CreateServer(command.ShowOne):
                 self.app.stdout.flush()
 
         compute_client = self.app.client_manager.compute
-        volume_client = self.app.client_manager.volume
+        volume_client = self.app.client_manager.sdk_connection.volume
         image_client = self.app.client_manager.image
 
         # Lookup parsed_args.image
@@ -1669,9 +1669,9 @@ class CreateServer(command.ShowOne):
                 msg = _('--volume is not allowed with --boot-from-volume')
                 raise exceptions.CommandError(msg)
 
-            volume = utils.find_resource(
-                volume_client.volumes,
+            volume = volume_client.find_volume(
                 parsed_args.volume,
+                ignore_missing=False,
             ).id
 
         snapshot = None
@@ -1681,9 +1681,9 @@ class CreateServer(command.ShowOne):
                 msg = _('--snapshot is not allowed with --boot-from-volume')
                 raise exceptions.CommandError(msg)
 
-            snapshot = utils.find_resource(
-                volume_client.volume_snapshots,
+            snapshot = volume_client.find_snapshot(
                 parsed_args.snapshot,
+                ignore_missing=False,
             ).id
 
         flavor = compute_client.find_flavor(
@@ -1823,15 +1823,15 @@ class CreateServer(command.ShowOne):
             # The 'uuid' field isn't necessarily a UUID yet; let's validate it
             # just in case
             if mapping['source_type'] == 'volume':
-                volume_id = utils.find_resource(
-                    volume_client.volumes,
+                volume_id = volume_client.find_volume(
                     mapping['uuid'],
+                    ignore_missing=False,
                 ).id
                 mapping['uuid'] = volume_id
             elif mapping['source_type'] == 'snapshot':
-                snapshot_id = utils.find_resource(
-                    volume_client.volume_snapshots,
+                snapshot_id = volume_client.find_snapshot(
                     mapping['uuid'],
+                    ignore_missing=False,
                 ).id
                 mapping['uuid'] = snapshot_id
             elif mapping['source_type'] == 'image':
