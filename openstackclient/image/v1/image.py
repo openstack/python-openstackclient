@@ -297,19 +297,17 @@ class CreateImage(command.ShowOne):
 
         if not parsed_args.location and not parsed_args.copy_from:
             if parsed_args.volume:
-                volume_client = self.app.client_manager.volume
-                source_volume = utils.find_resource(
-                    volume_client.volumes,
-                    parsed_args.volume,
+                volume_client = self.app.client_manager.sdk_connection.volume
+                source_volume = volume_client.find_volume(
+                    parsed_args.volume, ignore_missing=False
                 )
-                _response, body = volume_client.volumes.upload_to_image(
-                    source_volume.id,
-                    parsed_args.force,
+                info = source_volume.upload_to_image(
+                    volume_client,
                     parsed_args.name,
-                    parsed_args.container_format,
-                    parsed_args.disk_format,
+                    force=parsed_args.force,
+                    container_format=parsed_args.container_format,
+                    disk_format=parsed_args.disk_format,
                 )
-                info = body['os-volume_upload_image']
             elif parsed_args.file:
                 # Send an open file handle to glanceclient so it will
                 # do a chunked transfer
@@ -764,21 +762,22 @@ class SetImage(command.Command):
 
             if not parsed_args.location and not parsed_args.copy_from:
                 if parsed_args.volume:
-                    volume_client = self.app.client_manager.volume
-                    source_volume = utils.find_resource(
-                        volume_client.volumes,
-                        parsed_args.volume,
+                    volume_client = (
+                        self.app.client_manager.sdk_connection.volume
                     )
-                    volume_client.volumes.upload_to_image(
-                        source_volume.id,
-                        parsed_args.force,
+                    source_volume = volume_client.find_volume(
+                        parsed_args.volume, ignore_missing=False
+                    )
+                    source_volume.upload_to_image(
+                        volume_client,
                         parsed_args.image,
-                        (
+                        force=parsed_args.force,
+                        container_format=(
                             parsed_args.container_format
                             if parsed_args.container_format
                             else image.container_format
                         ),
-                        (
+                        disk_format=(
                             parsed_args.disk_format
                             if parsed_args.disk_format
                             else image.disk_format

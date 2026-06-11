@@ -15,6 +15,7 @@
 from unittest import mock
 import uuid
 
+from openstack.block_storage.v2 import _proxy as block_storage_v2_proxy
 from openstack.image.v1 import _proxy
 from openstack.image.v1 import image
 
@@ -40,6 +41,12 @@ class TestImagev1(FakeClientMixin, utils.TestCommand):
             token=fakes.AUTH_TOKEN,
         )
         self.volume_client = self.app.client_manager.volume
+
+        self.app.client_manager.sdk_connection.volume = mock.Mock(
+            spec=block_storage_v2_proxy.Proxy,
+        )
+        self.app.client_manager.sdk_connection.volume.api_version = '2'
+        self.volume_sdk_client = self.app.client_manager.sdk_connection.volume
 
 
 def create_one_image(attrs=None):

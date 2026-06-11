@@ -15,10 +15,11 @@
 import copy
 from unittest import mock
 
+from openstack.block_storage.v2 import volume as _volume
+from openstack.test import fakes as sdk_fakes
 from osc_lib.cli import format_columns
 
 from openstackclient.image.v1 import image
-from openstackclient.tests.unit import fakes
 from openstackclient.tests.unit.image.v1 import fakes as image_fakes
 
 
@@ -591,27 +592,8 @@ class TestImageSet(image_fakes.TestImagev1):
         self.assertIsNone(result)
 
     def test_image_update_volume(self):
-        # Set up VolumeManager Mock
-        volumes_mock = self.volume_client.volumes
-        volumes_mock.reset_mock()
-        volumes_mock.get.return_value = fakes.FakeResource(
-            None,
-            copy.deepcopy({'id': 'vol1', 'name': 'volly'}),
-            loaded=True,
-        )
-        response = {
-            "id": 'volume_id',
-            "updated_at": 'updated_at',
-            "status": 'uploading',
-            "display_description": 'desc',
-            "size": 'size',
-            "volume_type": 'volume_type',
-            "container_format": image.DEFAULT_CONTAINER_FORMAT,
-            "disk_format": image.DEFAULT_DISK_FORMAT,
-            "image": self._image.name,
-        }
-        full_response = {"os-volume_upload_image": response}
-        volumes_mock.upload_to_image.return_value = (201, full_response)
+        source_volume = sdk_fakes.generate_fake_resource(_volume.Volume)
+        self.volume_sdk_client.find_volume.return_value = source_volume
 
         arglist = [
             '--volume',
@@ -632,18 +614,20 @@ class TestImageSet(image_fakes.TestImagev1):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
+        source_volume.upload_to_image = mock.Mock()
+
         result = self.cmd.take_action(parsed_args)
 
-        # VolumeManager.upload_to_image(volume, force, image_name,
-        #     container_format, disk_format)
-        volumes_mock.upload_to_image.assert_called_with(
-            'vol1',
-            False,
-            self._image.name,
-            '',
-            '',
+        self.volume_sdk_client.find_volume.assert_called_once_with(
+            'volly', ignore_missing=False
         )
-        # ImageManager.update(image_id, remove_props=, **)
+        source_volume.upload_to_image.assert_called_once_with(
+            self.volume_sdk_client,
+            self._image.name,
+            force=False,
+            container_format=self._image.container_format,
+            disk_format=self._image.disk_format,
+        )
         self.image_client.update_image.assert_called_with(
             self._image.id,
             name='updated_image',
