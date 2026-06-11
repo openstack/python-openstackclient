@@ -19,7 +19,8 @@ from collections.abc import Iterable, Sequence
 import logging
 from typing import Any
 
-from cinderclient import api_versions
+from openstack import exceptions as sdk_exceptions
+from openstack import utils as sdk_utils
 from osc_lib import exceptions
 from osc_lib import utils
 
@@ -51,25 +52,24 @@ class AcceptTransferRequest(command.ShowOne):
     def take_action(
         self, parsed_args: argparse.Namespace
     ) -> tuple[Sequence[str], Iterable[Any]]:
-        volume_client = self.app.client_manager.volume
-
+        volume_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.volume, '3'
+        )
         try:
-            transfer_request_id = utils.find_resource(
-                volume_client.transfers, parsed_args.transfer_request
+            transfer_request_id = volume_client.find_transfer(
+                parsed_args.transfer_request, ignore_missing=False
             ).id
-        except exceptions.CommandError:
+        except sdk_exceptions.ResourceNotFound:
             # Non-admin users will fail to lookup name -> ID so we just
             # move on and attempt with the user-supplied information
             transfer_request_id = parsed_args.transfer_request
 
-        transfer_accept = volume_client.transfers.accept(
-            transfer_request_id,
-            parsed_args.auth_key,
+        result = volume_client.accept_transfer(
+            transfer_request_id, parsed_args.auth_key
         )
-        transfer_accept._info.pop("links", None)
-
-        col_headers, col_data = zip(*sorted(transfer_accept._info.items()))
-        return col_headers, col_data
+        columns = ('id', 'name', 'volume_id')
+        data = (result.id, result.name, result.volume_id)
+        return columns, data
 
 
 class CreateTransferRequest(command.ShowOne):
@@ -111,12 +111,13 @@ class CreateTransferRequest(command.ShowOne):
     def take_action(
         self, parsed_args: argparse.Namespace
     ) -> tuple[Sequence[str], Iterable[Any]]:
-        volume_client = self.app.client_manager.volume
-
-        kwargs = {}
+        volume_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.volume, '3'
+        )
+        attrs: dict[str, Any] = {}
 
         if parsed_args.snapshots is not None:
-            if volume_client.api_version < api_versions.APIVersion('3.55'):
+            if not sdk_utils.supports_microversion(volume_client, '3.55'):
                 msg = _(
                     "--os-volume-api-version 3.55 or greater is required to "
                     "support the '--(no-)snapshots' option"
@@ -125,23 +126,25 @@ class CreateTransferRequest(command.ShowOne):
 
             # unfortunately this option is negative so we have to reverse
             # things
-            kwargs['no_snapshots'] = not parsed_args.snapshots
+            attrs['no_snapshots'] = not parsed_args.snapshots
 
-        volume_id = utils.find_resource(
-            volume_client.volumes,
-            parsed_args.volume,
-        ).id
-        volume_transfer_request = volume_client.transfers.create(
-            volume_id,
-            parsed_args.name,
-            **kwargs,
+        volume = volume_client.find_volume(
+            parsed_args.volume, ignore_missing=False
         )
-        volume_transfer_request._info.pop("links", None)
-
-        col_headers, col_data = zip(
-            *sorted(volume_transfer_request._info.items())
+        result = volume_client.create_transfer(
+            volume_id=volume.id,
+            name=parsed_args.name,
+            **attrs,
         )
-        return col_headers, col_data
+        columns = ('auth_key', 'created_at', 'id', 'name', 'volume_id')
+        data = (
+            result.auth_key,
+            result.created_at,
+            result.id,
+            result.name,
+            result.volume_id,
+        )
+        return columns, data
 
 
 class DeleteTransferRequest(command.Command):
@@ -158,16 +161,14 @@ class DeleteTransferRequest(command.Command):
         return parser
 
     def take_action(self, parsed_args: argparse.Namespace) -> None:
-        volume_client = self.app.client_manager.volume
+        volume_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.volume, '3'
+        )
         result = 0
 
         for t in parsed_args.transfer_request:
             try:
-                transfer_request_id = utils.find_resource(
-                    volume_client.transfers,
-                    t,
-                ).id
-                volume_client.transfers.delete(transfer_request_id)
+                volume_client.delete_transfer(t, ignore_missing=False)
             except Exception as e:
                 result += 1
                 LOG.error(
@@ -204,22 +205,19 @@ class ListTransferRequest(command.Lister):
     def take_action(
         self, parsed_args: argparse.Namespace
     ) -> tuple[Sequence[str], Iterable[tuple[Any, ...]]]:
-        columns = ['ID', 'Name', 'Volume ID']
-        column_headers = ['ID', 'Name', 'Volume']
-
-        volume_client = self.app.client_manager.volume
-
-        volume_transfer_result = volume_client.transfers.list(
-            detailed=True,
-            search_opts={'all_tenants': parsed_args.all_projects},
+        volume_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.volume, '3'
         )
+        column_headers = ('ID', 'Name', 'Volume')
+        columns = ('id', 'name', 'volume_id')
 
+        results = volume_client.transfers(
+            details=True,
+            all_projects=parsed_args.all_projects,
+        )
         return (
             column_headers,
-            (
-                utils.get_item_properties(s, columns)
-                for s in volume_transfer_result
-            ),
+            (utils.get_item_properties(s, columns) for s in results),
         )
 
 
@@ -238,14 +236,12 @@ class ShowTransferRequest(command.ShowOne):
     def take_action(
         self, parsed_args: argparse.Namespace
     ) -> tuple[Sequence[str], Iterable[Any]]:
-        volume_client = self.app.client_manager.volume
-        volume_transfer_request = utils.find_resource(
-            volume_client.transfers,
-            parsed_args.transfer_request,
+        volume_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.volume, '3'
         )
-        volume_transfer_request._info.pop("links", None)
-
-        col_headers, col_data = zip(
-            *sorted(volume_transfer_request._info.items())
+        result = volume_client.find_transfer(
+            parsed_args.transfer_request, ignore_missing=False
         )
-        return col_headers, col_data
+        columns = ('created_at', 'id', 'name', 'volume_id')
+        data = (result.created_at, result.id, result.name, result.volume_id)
+        return columns, data
