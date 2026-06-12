@@ -1220,6 +1220,22 @@ class TestQuotaShow(TestQuota):
             details=True,
         )
 
+    def test_quota_show__keypairs_usage_is_always_na(self):
+        """Verify that key-pair usage is overridden to N/A for project views."""
+        arglist = [
+            '--usage',
+            self.projects[0].name,
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, [('usage', True)])
+
+        _, data = self.cmd.take_action(parsed_args)
+
+        keypair_row = [row for row in data if row[0] == 'key-pairs']
+
+        self.assertTrue(keypair_row, "key-pairs row was missing from output")
+        # Ensure the third column (In Use / Usage) is exactly "N/A"
+        self.assertEqual("N/A", keypair_row[0][2])
+
     def test_quota_show__no_project(self):
         arglist = []
         verifylist = [

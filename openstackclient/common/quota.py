@@ -804,6 +804,10 @@ and ``server-group-members`` output for a given quota class."""
             info["usage"].update(volume_quota_info.pop("usage", {}))
             info["usage"].update(network_quota_info.pop("usage", {}))
 
+            # Keypair usage is tracked per-user rather than per-project.
+            # To avoid mislead return N/A
+            info["usage"]["key_pairs"] = "N/A"
+
         info.update(compute_quota_info)
         info.update(volume_quota_info)
         info.update(network_quota_info)
