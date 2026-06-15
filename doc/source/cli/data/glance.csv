@@ -47,7 +47,7 @@ md-resource-type-associate,image metadef resource type association create,Associ
 md-resource-type-deassociate,image metadef resource type association delete,Deassociate resource type with a metadata definitions namespace.
 md-resource-type-list,image metadef resource type list,List available resource type names.
 md-tag-create,image metadef namespace set --tag,Add a new metadata definitions tag inside a namespace.
-md-tag-create-multiple,,Create new metadata definitions tags inside a namespace.
+md-tag-create-multiple,image metadef namespace set --tag tag1 --tag tag2,Create new metadata definitions tags inside a namespace.
 md-tag-delete,image metadef namespace unset --tag,Delete a specific metadata definitions tag inside a namespace.
 md-tag-list,image metadef namespace show,List metadata definitions tags inside a specific namespace.
 md-tag-show,image metadef namespace show,Describe a specific metadata definitions tag inside a namespace.
