@@ -196,6 +196,18 @@ class ListAggregate(command.Lister):
             default=False,
             help=_("List additional fields in output"),
         )
+        parser.add_argument(
+            '--availability-zone',
+            metavar='<availability-zone>',
+            default=None,
+            help=_("Filter by availability zone name"),
+        )
+        parser.add_argument(
+            '--host',
+            metavar='<host>',
+            default=None,
+            help=_("Filter by aggregates containing this host"),
+        )
         return parser
 
     def take_action(
@@ -204,6 +216,23 @@ class ListAggregate(command.Lister):
         compute_client = self.app.client_manager.compute
 
         aggregates = list(compute_client.aggregates())
+
+        # NOTE: The compute API does not support server-side filtering of
+        # aggregates, so we filter client-side. When more than one filter is
+        # given they are combined with AND (results must match all filters).
+        if parsed_args.availability_zone is not None:
+            aggregates = [
+                aggregate
+                for aggregate in aggregates
+                if aggregate.availability_zone == parsed_args.availability_zone
+            ]
+
+        if parsed_args.host is not None:
+            aggregates = [
+                aggregate
+                for aggregate in aggregates
+                if aggregate.hosts and parsed_args.host in aggregate.hosts
+            ]
 
         if sdk_utils.supports_microversion(compute_client, '2.41'):
             column_headers: tuple[str, ...] = ("ID", "UUID")

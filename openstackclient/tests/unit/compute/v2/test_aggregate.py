@@ -326,6 +326,70 @@ class TestAggregateList(TestAggregate):
         self.assertEqual(expected_columns, columns)
         self.assertCountEqual(expected_data, tuple(data))
 
+    def test_aggregate_list_with_availability_zone(self):
+        self.set_compute_api_version('2.41')
+
+        arglist = [
+            '--availability-zone',
+            self.fake_ag.availability_zone,
+        ]
+        verifylist = [
+            ('availability_zone', self.fake_ag.availability_zone),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        _, data = self.cmd.take_action(parsed_args)
+
+        # the matching aggregate is returned
+        self.assertEqual(1, len(tuple(data)))
+
+    def test_aggregate_list_with_availability_zone_no_match(self):
+        self.set_compute_api_version('2.41')
+
+        arglist = [
+            '--availability-zone',
+            'does-not-exist',
+        ]
+        verifylist = [
+            ('availability_zone', 'does-not-exist'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        _, data = self.cmd.take_action(parsed_args)
+
+        # no aggregate matches the filter
+        self.assertEqual(0, len(tuple(data)))
+
+    def test_aggregate_list_with_host(self):
+        self.set_compute_api_version('2.41')
+
+        arglist = [
+            '--host',
+            self.fake_ag.hosts[0],
+        ]
+        verifylist = [
+            ('host', self.fake_ag.hosts[0]),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        _, data = self.cmd.take_action(parsed_args)
+
+        # the aggregate containing the host is returned
+        self.assertEqual(1, len(tuple(data)))
+
+    def test_aggregate_list_with_host_no_match(self):
+        self.set_compute_api_version('2.41')
+
+        arglist = [
+            '--host',
+            'does-not-exist',
+        ]
+        verifylist = [
+            ('host', 'does-not-exist'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        _, data = self.cmd.take_action(parsed_args)
+
+        # no aggregate contains the host
+        self.assertEqual(0, len(tuple(data)))
+
 
 class TestAggregateRemoveHost(TestAggregate):
     def setUp(self):

@@ -1,0 +1,9 @@
+---
+features:
+  - |
+    Added ``--availability-zone`` and ``--host`` options to the
+    ``aggregate list`` command. These allow the results to be filtered by
+    availability zone name and by aggregates containing a given host. The
+    compute API does not support server-side filtering of aggregates, so the
+    filtering is performed client-side. When both options are supplied they
+    are combined with AND, returning only aggregates that match every filter.
