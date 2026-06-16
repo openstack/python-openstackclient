@@ -1143,6 +1143,17 @@ class SaveImage(command.Command):
             help=_("Downloaded image save filename (default: stdout)"),
         )
         parser.add_argument(
+            "--store-preference",
+            metavar="<store>",
+            dest="store_preferences",
+            action="append",
+            help=_(
+                "Preferred store to download the image from "
+                "(repeat option to specify multiple store preferences in "
+                "order)"
+            ),
+        )
+        parser.add_argument(
             "image",
             metavar="<image>",
             help=_("Image to save (name or ID)"),
@@ -1165,6 +1176,7 @@ class SaveImage(command.Command):
             stream=True,
             output=output_file,
             chunk_size=parsed_args.chunk_size,
+            store_preferences=parsed_args.store_preferences,
         )
 
 

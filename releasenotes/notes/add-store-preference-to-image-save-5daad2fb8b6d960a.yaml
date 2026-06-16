@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    Add ``--store-preference`` option to ``image save`` command to specify
+    the preferred backend store(s) to download the image from when using
+    Glance with multiple backend stores. This option can be repeated to
+    specify multiple store preferences in order.
