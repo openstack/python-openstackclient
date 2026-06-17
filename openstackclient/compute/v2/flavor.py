@@ -154,7 +154,9 @@ class CreateFlavor(command.ShowOne):
         self, parsed_args: argparse.Namespace
     ) -> tuple[Sequence[str], Iterable[Any]]:
         compute_client = self.app.client_manager.compute
-        identity_client = self.app.client_manager.identity
+        identity_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.identity, '3'
+        )
 
         if parsed_args.project and parsed_args.public:
             msg = _("--project is only allowed with --private")
@@ -208,11 +210,11 @@ class CreateFlavor(command.ShowOne):
 
         if parsed_args.project:
             try:
-                project_id = identity_common.find_project(
+                project_id = identity_common.find_project_id_sdk(
                     identity_client,
                     parsed_args.project,
                     parsed_args.project_domain,
-                ).id
+                )
                 compute_client.flavor_add_tenant_access(flavor.id, project_id)
             except Exception as e:
                 msg = _(
@@ -450,7 +452,9 @@ class SetFlavor(command.Command):
 
     def take_action(self, parsed_args: argparse.Namespace) -> None:
         compute_client = self.app.client_manager.compute
-        identity_client = self.app.client_manager.identity
+        identity_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.identity, '3'
+        )
 
         try:
             flavor = compute_client.find_flavor(
@@ -496,15 +500,13 @@ class SetFlavor(command.Command):
                 if flavor.is_public:
                     msg = _("Cannot set access for a public flavor")
                     raise exceptions.CommandError(msg)
-                else:
-                    project_id = identity_common.find_project(
-                        identity_client,
-                        parsed_args.project,
-                        parsed_args.project_domain,
-                    ).id
-                    compute_client.flavor_add_tenant_access(
-                        flavor.id, project_id
-                    )
+
+                project_id = identity_common.find_project_id_sdk(
+                    identity_client,
+                    parsed_args.project,
+                    parsed_args.project_domain,
+                )
+                compute_client.flavor_add_tenant_access(flavor.id, project_id)
             except Exception as e:
                 LOG.error(_("Failed to set flavor access to project: %s"), e)
                 result += 1
@@ -599,7 +601,9 @@ class UnsetFlavor(command.Command):
 
     def take_action(self, parsed_args: argparse.Namespace) -> None:
         compute_client = self.app.client_manager.compute
-        identity_client = self.app.client_manager.identity
+        identity_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.identity, '3'
+        )
 
         try:
             flavor = compute_client.find_flavor(
@@ -625,11 +629,11 @@ class UnsetFlavor(command.Command):
                     msg = _("Cannot remove access for a public flavor")
                     raise exceptions.CommandError(msg)
 
-                project_id = identity_common.find_project(
+                project_id = identity_common.find_project_id_sdk(
                     identity_client,
                     parsed_args.project,
                     parsed_args.project_domain,
-                ).id
+                )
                 compute_client.flavor_remove_tenant_access(
                     flavor.id, project_id
                 )

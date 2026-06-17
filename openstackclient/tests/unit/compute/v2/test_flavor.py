@@ -26,15 +26,7 @@ from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
 from openstackclient.tests.unit import utils as tests_utils
 
 
-class TestFlavor(compute_fakes.TestCompute):
-    def setUp(self):
-        super().setUp()
-
-        self.projects_mock = self.identity_client.projects
-        self.projects_mock.reset_mock()
-
-
-class TestFlavorCreate(TestFlavor):
+class TestFlavorCreate(compute_fakes.TestCompute):
     def setUp(self):
         super().setUp()
 
@@ -86,7 +78,7 @@ class TestFlavorCreate(TestFlavor):
             self.flavor.vcpus,
         )
 
-        self.projects_mock.get.return_value = self.project
+        self.identity_sdk_client.find_project.return_value = self.project
         self.compute_client.create_flavor.return_value = self.flavor
 
         self.cmd = flavor.CreateFlavor(self.app, None)
@@ -421,7 +413,7 @@ class TestFlavorCreate(TestFlavor):
         )
 
 
-class TestFlavorDelete(TestFlavor):
+class TestFlavorDelete(compute_fakes.TestCompute):
     def setUp(self):
         super().setUp()
 
@@ -502,7 +494,7 @@ class TestFlavorDelete(TestFlavor):
         self.compute_client.delete_flavor.assert_has_calls(delete_calls)
 
 
-class TestFlavorList(TestFlavor):
+class TestFlavorList(compute_fakes.TestCompute):
     def setUp(self):
         super().setUp()
 
@@ -768,7 +760,7 @@ class TestFlavorList(TestFlavor):
         self.assertEqual(tuple(self.data), tuple(data))
 
 
-class TestFlavorSet(TestFlavor):
+class TestFlavorSet(compute_fakes.TestCompute):
     def setUp(self):
         super().setUp()
 
@@ -778,7 +770,8 @@ class TestFlavorSet(TestFlavor):
         self.project = sdk_fakes.generate_fake_resource(_project.Project)
 
         self.compute_client.find_flavor.return_value = self.flavor
-        self.projects_mock.get.return_value = self.project
+        self.identity_sdk_client.find_project.return_value = self.project
+
         self.cmd = flavor.SetFlavor(self.app, None)
 
     def test_flavor_set_property(self):
@@ -982,7 +975,7 @@ class TestFlavorSet(TestFlavor):
         )
 
 
-class TestFlavorShow(TestFlavor):
+class TestFlavorShow(compute_fakes.TestCompute):
     def setUp(self):
         super().setUp()
 
@@ -1093,7 +1086,7 @@ class TestFlavorShow(TestFlavor):
         self.assertCountEqual(data_with_project, data)
 
 
-class TestFlavorUnset(TestFlavor):
+class TestFlavorUnset(compute_fakes.TestCompute):
     def setUp(self):
         super().setUp()
 
@@ -1103,7 +1096,7 @@ class TestFlavorUnset(TestFlavor):
         self.project = sdk_fakes.generate_fake_resource(_project.Project)
 
         self.compute_client.find_flavor.return_value = self.flavor
-        self.projects_mock.get.return_value = self.project
+        self.identity_sdk_client.find_project.return_value = self.project
 
         self.cmd = flavor.UnsetFlavor(self.app, None)
 

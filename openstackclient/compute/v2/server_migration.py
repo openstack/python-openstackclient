@@ -165,7 +165,9 @@ class ListMigration(command.Lister):
         self, parsed_args: argparse.Namespace
     ) -> tuple[list[str], Iterable[tuple[Any, ...]]]:
         compute_client = self.app.client_manager.compute
-        identity_client = self.app.client_manager.identity
+        identity_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.identity, '3'
+        )
 
         search_opts = {}
 
@@ -236,11 +238,11 @@ class ListMigration(command.Lister):
                 )
                 raise exceptions.CommandError(msg)
 
-            search_opts['project_id'] = identity_common.find_project(
+            search_opts['project_id'] = identity_common.find_project_id_sdk(
                 identity_client,
                 parsed_args.project,
                 parsed_args.project_domain,
-            ).id
+            )
 
         if parsed_args.user:
             if not sdk_utils.supports_microversion(compute_client, "2.80"):
@@ -250,11 +252,11 @@ class ListMigration(command.Lister):
                 )
                 raise exceptions.CommandError(msg)
 
-            search_opts['user_id'] = identity_common.find_user(
+            search_opts['user_id'] = identity_common.find_user_id_sdk(
                 identity_client,
                 parsed_args.user,
                 parsed_args.user_domain,
-            ).id
+            )
 
         migrations = list(compute_client.migrations(**search_opts))
 

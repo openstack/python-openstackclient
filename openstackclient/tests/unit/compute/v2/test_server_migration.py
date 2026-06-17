@@ -10,12 +10,14 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack.identity.v3 import project as _project
+from openstack.identity.v3 import user as _user
+from openstack.test import fakes as sdk_fakes
 from osc_lib import exceptions
 from osc_lib import utils as common_utils
 
 from openstackclient.compute.v2 import server_migration
 from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
-from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 
 
 class TestListMigration(compute_fakes.TestCompute):
@@ -441,20 +443,14 @@ class TestListMigrationV280(TestListMigration):
         'updated_at',
     ]
 
-    project = identity_fakes.FakeProject.create_one_project()
-    user = identity_fakes.FakeUser.create_one_user()
-
     def setUp(self):
         super().setUp()
 
-        self.projects_mock = self.identity_client.projects
-        self.projects_mock.reset_mock()
+        self.project = sdk_fakes.generate_fake_resource(_project.Project)
+        self.user = sdk_fakes.generate_fake_resource(_user.User)
 
-        self.users_mock = self.identity_client.users
-        self.users_mock.reset_mock()
-
-        self.projects_mock.get.return_value = self.project
-        self.users_mock.get.return_value = self.user
+        self.identity_sdk_client.find_project.return_value = self.project
+        self.identity_sdk_client.find_user.return_value = self.user
 
         self.set_compute_api_version('2.80')
 
