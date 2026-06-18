@@ -19,31 +19,18 @@ from unittest import mock
 
 from openstack.block_storage.v2 import volume as _volume
 from openstack import exceptions as sdk_exceptions
+from openstack.identity.v3 import domain as _domain
+from openstack.identity.v3 import project as _project
 from openstack.test import fakes as sdk_fakes
 from osc_lib.cli import format_columns
 from osc_lib import exceptions
 
 from openstackclient.image.v2 import image as _image
-from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 from openstackclient.tests.unit.image.v2 import fakes as image_fakes
 from openstackclient.tests.unit.volume.v3 import fakes as volume_fakes
 
 
-class TestImage(image_fakes.TestImagev2, volume_fakes.TestVolume):
-    def setUp(self):
-        super().setUp()
-
-        # Get shortcut to the Mocks in identity client
-        self.project_mock = self.identity_client.projects
-        self.project_mock.reset_mock()
-        self.domain_mock = self.identity_client.domains
-        self.domain_mock.reset_mock()
-
-
-class TestImageCreate(TestImage):
-    project = identity_fakes.FakeProject.create_one_project()
-    domain = identity_fakes.FakeDomain.create_one_domain()
-
+class TestImageCreate(image_fakes.TestImagev2, volume_fakes.TestVolume):
     def setUp(self):
         super().setUp()
 
@@ -52,11 +39,12 @@ class TestImageCreate(TestImage):
         self.image_client.update_image.return_value = self.new_image
         self.image_client.get_image.return_value = self.new_image
 
-        self.project_mock.get.return_value = self.project
+        self.project = sdk_fakes.generate_fake_resource(_project.Project)
+        self.identity_sdk_client.find_project.return_value = self.project
 
-        self.domain_mock.get.return_value = self.domain
+        self.domain = sdk_fakes.generate_fake_resource(_domain.Domain)
 
-        (self.expected_columns, self.expected_data) = zip(
+        self.expected_columns, self.expected_data = zip(
             *sorted(_image._format_image(self.new_image).items())
         )
 
@@ -149,8 +137,9 @@ class TestImageCreate(TestImage):
         self.assertCountEqual(self.expected_data, data)
 
     def test_image_create_with_unexist_project(self):
-        self.project_mock.get.side_effect = exceptions.NotFound(None)
-        self.project_mock.find.side_effect = exceptions.NotFound(None)
+        self.identity_sdk_client.find_project.side_effect = (
+            sdk_exceptions.ResourceNotFound()
+        )
 
         arglist = [
             '--container-format',
@@ -410,9 +399,9 @@ class TestImageCreate(TestImage):
         )
 
 
-class TestAddProjectToImage(TestImage):
-    project = identity_fakes.FakeProject.create_one_project()
-    domain = identity_fakes.FakeDomain.create_one_domain()
+class TestAddProjectToImage(image_fakes.TestImagev2):
+    project = sdk_fakes.generate_fake_resource(_project.Project)
+    domain = sdk_fakes.generate_fake_resource(_domain.Domain)
     _image = image_fakes.create_one_image()
     new_member = image_fakes.create_one_image_member(
         attrs={'image_id': _image.id, 'member_id': project.id}
@@ -444,8 +433,7 @@ class TestAddProjectToImage(TestImage):
 
         # Update the image_id in the MEMBER dict
         self.image_client.add_member.return_value = self.new_member
-        self.project_mock.get.return_value = self.project
-        self.domain_mock.get.return_value = self.domain
+        self.identity_sdk_client.find_project.return_value = self.project
         # Get the command object to test
         self.cmd = _image.AddProjectToImage(self.app, None)
 
@@ -497,7 +485,7 @@ class TestAddProjectToImage(TestImage):
         self.assertEqual(self.datalist, data)
 
 
-class TestImageDelete(TestImage):
+class TestImageDelete(image_fakes.TestImagev2):
     def setUp(self):
         super().setUp()
 
@@ -617,7 +605,7 @@ class TestImageDelete(TestImage):
         self.image_client.delete_image.assert_has_calls(calls)
 
 
-class TestImageList(TestImage):
+class TestImageList(image_fakes.TestImagev2):
     _image = image_fakes.create_one_image()
 
     columns = (
@@ -1008,8 +996,8 @@ class TestImageList(TestImage):
         self.image_client.images.assert_called_with(tag=['abc', 'cba'])
 
 
-class TestListImageProjects(TestImage):
-    project = identity_fakes.FakeProject.create_one_project()
+class TestListImageProjects(image_fakes.TestImagev2):
+    project = sdk_fakes.generate_fake_resource(_project.Project)
     _image = image_fakes.create_one_image()
     member = image_fakes.create_one_image_member(
         attrs={'image_id': _image.id, 'member_id': project.id}
@@ -1046,9 +1034,9 @@ class TestListImageProjects(TestImage):
         self.assertEqual(self.datalist, list(data))
 
 
-class TestRemoveProjectImage(TestImage):
-    project = identity_fakes.FakeProject.create_one_project()
-    domain = identity_fakes.FakeDomain.create_one_domain()
+class TestRemoveProjectImage(image_fakes.TestImagev2):
+    project = sdk_fakes.generate_fake_resource(_project.Project)
+    domain = sdk_fakes.generate_fake_resource(_domain.Domain)
 
     def setUp(self):
         super().setUp()
@@ -1057,8 +1045,7 @@ class TestRemoveProjectImage(TestImage):
         # This is the return value for utils.find_resource()
         self.image_client.find_image.return_value = self._image
 
-        self.project_mock.get.return_value = self.project
-        self.domain_mock.get.return_value = self.domain
+        self.identity_sdk_client.find_project.return_value = self.project
         self.image_client.remove_member.return_value = None
         # Get the command object to test
         self.cmd = _image.RemoveProjectImage(self.app, None)
@@ -1109,7 +1096,7 @@ class TestRemoveProjectImage(TestImage):
         self.assertIsNone(result)
 
 
-class TestShowProjectImage(TestImage):
+class TestShowProjectImage(image_fakes.TestImagev2):
     _image = image_fakes.create_one_image()
     new_member = image_fakes.create_one_image_member(
         attrs={'image_id': _image.id, 'member_id': 'member1'}
@@ -1169,17 +1156,15 @@ class TestShowProjectImage(TestImage):
         self.assertEqual(self.datalist, data)
 
 
-class TestImageSet(TestImage):
-    project = identity_fakes.FakeProject.create_one_project()
-    domain = identity_fakes.FakeDomain.create_one_domain()
+class TestImageSet(image_fakes.TestImagev2):
+    project = sdk_fakes.generate_fake_resource(_project.Project)
+    domain = sdk_fakes.generate_fake_resource(_domain.Domain)
     _image = image_fakes.create_one_image({'tags': []})
 
     def setUp(self):
         super().setUp()
 
-        self.project_mock.get.return_value = self.project
-
-        self.domain_mock.get.return_value = self.domain
+        self.identity_sdk_client.find_project.return_value = self.project
 
         self.image_client.find_image.return_value = self._image
 
@@ -1453,8 +1438,9 @@ class TestImageSet(TestImage):
         self.assertIsNone(result)
 
     def test_image_set_with_unexist_project(self):
-        self.project_mock.get.side_effect = exceptions.NotFound(None)
-        self.project_mock.find.side_effect = exceptions.NotFound(None)
+        self.identity_sdk_client.find_project.side_effect = (
+            sdk_exceptions.ResourceNotFound()
+        )
 
         arglist = [
             '--project',
@@ -1823,7 +1809,7 @@ class TestImageSet(TestImage):
         self.assertIsNone(result)
 
 
-class TestImageShow(TestImage):
+class TestImageShow(image_fakes.TestImagev2):
     new_image = image_fakes.create_one_image(attrs={'size': 1000})
 
     _data = image_fakes.create_one_image()
@@ -1891,7 +1877,7 @@ class TestImageShow(TestImage):
         self.assertEqual(data[size_index], '1K')
 
 
-class TestImageUnset(TestImage):
+class TestImageUnset(image_fakes.TestImagev2):
     def setUp(self):
         super().setUp()
 
@@ -1994,7 +1980,7 @@ class TestImageUnset(TestImage):
         self.assertIsNone(result)
 
 
-class TestImageStage(TestImage):
+class TestImageStage(image_fakes.TestImagev2):
     image = image_fakes.create_one_image({})
 
     def setUp(self):
@@ -2048,7 +2034,7 @@ class TestImageStage(TestImage):
         )
 
 
-class TestImageImport(TestImage):
+class TestImageImport(image_fakes.TestImagev2):
     image = image_fakes.create_one_image(
         {
             'container_format': 'bare',
@@ -2325,7 +2311,7 @@ class TestImageImport(TestImage):
         )
 
 
-class TestImageSave(TestImage):
+class TestImageSave(image_fakes.TestImagev2):
     image = image_fakes.create_one_image({})
 
     def setUp(self):
@@ -2375,7 +2361,7 @@ class TestImageSave(TestImage):
         )
 
 
-class TestImageGetData(TestImage):
+class TestImageGetData(image_fakes.TestImagev2):
     def test_get_data_from_stdin(self):
         fd = io.BytesIO(b"some initial binary data: \x00\x01")
 
@@ -2401,7 +2387,7 @@ class TestImageGetData(TestImage):
             self.assertIsNone(test_fd)
 
 
-class TestStoresInfo(TestImage):
+class TestStoresInfo(image_fakes.TestImagev2):
     stores_info = image_fakes.create_one_stores_info()
 
     def setUp(self):

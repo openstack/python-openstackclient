@@ -264,13 +264,13 @@ class AddProjectToImage(command.ShowOne):
         self, parsed_args: argparse.Namespace
     ) -> tuple[Sequence[str], Iterable[Any]]:
         image_client = self.app.client_manager.image
-        identity_client = self.app.client_manager.identity
+        identity_client = self.app.client_manager.sdk_connection.identity
 
-        project_id = identity_common.find_project(
+        project_id = identity_common.find_project_id_sdk(
             identity_client,
             parsed_args.project,
             parsed_args.project_domain,
-        ).id
+        )
 
         image = image_client.find_image(
             parsed_args.image,
@@ -449,8 +449,8 @@ class CreateImage(command.ShowOne):
     def _take_action_image(
         self, parsed_args: argparse.Namespace
     ) -> dict[str, Any]:
-        identity_client = self.app.client_manager.identity
         image_client = self.app.client_manager.image
+        identity_client = self.app.client_manager.sdk_connection.identity
 
         # Build an attribute dict from the parsed args, only include
         # attributes that were actually set on the command line
@@ -491,11 +491,11 @@ class CreateImage(command.ShowOne):
             kwargs['visibility'] = parsed_args.visibility
 
         if parsed_args.project:
-            kwargs['owner_id'] = identity_common.find_project(
+            kwargs['owner_id'] = identity_common.find_project_id_sdk(
                 identity_client,
                 parsed_args.project,
                 parsed_args.project_domain,
-            ).id
+            )
 
         if parsed_args.use_import:
             kwargs['use_import'] = True
@@ -879,8 +879,8 @@ class ListImage(command.Lister):
     def take_action(
         self, parsed_args: argparse.Namespace
     ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
-        identity_client = self.app.client_manager.identity
         image_client = self.app.client_manager.image
+        identity_client = self.app.client_manager.sdk_connection.identity
 
         kwargs = {}
         if parsed_args.visibility is not None:
@@ -904,11 +904,11 @@ class ListImage(command.Lister):
             kwargs['tag'] = parsed_args.tag
         project_id = None
         if parsed_args.project:
-            project_id = identity_common.find_project(
+            project_id = identity_common.find_project_id_sdk(
                 identity_client,
                 parsed_args.project,
                 parsed_args.project_domain,
-            ).id
+            )
             kwargs['owner'] = project_id
         if parsed_args.is_hidden:
             kwargs['is_hidden'] = parsed_args.is_hidden
@@ -1036,13 +1036,13 @@ class RemoveProjectImage(command.Command):
 
     def take_action(self, parsed_args: argparse.Namespace) -> None:
         image_client = self.app.client_manager.image
-        identity_client = self.app.client_manager.identity
+        identity_client = self.app.client_manager.sdk_connection.identity
 
-        project_id = identity_common.find_project(
+        project_id = identity_common.find_project_id_sdk(
             identity_client,
             parsed_args.project,
             parsed_args.project_domain,
-        ).id
+        )
 
         image = image_client.find_image(
             parsed_args.image,
@@ -1320,8 +1320,8 @@ class SetImage(command.Command):
         return parser
 
     def take_action(self, parsed_args: argparse.Namespace) -> None:
-        identity_client = self.app.client_manager.identity
         image_client = self.app.client_manager.image
+        identity_client = self.app.client_manager.sdk_connection.identity
 
         for deadopt in self.deadopts:
             if getattr(parsed_args, f"dead_{deadopt.replace('-', '_')}", None):
@@ -1339,11 +1339,11 @@ class SetImage(command.Command):
         )
         project_id = None
         if parsed_args.project:
-            project_id = identity_common.find_project(
+            project_id = identity_common.find_project_id_sdk(
                 identity_client,
                 parsed_args.project,
                 parsed_args.project_domain,
-            ).id
+            )
 
         # handle activation status changes
 
