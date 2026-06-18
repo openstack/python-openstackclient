@@ -21,13 +21,14 @@ from openstack.block_storage.v3 import snapshot as _snapshot
 from openstack.block_storage.v3 import type as _type
 from openstack.block_storage.v3 import volume as _volume
 from openstack import exceptions as sdk_exceptions
+from openstack.identity.v3 import project as _project
+from openstack.identity.v3 import user as _user
 from openstack.test import fakes as sdk_fakes
 from osc_lib.cli import format_columns
 from osc_lib import exceptions
 from osc_lib import utils
 
 from openstackclient.api import volume_v3
-from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 from openstackclient.tests.unit.image.v2 import fakes as image_fakes
 from openstackclient.tests.unit import utils as test_utils
 from openstackclient.tests.unit.volume.v3 import fakes as volume_fakes
@@ -1146,6 +1147,9 @@ class TestVolumeDelete(volume_fakes.TestVolume):
 
 
 class TestVolumeList(volume_fakes.TestVolume):
+    project = sdk_fakes.generate_fake_resource(_project.Project)
+    user = sdk_fakes.generate_fake_resource(_user.User)
+
     columns = (
         'ID',
         'Name',
@@ -1160,11 +1164,8 @@ class TestVolumeList(volume_fakes.TestVolume):
         self.volume = sdk_fakes.generate_fake_resource(_volume.Volume)
         self.volume_sdk_client.volumes.return_value = [self.volume]
 
-        self.user = identity_fakes.FakeUser.create_one_user()
-        self.identity_client.users.get.return_value = self.user
-
-        self.project = identity_fakes.FakeProject.create_one_project()
-        self.identity_client.projects.get.return_value = self.project
+        self.identity_sdk_client.find_project.return_value = self.project
+        self.identity_sdk_client.find_user.return_value = self.user
 
         self.cmd = volume.ListVolume(self.app, None)
 

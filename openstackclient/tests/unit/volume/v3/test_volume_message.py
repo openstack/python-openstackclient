@@ -13,10 +13,10 @@
 from unittest.mock import call
 
 from openstack.block_storage.v3 import message as _message
+from openstack.identity.v3 import project as _project
 from openstack.test import fakes as sdk_fakes
 from osc_lib import exceptions
 
-from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 from openstackclient.tests.unit.volume.v3 import fakes as volume_fakes
 from openstackclient.volume.v3 import volume_message
 
@@ -124,7 +124,6 @@ class TestVolumeMessageDelete(volume_fakes.TestVolume):
 
 
 class TestVolumeMessageList(volume_fakes.TestVolume):
-    fake_project = identity_fakes.FakeProject.create_one_project()
     fake_messages = list(
         sdk_fakes.generate_fake_resources(_message.Message, count=3)
     )
@@ -159,7 +158,8 @@ class TestVolumeMessageList(volume_fakes.TestVolume):
     def setUp(self):
         super().setUp()
 
-        self.identity_client.projects.get.return_value = self.fake_project
+        self.project = sdk_fakes.generate_fake_resource(_project.Project)
+        self.identity_sdk_client.find_project.return_value = self.project
         self.volume_sdk_client.messages.return_value = self.fake_messages
         # Get the command to test
         self.cmd = volume_message.ListMessages(self.app, None)
@@ -190,14 +190,14 @@ class TestVolumeMessageList(volume_fakes.TestVolume):
 
         arglist = [
             '--project',
-            self.fake_project.name,
+            self.project.name,
             '--marker',
             self.fake_messages[0].id,
             '--limit',
             '3',
         ]
         verifylist = [
-            ('project', self.fake_project.name),
+            ('project', self.project.name),
             ('marker', self.fake_messages[0].id),
             ('limit', 3),
         ]
@@ -206,7 +206,7 @@ class TestVolumeMessageList(volume_fakes.TestVolume):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.volume_sdk_client.messages.assert_called_once_with(
-            project_id=self.fake_project.id,
+            project_id=self.project.id,
             marker=self.fake_messages[0].id,
             limit=3,
         )

@@ -504,7 +504,8 @@ class ListVolume(command.Lister):
         volume_client = sdk_utils.ensure_service_version(
             self.app.client_manager.sdk_connection.volume, '2'
         )
-        identity_client = self.app.client_manager.identity
+        # we don't narrow types here since we want to handle both v2.0 and v3
+        identity_client = self.app.client_manager.sdk_connection.identity
 
         columns: tuple[str, ...] = ('id', 'name', 'status', 'size')
         column_headers: tuple[str, ...] = ('ID', 'Name', 'Status', 'Size')
@@ -532,18 +533,18 @@ class ListVolume(command.Lister):
             kwargs['marker'] = parsed_args.marker
 
         if parsed_args.project:
-            project_id = identity_common.find_project(
+            project_id = identity_common.find_project_id_sdk(
                 identity_client,
                 parsed_args.project,
                 parsed_args.project_domain,
-            ).id
+            )
             kwargs['project_id'] = project_id
 
         user_id = None
         if parsed_args.user:
-            user_id = identity_common.find_user(
+            user_id = identity_common.find_user_id_sdk(
                 identity_client, parsed_args.user, parsed_args.user_domain
-            ).id
+            )
             kwargs['user_id'] = user_id
 
         # set value of 'all_tenants' when using project option

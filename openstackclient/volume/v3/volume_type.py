@@ -307,7 +307,9 @@ class CreateVolumeType(command.ShowOne):
         volume_client = sdk_utils.ensure_service_version(
             self.app.client_manager.sdk_connection.volume, '3'
         )
-        identity_client = self.app.client_manager.identity
+        identity_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.identity, '3'
+        )
 
         if parsed_args.project and parsed_args.is_public is not False:
             msg = _("--project is only allowed with --private")
@@ -328,11 +330,11 @@ class CreateVolumeType(command.ShowOne):
 
         if parsed_args.project:
             try:
-                project_id = identity_common.find_project(
+                project_id = identity_common.find_project_id_sdk(
                     identity_client,
                     parsed_args.project,
                     parsed_args.project_domain,
-                ).id
+                )
                 volume_client.add_type_access(volume_type.id, project_id)
             except Exception as e:
                 msg = _(
@@ -770,7 +772,9 @@ class SetVolumeType(command.Command):
         volume_client = sdk_utils.ensure_service_version(
             self.app.client_manager.sdk_connection.volume, '3'
         )
-        identity_client = self.app.client_manager.identity
+        identity_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.identity, '3'
+        )
 
         volume_type = volume_client.find_type(
             parsed_args.volume_type, ignore_missing=False
@@ -821,15 +825,13 @@ class SetVolumeType(command.Command):
                 result += 1
 
         if parsed_args.project:
-            project_info = None
             try:
-                project_info = identity_common.find_project(
+                project_id = identity_common.find_project_id_sdk(
                     identity_client,
                     parsed_args.project,
                     parsed_args.project_domain,
                 )
-
-                volume_client.add_type_access(volume_type.id, project_info.id)
+                volume_client.add_type_access(volume_type.id, project_id)
             except Exception as e:
                 LOG.error(
                     _("Failed to set volume type access to project: %s"), e
@@ -973,7 +975,9 @@ class UnsetVolumeType(command.Command):
         volume_client = sdk_utils.ensure_service_version(
             self.app.client_manager.sdk_connection.volume, '3'
         )
-        identity_client = self.app.client_manager.identity
+        identity_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.identity, '3'
+        )
 
         volume_type = volume_client.find_type(
             parsed_args.volume_type, ignore_missing=False
@@ -990,17 +994,13 @@ class UnsetVolumeType(command.Command):
                 result += 1
 
         if parsed_args.project:
-            project_info = None
             try:
-                project_info = identity_common.find_project(
+                project_id = identity_common.find_project_id_sdk(
                     identity_client,
                     parsed_args.project,
                     parsed_args.project_domain,
                 )
-
-                volume_client.remove_type_access(
-                    volume_type.id, project_info.id
-                )
+                volume_client.remove_type_access(volume_type.id, project_id)
             except Exception as e:
                 LOG.error(
                     _("Failed to remove volume type access from project: %s"),

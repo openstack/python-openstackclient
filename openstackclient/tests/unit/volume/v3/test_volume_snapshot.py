@@ -16,11 +16,11 @@ from unittest import mock
 from openstack.block_storage.v3 import snapshot as _snapshot
 from openstack.block_storage.v3 import volume as _volume
 from openstack import exceptions as sdk_exceptions
+from openstack.identity.v3 import project as _project
 from openstack.test import fakes as sdk_fakes
 from osc_lib.cli import format_columns
 from osc_lib import exceptions
 
-from openstackclient.tests.unit.identity.v3 import fakes as project_fakes
 from openstackclient.tests.unit import utils as test_utils
 from openstackclient.tests.unit.volume.v3 import fakes as volume_fakes
 from openstackclient.volume.v3 import volume_snapshot
@@ -385,12 +385,9 @@ class TestVolumeSnapshotList(volume_fakes.TestVolume):
                 _snapshot.Snapshot, attrs={'volume_id': self.volume.name}
             )
         )
-        self.project = project_fakes.FakeProject.create_one_project()
         self.volume_sdk_client.volumes.return_value = [self.volume]
         self.volume_sdk_client.find_volume.return_value = self.volume
         self.volume_sdk_client.snapshots.return_value = self.snapshots
-        self.project_mock = self.identity_client.projects
-        self.project_mock.get.return_value = self.project
 
         self.columns = ("ID", "Name", "Description", "Status", "Size")
         self.columns_long = (
@@ -450,19 +447,22 @@ class TestVolumeSnapshotList(volume_fakes.TestVolume):
         self.assertEqual(self.data, list(data))
 
     def test_snapshot_list_with_options(self):
+        project = sdk_fakes.generate_fake_resource(_project.Project)
+        self.identity_sdk_client.find_project.return_value = project
+
         arglist = [
             "--long",
             "--limit",
             "2",
             "--project",
-            self.project.id,
+            project.id,
             "--marker",
             self.snapshots[0].id,
         ]
         verifylist = [
             ("long", True),
             ("limit", 2),
-            ("project", self.project.id),
+            ("project", project.id),
             ("marker", self.snapshots[0].id),
             ('all_projects', False),
         ]
@@ -475,7 +475,7 @@ class TestVolumeSnapshotList(volume_fakes.TestVolume):
             marker=self.snapshots[0].id,
             max_items=None,
             all_projects=True,
-            project_id=self.project.id,
+            project_id=project.id,
             name=None,
             status=None,
             volume_id=None,
