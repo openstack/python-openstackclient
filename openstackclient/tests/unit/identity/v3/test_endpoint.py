@@ -21,29 +21,6 @@ from openstackclient.identity.v3 import endpoint
 from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 
 
-class TestEndpoint(identity_fakes.TestIdentity):
-    def setUp(self):
-        super().setUp()
-
-        # Get a shortcut to the EndpointManager Mock
-        self.endpoints_mock = self.identity_client.endpoints
-        self.endpoints_mock.reset_mock()
-        self.ep_filter_mock = self.identity_client.endpoint_filter
-        self.ep_filter_mock.reset_mock()
-
-        # Get a shortcut to the ServiceManager Mock
-        self.services_mock = self.identity_client.services
-        self.services_mock.reset_mock()
-
-        # Get a shortcut to the DomainManager Mock
-        self.domains_mock = self.identity_client.domains
-        self.domains_mock.reset_mock()
-
-        # Get a shortcut to the ProjectManager Mock
-        self.projects_mock = self.identity_client.projects
-        self.projects_mock.reset_mock()
-
-
 class TestEndpointCreate(identity_fakes.TestIdentity):
     columns = (
         'enabled',
@@ -767,28 +744,21 @@ class TestEndpointShowServiceWithoutName(TestEndpointShow):
         self.cmd = endpoint.ShowEndpoint(self.app, None)
 
 
-class TestAddProjectToEndpoint(TestEndpoint):
-    project = identity_fakes.FakeProject.create_one_project()
-    domain = identity_fakes.FakeDomain.create_one_domain()
-    service = identity_fakes.FakeService.create_one_service()
-    endpoint = identity_fakes.FakeEndpoint.create_one_endpoint(
-        attrs={'service_id': service.id}
-    )
-
-    new_ep_filter = identity_fakes.FakeEndpoint.create_one_endpoint_filter(
-        attrs={'endpoint': endpoint.id, 'project': project.id}
-    )
-
+class TestAddProjectToEndpoint(identity_fakes.TestIdentity):
     def setUp(self):
         super().setUp()
 
-        # This is the return value for utils.find_resource()
-        self.endpoints_mock.get.return_value = self.endpoint
+        self.project = sdk_fakes.generate_fake_resource(_project.Project)
+        self.domain = sdk_fakes.generate_fake_resource(_domain.Domain)
+        self.service = sdk_fakes.generate_fake_resource(_service.Service)
+        self.endpoint = sdk_fakes.generate_fake_resource(
+            _endpoint.Endpoint, service_id=self.service.id
+        )
 
-        # Update the image_id in the MEMBER dict
-        self.ep_filter_mock.create.return_value = self.new_ep_filter
-        self.projects_mock.get.return_value = self.project
-        self.domains_mock.get.return_value = self.domain
+        self.identity_sdk_client.find_project.return_value = self.project
+        self.identity_sdk_client.find_domain.return_value = self.domain
+        self.identity_sdk_client.find_endpoint.return_value = self.endpoint
+
         # Get the command object to test
         self.cmd = endpoint.AddProjectToEndpoint(self.app, None)
 
@@ -804,7 +774,7 @@ class TestAddProjectToEndpoint(TestEndpoint):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
-        self.ep_filter_mock.add_endpoint_to_project.assert_called_with(
+        self.identity_sdk_client.associate_endpoint_with_project.assert_called_with(
             project=self.project.id, endpoint=self.endpoint.id
         )
         self.assertIsNone(result)
@@ -824,29 +794,26 @@ class TestAddProjectToEndpoint(TestEndpoint):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
-        self.ep_filter_mock.add_endpoint_to_project.assert_called_with(
+        self.identity_sdk_client.associate_endpoint_with_project.assert_called_with(
             project=self.project.id, endpoint=self.endpoint.id
         )
         self.assertIsNone(result)
 
 
-class TestRemoveProjectEndpoint(TestEndpoint):
-    project = identity_fakes.FakeProject.create_one_project()
-    domain = identity_fakes.FakeDomain.create_one_domain()
-    service = identity_fakes.FakeService.create_one_service()
-    endpoint = identity_fakes.FakeEndpoint.create_one_endpoint(
-        attrs={'service_id': service.id}
-    )
-
+class TestRemoveProjectEndpoint(identity_fakes.TestIdentity):
     def setUp(self):
         super().setUp()
 
-        # This is the return value for utils.find_resource()
-        self.endpoints_mock.get.return_value = self.endpoint
+        self.project = sdk_fakes.generate_fake_resource(_project.Project)
+        self.domain = sdk_fakes.generate_fake_resource(_domain.Domain)
+        self.service = sdk_fakes.generate_fake_resource(_service.Service)
+        self.endpoint = sdk_fakes.generate_fake_resource(
+            _endpoint.Endpoint, service_id=self.service.id
+        )
 
-        self.projects_mock.get.return_value = self.project
-        self.domains_mock.get.return_value = self.domain
-        self.ep_filter_mock.delete.return_value = None
+        self.identity_sdk_client.find_project.return_value = self.project
+        self.identity_sdk_client.find_domain.return_value = self.domain
+        self.identity_sdk_client.find_endpoint.return_value = self.endpoint
 
         # Get the command object to test
         self.cmd = endpoint.RemoveProjectFromEndpoint(self.app, None)
@@ -863,10 +830,8 @@ class TestRemoveProjectEndpoint(TestEndpoint):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
-
-        self.ep_filter_mock.delete_endpoint_from_project.assert_called_with(
-            project=self.project.id,
-            endpoint=self.endpoint.id,
+        self.identity_sdk_client.disassociate_endpoint_from_project.assert_called_with(
+            project=self.project.id, endpoint=self.endpoint.id
         )
         self.assertIsNone(result)
 
@@ -885,9 +850,7 @@ class TestRemoveProjectEndpoint(TestEndpoint):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
-
-        self.ep_filter_mock.delete_endpoint_from_project.assert_called_with(
-            project=self.project.id,
-            endpoint=self.endpoint.id,
+        self.identity_sdk_client.disassociate_endpoint_from_project.assert_called_with(
+            project=self.project.id, endpoint=self.endpoint.id
         )
         self.assertIsNone(result)

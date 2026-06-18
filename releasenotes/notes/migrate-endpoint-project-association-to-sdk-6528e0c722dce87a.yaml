@@ -1,0 +1,7 @@
+---
+upgrade:
+  - |
+    The following commands have been migrated to SDK:
+
+    - ``endpoint add project``
+    - ``endpoint remove project``

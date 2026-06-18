@@ -83,16 +83,20 @@ class AddProjectToEndpoint(command.Command):
         return parser
 
     def take_action(self, parsed_args: argparse.Namespace) -> None:
-        client = self.app.client_manager.identity
-
-        endpoint = utils.find_resource(client.endpoints, parsed_args.endpoint)
-
-        project = common.find_project(
-            client, parsed_args.project, parsed_args.project_domain
+        identity_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.identity, '3'
         )
 
-        client.endpoint_filter.add_endpoint_to_project(
-            project=project.id, endpoint=endpoint.id
+        endpoint_id = identity_client.find_endpoint(
+            parsed_args.endpoint, ignore_missing=False
+        ).id
+
+        project_id = common.find_project_id_sdk(
+            identity_client, parsed_args.project, parsed_args.project_domain
+        )
+
+        identity_client.associate_endpoint_with_project(
+            project=project_id, endpoint=endpoint_id
         )
 
 
@@ -366,16 +370,20 @@ class RemoveProjectFromEndpoint(command.Command):
         return parser
 
     def take_action(self, parsed_args: argparse.Namespace) -> None:
-        client = self.app.client_manager.identity
-
-        endpoint = utils.find_resource(client.endpoints, parsed_args.endpoint)
-
-        project = common.find_project(
-            client, parsed_args.project, parsed_args.project_domain
+        identity_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.identity, '3'
         )
 
-        client.endpoint_filter.delete_endpoint_from_project(
-            project=project.id, endpoint=endpoint.id
+        endpoint_id = identity_client.find_endpoint(
+            parsed_args.endpoint, ignore_missing=False
+        ).id
+
+        project_id = common.find_project_id_sdk(
+            identity_client, parsed_args.project, parsed_args.project_domain
+        )
+
+        identity_client.disassociate_endpoint_from_project(
+            project=project_id, endpoint=endpoint_id
         )
 
 
