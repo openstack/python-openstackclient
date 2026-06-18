@@ -78,11 +78,7 @@ def _get_columns_network(
     )
 
 
-def _get_columns_compute(item: Any) -> tuple[tuple[str, ...], tuple[str, ...]]:
-    return utils.get_osc_show_columns_for_sdk_resource(item, {})
-
-
-def _get_attrs_network(
+def _get_attrs(
     client_manager: Any, parsed_args: argparse.Namespace
 ) -> dict[str, Any]:
     attrs = {}
@@ -160,21 +156,6 @@ def _get_attrs_network(
     # Update DNS network options
     if parsed_args.dns_domain is not None:
         attrs['dns_domain'] = parsed_args.dns_domain
-    return attrs
-
-
-def _get_attrs_compute(
-    client_manager: Any, parsed_args: argparse.Namespace
-) -> dict[str, Any]:
-    attrs = {}
-    if parsed_args.name is not None:
-        attrs['name'] = parsed_args.name
-    if parsed_args.share:
-        attrs['share_subnet'] = True
-    if parsed_args.no_share:
-        attrs['share_subnet'] = False
-    if parsed_args.subnet is not None:
-        attrs['subnet'] = parsed_args.subnet
     return attrs
 
 
@@ -383,7 +364,7 @@ class CreateNetwork(command.ShowOne, common.NeutronCommandWithExtraArgs):
         self, parsed_args: argparse.Namespace
     ) -> tuple[Sequence[str], Iterable[Any]]:
         client = self.app.client_manager.network
-        attrs = _get_attrs_network(self.app.client_manager, parsed_args)
+        attrs = _get_attrs(self.app.client_manager, parsed_args)
         if parsed_args.transparent_vlan:
             attrs['vlan_transparent'] = True
         if parsed_args.no_transparent_vlan:
@@ -837,7 +818,7 @@ class SetNetwork(common.NeutronCommandWithExtraArgs):
         client = self.app.client_manager.network
         obj = client.find_network(parsed_args.network, ignore_missing=False)
 
-        attrs = _get_attrs_network(self.app.client_manager, parsed_args)
+        attrs = _get_attrs(self.app.client_manager, parsed_args)
         attrs.update(
             self._parse_extra_properties(parsed_args.extra_properties)
         )
