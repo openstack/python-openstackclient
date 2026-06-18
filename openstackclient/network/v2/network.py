@@ -99,12 +99,12 @@ def _get_attrs(
 
     # "network set" command doesn't support setting project.
     if 'project' in parsed_args and parsed_args.project is not None:
-        identity_client = client_manager.identity
-        project_id = identity_common.find_project(
+        identity_client = client_manager.sdk_connection.identity
+        project_id = identity_common.find_project_id_sdk(
             identity_client,
             parsed_args.project,
             parsed_args.project_domain,
-        ).id
+        )
         attrs['project_id'] = project_id
 
     # "network set" command doesn't support setting availability zone hints.
@@ -568,7 +568,6 @@ class ListNetwork(command.Lister):
         self, parsed_args: argparse.Namespace
     ) -> tuple[Sequence[str], Iterable[Any]]:
         client = self.app.client_manager.network
-        identity_client = self.app.client_manager.identity
         if parsed_args.long:
             columns: tuple[str, ...] = (
                 'id',
@@ -626,7 +625,7 @@ class ListNetwork(command.Lister):
                 ),
             )
 
-        args = {}
+        args: dict[str, object] = {}
 
         if parsed_args.external:
             args['router:external'] = True
@@ -646,12 +645,13 @@ class ListNetwork(command.Lister):
             args['is_admin_state_up'] = False
 
         if parsed_args.project:
-            project = identity_common.find_project(
+            identity_client = self.app.client_manager.sdk_connection.identity
+            project_id = identity_common.find_project_id_sdk(
                 identity_client,
                 parsed_args.project,
                 parsed_args.project_domain,
             )
-            args['project_id'] = project.id
+            args['project_id'] = project_id
 
         if parsed_args.share:
             args['shared'] = True

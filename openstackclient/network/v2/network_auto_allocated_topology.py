@@ -55,12 +55,12 @@ def _get_attrs(
 ) -> dict[str, Any]:
     attrs: dict[str, Any] = {}
     if parsed_args.project:
-        identity_client = client_manager.identity
-        project_id = identity_common.find_project(
+        identity_client = client_manager.sdk_connection.identity
+        project_id = identity_common.find_project_id_sdk(
             identity_client,
             parsed_args.project,
             parsed_args.project_domain,
-        ).id
+        )
         attrs['project_id'] = project_id
     if parsed_args.check_resources:
         attrs['check_resources'] = True

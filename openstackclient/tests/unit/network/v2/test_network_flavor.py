@@ -12,29 +12,20 @@
 #   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #   License for the specific language governing permissions and limitations
 #   under the License.
-#
 
 from unittest import mock
 
+from openstack.identity.v3 import domain as _domain
+from openstack.identity.v3 import project as _project
+from openstack.test import fakes as sdk_fakes
 from osc_lib import exceptions
 
 from openstackclient.network.v2 import network_flavor
-from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes_v3
 from openstackclient.tests.unit.network.v2 import fakes as network_fakes
 from openstackclient.tests.unit import utils as tests_utils
 
 
-class TestNetworkFlavor(network_fakes.TestNetworkV2):
-    def setUp(self):
-        super().setUp()
-
-        # Get a shortcut to the ProjectManager Mock
-        self.projects_mock = self.identity_client.projects
-        # Get a shortcut to the DomainManager Mock
-        self.domains_mock = self.identity_client.domains
-
-
-class TestAddNetworkFlavorToProfile(TestNetworkFlavor):
+class TestAddNetworkFlavorToProfile(network_fakes.TestNetworkV2):
     network_flavor = network_fakes.create_one_network_flavor()
     service_profile = network_fakes.create_one_service_profile()
 
@@ -76,9 +67,9 @@ class TestAddNetworkFlavorToProfile(TestNetworkFlavor):
         )
 
 
-class TestCreateNetworkFlavor(TestNetworkFlavor):
-    project = identity_fakes_v3.FakeProject.create_one_project()
-    domain = identity_fakes_v3.FakeDomain.create_one_domain()
+class TestCreateNetworkFlavor(network_fakes.TestNetworkV2):
+    project = sdk_fakes.generate_fake_resource(_project.Project)
+    domain = sdk_fakes.generate_fake_resource(_domain.Domain)
     # The new network flavor created.
     new_network_flavor = network_fakes.create_one_network_flavor()
     columns = (
@@ -107,8 +98,7 @@ class TestCreateNetworkFlavor(TestNetworkFlavor):
         # Get the command object to test
         self.cmd = network_flavor.CreateNetworkFlavor(self.app, None)
 
-        self.projects_mock.get.return_value = self.project
-        self.domains_mock.get.return_value = self.domain
+        self.identity_sdk_client.find_project.return_value = self.project
 
     def test_create_no_options(self):
         arglist = []
@@ -210,7 +200,7 @@ class TestCreateNetworkFlavor(TestNetworkFlavor):
         self.assertEqual(set(self.data), set(data))
 
 
-class TestDeleteNetworkFlavor(TestNetworkFlavor):
+class TestDeleteNetworkFlavor(network_fakes.TestNetworkV2):
     # The network flavor to delete.
     _network_flavors = network_fakes.create_flavor(count=2)
 
@@ -295,7 +285,7 @@ class TestDeleteNetworkFlavor(TestNetworkFlavor):
         )
 
 
-class TestListNetworkFlavor(TestNetworkFlavor):
+class TestListNetworkFlavor(network_fakes.TestNetworkV2):
     # The network flavors to list up.
     _network_flavors = network_fakes.create_flavor(count=2)
     columns = (
@@ -360,7 +350,7 @@ class TestListNetworkFlavor(TestNetworkFlavor):
         self.assertEqual(self.data, list(data))
 
 
-class TestRemoveNetworkFlavorFromProfile(TestNetworkFlavor):
+class TestRemoveNetworkFlavorFromProfile(network_fakes.TestNetworkV2):
     network_flavor = network_fakes.create_one_network_flavor()
     service_profile = network_fakes.create_one_service_profile()
 
@@ -406,7 +396,7 @@ class TestRemoveNetworkFlavorFromProfile(TestNetworkFlavor):
         )
 
 
-class TestShowNetworkFlavor(TestNetworkFlavor):
+class TestShowNetworkFlavor(network_fakes.TestNetworkV2):
     # The network flavor to show.
     new_network_flavor = network_fakes.create_one_network_flavor()
     columns = (
@@ -464,7 +454,7 @@ class TestShowNetworkFlavor(TestNetworkFlavor):
         self.assertEqual(set(self.data), set(data))
 
 
-class TestSetNetworkFlavor(TestNetworkFlavor):
+class TestSetNetworkFlavor(network_fakes.TestNetworkV2):
     # The network flavor to set.
     new_network_flavor = network_fakes.create_one_network_flavor()
 

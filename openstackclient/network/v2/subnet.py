@@ -225,12 +225,12 @@ def _get_attrs(
 
     if is_create:
         if 'project' in parsed_args and parsed_args.project is not None:
-            identity_client = client_manager.identity
-            project_id = identity_common.find_project(
+            identity_client = client_manager.sdk_connection.identity
+            project_id = identity_common.find_project_id_sdk(
                 identity_client,
                 parsed_args.project,
                 parsed_args.project_domain,
-            ).id
+            )
             attrs['project_id'] = project_id
         attrs['network_id'] = client.find_network(
             parsed_args.network, ignore_missing=False
@@ -587,7 +587,6 @@ class ListSubnet(command.Lister):
     def take_action(
         self, parsed_args: argparse.Namespace
     ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
-        identity_client = self.app.client_manager.identity
         network_client = self.app.client_manager.network
 
         filters = {}
@@ -603,11 +602,12 @@ class ListSubnet(command.Lister):
         if parsed_args.service_types:
             filters['service_types'] = parsed_args.service_types
         if parsed_args.project:
-            project_id = identity_common.find_project(
+            identity_client = self.app.client_manager.sdk_connection.identity
+            project_id = identity_common.find_project_id_sdk(
                 identity_client,
                 parsed_args.project,
                 parsed_args.project_domain,
-            ).id
+            )
             filters['project_id'] = project_id
         if parsed_args.network:
             network_id = network_client.find_network(

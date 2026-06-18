@@ -15,26 +15,19 @@
 
 from unittest.mock import call
 
+from openstack.identity.v3 import domain as _domain
+from openstack.identity.v3 import project as _project
+from openstack.test import fakes as sdk_fakes
 from osc_lib import exceptions
 
 from openstackclient.network.v2 import network_meter
-from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes_v3
 from openstackclient.tests.unit.network.v2 import fakes as network_fakes
 from openstackclient.tests.unit import utils as tests_utils
 
 
-class TestMeter(network_fakes.TestNetworkV2):
-    def setUp(self):
-        super().setUp()
-
-        self.projects_mock = self.identity_client.projects
-        self.domains_mock = self.identity_client.domains
-
-
-class TestCreateMeter(TestMeter):
-    project = identity_fakes_v3.FakeProject.create_one_project()
-    domain = identity_fakes_v3.FakeDomain.create_one_domain()
-
+class TestCreateMeter(network_fakes.TestNetworkV2):
+    project = sdk_fakes.generate_fake_resource(_project.Project)
+    domain = sdk_fakes.generate_fake_resource(_domain.Domain)
     new_meter = network_fakes.FakeNetworkMeter.create_one_meter()
     columns = (
         'description',
@@ -56,7 +49,7 @@ class TestCreateMeter(TestMeter):
         super().setUp()
         self.network_client.create_metering_label.return_value = self.new_meter
 
-        self.projects_mock.get.return_value = self.project
+        self.identity_sdk_client.find_project.return_value = self.project
         self.cmd = network_meter.CreateMeter(self.app, None)
 
     def test_create_no_options(self):
@@ -124,7 +117,7 @@ class TestCreateMeter(TestMeter):
         self.assertEqual(self.data, data)
 
 
-class TestDeleteMeter(TestMeter):
+class TestDeleteMeter(network_fakes.TestNetworkV2):
     def setUp(self):
         super().setUp()
 
@@ -209,7 +202,7 @@ class TestDeleteMeter(TestMeter):
         self.network_client.delete_metering_label.assert_has_calls(calls)
 
 
-class TestListMeter(TestMeter):
+class TestListMeter(network_fakes.TestNetworkV2):
     meter_list = network_fakes.FakeNetworkMeter.create_meter(count=2)
 
     columns = (
@@ -275,7 +268,7 @@ class TestListMeter(TestMeter):
         self.assertEqual(self.data, list(data))
 
 
-class TestShowMeter(TestMeter):
+class TestShowMeter(network_fakes.TestNetworkV2):
     new_meter = network_fakes.FakeNetworkMeter.create_one_meter()
     columns = (
         'description',

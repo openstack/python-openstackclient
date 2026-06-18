@@ -203,8 +203,6 @@ class CreateNetworkSegmentRange(
             ) % {'e': e}
             raise exceptions.CommandError(msg)
 
-        identity_client = self.app.client_manager.identity
-
         if not parsed_args.private and parsed_args.project:
             msg = _("--project is only allowed with --private")
             raise exceptions.CommandError(msg)
@@ -231,11 +229,12 @@ class CreateNetworkSegmentRange(
             attrs['name'] = parsed_args.name
 
         if parsed_args.project:
-            project_id = identity_common.find_project(
+            identity_client = self.app.client_manager.sdk_connection.identity
+            project_id = identity_common.find_project_id_sdk(
                 identity_client,
                 parsed_args.project,
                 parsed_args.project_domain,
-            ).id
+            )
             if project_id:
                 attrs['project_id'] = project_id
             else:

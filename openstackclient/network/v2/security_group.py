@@ -124,12 +124,12 @@ class CreateSecurityGroup(command.ShowOne, common.NeutronCommandWithExtraArgs):
         if parsed_args.stateless:
             attrs['stateful'] = False
         if parsed_args.project is not None:
-            identity_client = self.app.client_manager.identity
-            project_id = identity_common.find_project(
+            identity_client = self.app.client_manager.sdk_connection.identity
+            project_id = identity_common.find_project_id_sdk(
                 identity_client,
                 parsed_args.project,
                 parsed_args.project_domain,
-            ).id
+            )
             attrs['project_id'] = project_id
         attrs.update(
             self._parse_extra_properties(parsed_args.extra_properties)
@@ -236,14 +236,13 @@ class ListSecurityGroup(command.Lister):
         filters = {}
 
         if parsed_args.project:
-            identity_client = self.app.client_manager.identity
-            project_id = identity_common.find_project(
+            identity_client = self.app.client_manager.sdk_connection.identity
+            project_id = identity_common.find_project_id_sdk(
                 identity_client,
                 parsed_args.project,
                 parsed_args.project_domain,
-            ).id
+            )
             filters['project_id'] = project_id
-
         if parsed_args.shared is not None:
             filters['shared'] = parsed_args.shared
         if parsed_args.marker is not None:

@@ -11,7 +11,6 @@
 #   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #   License for the specific language governing permissions and limitations
 #   under the License.
-#
 
 from unittest import mock
 from unittest.mock import call
@@ -19,7 +18,6 @@ from unittest.mock import call
 from osc_lib import exceptions
 
 from openstackclient.network.v2 import local_ip_association
-from openstackclient.tests.unit.identity.v2_0 import fakes as identity_fakes_v2
 from openstackclient.tests.unit.network.v2 import fakes as network_fakes
 
 
@@ -28,7 +26,6 @@ class TestLocalIPAssociation(network_fakes.TestNetworkV2):
         super().setUp()
         self.local_ip = network_fakes.create_one_local_ip()
         self.fixed_port = network_fakes.create_one_port()
-        self.project = identity_fakes_v2.FakeProject.create_one_project()
         self.network_client.find_port.return_value = self.fixed_port
 
 

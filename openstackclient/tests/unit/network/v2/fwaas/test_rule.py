@@ -102,8 +102,8 @@ class TestFirewallRule(network_fakes.TestNetworkV2):
     def setUp(self):
         super().setUp()
 
-        self.identity_client.projects.get.side_effect = lambda x: mock.Mock(
-            id=x
+        self.identity_sdk_client.find_project.side_effect = (
+            lambda name_or_id, **kw: mock.Mock(id=name_or_id)
         )
         self.res = 'firewall_rule'
         self.res_plural = 'firewall_rules'

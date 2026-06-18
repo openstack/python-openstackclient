@@ -239,13 +239,16 @@ class CreateFirewallGroup(command.ShowOne):
             )
         elif parsed_args.positional_name:
             parsed_args.name = parsed_args.positional_name
+
         attrs = _get_common_attrs(self.app.client_manager, parsed_args)
         if 'project' in parsed_args and parsed_args.project is not None:
-            attrs['project_id'] = identity_common.find_project(
-                self.app.client_manager.identity,
+            identity_client = self.app.client_manager.sdk_connection.identity
+            project_id = identity_common.find_project_id_sdk(
+                identity_client,
                 parsed_args.project,
                 parsed_args.project_domain,
-            ).id
+            )
+            attrs['project_id'] = project_id
         obj = client.create_firewall_group(**attrs)
         display_columns, columns = utils.get_osc_show_columns_for_sdk_resource(
             obj, _attr_map_dict, ['location', 'tenant_id']

@@ -54,12 +54,12 @@ def _get_attrs(
     if parsed_args.no_share:
         attrs['shared'] = False
     if 'project' in parsed_args and parsed_args.project is not None:
-        identity_client = client_manager.identity
-        project_id = identity_common.find_project(
+        identity_client = client_manager.sdk_connection.identity
+        project_id = identity_common.find_project_id_sdk(
             identity_client,
             parsed_args.project,
             parsed_args.project_domain,
-        ).id
+        )
         attrs['project_id'] = project_id
 
     return attrs
@@ -232,12 +232,12 @@ class ListAddressScope(command.Lister):
         if parsed_args.no_share:
             attrs['is_shared'] = False
         if 'project' in parsed_args and parsed_args.project is not None:
-            identity_client = self.app.client_manager.identity
-            project_id = identity_common.find_project(
+            identity_client = self.app.client_manager.sdk_connection.identity
+            project_id = identity_common.find_project_id_sdk(
                 identity_client,
                 parsed_args.project,
                 parsed_args.project_domain,
-            ).id
+            )
             attrs['project_id'] = project_id
         if parsed_args.marker is not None:
             attrs['marker'] = parsed_args.marker

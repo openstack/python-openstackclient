@@ -54,12 +54,12 @@ def _get_attrs(
         attrs['description'] = parsed_args.description
     attrs['addresses'] = _format_addresses(parsed_args.address)
     if 'project' in parsed_args and parsed_args.project is not None:
-        identity_client = client_manager.identity
-        project_id = identity_common.find_project(
+        identity_client = client_manager.sdk_connection.identity
+        project_id = identity_common.find_project_id_sdk(
             identity_client,
             parsed_args.project,
             parsed_args.project_domain,
-        ).id
+        )
         attrs['project_id'] = project_id
 
     return attrs
@@ -199,12 +199,12 @@ class ListAddressGroup(command.Lister):
         if parsed_args.name:
             attrs['name'] = parsed_args.name
         if 'project' in parsed_args and parsed_args.project is not None:
-            identity_client = self.app.client_manager.identity
-            project_id = identity_common.find_project(
+            identity_client = self.app.client_manager.sdk_connection.identity
+            project_id = identity_common.find_project_id_sdk(
                 identity_client,
                 parsed_args.project,
                 parsed_args.project_domain,
-            ).id
+            )
             attrs['project_id'] = project_id
         if parsed_args.marker is not None:
             attrs['marker'] = parsed_args.marker

@@ -25,7 +25,7 @@ from osc_lib.utils import columns as column_util
 
 from openstackclient import command
 from openstackclient.i18n import _
-from openstackclient.identity import common
+from openstackclient.identity import common as identity_common
 
 LOG = logging.getLogger(__name__)
 
@@ -89,11 +89,13 @@ class CreateTapService(command.ShowOne):
             ).id
             attrs['port_id'] = port_id
         if 'project' in parsed_args and parsed_args.project is not None:
-            attrs['project_id'] = common.find_project(
-                self.app.client_manager.identity,
+            identity_client = self.app.client_manager.sdk_connection.identity
+            project_id = identity_common.find_project_id_sdk(
+                identity_client,
                 parsed_args.project,
                 parsed_args.project_domain,
-            ).id
+            )
+            attrs['project_id'] = project_id
         obj = client.create_tap_service(**attrs)
         display_columns, columns = _get_columns(obj)
         data = osc_utils.get_dict_properties(obj, columns)
@@ -115,11 +117,13 @@ class ListTapService(command.Lister):
         client = self.app.client_manager.network
         params = {}
         if parsed_args.project is not None:
-            params['project_id'] = common.find_project(
-                self.app.client_manager.identity,
+            identity_client = self.app.client_manager.sdk_connection.identity
+            project_id = identity_common.find_project_id_sdk(
+                identity_client,
                 parsed_args.project,
                 parsed_args.project_domain,
-            ).id
+            )
+            params['project_id'] = project_id
         objs = client.tap_services(retrieve_all=True, params=params)
         headers, columns = column_util.get_column_definitions(
             _attr_map, long_listing=True

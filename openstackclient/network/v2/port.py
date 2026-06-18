@@ -195,12 +195,12 @@ def _get_attrs(
     if 'network' in parsed_args and parsed_args.network is not None:
         attrs['network_id'] = parsed_args.network
     if 'project' in parsed_args and parsed_args.project is not None:
-        identity_client = client_manager.identity
-        project_id = identity_common.find_project(
+        identity_client = client_manager.sdk_connection.identity
+        project_id = identity_common.find_project_id_sdk(
             identity_client,
             parsed_args.project,
             parsed_args.project_domain,
-        ).id
+        )
         attrs['project_id'] = project_id
 
     if parsed_args.disable_port_security:
@@ -954,7 +954,6 @@ class ListPort(command.Lister):
         self, parsed_args: argparse.Namespace
     ) -> tuple[Sequence[str], Iterable[tuple[Any, ...]]]:
         network_client = self.app.client_manager.network
-        identity_client = self.app.client_manager.identity
 
         columns = [
             'id',
@@ -1007,11 +1006,12 @@ class ListPort(command.Lister):
         if parsed_args.status:
             filters['status'] = parsed_args.status
         if parsed_args.project:
-            project_id = identity_common.find_project(
+            identity_client = self.app.client_manager.sdk_connection.identity
+            project_id = identity_common.find_project_id_sdk(
                 identity_client,
                 parsed_args.project,
                 parsed_args.project_domain,
-            ).id
+            )
             filters['project_id'] = project_id
         if parsed_args.name:
             filters['name'] = parsed_args.name

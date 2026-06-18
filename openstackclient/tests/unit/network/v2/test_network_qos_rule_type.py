@@ -13,18 +13,12 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-
 from openstackclient.network.v2 import network_qos_rule_type as _qos_rule_type
 from openstackclient.tests.unit.network.v2 import fakes as network_fakes
 from openstackclient.tests.unit import utils as tests_utils
 
 
-class TestNetworkQosRuleType(network_fakes.TestNetworkV2):
-    def setUp(self):
-        super().setUp()
-
-
-class TestShowNetworkQosRuleType(TestNetworkQosRuleType):
+class TestShowNetworkQosRuleType(network_fakes.TestNetworkV2):
     attrs = {'drivers': [{'name': 'driver 1', 'supported_parameters': []}]}
     # The QoS policies to show.
     qos_rule_type = network_fakes.create_one_qos_rule_type(attrs)
@@ -70,7 +64,7 @@ class TestShowNetworkQosRuleType(TestNetworkQosRuleType):
         self.assertEqual(list(self.data), list(data))
 
 
-class TestListNetworkQosRuleType(TestNetworkQosRuleType):
+class TestListNetworkQosRuleType(network_fakes.TestNetworkV2):
     # The QoS policies to list up.
     qos_rule_types = network_fakes.create_qos_rule_types(count=3)
 

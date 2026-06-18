@@ -12,7 +12,6 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
-#
 
 import re
 from unittest import mock
@@ -73,9 +72,10 @@ class TestFirewallPolicy(network_fakes.TestNetworkV2):
     def setUp(self):
         super().setUp()
 
-        self.identity_client.projects.get.side_effect = lambda x: mock.Mock(
-            id=x
+        self.identity_sdk_client.find_project.side_effect = (
+            lambda name_or_id, **kw: mock.Mock(id=name_or_id)
         )
+
         self.res = 'firewall_policy'
         self.res_plural = 'firewall_policies'
         self.resource = sdk_fakes.generate_fake_resource(
@@ -145,7 +145,7 @@ class TestCreateFirewallPolicy(TestFirewallPolicy):
             A OrderedDict of request body
         """
         # Update response body
-        pass  # identity_client.projects.get is already mocked in setUp
+        pass
         # Update response(finally returns 'data')
         self.data = _generate_data(data=response)
         self.ordered_data = tuple(

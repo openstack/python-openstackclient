@@ -51,12 +51,12 @@ def _get_attrs(
     if parsed_args.description is not None:
         attrs['description'] = parsed_args.description
     if parsed_args.project is not None and 'project' in parsed_args:
-        identity_client = client_manager.identity
-        project_id = identity_common.find_project(
+        identity_client = client_manager.sdk_connection.identity
+        project_id = identity_common.find_project_id_sdk(
             identity_client,
             parsed_args.project,
             parsed_args.project_domain,
-        ).id
+        )
         attrs['project_id'] = project_id
     if parsed_args.share:
         attrs['shared'] = True

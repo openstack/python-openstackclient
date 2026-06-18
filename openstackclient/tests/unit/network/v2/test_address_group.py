@@ -9,31 +9,22 @@
 #   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #   License for the specific language governing permissions and limitations
 #   under the License.
-#
 
 from unittest.mock import call
 
+from openstack.identity.v3 import domain as _domain
+from openstack.identity.v3 import project as _project
+from openstack.test import fakes as sdk_fakes
 from osc_lib import exceptions
 
 from openstackclient.network.v2 import address_group
-from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes_v3
 from openstackclient.tests.unit.network.v2 import fakes as network_fakes
 from openstackclient.tests.unit import utils as tests_utils
 
 
-class TestAddressGroup(network_fakes.TestNetworkV2):
-    def setUp(self):
-        super().setUp()
-
-        # Get a shortcut to the ProjectManager Mock
-        self.projects_mock = self.identity_client.projects
-        # Get a shortcut to the DomainManager Mock
-        self.domains_mock = self.identity_client.domains
-
-
-class TestCreateAddressGroup(TestAddressGroup):
-    project = identity_fakes_v3.FakeProject.create_one_project()
-    domain = identity_fakes_v3.FakeDomain.create_one_domain()
+class TestCreateAddressGroup(network_fakes.TestNetworkV2):
+    project = sdk_fakes.generate_fake_resource(_project.Project)
+    domain = sdk_fakes.generate_fake_resource(_domain.Domain)
     # The new address group created.
     new_address_group = network_fakes.create_one_address_group(
         attrs={
@@ -64,8 +55,7 @@ class TestCreateAddressGroup(TestAddressGroup):
         # Get the command object to test
         self.cmd = address_group.CreateAddressGroup(self.app, None)
 
-        self.projects_mock.get.return_value = self.project
-        self.domains_mock.get.return_value = self.domain
+        self.identity_sdk_client.find_project.return_value = self.project
 
     def test_create_no_options(self):
         arglist = []
@@ -138,7 +128,7 @@ class TestCreateAddressGroup(TestAddressGroup):
         self.assertCountEqual(self.data, data)
 
 
-class TestDeleteAddressGroup(TestAddressGroup):
+class TestDeleteAddressGroup(network_fakes.TestNetworkV2):
     # The address group to delete.
     _address_groups = network_fakes.create_address_groups(count=2)
 
@@ -224,7 +214,7 @@ class TestDeleteAddressGroup(TestAddressGroup):
         )
 
 
-class TestListAddressGroup(TestAddressGroup):
+class TestListAddressGroup(network_fakes.TestNetworkV2):
     # The address groups to list up.
     address_groups = network_fakes.create_address_groups(count=3)
     columns = (
@@ -306,8 +296,8 @@ class TestListAddressGroup(TestAddressGroup):
         self.assertCountEqual(self.data, list(data))
 
     def test_address_group_list_project(self):
-        project = identity_fakes_v3.FakeProject.create_one_project()
-        self.projects_mock.get.return_value = project
+        project = sdk_fakes.generate_fake_resource(_project.Project)
+        self.identity_sdk_client.find_project.return_value = project
         arglist = [
             '--project',
             project.id,
@@ -325,8 +315,8 @@ class TestListAddressGroup(TestAddressGroup):
         self.assertCountEqual(self.data, list(data))
 
     def test_address_group_project_domain(self):
-        project = identity_fakes_v3.FakeProject.create_one_project()
-        self.projects_mock.get.return_value = project
+        project = sdk_fakes.generate_fake_resource(_project.Project)
+        self.identity_sdk_client.find_project.return_value = project
         arglist = [
             '--project',
             project.id,
@@ -346,7 +336,7 @@ class TestListAddressGroup(TestAddressGroup):
         self.assertCountEqual(self.data, list(data))
 
 
-class TestSetAddressGroup(TestAddressGroup):
+class TestSetAddressGroup(network_fakes.TestNetworkV2):
     # The address group to set.
     _address_group = network_fakes.create_one_address_group()
 
@@ -443,7 +433,7 @@ class TestSetAddressGroup(TestAddressGroup):
         self.assertIsNone(result)
 
 
-class TestShowAddressGroup(TestAddressGroup):
+class TestShowAddressGroup(network_fakes.TestNetworkV2):
     # The address group to show.
     _address_group = network_fakes.create_one_address_group()
     columns = (
@@ -501,7 +491,7 @@ class TestShowAddressGroup(TestAddressGroup):
         self.assertCountEqual(self.data, list(data))
 
 
-class TestUnsetAddressGroup(TestAddressGroup):
+class TestUnsetAddressGroup(network_fakes.TestNetworkV2):
     # The address group to unset.
     _address_group = network_fakes.create_one_address_group()
 

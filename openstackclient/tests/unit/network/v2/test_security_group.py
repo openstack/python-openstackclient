@@ -13,27 +13,19 @@
 
 from unittest.mock import call
 
+from openstack.identity.v3 import domain as _domain
+from openstack.identity.v3 import project as _project
+from openstack.test import fakes as sdk_fakes
 from osc_lib import exceptions
 
 from openstackclient.network.v2 import security_group
-from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 from openstackclient.tests.unit.network.v2 import fakes as network_fakes
 from openstackclient.tests.unit import utils as tests_utils
 
 
-class TestSecurityGroupNetwork(network_fakes.TestNetworkV2):
-    def setUp(self):
-        super().setUp()
-
-        # Get a shortcut to the ProjectManager Mock
-        self.projects_mock = self.identity_client.projects
-        # Get a shortcut to the DomainManager Mock
-        self.domains_mock = self.identity_client.domains
-
-
-class TestCreateSecurityGroupNetwork(TestSecurityGroupNetwork):
-    project = identity_fakes.FakeProject.create_one_project()
-    domain = identity_fakes.FakeDomain.create_one_domain()
+class TestCreateSecurityGroupNetwork(network_fakes.TestNetworkV2):
+    project = sdk_fakes.generate_fake_resource(_project.Project)
+    domain = sdk_fakes.generate_fake_resource(_domain.Domain)
     # The security group to be created.
     _security_group = network_fakes.create_one_security_group()
 
@@ -72,8 +64,7 @@ class TestCreateSecurityGroupNetwork(TestSecurityGroupNetwork):
             self._security_group
         )
 
-        self.projects_mock.get.return_value = self.project
-        self.domains_mock.get.return_value = self.domain
+        self.identity_sdk_client.find_project.return_value = self.project
         self.network_client.set_tags.return_value = None
 
         # Get the command object to test
@@ -177,7 +168,7 @@ class TestCreateSecurityGroupNetwork(TestSecurityGroupNetwork):
         self._test_create_with_tag(add_tags=False)
 
 
-class TestDeleteSecurityGroupNetwork(TestSecurityGroupNetwork):
+class TestDeleteSecurityGroupNetwork(network_fakes.TestNetworkV2):
     # The security groups to be deleted.
     _security_groups = network_fakes.create_security_groups()
 
@@ -261,7 +252,7 @@ class TestDeleteSecurityGroupNetwork(TestSecurityGroupNetwork):
         )
 
 
-class TestListSecurityGroupNetwork(TestSecurityGroupNetwork):
+class TestListSecurityGroupNetwork(network_fakes.TestNetworkV2):
     # The security group to be listed.
     _security_groups = network_fakes.create_security_groups(count=3)
 
@@ -333,8 +324,8 @@ class TestListSecurityGroupNetwork(TestSecurityGroupNetwork):
         self.assertEqual(self.data, list(data))
 
     def test_security_group_list_project(self):
-        project = identity_fakes.FakeProject.create_one_project()
-        self.projects_mock.get.return_value = project
+        project = sdk_fakes.generate_fake_resource(_project.Project)
+        self.identity_sdk_client.find_project.return_value = project
         arglist = [
             '--project',
             project.id,
@@ -355,8 +346,8 @@ class TestListSecurityGroupNetwork(TestSecurityGroupNetwork):
         self.assertCountEqual(self.data, list(data))
 
     def test_security_group_list_project_domain(self):
-        project = identity_fakes.FakeProject.create_one_project()
-        self.projects_mock.get.return_value = project
+        project = sdk_fakes.generate_fake_resource(_project.Project)
+        self.identity_sdk_client.find_project.return_value = project
         arglist = [
             '--project',
             project.id,
@@ -412,7 +403,7 @@ class TestListSecurityGroupNetwork(TestSecurityGroupNetwork):
         self.assertEqual(self.data, list(data))
 
 
-class TestSetSecurityGroupNetwork(TestSecurityGroupNetwork):
+class TestSetSecurityGroupNetwork(network_fakes.TestNetworkV2):
     # The security group to be set.
     _security_group = network_fakes.create_one_security_group(
         attrs={'tags': ['green', 'red']}
@@ -512,7 +503,7 @@ class TestSetSecurityGroupNetwork(TestSecurityGroupNetwork):
         self._test_set_tags(with_tags=False)
 
 
-class TestShowSecurityGroupNetwork(TestSecurityGroupNetwork):
+class TestShowSecurityGroupNetwork(network_fakes.TestNetworkV2):
     # The security group rule to be shown with the group.
     _security_group_rule = network_fakes.create_one_security_group_rule()
 
@@ -584,7 +575,7 @@ class TestShowSecurityGroupNetwork(TestSecurityGroupNetwork):
         self.assertCountEqual(self.data, data)
 
 
-class TestUnsetSecurityGroupNetwork(TestSecurityGroupNetwork):
+class TestUnsetSecurityGroupNetwork(network_fakes.TestNetworkV2):
     # The security group to be unset.
     _security_group = network_fakes.create_one_security_group(
         attrs={'tags': ['green', 'red']}
