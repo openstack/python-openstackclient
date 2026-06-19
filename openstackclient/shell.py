@@ -36,6 +36,7 @@ IGNORED_MODULES = (
     'neutronclient.osc.v2.fwaas',
     'neutronclient.osc.v2.taas',
     'neutronclient.osc.v2.networking_bgpvpn',
+    'neutronclient.osc.v2.dynamic_routing',
 )
 
 
