@@ -25,8 +25,10 @@ from keystoneclient.v3 import groups
 from keystoneclient.v3 import projects
 from keystoneclient.v3 import users
 from openstack import exceptions as sdk_exceptions
-from openstack.identity import v3 as identity
+from openstack.identity import v2 as identity_v2
+from openstack.identity import v3 as identity_v3
 from openstack.identity.v3 import service as _service
+from openstack import utils as sdk_utils
 from osc_lib import exceptions
 from osc_lib import utils
 
@@ -70,7 +72,7 @@ def find_service(identity_client: Any, name_type_or_id: str) -> Any:
 
 
 def find_service_sdk(
-    identity_client: identity.Proxy, name_type_or_id: str
+    identity_client: identity_v3.Proxy, name_type_or_id: str
 ) -> _service.Service:
     """Find a service by id, name or type."""
 
@@ -193,7 +195,7 @@ def find_domain(identity_client: Any, name_or_id: str) -> domains.Domain:
 
 
 def find_domain_id_sdk(
-    identity_client: Any,
+    identity_client: identity_v3.Proxy,
     name_or_id: str,
     *,
     validate_actor_existence: bool = True,
@@ -225,7 +227,7 @@ def find_group(
 
 
 def find_group_id_sdk(
-    identity_client: Any,
+    identity_client: identity_v3.Proxy,
     name_or_id: str,
     domain_name_or_id: str | None = None,
     *,
@@ -270,7 +272,7 @@ def find_project(
 
 
 def find_project_id_sdk(
-    identity_client: Any,
+    identity_client: identity_v2.Proxy | identity_v3.Proxy,
     name_or_id: str,
     domain_name_or_id: str | None = None,
     *,
@@ -278,6 +280,13 @@ def find_project_id_sdk(
     validate_domain_actor_existence: bool | None = None,
 ) -> str:
     if domain_name_or_id is None:
+        if isinstance(identity_client, identity_v2.Proxy):
+            return _find_sdk_id(
+                identity_client.find_tenant,
+                name_or_id=name_or_id,
+                validate_actor_existence=validate_actor_existence,
+            )
+
         return _find_sdk_id(
             identity_client.find_project,
             name_or_id=name_or_id,
@@ -287,6 +296,8 @@ def find_project_id_sdk(
     if validate_domain_actor_existence is None:
         validate_domain_actor_existence = validate_actor_existence
 
+    # only v3 supports the concept of domains
+    identity_client = sdk_utils.ensure_service_version(identity_client, '3')
     domain_id = find_domain_id_sdk(
         identity_client,
         name_or_id=domain_name_or_id,
@@ -316,7 +327,7 @@ def find_user(
 
 
 def find_user_id_sdk(
-    identity_client: Any,
+    identity_client: identity_v2.Proxy | identity_v3.Proxy,
     name_or_id: str,
     domain_name_or_id: str | None = None,
     *,
@@ -328,6 +339,9 @@ def find_user_id_sdk(
             name_or_id=name_or_id,
             validate_actor_existence=validate_actor_existence,
         )
+
+    # only v3 supports the concept of domains
+    identity_client = sdk_utils.ensure_service_version(identity_client, '3')
     domain_id = find_domain_id_sdk(
         identity_client,
         name_or_id=domain_name_or_id,

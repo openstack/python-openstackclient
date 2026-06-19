@@ -22,45 +22,37 @@ from openstackclient.compute.v2 import usage as usage_cmds
 from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
 
 
-class TestUsage(compute_fakes.TestCompute):
+class TestUsageList(compute_fakes.TestCompute):
     def setUp(self):
         super().setUp()
 
-        self.projects_mock = self.identity_client.projects
-        self.projects_mock.reset_mock()
+        self.project = sdk_fakes.generate_fake_resource(_project.Project)
+        self.identity_sdk_client.projects.return_value = [self.project]
 
-
-class TestUsageList(TestUsage):
-    project = sdk_fakes.generate_fake_resource(_project.Project)
-    # Return value of self.usage_mock.list().
-    usages = [
-        sdk_fakes.generate_fake_resource(_usage.Usage, project_id=project.name)
-    ]
-
-    columns = (
-        "Project",
-        "Servers",
-        "RAM MB-Hours",
-        "CPU Hours",
-        "Disk GB-Hours",
-    )
-
-    data = [
-        (
-            usage_cmds.ProjectColumn(usages[0].project_id),
-            usage_cmds.CountColumn(usages[0].server_usages),
-            usage_cmds.FloatColumn(usages[0].total_memory_mb_usage),
-            usage_cmds.FloatColumn(usages[0].total_vcpus_usage),
-            usage_cmds.FloatColumn(usages[0].total_local_gb_usage),
+        self.usages = [
+            sdk_fakes.generate_fake_resource(
+                _usage.Usage, project_id=self.project.name
+            )
+        ]
+        self.columns = (
+            "Project",
+            "Servers",
+            "RAM MB-Hours",
+            "CPU Hours",
+            "Disk GB-Hours",
         )
-    ]
-
-    def setUp(self):
-        super().setUp()
+        self.data = [
+            (
+                usage_cmds.ProjectColumn(self.usages[0].project_id),
+                usage_cmds.CountColumn(self.usages[0].server_usages),
+                usage_cmds.FloatColumn(self.usages[0].total_memory_mb_usage),
+                usage_cmds.FloatColumn(self.usages[0].total_vcpus_usage),
+                usage_cmds.FloatColumn(self.usages[0].total_local_gb_usage),
+            )
+        ]
 
         self.compute_client.usages.return_value = self.usages
 
-        self.projects_mock.list.return_value = [self.project]
         # Get the command object to test
         self.cmd = usage_cmds.ListUsage(self.app, None)
 
@@ -75,7 +67,7 @@ class TestUsageList(TestUsage):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.projects_mock.list.assert_called_with()
+        self.identity_sdk_client.projects.assert_called_once()
 
         self.assertCountEqual(self.columns, columns)
         self.assertCountEqual(tuple(self.data), tuple(data))
@@ -96,7 +88,7 @@ class TestUsageList(TestUsage):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.projects_mock.list.assert_called_with()
+        self.identity_sdk_client.projects.assert_called_once()
         self.compute_client.usages.assert_called_with(
             start=datetime.datetime(2016, 11, 11, 0, 0),
             end=datetime.datetime(2016, 12, 20, 0, 0),
@@ -117,7 +109,7 @@ class TestUsageList(TestUsage):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.projects_mock.list.assert_called_with()
+        self.identity_sdk_client.projects.assert_called_once()
         self.compute_client.usages.assert_has_calls(
             [mock.call(start=mock.ANY, end=mock.ANY, detailed=True)]
         )
@@ -125,35 +117,34 @@ class TestUsageList(TestUsage):
         self.assertCountEqual(tuple(self.data), tuple(data))
 
 
-class TestUsageShow(TestUsage):
-    project = sdk_fakes.generate_fake_resource(_project.Project)
+class TestUsageShow(compute_fakes.TestCompute):
     # Return value of self.usage_mock.list().
-    usage = sdk_fakes.generate_fake_resource(
-        _usage.Usage, project_id=project.name
-    )
-
-    columns = (
-        'Project',
-        'Servers',
-        'RAM MB-Hours',
-        'CPU Hours',
-        'Disk GB-Hours',
-    )
-
-    data = (
-        usage_cmds.ProjectColumn(usage.project_id),
-        usage_cmds.CountColumn(usage.server_usages),
-        usage_cmds.FloatColumn(usage.total_memory_mb_usage),
-        usage_cmds.FloatColumn(usage.total_vcpus_usage),
-        usage_cmds.FloatColumn(usage.total_local_gb_usage),
-    )
-
     def setUp(self):
         super().setUp()
 
+        self.project = sdk_fakes.generate_fake_resource(_project.Project)
+        self.identity_sdk_client.find_project.return_value = self.project
+
+        self.usage = sdk_fakes.generate_fake_resource(
+            _usage.Usage, project_id=self.project.name
+        )
         self.compute_client.get_usage.return_value = self.usage
 
-        self.projects_mock.get.return_value = self.project
+        self.columns = (
+            'Project',
+            'Servers',
+            'RAM MB-Hours',
+            'CPU Hours',
+            'Disk GB-Hours',
+        )
+        self.data = (
+            usage_cmds.ProjectColumn(self.usage.project_id),
+            usage_cmds.CountColumn(self.usage.server_usages),
+            usage_cmds.FloatColumn(self.usage.total_memory_mb_usage),
+            usage_cmds.FloatColumn(self.usage.total_vcpus_usage),
+            usage_cmds.FloatColumn(self.usage.total_local_gb_usage),
+        )
+
         # Get the command object to test
         self.cmd = usage_cmds.ShowUsage(self.app, None)
 

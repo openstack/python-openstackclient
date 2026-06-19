@@ -19,13 +19,15 @@ import argparse
 from collections.abc import Collection, Iterable, Sequence
 import datetime
 import functools
-from typing import Any, cast
+from typing import Any
 
 from cliff import columns as cliff_columns
+from openstack import utils as sdk_utils
 from osc_lib import utils
 
 from openstackclient import command
 from openstackclient.i18n import _
+from openstackclient.identity import common as identity_common
 
 
 # TODO(stephenfin): This exists in a couple of places and should be moved to a
@@ -41,7 +43,9 @@ class ProjectColumn(cliff_columns.FormattableColumn[str]):
     project_cache)`` to use this.
     """
 
-    def __init__(self, value: str, project_cache: Any = None) -> None:
+    def __init__(
+        self, value: str, project_cache: dict[str, str] | None = None
+    ) -> None:
         super().__init__(value)
         self.project_cache = project_cache or {}
 
@@ -50,8 +54,8 @@ class ProjectColumn(cliff_columns.FormattableColumn[str]):
         if not project:
             return ''
 
-        if project in self.project_cache.keys():
-            return cast(str, self.project_cache[project].name)
+        if project in self.project_cache:
+            return self.project_cache[project]
 
         return project
 
@@ -66,7 +70,7 @@ class FloatColumn(cliff_columns.FormattableColumn[float]):
         return f"{self._value:.2f}"
 
 
-def _formatters(project_cache: Any) -> dict[str, Any]:
+def _formatters(project_cache: dict[str, str] | None) -> dict[str, Any]:
     return {
         'project_id': functools.partial(
             ProjectColumn, project_cache=project_cache
@@ -135,12 +139,16 @@ class ListUsage(command.Lister):
         def _format_project(project: str) -> str:
             if not project:
                 return ""
-            if project in project_cache.keys():
-                return cast(str, project_cache[project].name)
+            if project in project_cache:
+                return project_cache[project]
             else:
                 return project
 
         compute_client = self.app.client_manager.compute
+        identity_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.identity, '3'
+        )
+
         columns = (
             "project_id",
             "server_usages",
@@ -182,8 +190,8 @@ class ListUsage(command.Lister):
         # Cache the project list
         project_cache = {}
         try:
-            for p in self.app.client_manager.identity.projects.list():
-                project_cache[p.id] = p
+            for p in identity_client.projects():
+                project_cache[p.id] = p.name
         except Exception:  # noqa: S110
             # Just forget it if there's any trouble
             pass
@@ -221,6 +229,7 @@ class ShowUsage(command.ShowOne):
             default=None,
             help=_("Name or ID of project to show usage for"),
         )
+        identity_common.add_project_domain_option_to_parser(parser)
         parser.add_argument(
             "--start",
             metavar="<start>",
@@ -240,8 +249,11 @@ class ShowUsage(command.ShowOne):
     def take_action(
         self, parsed_args: argparse.Namespace
     ) -> tuple[Sequence[str], Iterable[Any]]:
-        identity_client = self.app.client_manager.identity
         compute_client = self.app.client_manager.compute
+        identity_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.identity, '3'
+        )
+
         date_cli_format = "%Y-%m-%d"
         now = datetime.datetime.now(datetime.UTC).replace(tzinfo=None)
 
@@ -258,13 +270,16 @@ class ShowUsage(command.ShowOne):
             end = now + datetime.timedelta(days=1)
 
         if parsed_args.project:
-            project = utils.find_resource(
-                identity_client.projects,
+            project = identity_common.find_project_id_sdk(
+                identity_client,
                 parsed_args.project,
-            ).id
+                parsed_args.project_domain,
+            )
         else:
             # Get the project from the current auth
-            project = self.app.client_manager.auth_ref.project_id
+            _project_id = self.app.client_manager.auth_ref.project_id
+            assert _project_id is not None  # narrow type
+            project = _project_id
 
         usage = compute_client.get_usage(
             project=project,

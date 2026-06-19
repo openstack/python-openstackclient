@@ -131,7 +131,9 @@ class CreateKeypair(command.ShowOne):
         self, parsed_args: argparse.Namespace
     ) -> tuple[Sequence[str], Iterable[Any]]:
         compute_client = self.app.client_manager.compute
-        identity_client = self.app.client_manager.identity
+        identity_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.identity, '3'
+        )
 
         kwargs = {'name': parsed_args.name}
 
@@ -192,11 +194,11 @@ class CreateKeypair(command.ShowOne):
                 )
                 raise exceptions.CommandError(msg)
 
-            kwargs['user_id'] = identity_common.find_user(
+            kwargs['user_id'] = identity_common.find_user_id_sdk(
                 identity_client,
                 parsed_args.user,
                 parsed_args.user_domain,
-            ).id
+            )
 
         keypair = compute_client.create_keypair(**kwargs)
 
@@ -239,7 +241,9 @@ class DeleteKeypair(command.Command):
 
     def take_action(self, parsed_args: argparse.Namespace) -> Any:
         compute_client = self.app.client_manager.compute
-        identity_client = self.app.client_manager.identity
+        identity_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.identity, '3'
+        )
 
         kwargs = {}
         result = 0
@@ -252,11 +256,11 @@ class DeleteKeypair(command.Command):
                 )
                 raise exceptions.CommandError(msg)
 
-            kwargs['user_id'] = identity_common.find_user(
+            kwargs['user_id'] = identity_common.find_user_id_sdk(
                 identity_client,
                 parsed_args.user,
                 parsed_args.user_domain,
-            ).id
+            )
 
         for n in parsed_args.name:
             try:
@@ -311,8 +315,7 @@ class ListKeypair(command.Lister):
         self, parsed_args: argparse.Namespace
     ) -> tuple[Sequence[str], Iterable[Any]]:
         compute_client = self.app.client_manager.compute
-        identity_client = self.app.client_manager.identity
-        identity_sdk_client = sdk_utils.ensure_service_version(
+        identity_client = sdk_utils.ensure_service_version(
             self.app.client_manager.sdk_connection.identity, '3'
         )
 
@@ -358,12 +361,12 @@ class ListKeypair(command.Lister):
             # NOTE(stephenfin): This is done client side because nova doesn't
             # currently support doing so server-side. If this is slow, we can
             # think about spinning up a threadpool or similar.
-            project = identity_common.find_project(
+            project = identity_common.find_project_id_sdk(
                 identity_client,
                 parsed_args.project,
                 parsed_args.project_domain,
-            ).id
-            assignments = identity_sdk_client.role_assignments(
+            )
+            assignments = identity_client.role_assignments(
                 scope_project_id=project
             )
             user_ids = set()
@@ -383,12 +386,12 @@ class ListKeypair(command.Lister):
                 )
                 raise exceptions.CommandError(msg)
 
-            user = identity_common.find_user(
+            user_id = identity_common.find_user_id_sdk(
                 identity_client,
                 parsed_args.user,
                 parsed_args.user_domain,
             )
-            kwargs['user_id'] = user.id
+            kwargs['user_id'] = user_id
 
             data = list(compute_client.keypairs(**kwargs))
         else:
@@ -436,7 +439,9 @@ class ShowKeypair(command.ShowOne):
         self, parsed_args: argparse.Namespace
     ) -> tuple[Sequence[str], Iterable[Any]]:
         compute_client = self.app.client_manager.compute
-        identity_client = self.app.client_manager.identity
+        identity_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.identity, '3'
+        )
 
         kwargs = {}
 
@@ -448,11 +453,11 @@ class ShowKeypair(command.ShowOne):
                 )
                 raise exceptions.CommandError(msg)
 
-            kwargs['user_id'] = identity_common.find_user(
+            kwargs['user_id'] = identity_common.find_user_id_sdk(
                 identity_client,
                 parsed_args.user,
                 parsed_args.user_domain,
-            ).id
+            )
 
         keypair = compute_client.find_keypair(
             parsed_args.name, **kwargs, ignore_missing=False
