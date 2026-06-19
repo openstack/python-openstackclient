@@ -13,26 +13,24 @@
 
 from unittest.mock import call
 
+from openstack.block_storage.v3 import consistency_group as _consistency_group
+from openstack.block_storage.v3 import (
+    consistency_group_snapshot as _cg_snapshot,
+)
+from openstack.test import fakes as sdk_fakes
+from osc_lib import exceptions
+
 from openstackclient.tests.unit.volume.v3 import fakes as volume_fakes
 from openstackclient.volume.v3 import consistency_group_snapshot
 
 
-class TestConsistencyGroupSnapshot(volume_fakes.TestVolume):
-    def setUp(self):
-        super().setUp()
-
-        # Get a shortcut to the TransferManager Mock
-        self.cgsnapshots_mock = self.volume_client.cgsnapshots
-        self.cgsnapshots_mock.reset_mock()
-        self.consistencygroups_mock = self.volume_client.consistencygroups
-        self.consistencygroups_mock.reset_mock()
-
-
-class TestConsistencyGroupSnapshotCreate(TestConsistencyGroupSnapshot):
-    _consistency_group_snapshot = (
-        volume_fakes.create_one_consistency_group_snapshot()
+class TestConsistencyGroupSnapshotCreate(volume_fakes.TestVolume):
+    _consistency_group_snapshot = sdk_fakes.generate_fake_resource(
+        _cg_snapshot.ConsistencyGroupSnapshot
     )
-    consistency_group = volume_fakes.create_one_consistency_group()
+    consistency_group = sdk_fakes.generate_fake_resource(
+        _consistency_group.ConsistencyGroup
+    )
 
     columns = (
         'consistencygroup_id',
@@ -53,10 +51,10 @@ class TestConsistencyGroupSnapshotCreate(TestConsistencyGroupSnapshot):
 
     def setUp(self):
         super().setUp()
-        self.cgsnapshots_mock.create.return_value = (
-            self._consistency_group_snapshot
+        self.volume_sdk_client.create_consistency_group_snapshot.return_value = self._consistency_group_snapshot
+        self.volume_sdk_client.find_consistency_group.return_value = (
+            self.consistency_group
         )
-        self.consistencygroups_mock.get.return_value = self.consistency_group
 
         # Get the command object to test
         self.cmd = consistency_group_snapshot.CreateConsistencyGroupSnapshot(
@@ -80,11 +78,11 @@ class TestConsistencyGroupSnapshotCreate(TestConsistencyGroupSnapshot):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.consistencygroups_mock.get.assert_called_once_with(
-            self.consistency_group.id
+        self.volume_sdk_client.find_consistency_group.assert_called_once_with(
+            self.consistency_group.id, ignore_missing=False
         )
-        self.cgsnapshots_mock.create.assert_called_once_with(
-            self.consistency_group.id,
+        self.volume_sdk_client.create_consistency_group_snapshot.assert_called_once_with(
+            consistencygroup_id=self.consistency_group.id,
             name=self._consistency_group_snapshot.name,
             description=self._consistency_group_snapshot.description,
         )
@@ -106,11 +104,11 @@ class TestConsistencyGroupSnapshotCreate(TestConsistencyGroupSnapshot):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.consistencygroups_mock.get.assert_called_once_with(
-            self._consistency_group_snapshot.name
+        self.volume_sdk_client.find_consistency_group.assert_called_once_with(
+            self._consistency_group_snapshot.name, ignore_missing=False
         )
-        self.cgsnapshots_mock.create.assert_called_once_with(
-            self.consistency_group.id,
+        self.volume_sdk_client.create_consistency_group_snapshot.assert_called_once_with(
+            consistencygroup_id=self.consistency_group.id,
             name=self._consistency_group_snapshot.name,
             description=self._consistency_group_snapshot.description,
         )
@@ -119,20 +117,23 @@ class TestConsistencyGroupSnapshotCreate(TestConsistencyGroupSnapshot):
         self.assertEqual(self.data, data)
 
 
-class TestConsistencyGroupSnapshotDelete(TestConsistencyGroupSnapshot):
-    consistency_group_snapshots = (
-        volume_fakes.create_consistency_group_snapshots(count=2)
-    )
+class TestConsistencyGroupSnapshotDelete(volume_fakes.TestVolume):
+    consistency_group_snapshots = [
+        sdk_fakes.generate_fake_resource(
+            _cg_snapshot.ConsistencyGroupSnapshot
+        ),
+        sdk_fakes.generate_fake_resource(
+            _cg_snapshot.ConsistencyGroupSnapshot
+        ),
+    ]
 
     def setUp(self):
         super().setUp()
 
-        self.cgsnapshots_mock.get = (
-            volume_fakes.get_consistency_group_snapshots(
-                self.consistency_group_snapshots
-            )
+        self.volume_sdk_client.find_consistency_group_snapshot.side_effect = (
+            self.consistency_group_snapshots
         )
-        self.cgsnapshots_mock.delete.return_value = None
+        self.volume_sdk_client.delete_consistency_group_snapshot.return_value = None
 
         # Get the command object to mock
         self.cmd = consistency_group_snapshot.DeleteConsistencyGroupSnapshot(
@@ -151,8 +152,11 @@ class TestConsistencyGroupSnapshotDelete(TestConsistencyGroupSnapshot):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.cgsnapshots_mock.delete.assert_called_once_with(
-            self.consistency_group_snapshots[0].id
+        self.volume_sdk_client.find_consistency_group_snapshot.assert_called_once_with(
+            self.consistency_group_snapshots[0].id, ignore_missing=False
+        )
+        self.volume_sdk_client.delete_consistency_group_snapshot.assert_called_once_with(
+            self.consistency_group_snapshots[0]
         )
         self.assertIsNone(result)
 
@@ -167,25 +171,52 @@ class TestConsistencyGroupSnapshotDelete(TestConsistencyGroupSnapshot):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        calls = []
+        find_calls = []
+        delete_calls = []
         for c in self.consistency_group_snapshots:
-            calls.append(call(c.id))
-        self.cgsnapshots_mock.delete.assert_has_calls(calls)
+            find_calls.append(call(c.id, ignore_missing=False))
+            delete_calls.append(call(c))
+        self.volume_sdk_client.find_consistency_group_snapshot.assert_has_calls(
+            find_calls
+        )
+        self.volume_sdk_client.delete_consistency_group_snapshot.assert_has_calls(
+            delete_calls
+        )
         self.assertIsNone(result)
 
+    def test_delete_with_exception(self):
+        arglist = ['missing-snapshot']
+        verifylist = [('consistency_group_snapshot', ['missing-snapshot'])]
 
-class TestConsistencyGroupSnapshotList(TestConsistencyGroupSnapshot):
-    consistency_group_snapshots = (
-        volume_fakes.create_consistency_group_snapshots(count=2)
+        self.volume_sdk_client.find_consistency_group_snapshot.side_effect = (
+            exceptions.CommandError
+        )
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.assertRaises(
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
+
+
+class TestConsistencyGroupSnapshotList(volume_fakes.TestVolume):
+    consistency_group_snapshots = [
+        sdk_fakes.generate_fake_resource(
+            _cg_snapshot.ConsistencyGroupSnapshot, status='available'
+        ),
+        sdk_fakes.generate_fake_resource(
+            _cg_snapshot.ConsistencyGroupSnapshot, status='available'
+        ),
+    ]
+    consistency_group = sdk_fakes.generate_fake_resource(
+        _consistency_group.ConsistencyGroup
     )
-    consistency_group = volume_fakes.create_one_consistency_group()
 
-    columns = [
+    column_headers = [
         'ID',
         'Status',
         'Name',
     ]
-    columns_long = [
+    column_headers_long = [
         'ID',
         'Status',
         'ConsistencyGroup ID',
@@ -218,10 +249,12 @@ class TestConsistencyGroupSnapshotList(TestConsistencyGroupSnapshot):
     def setUp(self):
         super().setUp()
 
-        self.cgsnapshots_mock.list.return_value = (
+        self.volume_sdk_client.consistency_group_snapshots.return_value = (
             self.consistency_group_snapshots
         )
-        self.consistencygroups_mock.get.return_value = self.consistency_group
+        self.volume_sdk_client.find_consistency_group.return_value = (
+            self.consistency_group
+        )
         # Get the command to test
         self.cmd = consistency_group_snapshot.ListConsistencyGroupSnapshot(
             self.app, None
@@ -239,15 +272,12 @@ class TestConsistencyGroupSnapshotList(TestConsistencyGroupSnapshot):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        search_opts = {
-            'all_tenants': False,
-            'status': None,
-            'consistencygroup_id': None,
-        }
-        self.cgsnapshots_mock.list.assert_called_once_with(
-            detailed=True, search_opts=search_opts
+        self.volume_sdk_client.consistency_group_snapshots.assert_called_once_with(
+            all_tenants=False,
+            status=None,
+            consistencygroup_id=None,
         )
-        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.column_headers, columns)
         self.assertEqual(self.data, list(data))
 
     def test_consistency_group_snapshot_list_with_long(self):
@@ -264,15 +294,12 @@ class TestConsistencyGroupSnapshotList(TestConsistencyGroupSnapshot):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        search_opts = {
-            'all_tenants': False,
-            'status': None,
-            'consistencygroup_id': None,
-        }
-        self.cgsnapshots_mock.list.assert_called_once_with(
-            detailed=True, search_opts=search_opts
+        self.volume_sdk_client.consistency_group_snapshots.assert_called_once_with(
+            all_tenants=False,
+            status=None,
+            consistencygroup_id=None,
         )
-        self.assertEqual(self.columns_long, columns)
+        self.assertEqual(self.column_headers_long, columns)
         self.assertEqual(self.data_long, list(data))
 
     def test_consistency_group_snapshot_list_with_options(self):
@@ -293,24 +320,21 @@ class TestConsistencyGroupSnapshotList(TestConsistencyGroupSnapshot):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        search_opts = {
-            'all_tenants': True,
-            'status': self.consistency_group_snapshots[0].status,
-            'consistencygroup_id': self.consistency_group.id,
-        }
-        self.consistencygroups_mock.get.assert_called_once_with(
-            self.consistency_group.id
+        self.volume_sdk_client.find_consistency_group.assert_called_once_with(
+            self.consistency_group.id, ignore_missing=False
         )
-        self.cgsnapshots_mock.list.assert_called_once_with(
-            detailed=True, search_opts=search_opts
+        self.volume_sdk_client.consistency_group_snapshots.assert_called_once_with(
+            all_tenants=True,
+            status=self.consistency_group_snapshots[0].status,
+            consistencygroup_id=self.consistency_group.id,
         )
-        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.column_headers, columns)
         self.assertEqual(self.data, list(data))
 
 
-class TestConsistencyGroupSnapshotShow(TestConsistencyGroupSnapshot):
-    _consistency_group_snapshot = (
-        volume_fakes.create_one_consistency_group_snapshot()
+class TestConsistencyGroupSnapshotShow(volume_fakes.TestVolume):
+    _consistency_group_snapshot = sdk_fakes.generate_fake_resource(
+        _cg_snapshot.ConsistencyGroupSnapshot
     )
 
     columns = (
@@ -333,7 +357,7 @@ class TestConsistencyGroupSnapshotShow(TestConsistencyGroupSnapshot):
     def setUp(self):
         super().setUp()
 
-        self.cgsnapshots_mock.get.return_value = (
+        self.volume_sdk_client.find_consistency_group_snapshot.return_value = (
             self._consistency_group_snapshot
         )
         self.cmd = consistency_group_snapshot.ShowConsistencyGroupSnapshot(
@@ -347,8 +371,8 @@ class TestConsistencyGroupSnapshotShow(TestConsistencyGroupSnapshot):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
-        self.cgsnapshots_mock.get.assert_called_once_with(
-            self._consistency_group_snapshot.id
+        self.volume_sdk_client.find_consistency_group_snapshot.assert_called_once_with(
+            self._consistency_group_snapshot.id, ignore_missing=False
         )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)

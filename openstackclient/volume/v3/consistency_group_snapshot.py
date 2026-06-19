@@ -18,6 +18,10 @@ import logging
 from collections.abc import Iterable, Sequence
 from typing import Any
 
+from openstack.block_storage.v3 import (
+    consistency_group_snapshot as _cg_snapshot,
+)
+from openstack import utils as sdk_utils
 from osc_lib import exceptions
 from osc_lib import utils
 
@@ -26,6 +30,22 @@ from openstackclient.i18n import _
 
 
 LOG = logging.getLogger(__name__)
+
+
+def _format_consistency_group_snapshot(
+    consistency_group_snapshot: _cg_snapshot.ConsistencyGroupSnapshot,
+) -> tuple[Sequence[str], Iterable[Any]]:
+    columns = (
+        'consistencygroup_id',
+        'created_at',
+        'description',
+        'id',
+        'name',
+        'status',
+    )
+    return columns, utils.get_item_properties(
+        consistency_group_snapshot, columns
+    )
 
 
 class CreateConsistencyGroupSnapshot(command.ShowOne):
@@ -57,25 +77,26 @@ class CreateConsistencyGroupSnapshot(command.ShowOne):
     def take_action(
         self, parsed_args: argparse.Namespace
     ) -> tuple[Sequence[str], Iterable[Any]]:
-        volume_client = self.app.client_manager.volume
+        volume_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.volume, '3'
+        )
         consistency_group = parsed_args.consistency_group
         if not parsed_args.consistency_group:
             # If "--consistency-group" not specified, then consistency_group
             # will be the same as the new consistency group snapshot name
             consistency_group = parsed_args.snapshot_name
-        consistency_group_id = utils.find_resource(
-            volume_client.consistencygroups, consistency_group
+        consistency_group_id = volume_client.find_consistency_group(
+            consistency_group, ignore_missing=False
         ).id
-        consistency_group_snapshot = volume_client.cgsnapshots.create(
-            consistency_group_id,
-            name=parsed_args.snapshot_name,
-            description=parsed_args.description,
+        consistency_group_snapshot = (
+            volume_client.create_consistency_group_snapshot(
+                consistencygroup_id=consistency_group_id,
+                name=parsed_args.snapshot_name,
+                description=parsed_args.description,
+            )
         )
 
-        col_headers, col_data = zip(
-            *sorted(consistency_group_snapshot._info.items())
-        )
-        return col_headers, col_data
+        return _format_consistency_group_snapshot(consistency_group_snapshot)
 
 
 class DeleteConsistencyGroupSnapshot(command.Command):
@@ -92,16 +113,21 @@ class DeleteConsistencyGroupSnapshot(command.Command):
         return parser
 
     def take_action(self, parsed_args: argparse.Namespace) -> None:
-        volume_client = self.app.client_manager.volume
+        volume_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.volume, '3'
+        )
         result = 0
 
         for snapshot in parsed_args.consistency_group_snapshot:
             try:
-                snapshot_id = utils.find_resource(
-                    volume_client.cgsnapshots, snapshot
-                ).id
-
-                volume_client.cgsnapshots.delete(snapshot_id)
+                consistency_group_snapshot = (
+                    volume_client.find_consistency_group_snapshot(
+                        snapshot, ignore_missing=False
+                    )
+                )
+                volume_client.delete_consistency_group_snapshot(
+                    consistency_group_snapshot
+                )
             except Exception as e:
                 result += 1
                 LOG.error(
@@ -163,8 +189,12 @@ class ListConsistencyGroupSnapshot(command.Lister):
     def take_action(
         self, parsed_args: argparse.Namespace
     ) -> tuple[Sequence[str], Iterable[tuple[Any, ...]]]:
+        volume_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.volume, '3'
+        )
+
         if parsed_args.long:
-            columns = [
+            column_headers = [
                 'ID',
                 'Status',
                 'ConsistencyGroup ID',
@@ -172,27 +202,34 @@ class ListConsistencyGroupSnapshot(command.Lister):
                 'Description',
                 'Created At',
             ]
+            columns = [
+                'id',
+                'status',
+                'consistencygroup_id',
+                'name',
+                'description',
+                'created_at',
+            ]
         else:
-            columns = ['ID', 'Status', 'Name']
-        volume_client = self.app.client_manager.volume
+            column_headers = ['ID', 'Status', 'Name']
+            columns = ['id', 'status', 'name']
+
         consistency_group_id = None
         if parsed_args.consistency_group:
-            consistency_group_id = utils.find_resource(
-                volume_client.consistencygroups,
-                parsed_args.consistency_group,
+            consistency_group_id = volume_client.find_consistency_group(
+                parsed_args.consistency_group, ignore_missing=False
             ).id
-        search_opts = {
-            'all_tenants': parsed_args.all_projects,
-            'status': parsed_args.status,
-            'consistencygroup_id': consistency_group_id,
-        }
-        consistency_group_snapshots = volume_client.cgsnapshots.list(
-            detailed=True,
-            search_opts=search_opts,
+
+        consistency_group_snapshots = (
+            volume_client.consistency_group_snapshots(
+                all_tenants=parsed_args.all_projects,
+                status=parsed_args.status,
+                consistencygroup_id=consistency_group_id,
+            )
         )
 
         return (
-            columns,
+            column_headers,
             (
                 utils.get_item_properties(s, columns)
                 for s in consistency_group_snapshots
@@ -215,11 +252,12 @@ class ShowConsistencyGroupSnapshot(command.ShowOne):
     def take_action(
         self, parsed_args: argparse.Namespace
     ) -> tuple[Sequence[str], Iterable[Any]]:
-        volume_client = self.app.client_manager.volume
-        consistency_group_snapshot = utils.find_resource(
-            volume_client.cgsnapshots, parsed_args.consistency_group_snapshot
+        volume_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.volume, '3'
         )
-        col_headers, col_data = zip(
-            *sorted(consistency_group_snapshot._info.items())
+        consistency_group_snapshot = (
+            volume_client.find_consistency_group_snapshot(
+                parsed_args.consistency_group_snapshot, ignore_missing=False
+            )
         )
-        return col_headers, col_data
+        return _format_consistency_group_snapshot(consistency_group_snapshot)
