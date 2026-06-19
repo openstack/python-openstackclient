@@ -12,6 +12,9 @@
 
 from unittest import mock
 
+from openstack.identity.v3 import project as _project
+from openstack.test import fakes as sdk_fakes
+
 from openstackclient.common import project_cleanup
 from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 from openstackclient.tests.unit import utils as test_utils
@@ -20,25 +23,13 @@ from openstackclient.tests.unit import utils as test_utils
 class TestProjectCleanup(
     identity_fakes.FakeClientMixin, test_utils.TestCommand
 ):
-    project = identity_fakes.FakeProject.create_one_project()
-
     def setUp(self):
         super().setUp()
         self.cmd = project_cleanup.ProjectCleanup(self.app, None)
 
-        self.project_cleanup_mock = mock.Mock()
-        self.sdk_connect_as_project_mock = mock.Mock(
-            return_value=self.app.client_manager.sdk_connection
-        )
-        self.app.client_manager.sdk_connection.project_cleanup = (
-            self.project_cleanup_mock
-        )
-        self.app.client_manager.sdk_connection.identity.find_project = (
-            mock.Mock(return_value=self.project)
-        )
-        self.app.client_manager.sdk_connection.connect_as_project = (
-            self.sdk_connect_as_project_mock
-        )
+        self.project = sdk_fakes.generate_fake_resource(_project.Project)
+        self.identity_sdk_client.find_project.return_value = self.project
+        self.app.client_manager.sdk_connection.connect_as_project.return_value = self.app.client_manager.sdk_connection
 
     def test_project_no_options(self):
         arglist = []
@@ -74,7 +65,9 @@ class TestProjectCleanup(
         with mock.patch('getpass.getpass', return_value='y'):
             result = self.cmd.take_action(parsed_args)
 
-        self.sdk_connect_as_project_mock.assert_called_with(self.project)
+        self.app.client_manager.sdk_connection.connect_as_project.assert_called_with(
+            self.project
+        )
         filters = {'created_at': '2200-01-01', 'updated_at': '2200-01-02'}
 
         calls = [
@@ -91,7 +84,9 @@ class TestProjectCleanup(
                 skip_resources=None,
             ),
         ]
-        self.project_cleanup_mock.assert_has_calls(calls)
+        self.app.client_manager.sdk_connection.project_cleanup.assert_has_calls(
+            calls
+        )
 
         self.assertIsNone(result)
 
@@ -112,7 +107,9 @@ class TestProjectCleanup(
 
         result = self.cmd.take_action(parsed_args)
 
-        self.sdk_connect_as_project_mock.assert_called_with(self.project)
+        self.app.client_manager.sdk_connection.connect_as_project.assert_called_with(
+            self.project
+        )
         calls = [
             mock.call(
                 dry_run=True,
@@ -127,7 +124,9 @@ class TestProjectCleanup(
                 skip_resources=None,
             ),
         ]
-        self.project_cleanup_mock.assert_has_calls(calls)
+        self.app.client_manager.sdk_connection.project_cleanup.assert_has_calls(
+            calls
+        )
 
         self.assertIsNone(result)
 
@@ -147,7 +146,9 @@ class TestProjectCleanup(
         with mock.patch('getpass.getpass', return_value='y'):
             result = self.cmd.take_action(parsed_args)
 
-        self.sdk_connect_as_project_mock.assert_called_with(self.project)
+        self.app.client_manager.sdk_connection.connect_as_project.assert_called_with(
+            self.project
+        )
         calls = [
             mock.call(
                 dry_run=True,
@@ -162,7 +163,9 @@ class TestProjectCleanup(
                 skip_resources=None,
             ),
         ]
-        self.project_cleanup_mock.assert_has_calls(calls)
+        self.app.client_manager.sdk_connection.project_cleanup.assert_has_calls(
+            calls
+        )
 
         self.assertIsNone(result)
 
@@ -182,7 +185,9 @@ class TestProjectCleanup(
         with mock.patch('getpass.getpass', return_value='y'):
             result = self.cmd.take_action(parsed_args)
 
-        self.sdk_connect_as_project_mock.assert_called_with(self.project)
+        self.app.client_manager.sdk_connection.connect_as_project.assert_called_with(
+            self.project
+        )
         calls = [
             mock.call(
                 dry_run=True,
@@ -191,7 +196,9 @@ class TestProjectCleanup(
                 skip_resources=None,
             ),
         ]
-        self.project_cleanup_mock.assert_has_calls(calls)
+        self.app.client_manager.sdk_connection.project_cleanup.assert_has_calls(
+            calls
+        )
 
         self.assertIsNone(result)
 
@@ -211,8 +218,10 @@ class TestProjectCleanup(
 
         result = self.cmd.take_action(parsed_args)
 
-        self.sdk_connect_as_project_mock.assert_called_with(self.project)
-        self.project_cleanup_mock.assert_called_once_with(
+        self.app.client_manager.sdk_connection.connect_as_project.assert_called_with(
+            self.project
+        )
+        self.app.client_manager.sdk_connection.project_cleanup.assert_called_once_with(
             dry_run=True,
             status_queue=mock.ANY,
             filters={},
@@ -238,7 +247,7 @@ class TestProjectCleanup(
         with mock.patch('getpass.getpass', return_value='y'):
             result = self.cmd.take_action(parsed_args)
 
-        self.sdk_connect_as_project_mock.assert_not_called()
+        self.app.client_manager.sdk_connection.connect_as_project.assert_not_called()
         calls = [
             mock.call(
                 dry_run=True,
@@ -253,7 +262,9 @@ class TestProjectCleanup(
                 skip_resources=None,
             ),
         ]
-        self.project_cleanup_mock.assert_has_calls(calls)
+        self.app.client_manager.sdk_connection.project_cleanup.assert_has_calls(
+            calls
+        )
 
         self.assertIsNone(result)
 
@@ -272,7 +283,9 @@ class TestProjectCleanup(
         with mock.patch('getpass.getpass', return_value='y'):
             result = self.cmd.take_action(parsed_args)
 
-        self.sdk_connect_as_project_mock.assert_called_with(self.project)
+        self.app.client_manager.sdk_connection.connect_as_project.assert_called_with(
+            self.project
+        )
 
         calls = [
             mock.call(
@@ -288,6 +301,8 @@ class TestProjectCleanup(
                 skip_resources=[skip_resource],
             ),
         ]
-        self.project_cleanup_mock.assert_has_calls(calls)
+        self.app.client_manager.sdk_connection.project_cleanup.assert_has_calls(
+            calls
+        )
 
         self.assertIsNone(result)
