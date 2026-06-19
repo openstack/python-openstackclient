@@ -16,7 +16,7 @@ from random import randint
 from unittest import mock
 import uuid
 
-from openstack.network.v2 import _proxy
+from openstack.network import v2 as network_v2
 from openstack.network.v2 import address_group as _address_group
 from openstack.network.v2 import address_scope as _address_scope
 from openstack.network.v2 import agent as network_agent
@@ -99,7 +99,10 @@ class FakeClientMixin:
     def setUp(self):
         super().setUp()
 
-        self.app.client_manager.network = mock.Mock(spec=_proxy.Proxy)
+        # TODO(stephenfin): Switch to spec_set once keystoneauth exposes
+        # instance attributes as class attributes
+        # https://review.opendev.org/c/openstack/keystoneauth/+/994090
+        self.app.client_manager.network = mock.Mock(spec=network_v2.Proxy)
         self.network_client = self.app.client_manager.network
 
 

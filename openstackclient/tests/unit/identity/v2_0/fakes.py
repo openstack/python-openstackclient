@@ -19,7 +19,7 @@ import uuid
 
 from keystoneauth1 import access
 from keystoneauth1 import fixture
-from openstack.identity.v2 import _proxy
+from openstack.identity import v2 as identity_v2
 
 from openstackclient.tests.unit import fakes
 from openstackclient.tests.unit import utils
@@ -193,7 +193,7 @@ class FakeClientMixin:
         # TODO(stephenfin): Rename to 'identity_client' once all commands are
         # migrated to SDK
         self.app.client_manager.sdk_connection.identity = mock.Mock(
-            _proxy.Proxy
+            identity_v2.Proxy
         )
         self.identity_sdk_client = (
             self.app.client_manager.sdk_connection.identity

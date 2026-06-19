@@ -15,8 +15,8 @@
 from unittest import mock
 import uuid
 
-from openstack.block_storage.v2 import _proxy as block_storage_v2_proxy
-from openstack.image.v1 import _proxy
+from openstack.block_storage import v2 as block_storage_v2
+from openstack.image import v1 as image_v1
 from openstack.image.v1 import image
 
 from openstackclient.tests.unit import fakes
@@ -28,7 +28,10 @@ class FakeClientMixin:
     def setUp(self):
         super().setUp()
 
-        self.app.client_manager.image = mock.Mock(spec=_proxy.Proxy)
+        # TODO(stephenfin): Switch to spec_set once keystoneauth exposes
+        # instance attributes as class attributes
+        # https://review.opendev.org/c/openstack/keystoneauth/+/994090
+        self.app.client_manager.image = mock.Mock(spec=image_v1.Proxy)
         self.image_client = self.app.client_manager.image
 
 
@@ -43,7 +46,7 @@ class TestImagev1(FakeClientMixin, utils.TestCommand):
         self.volume_client = self.app.client_manager.volume
 
         self.app.client_manager.sdk_connection.volume = mock.Mock(
-            spec=block_storage_v2_proxy.Proxy,
+            spec=block_storage_v2.Proxy
         )
         self.app.client_manager.sdk_connection.volume.api_version = '2'
         self.volume_sdk_client = self.app.client_manager.sdk_connection.volume

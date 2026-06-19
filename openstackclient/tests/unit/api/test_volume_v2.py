@@ -17,7 +17,7 @@ import http
 from unittest import mock
 import uuid
 
-from openstack.block_storage.v2 import _proxy
+from openstack.block_storage import v2 as block_storage_v2
 from osc_lib import exceptions as osc_lib_exceptions
 
 from openstackclient.api import volume_v2 as volume
@@ -29,7 +29,10 @@ class TestConsistencyGroup(utils.TestCase):
     def setUp(self):
         super().setUp()
 
-        self.volume_sdk_client = mock.Mock(_proxy.Proxy)
+        # TODO(stephenfin): Switch to spec_set once keystoneauth exposes
+        # instance attributes as class attributes
+        # https://review.opendev.org/c/openstack/keystoneauth/+/994090
+        self.volume_sdk_client = mock.Mock(spec=block_storage_v2.Proxy)
 
     def test_find_consistency_group_by_id(self):
         cg_id = uuid.uuid4().hex

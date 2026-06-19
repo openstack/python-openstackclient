@@ -20,7 +20,7 @@ import uuid
 
 from keystoneauth1 import access
 from keystoneauth1 import fixture
-from openstack.identity.v3 import _proxy
+from openstack.identity import v3 as identity_v3
 from osc_lib.cli import format_columns
 
 from openstackclient.tests.unit import fakes
@@ -647,7 +647,7 @@ class FakeClientMixin:
         # TODO(stephenfin): Rename to 'identity_client' once all commands are
         # migrated to SDK
         self.app.client_manager.sdk_connection.identity = mock.Mock(
-            _proxy.Proxy
+            identity_v3.Proxy
         )
         self.app.client_manager.sdk_connection.identity.api_version = '3'
         self.identity_sdk_client = (
@@ -682,7 +682,7 @@ class TestFederatedIdentity(utils.TestCommand):
         # TODO(stephenfin): Rename to 'identity_client' once all commands are
         # migrated to SDK
         self.app.client_manager.sdk_connection.identity = mock.Mock(
-            _proxy.Proxy
+            identity_v3.Proxy
         )
         self.app.client_manager.sdk_connection.identity.api_version = '3'
         self.identity_sdk_client = (
@@ -703,7 +703,7 @@ class TestOAuth1(utils.TestCommand):
         # TODO(stephenfin): Rename to 'identity_client' once all commands are
         # migrated to SDK
         self.app.client_manager.sdk_connection.identity = mock.Mock(
-            _proxy.Proxy
+            identity_v3.Proxy
         )
         self.app.client_manager.sdk_connection.identity.api_version = '3'
         self.identity_sdk_client = (
