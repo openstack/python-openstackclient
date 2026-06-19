@@ -12,31 +12,20 @@
 #   under the License.
 #
 
-from unittest import mock
 from unittest.mock import call
 
+from openstack.block_storage.v3 import transfer as _transfer
+from openstack.block_storage.v3 import volume as _volume
+from openstack import exceptions as sdk_exceptions
+from openstack.test import fakes as sdk_fakes
 from osc_lib import exceptions
-from osc_lib import utils
 
 from openstackclient.tests.unit import utils as test_utils
 from openstackclient.tests.unit.volume.v3 import fakes as volume_fakes
 from openstackclient.volume.v3 import volume_transfer_request
 
 
-class TestTransfer(volume_fakes.TestVolume):
-    def setUp(self):
-        super().setUp()
-
-        # Get a shortcut to the TransferManager Mock
-        self.transfer_mock = self.volume_client.transfers
-        self.transfer_mock.reset_mock()
-
-        # Get a shortcut to the VolumeManager Mock
-        self.volumes_mock = self.volume_client.volumes
-        self.volumes_mock.reset_mock()
-
-
-class TestTransferAccept(TestTransfer):
+class TestTransferAccept(volume_fakes.TestVolume):
     columns = (
         'id',
         'name',
@@ -46,17 +35,22 @@ class TestTransferAccept(TestTransfer):
     def setUp(self):
         super().setUp()
 
-        self.volume_transfer = volume_fakes.create_one_transfer()
+        self.volume_transfer = sdk_fakes.generate_fake_resource(
+            _transfer.Transfer
+        )
         self.data = (
             self.volume_transfer.id,
             self.volume_transfer.name,
             self.volume_transfer.volume_id,
         )
 
-        self.transfer_mock.get.return_value = self.volume_transfer
-        self.transfer_mock.accept.return_value = self.volume_transfer
+        self.volume_sdk_client.find_transfer.return_value = (
+            self.volume_transfer
+        )
+        self.volume_sdk_client.accept_transfer.return_value = (
+            self.volume_transfer
+        )
 
-        # Get the command object to test
         self.cmd = volume_transfer_request.AcceptTransferRequest(
             self.app, None
         )
@@ -75,10 +69,35 @@ class TestTransferAccept(TestTransfer):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.transfer_mock.get.assert_called_once_with(
-            self.volume_transfer.id,
+        self.volume_sdk_client.find_transfer.assert_called_once_with(
+            self.volume_transfer.id, ignore_missing=False
         )
-        self.transfer_mock.accept.assert_called_once_with(
+        self.volume_sdk_client.accept_transfer.assert_called_once_with(
+            self.volume_transfer.id,
+            'key_value',
+        )
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
+
+    def test_transfer_accept_non_admin(self):
+        """Non-admin users get ResourceNotFound on find_transfer; we fall back."""
+        self.volume_sdk_client.find_transfer.side_effect = (
+            sdk_exceptions.ResourceNotFound
+        )
+        arglist = [
+            '--auth-key',
+            'key_value',
+            self.volume_transfer.id,
+        ]
+        verifylist = [
+            ('transfer_request', self.volume_transfer.id),
+            ('auth_key', 'key_value'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.volume_sdk_client.accept_transfer.assert_called_once_with(
             self.volume_transfer.id,
             'key_value',
         )
@@ -86,12 +105,8 @@ class TestTransferAccept(TestTransfer):
         self.assertEqual(self.data, data)
 
     def test_transfer_accept_no_option(self):
-        arglist = [
-            self.volume_transfer.id,
-        ]
-        verifylist = [
-            ('transfer_request', self.volume_transfer.id),
-        ]
+        arglist = [self.volume_transfer.id]
+        verifylist = [('transfer_request', self.volume_transfer.id)]
 
         self.assertRaises(
             test_utils.ParserException,
@@ -102,9 +117,7 @@ class TestTransferAccept(TestTransfer):
         )
 
 
-class TestTransferCreate(TestTransfer):
-    volume = volume_fakes.create_one_volume()
-
+class TestTransferCreate(volume_fakes.TestVolume):
     columns = (
         'auth_key',
         'created_at',
@@ -116,12 +129,9 @@ class TestTransferCreate(TestTransfer):
     def setUp(self):
         super().setUp()
 
-        self.volume_transfer = volume_fakes.create_one_transfer(
-            attrs={
-                'volume_id': self.volume.id,
-                'auth_key': 'key',
-                'created_at': 'time',
-            },
+        self.volume = sdk_fakes.generate_fake_resource(_volume.Volume)
+        self.volume_transfer = sdk_fakes.generate_fake_resource(
+            _transfer.Transfer, volume_id=self.volume.id
         )
         self.data = (
             self.volume_transfer.auth_key,
@@ -131,26 +141,26 @@ class TestTransferCreate(TestTransfer):
             self.volume_transfer.volume_id,
         )
 
-        self.transfer_mock.create.return_value = self.volume_transfer
-        self.volumes_mock.get.return_value = self.volume
+        self.volume_sdk_client.find_volume.return_value = self.volume
+        self.volume_sdk_client.create_transfer.return_value = (
+            self.volume_transfer
+        )
 
-        # Get the command object to test
         self.cmd = volume_transfer_request.CreateTransferRequest(
             self.app, None
         )
 
     def test_transfer_create_without_name(self):
-        arglist = [
-            self.volume.id,
-        ]
-        verifylist = [
-            ('volume', self.volume.id),
-        ]
+        arglist = [self.volume.id]
+        verifylist = [('volume', self.volume.id)]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.transfer_mock.create.assert_called_once_with(self.volume.id, None)
+        self.volume_sdk_client.create_transfer.assert_called_once_with(
+            volume_id=self.volume.id,
+            name=None,
+        )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 
@@ -168,9 +178,9 @@ class TestTransferCreate(TestTransfer):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.transfer_mock.create.assert_called_once_with(
-            self.volume.id,
-            self.volume_transfer.name,
+        self.volume_sdk_client.create_transfer.assert_called_once_with(
+            volume_id=self.volume.id,
+            name=self.volume_transfer.name,
         )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
@@ -191,8 +201,10 @@ class TestTransferCreate(TestTransfer):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.transfer_mock.create.assert_called_once_with(
-            self.volume.id, None, no_snapshots=True
+        self.volume_sdk_client.create_transfer.assert_called_once_with(
+            volume_id=self.volume.id,
+            name=None,
+            no_snapshots=True,
         )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
@@ -219,18 +231,16 @@ class TestTransferCreate(TestTransfer):
         )
 
 
-class TestTransferDelete(TestTransfer):
-    volume_transfers = volume_fakes.create_transfers(count=2)
-
+class TestTransferDelete(volume_fakes.TestVolume):
     def setUp(self):
         super().setUp()
 
-        self.transfer_mock.get = volume_fakes.get_transfers(
-            self.volume_transfers,
-        )
-        self.transfer_mock.delete.return_value = None
+        self.volume_transfers = [
+            sdk_fakes.generate_fake_resource(_transfer.Transfer),
+            sdk_fakes.generate_fake_resource(_transfer.Transfer),
+        ]
+        self.volume_sdk_client.delete_transfer.return_value = None
 
-        # Get the command object to mock
         self.cmd = volume_transfer_request.DeleteTransferRequest(
             self.app, None
         )
@@ -242,26 +252,22 @@ class TestTransferDelete(TestTransfer):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.transfer_mock.delete.assert_called_with(
-            self.volume_transfers[0].id
+        self.volume_sdk_client.delete_transfer.assert_called_once_with(
+            self.volume_transfers[0].id, ignore_missing=False
         )
         self.assertIsNone(result)
 
     def test_delete_multiple_transfers(self):
-        arglist = []
-        for v in self.volume_transfers:
-            arglist.append(v.id)
-        verifylist = [
-            ('transfer_request', arglist),
-        ]
+        arglist = [v.id for v in self.volume_transfers]
+        verifylist = [('transfer_request', arglist)]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        calls = []
-        for v in self.volume_transfers:
-            calls.append(call(v.id))
-        self.transfer_mock.delete.assert_has_calls(calls)
+        calls = [
+            call(v.id, ignore_missing=False) for v in self.volume_transfers
+        ]
+        self.volume_sdk_client.delete_transfer.assert_has_calls(calls)
         self.assertIsNone(result)
 
     def test_delete_multiple_transfers_with_exception(self):
@@ -269,46 +275,33 @@ class TestTransferDelete(TestTransfer):
             self.volume_transfers[0].id,
             'unexist_transfer',
         ]
-        verifylist = [
-            ('transfer_request', arglist),
-        ]
-
+        verifylist = [('transfer_request', arglist)]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        find_mock_result = [self.volume_transfers[0], exceptions.CommandError]
-        with mock.patch.object(
-            utils, 'find_resource', side_effect=find_mock_result
-        ) as find_mock:
-            try:
-                self.cmd.take_action(parsed_args)
-                self.fail('CommandError should be raised.')
-            except exceptions.CommandError as e:
-                self.assertEqual(
-                    '1 of 2 volume transfer requests failed to delete',
-                    str(e),
-                )
+        self.volume_sdk_client.delete_transfer.side_effect = [
+            None,
+            exceptions.CommandError,
+        ]
 
-            find_mock.assert_any_call(
-                self.transfer_mock, self.volume_transfers[0].id
-            )
-            find_mock.assert_any_call(self.transfer_mock, 'unexist_transfer')
-
-            self.assertEqual(2, find_mock.call_count)
-            self.transfer_mock.delete.assert_called_once_with(
-                self.volume_transfers[0].id,
+        try:
+            self.cmd.take_action(parsed_args)
+            self.fail('CommandError should be raised.')
+        except exceptions.CommandError as e:
+            self.assertEqual(
+                '1 of 2 volume transfer requests failed to delete',
+                str(e),
             )
 
 
-class TestTransferList(TestTransfer):
-    # The Transfers to be listed
-    volume_transfers = volume_fakes.create_one_transfer()
-
+class TestTransferList(volume_fakes.TestVolume):
     def setUp(self):
         super().setUp()
 
-        self.transfer_mock.list.return_value = [self.volume_transfers]
+        self.volume_transfers = [
+            sdk_fakes.generate_fake_resource(_transfer.Transfer),
+        ]
+        self.volume_sdk_client.transfers.return_value = self.volume_transfers
 
-        # Get the command object to test
         self.cmd = volume_transfer_request.ListTransferRequest(self.app, None)
 
     def test_transfer_list_without_argument(self):
@@ -316,74 +309,37 @@ class TestTransferList(TestTransfer):
         verifylist = []
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        # In base command class Lister in cliff, abstract method take_action()
-        # returns a tuple containing the column names and an iterable
-        # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
 
-        expected_columns = [
-            'ID',
-            'Name',
-            'Volume',
-        ]
-
-        # confirming if all expected columns are present in the result.
-        self.assertEqual(expected_columns, columns)
-
-        datalist = (
-            (
-                self.volume_transfers.id,
-                self.volume_transfers.name,
-                self.volume_transfers.volume_id,
-            ),
+        self.volume_sdk_client.transfers.assert_called_once_with(
+            details=True, all_projects=False
         )
-
-        # confirming if all expected values are present in the result.
-        self.assertEqual(datalist, tuple(data))
-
-        # checking if proper call was made to list volume_transfers
-        self.transfer_mock.list.assert_called_with(
-            detailed=True, search_opts={'all_tenants': 0}
+        self.assertEqual(('ID', 'Name', 'Volume'), columns)
+        self.assertEqual(
+            (
+                (
+                    self.volume_transfers[0].id,
+                    self.volume_transfers[0].name,
+                    self.volume_transfers[0].volume_id,
+                ),
+            ),
+            tuple(data),
         )
 
     def test_transfer_list_with_argument(self):
         arglist = ["--all-projects"]
         verifylist = [("all_projects", True)]
-
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        # In base command class Lister in cliff, abstract method take_action()
-        # returns a tuple containing the column names and an iterable
-        # containing the data to be listed.
-        columns, data = self.cmd.take_action(parsed_args)
+        columns, _data = self.cmd.take_action(parsed_args)
 
-        expected_columns = [
-            'ID',
-            'Name',
-            'Volume',
-        ]
-
-        # confirming if all expected columns are present in the result.
-        self.assertEqual(expected_columns, columns)
-
-        datalist = (
-            (
-                self.volume_transfers.id,
-                self.volume_transfers.name,
-                self.volume_transfers.volume_id,
-            ),
+        self.volume_sdk_client.transfers.assert_called_once_with(
+            details=True, all_projects=True
         )
-
-        # confirming if all expected values are present in the result.
-        self.assertEqual(datalist, tuple(data))
-
-        # checking if proper call was made to list volume_transfers
-        self.transfer_mock.list.assert_called_with(
-            detailed=True, search_opts={'all_tenants': 1}
-        )
+        self.assertEqual(('ID', 'Name', 'Volume'), columns)
 
 
-class TestTransferShow(TestTransfer):
+class TestTransferShow(volume_fakes.TestVolume):
     columns = (
         'created_at',
         'id',
@@ -394,8 +350,8 @@ class TestTransferShow(TestTransfer):
     def setUp(self):
         super().setUp()
 
-        self.volume_transfer = volume_fakes.create_one_transfer(
-            attrs={'created_at': 'time'},
+        self.volume_transfer = sdk_fakes.generate_fake_resource(
+            _transfer.Transfer
         )
         self.data = (
             self.volume_transfer.created_at,
@@ -404,22 +360,21 @@ class TestTransferShow(TestTransfer):
             self.volume_transfer.volume_id,
         )
 
-        self.transfer_mock.get.return_value = self.volume_transfer
+        self.volume_sdk_client.find_transfer.return_value = (
+            self.volume_transfer
+        )
 
-        # Get the command object to test
         self.cmd = volume_transfer_request.ShowTransferRequest(self.app, None)
 
     def test_transfer_show(self):
-        arglist = [
-            self.volume_transfer.id,
-        ]
-        verifylist = [
-            ('transfer_request', self.volume_transfer.id),
-        ]
+        arglist = [self.volume_transfer.id]
+        verifylist = [('transfer_request', self.volume_transfer.id)]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.transfer_mock.get.assert_called_once_with(self.volume_transfer.id)
+        self.volume_sdk_client.find_transfer.assert_called_once_with(
+            self.volume_transfer.id, ignore_missing=False
+        )
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
