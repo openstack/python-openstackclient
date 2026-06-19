@@ -19,7 +19,7 @@ from unittest import mock
 import uuid
 
 from keystoneauth1 import discover
-from openstack.compute.v2 import _proxy
+from openstack.compute import v2 as compute_v2
 from openstack.compute.v2 import availability_zone as _availability_zone
 from openstack.compute.v2 import extension as _extension
 from openstack.compute.v2 import flavor as _flavor
@@ -44,7 +44,10 @@ class FakeClientMixin:
     def setUp(self):
         super().setUp()
 
-        self.app.client_manager.compute = mock.Mock(_proxy.Proxy)
+        # TODO(stephenfin): Switch to spec_set once keystoneauth exposes
+        # instance attributes as class attributes
+        # https://review.opendev.org/c/openstack/keystoneauth/+/994090
+        self.app.client_manager.compute = mock.Mock(spec=compute_v2.Proxy)
         self.compute_client = self.app.client_manager.compute
         self.set_compute_api_version()  # default to the lowest
 

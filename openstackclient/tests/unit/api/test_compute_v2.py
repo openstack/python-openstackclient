@@ -17,7 +17,7 @@ import http
 from unittest import mock
 import uuid
 
-from openstack.compute.v2 import _proxy
+from openstack.compute import v2 as compute_v2
 from osc_lib import exceptions as osc_lib_exceptions
 
 from openstackclient.api import compute_v2 as compute
@@ -29,7 +29,10 @@ class TestSecurityGroup(utils.TestCase):
     def setUp(self):
         super().setUp()
 
-        self.compute_client = mock.Mock(_proxy.Proxy)
+        # TODO(stephenfin): Switch to spec_set once keystoneauth exposes
+        # instance attributes as class attributes
+        # https://review.opendev.org/c/openstack/keystoneauth/+/994090
+        self.compute_client = mock.Mock(spec=compute_v2.Proxy)
 
     def test_create_security_group(self):
         sg_name = 'name-' + uuid.uuid4().hex
@@ -223,7 +226,7 @@ class TestSecurityGroupRule(utils.TestCase):
     def setUp(self):
         super().setUp()
 
-        self.compute_client = mock.Mock(_proxy.Proxy)
+        self.compute_client = mock.Mock(spec=compute_v2.Proxy)
 
     def test_create_security_group_rule(self):
         sg_id = uuid.uuid4().hex
@@ -281,7 +284,7 @@ class TestNetwork(utils.TestCase):
     def setUp(self):
         super().setUp()
 
-        self.compute_client = mock.Mock(_proxy.Proxy)
+        self.compute_client = mock.Mock(spec=compute_v2.Proxy)
 
     def test_create_network(self):
         net_name = 'name-' + uuid.uuid4().hex
@@ -443,7 +446,7 @@ class TestFloatingIP(utils.TestCase):
     def setUp(self):
         super().setUp()
 
-        self.compute_client = mock.Mock(_proxy.Proxy)
+        self.compute_client = mock.Mock(spec=compute_v2.Proxy)
 
     def test_create_floating_ip(self):
         network = 'network-' + uuid.uuid4().hex
@@ -528,7 +531,7 @@ class TestFloatingIPPool(utils.TestCase):
     def setUp(self):
         super().setUp()
 
-        self.compute_client = mock.Mock(_proxy.Proxy)
+        self.compute_client = mock.Mock(spec=compute_v2.Proxy)
 
     def test_list_floating_ip_pools(self):
         data = {

@@ -16,7 +16,7 @@ import random
 from unittest import mock
 import uuid
 
-from openstack.image.v2 import _proxy
+from openstack.image import v2 as image_v2
 from openstack.image.v2 import cache
 from openstack.image.v2 import image
 from openstack.image.v2 import member
@@ -35,7 +35,10 @@ class FakeClientMixin:
     def setUp(self):
         super().setUp()
 
-        self.app.client_manager.image = mock.Mock(spec=_proxy.Proxy)
+        # TODO(stephenfin): Switch to spec_set once keystoneauth exposes
+        # instance attributes as class attributes
+        # https://review.opendev.org/c/openstack/keystoneauth/+/994090
+        self.app.client_manager.image = mock.Mock(spec=image_v2.Proxy)
         self.image_client = self.app.client_manager.image
 
 

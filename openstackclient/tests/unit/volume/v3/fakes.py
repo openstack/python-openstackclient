@@ -18,15 +18,15 @@ import uuid
 
 from cinderclient import api_versions
 from keystoneauth1 import discover
-from openstack.block_storage.v3 import _proxy
+from openstack.block_storage import v3 as block_storage_v3
 from openstack.block_storage.v3 import availability_zone as _availability_zone
 from openstack.block_storage.v3 import backup as _backup
 from openstack.block_storage.v3 import extension as _extension
 from openstack.block_storage.v3 import limits as _limits
 from openstack.block_storage.v3 import resource_filter as _filters
 from openstack.block_storage.v3 import volume as _volume
-from openstack.compute.v2 import _proxy as _compute_proxy
-from openstack.image.v2 import _proxy as _image_proxy
+from openstack.compute import v2 as compute_v2
+from openstack.image import v2 as image_v2
 
 from openstackclient.tests.unit import fakes
 from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
@@ -90,7 +90,7 @@ class FakeClientMixin:
         # TODO(stephenfin): Rename to 'volume_client' once all commands are
         # migrated to SDK
         self.app.client_manager.sdk_connection.volume = mock.Mock(
-            spec=_proxy.Proxy,
+            spec=block_storage_v3.Proxy
         )
         self.app.client_manager.sdk_connection.volume.api_version = '3'
         self.volume_sdk_client = self.app.client_manager.sdk_connection.volume
@@ -126,12 +126,18 @@ class TestVolume(
 
         # avoid circular imports by defining this manually rather than using
         # openstackclient.tests.unit.compute.v2.fakes.FakeClientMixin
-        self.app.client_manager.compute = mock.Mock(_compute_proxy.Proxy)
+        # TODO(stephenfin): Switch to spec_set once keystoneauth exposes
+        # instance attributes as class attributes
+        # https://review.opendev.org/c/openstack/keystoneauth/+/994090
+        self.app.client_manager.compute = mock.Mock(spec=compute_v2.Proxy)
         self.compute_client = self.app.client_manager.compute
 
         # avoid circular imports by defining this manually rather than using
         # openstackclient.tests.unit.image.v2.fakes.FakeClientMixin
-        self.app.client_manager.image = mock.Mock(spec=_image_proxy.Proxy)
+        # TODO(stephenfin): Switch to spec_set once keystoneauth exposes
+        # instance attributes as class attributes
+        # https://review.opendev.org/c/openstack/keystoneauth/+/994090
+        self.app.client_manager.image = mock.Mock(spec=image_v2.Proxy)
         self.image_client = self.app.client_manager.image
 
 

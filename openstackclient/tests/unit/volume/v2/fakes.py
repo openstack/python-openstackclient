@@ -20,12 +20,12 @@ import uuid
 # FIXME(stephenfin): We are using v3 resource versions despite being v2 fakes
 from cinderclient import api_versions
 from keystoneauth1 import discover
-from openstack.block_storage.v2 import _proxy as block_storage_v2_proxy
+from openstack.block_storage import v2 as block_storage_v2
 from openstack.block_storage.v2 import backup as _backup
 from openstack.block_storage.v3 import capabilities as _capabilities
 from openstack.block_storage.v3 import stats as _stats
 from openstack.block_storage.v3 import volume as _volume
-from openstack.image.v2 import _proxy as image_v2_proxy
+from openstack.image import v2 as image_v2
 
 from openstackclient.tests.unit import fakes
 from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
@@ -76,7 +76,7 @@ class FakeClientMixin:
         # TODO(stephenfin): Rename to 'volume_client' once all commands are
         # migrated to SDK
         self.app.client_manager.sdk_connection.volume = mock.Mock(
-            spec=block_storage_v2_proxy.Proxy,
+            spec=block_storage_v2.Proxy,
         )
         self.app.client_manager.sdk_connection.volume.api_version = '2'
         self.volume_sdk_client = self.app.client_manager.sdk_connection.volume
@@ -112,7 +112,10 @@ class TestVolume(
 
         # avoid circular imports by defining this manually rather than using
         # openstackclient.tests.unit.image.v2.fakes.FakeClientMixin
-        self.app.client_manager.image = mock.Mock(spec=image_v2_proxy.Proxy)
+        # TODO(stephenfin): Switch to spec_set once keystoneauth exposes
+        # instance attributes as class attributes
+        # https://review.opendev.org/c/openstack/keystoneauth/+/994090
+        self.app.client_manager.image = mock.Mock(spec=image_v2.Proxy)
         self.image_client = self.app.client_manager.image
 
 

@@ -20,25 +20,21 @@ from collections.abc import Callable
 import importlib
 import logging
 import sys
-from typing import TYPE_CHECKING, Any, Protocol, TypeVar, runtime_checkable
+from typing import Any, Protocol, TypeVar, runtime_checkable
 
+from keystoneauth1 import access as ksa_access
+from openstack.compute import v2 as compute_v2
+from openstack.image import v2 as image_v2
+from openstack.network import v2 as network_v2
 from osc_lib.cli import client_config
 from osc_lib import clientmanager
 from osc_lib import shell
 import stevedore
 
-if TYPE_CHECKING:
-    from keystoneauth1 import access as ksa_access
-    from openstack.compute.v2 import _proxy as compute_proxy
-    from openstack.image.v2 import _proxy as image_proxy
-    from openstack.network.v2 import _proxy as network_proxy
-
-    from openstackclient.api import object_store_v1
+from openstackclient.api import object_store_v1
 
 LOG = logging.getLogger(__name__)
-
 PLUGIN_MODULES: list[Any] = []
-
 USER_AGENT = 'python-openstackclient'
 
 
@@ -50,23 +46,19 @@ class ClientManager(clientmanager.ClientManager):
     in osc-lib so we need to maintain a transition period.
     """
 
-    if TYPE_CHECKING:
-        # we know this will be set by us and will not be nullable
-        auth_ref: ksa_access.AccessInfo
+    # we know this will be set by us and will not be nullable
+    auth_ref: ksa_access.AccessInfo
 
-        # this is a hack to keep mypy happy: the actual attributes are set in
-        # get_plugin_modules below
-        # TODO(stephenfin): Change the types of identity and volume once we've
-        # migrated everything to SDK. Hopefully by then we'll have figured out
-        # how to statically distinguish between the v2 and v3 versions of both
-        # services...
-        # TODO(stephenfin): We also need to migrate object storage...
-        compute: compute_proxy.Proxy
-        identity: Any
-        image: image_proxy.Proxy
-        network: network_proxy.Proxy
-        object_store: object_store_v1.APIv1
-        volume: Any
+    # this is a hack to keep mypy happy: the actual attributes are set in
+    # get_plugin_modules below
+    # TODO(stephenfin): Change the types of identity, object store and volume
+    # once we've migrated everything to SDK
+    compute: compute_v2.Proxy
+    identity: Any
+    image: image_v2.Proxy
+    network: network_v2.Proxy
+    object_store: object_store_v1.APIv1
+    volume: Any
 
     def __init__(
         self,
