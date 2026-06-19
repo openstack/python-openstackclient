@@ -50,14 +50,8 @@ class FakeVolumeClient:
         self.services.resource_class = fakes.FakeResource(None, {})
         self.transfers = mock.Mock()
         self.transfers.resource_class = fakes.FakeResource(None, {})
-        self.volume_encryption_types = mock.Mock()
-        self.volume_encryption_types.resource_class = fakes.FakeResource(
-            None, {}
-        )
         self.volume_snapshots = mock.Mock()
         self.volume_snapshots.resource_class = fakes.FakeResource(None, {})
-        self.volume_type_access = mock.Mock()
-        self.volume_type_access.resource_class = fakes.FakeResource(None, {})
         self.volume_types = mock.Mock()
         self.volume_types.resource_class = fakes.FakeResource(None, {})
         self.volumes = mock.Mock()
@@ -177,31 +171,6 @@ def get_transfers(transfers=None, count=2):
         transfers = create_transfers(count)
 
     return mock.Mock(side_effect=transfers)
-
-
-def create_one_type_access(attrs=None):
-    """Create a fake volume type access for project.
-
-    :param dict attrs:
-        A dictionary with all attributes
-    :return:
-        A FakeResource object, with  Volume_type_ID and Project_ID.
-    """
-    if attrs is None:
-        attrs = {}
-
-    # Set default attributes.
-    type_access_attrs = {
-        'volume_type_id': 'volume-type-id-' + uuid.uuid4().hex,
-        'project_id': 'project-id-' + uuid.uuid4().hex,
-    }
-
-    # Overwrite default attributes.
-    type_access_attrs.update(attrs)
-
-    type_access = fakes.FakeResource(None, type_access_attrs, loaded=True)
-
-    return type_access
 
 
 def create_one_service(attrs=None):
@@ -788,69 +757,3 @@ def create_one_volume_type(attrs=None, methods=None):
         info=copy.deepcopy(volume_type_info), methods=methods, loaded=True
     )
     return volume_type
-
-
-def create_volume_types(attrs=None, count=2):
-    """Create multiple fake volume_types.
-
-    :param dict attrs:
-        A dictionary with all attributes
-    :param int count:
-        The number of types to fake
-    :return:
-        A list of FakeResource objects faking the types
-    """
-    volume_types = []
-    for i in range(0, count):
-        volume_type = create_one_volume_type(attrs)
-        volume_types.append(volume_type)
-
-    return volume_types
-
-
-def get_volume_types(volume_types=None, count=2):
-    """Get an iterable MagicMock object with a list of faked volume types.
-
-    If volume_types list is provided, then initialize the Mock object with
-    the list. Otherwise create one.
-
-    :param List volume_types:
-        A list of FakeResource objects faking volume types
-    :param Integer count:
-        The number of volume types to be faked
-    :return
-        An iterable Mock object with side_effect set to a list of faked
-        volume types
-    """
-    if volume_types is None:
-        volume_types = create_volume_types(count)
-
-    return mock.Mock(side_effect=volume_types)
-
-
-def create_one_encryption_volume_type(attrs=None):
-    """Create a fake encryption volume type.
-
-    :param dict attrs:
-        A dictionary with all attributes
-    :return:
-        A FakeResource object with volume_type_id etc.
-    """
-    attrs = attrs or {}
-
-    # Set default attributes.
-    encryption_info = {
-        "volume_type_id": 'type-id-' + uuid.uuid4().hex,
-        'provider': 'LuksEncryptor',
-        'cipher': None,
-        'key_size': None,
-        'control_location': 'front-end',
-    }
-
-    # Overwrite default attributes.
-    encryption_info.update(attrs)
-
-    encryption_type = fakes.FakeResource(
-        info=copy.deepcopy(encryption_info), loaded=True
-    )
-    return encryption_type

@@ -22,6 +22,7 @@ from collections.abc import Iterable, Sequence
 from typing import Any
 
 from cliff import columns as cliff_columns
+from openstack import utils as sdk_utils
 from osc_lib.cli import format_columns
 from osc_lib.cli import parseractions
 from osc_lib import exceptions
@@ -33,6 +34,40 @@ from openstackclient.identity import common as identity_common
 
 
 LOG = logging.getLogger(__name__)
+
+
+def _format_type(volume_type: Any) -> dict[str, Any]:
+    ignored_columns = {'location'}
+    info = volume_type.to_dict()
+    data: dict[str, Any] = {}
+    for key, value in info.items():
+        if key in ignored_columns:
+            continue
+        data[key] = value
+
+    data['properties'] = format_columns.DictColumn(data.pop('extra_specs', {}))
+
+    return data
+
+
+def _format_encryption(encryption: Any) -> dict[str, Any]:
+    ignored_columns = {
+        'id',
+        'location',
+        'name',
+        'deleted',
+        'created_at',
+        'updated_at',
+        'deleted_at',
+        'volume_type_id',
+    }
+    info = encryption.to_dict()
+    data: dict[str, Any] = {}
+    for key, value in info.items():
+        if key in ignored_columns:
+            continue
+        data[key] = value
+    return data
 
 
 class EncryptionInfoColumn(cliff_columns.FormattableColumn[Any]):
@@ -76,33 +111,36 @@ def _create_encryption_type(
             "creating a new encryption type"
         )
         raise exceptions.CommandError(msg)
+
     # set the default of control location while creating
     control_location = 'front-end'
     if parsed_args.encryption_control_location:
         control_location = parsed_args.encryption_control_location
-    body = {
-        'provider': parsed_args.encryption_provider,
-        'cipher': parsed_args.encryption_cipher,
-        'key_size': parsed_args.encryption_key_size,
-        'control_location': control_location,
-    }
-    encryption = volume_client.volume_encryption_types.create(
-        volume_type, body
+
+    return volume_client.create_type_encryption(
+        volume_type,
+        provider=parsed_args.encryption_provider,
+        cipher=parsed_args.encryption_cipher,
+        key_size=parsed_args.encryption_key_size,
+        control_location=control_location,
     )
-    return encryption
 
 
 def _set_encryption_type(
     volume_client: Any, volume_type: Any, parsed_args: argparse.Namespace
 ) -> None:
     # update the existing encryption type
-    body = {}
+    kwargs = {}
     for attr in ['provider', 'cipher', 'key_size', 'control_location']:
         info = getattr(parsed_args, 'encryption_' + attr, None)
         if info is not None:
-            body[attr] = info
+            kwargs[attr] = info
     try:
-        volume_client.volume_encryption_types.update(volume_type, body)
+        volume_client.update_type_encryption(
+            encryption=None,
+            volume_type=volume_type,
+            **kwargs,
+        )
     except Exception as e:
         if type(e).__name__ == 'NotFound':
             # create new encryption type
@@ -255,8 +293,10 @@ class CreateVolumeType(command.ShowOne):
     def take_action(
         self, parsed_args: argparse.Namespace
     ) -> tuple[Sequence[str], Iterable[Any]]:
+        volume_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.volume, '2'
+        )
         identity_client = self.app.client_manager.identity
-        volume_client = self.app.client_manager.volume
 
         if parsed_args.project and parsed_args.is_public is not False:
             msg = _("--project is only allowed with --private")
@@ -267,12 +307,13 @@ class CreateVolumeType(command.ShowOne):
         if parsed_args.is_public is not None:
             kwargs['is_public'] = parsed_args.is_public
 
-        volume_type = volume_client.volume_types.create(
-            parsed_args.name,
+        volume_type = volume_client.create_type(
+            name=parsed_args.name,
             description=parsed_args.description,
             **kwargs,
         )
-        volume_type._info.pop('extra_specs')
+
+        info = _format_type(volume_type)
 
         if parsed_args.project:
             try:
@@ -281,9 +322,7 @@ class CreateVolumeType(command.ShowOne):
                     parsed_args.project,
                     parsed_args.project_domain,
                 ).id
-                volume_client.volume_type_access.add_project_access(
-                    volume_type.id, project_id
-                )
+                volume_client.add_type_access(volume_type.id, project_id)
             except Exception as e:
                 msg = _(
                     "Failed to add project %(project)s access to type: %(e)s"
@@ -304,10 +343,10 @@ class CreateVolumeType(command.ShowOne):
                 parsed_args.availability_zones
             )
         if properties:
-            result = volume_type.set_keys(properties)
-            volume_type._info.update(
-                {'properties': format_columns.DictColumn(result)}
+            result = volume_client.update_type_extra_specs(
+                volume_type.id, **properties
             )
+            info['properties'] = format_columns.DictColumn(result.extra_specs)
 
         if (
             parsed_args.encryption_provider
@@ -329,14 +368,10 @@ class CreateVolumeType(command.ShowOne):
                     e,
                 )
             # add encryption info in result
-            encryption._info.pop("volume_type_id", None)
-            volume_type._info.update(
-                {'encryption': format_columns.DictColumn(encryption._info)}
-            )
+            encryption_info = _format_encryption(encryption)
+            info['encryption'] = format_columns.DictColumn(encryption_info)
 
-        volume_type._info.pop("os-volume-type-access:is_public", None)
-
-        col_headers, col_data = zip(*sorted(volume_type._info.items()))
+        col_headers, col_data = zip(*sorted(info.items()))
         return col_headers, col_data
 
 
@@ -354,16 +389,17 @@ class DeleteVolumeType(command.Command):
         return parser
 
     def take_action(self, parsed_args: argparse.Namespace) -> None:
-        volume_client = self.app.client_manager.volume
+        volume_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.volume, '2'
+        )
         result = 0
 
         for volume_type in parsed_args.volume_types:
             try:
-                vol_type = utils.find_resource(
-                    volume_client.volume_types, volume_type
+                vol_type = volume_client.find_type(
+                    volume_type, ignore_missing=False
                 )
-
-                volume_client.volume_types.delete(vol_type)
+                volume_client.delete_type(vol_type)
             except Exception as e:
                 result += 1
                 LOG.error(
@@ -404,14 +440,14 @@ class ListVolumeType(command.Lister):
             "--public",
             action="store_true",
             dest="is_public",
-            default=None,
+            default='none',  # cinder expects the string "none"
             help=_("List only public types"),
         )
         public_group.add_argument(
             "--private",
             action="store_false",
             dest="is_public",
-            default=None,
+            default='none',  # cinder expects the string "none"
             help=_("List only private types (admin only)"),
         )
         parser.add_argument(
@@ -427,7 +463,9 @@ class ListVolumeType(command.Lister):
     def take_action(
         self, parsed_args: argparse.Namespace
     ) -> tuple[Sequence[str], Iterable[tuple[Any, ...]]]:
-        volume_client = self.app.client_manager.volume
+        volume_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.volume, '2'
+        )
 
         if parsed_args.long:
             columns = [
@@ -447,10 +485,12 @@ class ListVolumeType(command.Lister):
             column_headers = ['ID', 'Name', 'Is Public']
 
         if parsed_args.default:
-            data = [volume_client.volume_types.default()]
+            data = [volume_client.get_type('default')]
         else:
-            data = volume_client.volume_types.list(
-                is_public=parsed_args.is_public,
+            data = list(
+                volume_client.types(
+                    is_public=parsed_args.is_public,
+                )
             )
 
         formatters: MutableMapping[str, Any] = {
@@ -459,20 +499,14 @@ class ListVolumeType(command.Lister):
 
         if parsed_args.encryption_type:
             encryption = {}
-            for d in volume_client.volume_encryption_types.list():
-                volume_type_id = d._info['volume_type_id']
-                # remove some redundant information
-                del_key = [
-                    'deleted',
-                    'created_at',
-                    'updated_at',
-                    'deleted_at',
-                    'volume_type_id',
-                ]
-                for key in del_key:
-                    d._info.pop(key, None)
-                # save the encryption information with their volume type ID
-                encryption[volume_type_id] = d._info
+            for d in data:
+                e = volume_client.get_type_encryption(d.id)
+                if not e.volume_type_id:
+                    continue
+
+                encryption_info = _format_encryption(e)
+                encryption[e.volume_type_id] = encryption_info
+
             # We need to get volume type ID, then show encryption
             # information according to the ID, so use "id" to keep
             # difference to the real "ID" column.
@@ -640,12 +674,13 @@ class SetVolumeType(command.Command):
         return parser
 
     def take_action(self, parsed_args: argparse.Namespace) -> None:
-        volume_client = self.app.client_manager.volume
+        volume_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.volume, '2'
+        )
         identity_client = self.app.client_manager.identity
 
-        volume_type = utils.find_resource(
-            volume_client.volume_types,
-            parsed_args.volume_type,
+        volume_type = volume_client.find_type(
+            parsed_args.volume_type, ignore_missing=False
         )
 
         result = 0
@@ -662,7 +697,7 @@ class SetVolumeType(command.Command):
 
         if kwargs:
             try:
-                volume_client.volume_types.update(volume_type.id, **kwargs)
+                volume_client.update_type(volume_type.id, **kwargs)
             except Exception as e:
                 LOG.error(
                     _("Failed to update volume type name or description: %s"),
@@ -685,7 +720,9 @@ class SetVolumeType(command.Command):
             )
         if properties:
             try:
-                volume_type.set_keys(properties)
+                volume_client.update_type_extra_specs(
+                    volume_type.id, **properties
+                )
             except Exception as e:
                 LOG.error(_("Failed to set volume type properties: %s"), e)
                 result += 1
@@ -699,9 +736,7 @@ class SetVolumeType(command.Command):
                     parsed_args.project_domain,
                 )
 
-                volume_client.volume_type_access.add_project_access(
-                    volume_type.id, project_info.id
-                )
+                volume_client.add_type_access(volume_type.id, project_info.id)
             except Exception as e:
                 LOG.error(
                     _("Failed to set volume type access to project: %s"), e
@@ -755,18 +790,20 @@ class ShowVolumeType(command.ShowOne):
     def take_action(
         self, parsed_args: argparse.Namespace
     ) -> tuple[Sequence[str], Iterable[Any]]:
-        volume_client = self.app.client_manager.volume
-        volume_type = utils.find_resource(
-            volume_client.volume_types, parsed_args.volume_type
+        volume_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.volume, '2'
         )
-        properties = format_columns.DictColumn(
-            volume_type._info.pop('extra_specs', {})
+
+        volume_type = volume_client.find_type(
+            parsed_args.volume_type, ignore_missing=False
         )
-        volume_type._info.update({'properties': properties})
+
+        info = _format_type(volume_type)
+
         access_project_ids = None
         if not volume_type.is_public:
             try:
-                volume_type_access = volume_client.volume_type_access.list(
+                volume_type_access = volume_client.get_type_access(
                     volume_type.id
                 )
                 project_ids = [
@@ -782,17 +819,14 @@ class ShowVolumeType(command.ShowOne):
                     '%(type)s: %(e)s'
                 )
                 LOG.error(msg, {'type': volume_type.id, 'e': e})
-        volume_type._info.update({'access_project_ids': access_project_ids})
+        info['access_project_ids'] = access_project_ids
+
         if parsed_args.encryption_type:
             # show encryption type information for this volume type
             try:
-                encryption = volume_client.volume_encryption_types.get(
-                    volume_type.id
-                )
-                encryption._info.pop("volume_type_id", None)
-                volume_type._info.update(
-                    {'encryption': format_columns.DictColumn(encryption._info)}
-                )
+                encryption = volume_client.get_type_encryption(volume_type.id)
+                encryption_info = _format_encryption(encryption)
+                info['encryption'] = format_columns.DictColumn(encryption_info)
             except Exception as e:
                 LOG.error(
                     _(
@@ -801,8 +835,7 @@ class ShowVolumeType(command.ShowOne):
                     ),
                     e,
                 )
-        volume_type._info.pop("os-volume-type-access:is_public", None)
-        col_headers, col_data = zip(*sorted(volume_type._info.items()))
+        col_headers, col_data = zip(*sorted(info.items()))
         return col_headers, col_data
 
 
@@ -845,18 +878,21 @@ class UnsetVolumeType(command.Command):
         return parser
 
     def take_action(self, parsed_args: argparse.Namespace) -> None:
-        volume_client = self.app.client_manager.volume
+        volume_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.volume, '2'
+        )
         identity_client = self.app.client_manager.identity
 
-        volume_type = utils.find_resource(
-            volume_client.volume_types,
-            parsed_args.volume_type,
+        volume_type = volume_client.find_type(
+            parsed_args.volume_type, ignore_missing=False
         )
 
         result = 0
         if parsed_args.properties:
             try:
-                volume_type.unset_keys(parsed_args.properties)
+                volume_client.delete_type_extra_specs(
+                    volume_type.id, parsed_args.properties
+                )
             except Exception as e:
                 LOG.error(_("Failed to unset volume type properties: %s"), e)
                 result += 1
@@ -870,7 +906,7 @@ class UnsetVolumeType(command.Command):
                     parsed_args.project_domain,
                 )
 
-                volume_client.volume_type_access.remove_project_access(
+                volume_client.remove_type_access(
                     volume_type.id, project_info.id
                 )
             except Exception as e:
@@ -881,7 +917,7 @@ class UnsetVolumeType(command.Command):
                 result += 1
         if parsed_args.encryption_type:
             try:
-                volume_client.volume_encryption_types.delete(volume_type)
+                volume_client.delete_type_encryption(None, volume_type.id)
             except Exception as e:
                 LOG.error(
                     _(
