@@ -14,7 +14,8 @@ import argparse
 from collections.abc import Iterable, Sequence
 from typing import Any
 
-from cinderclient import api_versions
+from openstack.block_storage.v3 import cluster as _cluster
+from openstack import utils as sdk_utils
 from osc_lib import exceptions
 from osc_lib import utils
 
@@ -146,9 +147,11 @@ class ListBlockStorageCluster(command.Lister):
     def take_action(
         self, parsed_args: argparse.Namespace
     ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
-        volume_client = self.app.client_manager.volume
+        volume_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.volume, '3'
+        )
 
-        if volume_client.api_version < api_versions.APIVersion('3.7'):
+        if not sdk_utils.supports_microversion(volume_client, '3.7'):
             msg = _(
                 "--os-volume-api-version 3.7 or greater is required to "
                 "support the 'block storage cluster list' command"
@@ -166,14 +169,14 @@ class ListBlockStorageCluster(command.Lister):
                 'Updated At',
             )
 
-        data = volume_client.clusters.list(
+        data = volume_client.clusters(
             name=parsed_args.cluster,
             binary=parsed_args.binary,
             is_up=parsed_args.is_up,
             disabled=parsed_args.is_disabled,
             num_hosts=parsed_args.num_hosts,
             num_down_hosts=parsed_args.num_down_hosts,
-            detailed=parsed_args.long,
+            details=parsed_args.long,
         )
 
         return (
@@ -232,9 +235,11 @@ class SetBlockStorageCluster(command.Command):
     def take_action(
         self, parsed_args: argparse.Namespace
     ) -> tuple[Sequence[str], Iterable[Any]]:
-        volume_client = self.app.client_manager.volume
+        volume_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.volume, '3'
+        )
 
-        if volume_client.api_version < api_versions.APIVersion('3.7'):
+        if not sdk_utils.supports_microversion(volume_client, '3.7'):
             msg = _(
                 "--os-volume-api-version 3.7 or greater is required to "
                 "support the 'block storage cluster set' command"
@@ -245,12 +250,18 @@ class SetBlockStorageCluster(command.Command):
             msg = _("Cannot specify --disable-reason without --disable")
             raise exceptions.CommandError(msg)
 
-        cluster = volume_client.clusters.update(
-            parsed_args.cluster,
-            parsed_args.binary,
-            disabled=parsed_args.disabled,
-            disabled_reason=parsed_args.disabled_reason,
+        cluster_obj = _cluster.Cluster(
+            name=parsed_args.cluster,
+            binary=parsed_args.binary,
         )
+
+        if parsed_args.disabled:
+            cluster = volume_client.disable_cluster(
+                cluster_obj,
+                reason=parsed_args.disabled_reason,
+            )
+        else:
+            cluster = volume_client.enable_cluster(cluster_obj)
 
         return _format_cluster(cluster, detailed=True)
 
@@ -278,18 +289,17 @@ class ShowBlockStorageCluster(command.ShowOne):
     def take_action(
         self, parsed_args: argparse.Namespace
     ) -> tuple[Sequence[str], Iterable[Any]]:
-        volume_client = self.app.client_manager.volume
+        volume_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.volume, '3'
+        )
 
-        if volume_client.api_version < api_versions.APIVersion('3.7'):
+        if not sdk_utils.supports_microversion(volume_client, '3.7'):
             msg = _(
                 "--os-volume-api-version 3.7 or greater is required to "
                 "support the 'block storage cluster show' command"
             )
             raise exceptions.CommandError(msg)
 
-        cluster = volume_client.clusters.show(
-            parsed_args.cluster,
-            binary=parsed_args.binary,
-        )
+        cluster = volume_client.get_cluster(parsed_args.cluster)
 
         return _format_cluster(cluster, detailed=True)
