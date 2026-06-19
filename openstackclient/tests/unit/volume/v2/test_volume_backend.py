@@ -10,24 +10,82 @@
 #   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #   License for the specific language governing permissions and limitations
 #   under the License.
-#
 
+from openstack.block_storage.v2 import capabilities as _capabilities
+from openstack.block_storage.v2 import stats as _stats
 from osc_lib.cli import format_columns
 
 from openstackclient.tests.unit.volume.v2 import fakes as volume_fakes
 from openstackclient.volume.v2 import volume_backend
 
 
+def _create_fake_capability():
+    """Create a fake volume backend capability.
+
+    :param dict attrs:
+        A dictionary with all attributes of the Capabilities.
+    :return:
+        A FakeResource object with capability name and attrs.
+    """
+    # Set default attribute
+    return _capabilities.Capabilities(
+        namespace="OS::Storage::Capabilities::fake",
+        vendor_name="OpenStack",
+        volume_backend_name="lvmdriver-1",
+        pool_name="pool",
+        driver_version="2.0.0",
+        storage_protocol="iSCSI",
+        display_name="Capabilities of Cinder LVM driver",
+        description="Blah, blah.",
+        visibility="public",
+        replication_targets=[],
+        properties={
+            "compression": {
+                "title": "Compression",
+                "description": "Enables compression.",
+                "type": "boolean",
+            },
+            "qos": {
+                "title": "QoS",
+                "description": "Enables QoS.",
+                "type": "boolean",
+            },
+            "replication": {
+                "title": "Replication",
+                "description": "Enables replication.",
+                "type": "boolean",
+            },
+            "thin_provisioning": {
+                "title": "Thin Provisioning",
+                "description": "Sets thin provisioning.",
+                "type": "boolean",
+            },
+        },
+    )
+
+
+def _create_fake_pool():
+    return _stats.Pools(
+        name='host@lvmdriver-1#lvmdriver-1',
+        capabilities={
+            'storage_protocol': 'iSCSI',
+            'thick_provisioning_support': False,
+            'thin_provisioning_support': True,
+            'total_volumes': 99,
+            'total_capacity_gb': 1000.00,
+            'allocated_capacity_gb': 100,
+            'max_over_subscription_ratio': 200.0,
+        },
+    )
+
+
 class TestShowVolumeCapability(volume_fakes.TestVolume):
     """Test backend capability functionality."""
-
-    # The capability to be listed
-    capability = volume_fakes.create_one_capability()
 
     def setUp(self):
         super().setUp()
 
-        # Assign return value to capabilities mock
+        self.capability = _create_fake_capability()
         self.volume_sdk_client.get_capabilities.return_value = self.capability
 
         # Get the command object to test
@@ -77,13 +135,11 @@ class TestShowVolumeCapability(volume_fakes.TestVolume):
 class TestListVolumePool(volume_fakes.TestVolume):
     """Tests for volume backend pool listing."""
 
-    # The pool to be listed
-    pools = volume_fakes.create_one_pool()
-
     def setUp(self):
         super().setUp()
 
-        self.volume_sdk_client.backend_pools.return_value = [self.pools]
+        self.pool = _create_fake_pool()
+        self.volume_sdk_client.backend_pools.return_value = [self.pool]
 
         # Get the command object to test
         self.cmd = volume_backend.ListPool(self.app, None)
@@ -105,7 +161,7 @@ class TestListVolumePool(volume_fakes.TestVolume):
         # confirming if all expected columns are present in the result.
         self.assertEqual(expected_columns, columns)
 
-        datalist = ((self.pools.name,),)
+        datalist = ((self.pool.name,),)
 
         # confirming if all expected values are present in the result.
         self.assertEqual(datalist, tuple(data))
@@ -139,8 +195,8 @@ class TestListVolumePool(volume_fakes.TestVolume):
 
         datalist = (
             (
-                self.pools.name,
-                format_columns.DictColumn(self.pools.capabilities),
+                self.pool.name,
+                format_columns.DictColumn(self.pool.capabilities),
             ),
         )
 

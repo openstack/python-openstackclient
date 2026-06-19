@@ -10,7 +10,9 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 
-from openstack.identity.v2 import extension as _extension
+
+from openstack.block_storage.v3 import extension as _volume_extension
+from openstack.identity.v2 import extension as _identity_extension
 from openstack.test import fakes as sdk_fakes
 
 from openstackclient.common import extension
@@ -42,8 +44,12 @@ class TestExtensionList(TestExtension):
         'Links',
     )
 
-    volume_extension = volume_fakes.create_one_extension()
-    identity_extension = sdk_fakes.generate_fake_resource(_extension.Extension)
+    volume_extension = sdk_fakes.generate_fake_resource(
+        _volume_extension.Extension
+    )
+    identity_extension = sdk_fakes.generate_fake_resource(
+        _identity_extension.Extension
+    )
     compute_extension = compute_fakes.create_one_extension()
     network_extension = network_fakes.create_one_extension()
 

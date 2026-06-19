@@ -10,19 +10,18 @@
 #   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #   License for the specific language governing permissions and limitations
 #   under the License.
-#
 
 from openstack.block_storage.v2 import service as _service
+from openstack.test import fakes as sdk_fakes
 
 from openstackclient.tests.unit.volume.v2 import fakes as volume_fakes
 from openstackclient.volume.v2 import volume_host
 
 
 class TestVolumeHostSet(volume_fakes.TestVolume):
-    service = volume_fakes.create_one_service()
-
     def setUp(self):
         super().setUp()
+        self.service = sdk_fakes.generate_fake_resource(_service.Service)
         self.cmd = volume_host.SetVolumeHost(self.app, None)
 
     def test_volume_host_set_nothing(self):
@@ -64,10 +63,9 @@ class TestVolumeHostSet(volume_fakes.TestVolume):
 
 
 class TestVolumeHostFailover(volume_fakes.TestVolume):
-    service = volume_fakes.create_one_service()
-
     def setUp(self):
         super().setUp()
+        self.service = sdk_fakes.generate_fake_resource(_service.Service)
         self.cmd = volume_host.FailoverVolumeHost(self.app, None)
 
     def test_volume_host_failover(self):

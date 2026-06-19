@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack.block_storage.v3 import attachment as _attachment
+from openstack.block_storage.v3 import volume as _volume
 from openstack.identity.v3 import project as _project
 from openstack.test import fakes as sdk_fakes
 from osc_lib.cli import format_columns
@@ -21,10 +23,13 @@ from openstackclient.volume.v3 import volume_attachment
 
 
 class TestVolumeAttachmentCreate(volume_fakes.TestVolume):
-    volume = volume_fakes.create_one_volume()
+    volume = sdk_fakes.generate_fake_resource(_volume.Volume)
     server = compute_fakes.create_one_server()
-    volume_attachment = volume_fakes.create_one_volume_attachment(
-        attrs={'instance': server.id, 'volume_id': volume.id},
+    volume_attachment = sdk_fakes.generate_fake_resource(
+        _attachment.Attachment,
+        instance=server.id,
+        volume_id=volume.id,
+        connection_info={},
     )
 
     columns = (
@@ -53,7 +58,7 @@ class TestVolumeAttachmentCreate(volume_fakes.TestVolume):
 
         self.volume_sdk_client.find_volume.return_value = self.volume
         self.volume_sdk_client.create_attachment.return_value = (
-            self.volume_attachment.to_dict()
+            self.volume_attachment
         )
         self.compute_client.find_server.return_value = self.server
 
@@ -234,7 +239,9 @@ class TestVolumeAttachmentCreate(volume_fakes.TestVolume):
 
 
 class TestVolumeAttachmentDelete(volume_fakes.TestVolume):
-    volume_attachment = volume_fakes.create_one_volume_attachment()
+    volume_attachment = sdk_fakes.generate_fake_resource(
+        _attachment.Attachment
+    )
 
     def setUp(self):
         super().setUp()
@@ -281,7 +288,9 @@ class TestVolumeAttachmentDelete(volume_fakes.TestVolume):
 
 
 class TestVolumeAttachmentSet(volume_fakes.TestVolume):
-    volume_attachment = volume_fakes.create_one_volume_attachment()
+    volume_attachment = sdk_fakes.generate_fake_resource(
+        _attachment.Attachment, connection_info={}
+    )
 
     columns = (
         'ID',
@@ -388,7 +397,9 @@ class TestVolumeAttachmentSet(volume_fakes.TestVolume):
 
 
 class TestVolumeAttachmentComplete(volume_fakes.TestVolume):
-    volume_attachment = volume_fakes.create_one_volume_attachment()
+    volume_attachment = sdk_fakes.generate_fake_resource(
+        _attachment.Attachment
+    )
 
     def setUp(self):
         super().setUp()
@@ -436,7 +447,10 @@ class TestVolumeAttachmentComplete(volume_fakes.TestVolume):
 
 class TestVolumeAttachmentList(volume_fakes.TestVolume):
     project = sdk_fakes.generate_fake_resource(_project.Project)
-    volume_attachments = volume_fakes.create_volume_attachments()
+    volume_attachments = [
+        sdk_fakes.generate_fake_resource(_attachment.Attachment),
+        sdk_fakes.generate_fake_resource(_attachment.Attachment),
+    ]
 
     columns = (
         'ID',
