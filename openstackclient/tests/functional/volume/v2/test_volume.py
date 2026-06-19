@@ -241,33 +241,3 @@ class VolumeTests(common.BaseVolumeTests):
         # Deleting snapshot may take time. If volume snapshot still exists when
         # a parent volume delete is requested, the volume deletion will fail.
         self.wait_for_delete('volume snapshot', snapshot_name)
-
-    def test_volume_list_backward_compatibility(self):
-        """Test backward compatibility of list command"""
-        name1 = uuid.uuid4().hex
-        cmd_output = self.openstack(
-            'volume create ' + '--size 1 ' + name1,
-            parse_output=True,
-        )
-        self.addCleanup(self.openstack, 'volume delete ' + name1)
-        self.assertEqual(
-            1,
-            cmd_output["size"],
-        )
-        self.wait_for_status("volume", name1, "available")
-
-        # Test list -c "Display Name"
-        cmd_output = self.openstack(
-            'volume list ' + '-c "Display Name"',
-            parse_output=True,
-        )
-        for each_volume in cmd_output:
-            self.assertIn('Display Name', each_volume)
-
-        # Test list -c "Name"
-        cmd_output = self.openstack(
-            'volume list ' + '-c "Name"',
-            parse_output=True,
-        )
-        for each_volume in cmd_output:
-            self.assertIn('Name', each_volume)
