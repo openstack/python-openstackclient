@@ -14,7 +14,7 @@ import argparse
 from collections.abc import Iterable
 from typing import Any
 
-from cinderclient import api_versions
+from openstack import utils as sdk_utils
 from osc_lib import exceptions
 
 from openstackclient import command
@@ -33,15 +33,21 @@ def _format_cleanup_response(
     )
     combined_data = []
     for obj in cleaning:
-        details = (obj.id, obj.cluster_name, obj.host, obj.binary, 'Cleaning')
+        details = (
+            obj['id'],
+            obj['cluster_name'],
+            obj['host'],
+            obj['binary'],
+            'Cleaning',
+        )
         combined_data.append(details)
 
     for obj in unavailable:
         details = (
-            obj.id,
-            obj.cluster_name,
-            obj.host,
-            obj.binary,
+            obj['id'],
+            obj['cluster_name'],
+            obj['host'],
+            obj['binary'],
             'Unavailable',
         )
         combined_data.append(details)
@@ -136,9 +142,11 @@ class BlockStorageCleanup(command.Lister):
     def take_action(
         self, parsed_args: argparse.Namespace
     ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
-        volume_client = self.app.client_manager.volume
+        volume_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.volume, '3'
+        )
 
-        if volume_client.api_version < api_versions.APIVersion('3.24'):
+        if not sdk_utils.supports_microversion(volume_client, '3.24'):
             msg = _(
                 "--os-volume-api-version 3.24 or greater is required to "
                 "support the 'block storage cleanup' command"
@@ -157,5 +165,7 @@ class BlockStorageCleanup(command.Lister):
         }
 
         filters = {k: v for k, v in filters.items() if v is not None}
-        cleaning, unavailable = volume_client.workers.clean(**filters)
-        return _format_cleanup_response(cleaning, unavailable)
+        result = volume_client.cleanup_service_workers(**filters)
+        return _format_cleanup_response(
+            result['cleaning'], result['unavailable']
+        )

@@ -17,25 +17,36 @@ from osc_lib import exceptions
 from openstackclient.tests.unit.volume.v3 import fakes as volume_fakes
 from openstackclient.volume.v3 import block_storage_cleanup
 
+FAKE_CLEANING = [
+    {
+        'id': 1,
+        'host': 'devstack@fakedriver-1',
+        'binary': 'cinder-volume',
+        'cluster_name': 'fake_cluster',
+    }
+]
+FAKE_UNAVAILABLE = [
+    {
+        'id': 2,
+        'host': 'devstack@fakedriver-2',
+        'binary': 'cinder-scheduler',
+        'cluster_name': 'new_cluster',
+    }
+]
+FAKE_CLEANUP_RESPONSE = {
+    'cleaning': FAKE_CLEANING,
+    'unavailable': FAKE_UNAVAILABLE,
+}
 
-class TestBlockStorage(volume_fakes.TestVolume):
+
+class TestBlockStorageCleanup(volume_fakes.TestVolume):
     def setUp(self):
         super().setUp()
 
-        # Get a shortcut to the BlockStorageWorkerManager Mock
-        self.worker_mock = self.volume_client.workers
-        self.worker_mock.reset_mock()
+        self.volume_sdk_client.cleanup_service_workers.return_value = (
+            FAKE_CLEANUP_RESPONSE
+        )
 
-
-class TestBlockStorageCleanup(TestBlockStorage):
-    cleaning, unavailable = volume_fakes.create_cleanup_records()
-
-    def setUp(self):
-        super().setUp()
-
-        self.worker_mock.clean.return_value = (self.cleaning, self.unavailable)
-
-        # Get the command object to test
         self.cmd = block_storage_cleanup.BlockStorageCleanup(self.app, None)
 
     def test_cleanup(self):
@@ -55,24 +66,28 @@ class TestBlockStorageCleanup(TestBlockStorage):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         expected_columns = ('ID', 'Cluster Name', 'Host', 'Binary', 'Status')
-        cleaning_data = tuple(
-            (obj.id, obj.cluster_name, obj.host, obj.binary, 'Cleaning')
-            for obj in self.cleaning
+        expected_data = (
+            (
+                1,
+                'fake_cluster',
+                'devstack@fakedriver-1',
+                'cinder-volume',
+                'Cleaning',
+            ),
+            (
+                2,
+                'new_cluster',
+                'devstack@fakedriver-2',
+                'cinder-scheduler',
+                'Unavailable',
+            ),
         )
-        unavailable_data = tuple(
-            (obj.id, obj.cluster_name, obj.host, obj.binary, 'Unavailable')
-            for obj in self.unavailable
-        )
-        expected_data = cleaning_data + unavailable_data
         columns, data = self.cmd.take_action(parsed_args)
 
         self.assertEqual(expected_columns, columns)
         self.assertEqual(expected_data, tuple(data))
 
-        # checking if proper call was made to cleanup resources
-        # Since we ignore all parameters with None value, we don't
-        # have any arguments passed to the API
-        self.worker_mock.clean.assert_called_once_with()
+        self.volume_sdk_client.cleanup_service_workers.assert_called_once_with()
 
     def test_block_storage_cleanup_pre_324(self):
         arglist = []
@@ -132,22 +147,28 @@ class TestBlockStorageCleanup(TestBlockStorage):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         expected_columns = ('ID', 'Cluster Name', 'Host', 'Binary', 'Status')
-        cleaning_data = tuple(
-            (obj.id, obj.cluster_name, obj.host, obj.binary, 'Cleaning')
-            for obj in self.cleaning
+        expected_data = (
+            (
+                1,
+                'fake_cluster',
+                'devstack@fakedriver-1',
+                'cinder-volume',
+                'Cleaning',
+            ),
+            (
+                2,
+                'new_cluster',
+                'devstack@fakedriver-2',
+                'cinder-scheduler',
+                'Unavailable',
+            ),
         )
-        unavailable_data = tuple(
-            (obj.id, obj.cluster_name, obj.host, obj.binary, 'Unavailable')
-            for obj in self.unavailable
-        )
-        expected_data = cleaning_data + unavailable_data
         columns, data = self.cmd.take_action(parsed_args)
 
         self.assertEqual(expected_columns, columns)
         self.assertEqual(expected_data, tuple(data))
 
-        # checking if proper call was made to cleanup resources
-        self.worker_mock.clean.assert_called_once_with(
+        self.volume_sdk_client.cleanup_service_workers.assert_called_once_with(
             cluster_name=fake_cluster,
             host=fake_host,
             binary=fake_binary,
