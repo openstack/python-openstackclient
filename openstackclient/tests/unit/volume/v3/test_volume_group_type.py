@@ -10,8 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from unittest import mock
-
+from openstack.block_storage.v3 import group_type as _group_type
+from openstack.test import fakes as sdk_fakes
 from osc_lib.cli import format_columns
 from osc_lib import exceptions
 
@@ -22,13 +22,13 @@ from openstackclient.volume.v3 import volume_group_type
 class TestVolumeGroupType(volume_fakes.TestVolume):
     def setUp(self):
         super().setUp()
-
-        self.volume_group_types_mock = self.volume_client.group_types
-        self.volume_group_types_mock.reset_mock()
+        self.set_volume_api_version('3.11')
 
 
 class TestVolumeGroupTypeCreate(TestVolumeGroupType):
-    fake_volume_group_type = volume_fakes.create_one_volume_group_type()
+    fake_volume_group_type = sdk_fakes.generate_fake_resource(
+        _group_type.GroupType
+    )
 
     columns = (
         'ID',
@@ -48,15 +48,13 @@ class TestVolumeGroupTypeCreate(TestVolumeGroupType):
     def setUp(self):
         super().setUp()
 
-        self.volume_group_types_mock.create.return_value = (
+        self.volume_sdk_client.create_group_type.return_value = (
             self.fake_volume_group_type
         )
 
         self.cmd = volume_group_type.CreateVolumeGroupType(self.app, None)
 
     def test_volume_group_type_create(self):
-        self.set_volume_api_version('3.11')
-
         arglist = [
             self.fake_volume_group_type.name,
         ]
@@ -69,15 +67,15 @@ class TestVolumeGroupTypeCreate(TestVolumeGroupType):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.volume_group_types_mock.create.assert_called_once_with(
-            self.fake_volume_group_type.name, None, True
+        self.volume_sdk_client.create_group_type.assert_called_once_with(
+            name=self.fake_volume_group_type.name,
+            description=None,
+            is_public=True,
         )
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, data)
 
     def test_volume_group_type_create_with_options(self):
-        self.set_volume_api_version('3.11')
-
         arglist = [
             self.fake_volume_group_type.name,
             '--description',
@@ -93,8 +91,10 @@ class TestVolumeGroupTypeCreate(TestVolumeGroupType):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.volume_group_types_mock.create.assert_called_once_with(
-            self.fake_volume_group_type.name, 'foo', False
+        self.volume_sdk_client.create_group_type.assert_called_once_with(
+            name=self.fake_volume_group_type.name,
+            description='foo',
+            is_public=False,
         )
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, data)
@@ -121,21 +121,21 @@ class TestVolumeGroupTypeCreate(TestVolumeGroupType):
 
 
 class TestVolumeGroupTypeDelete(TestVolumeGroupType):
-    fake_volume_group_type = volume_fakes.create_one_volume_group_type()
+    fake_volume_group_type = sdk_fakes.generate_fake_resource(
+        _group_type.GroupType
+    )
 
     def setUp(self):
         super().setUp()
 
-        self.volume_group_types_mock.get.return_value = (
+        self.volume_sdk_client.find_group_type.return_value = (
             self.fake_volume_group_type
         )
-        self.volume_group_types_mock.delete.return_value = None
+        self.volume_sdk_client.delete_group_type.return_value = None
 
         self.cmd = volume_group_type.DeleteVolumeGroupType(self.app, None)
 
     def test_volume_group_type_delete(self):
-        self.set_volume_api_version('3.11')
-
         arglist = [
             self.fake_volume_group_type.id,
         ]
@@ -146,8 +146,12 @@ class TestVolumeGroupTypeDelete(TestVolumeGroupType):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.volume_group_types_mock.delete.assert_called_once_with(
+        self.volume_sdk_client.find_group_type.assert_called_once_with(
             self.fake_volume_group_type.id,
+            ignore_missing=False,
+        )
+        self.volume_sdk_client.delete_group_type.assert_called_once_with(
+            self.fake_volume_group_type,
         )
         self.assertIsNone(result)
 
@@ -171,12 +175,8 @@ class TestVolumeGroupTypeDelete(TestVolumeGroupType):
 
 
 class TestVolumeGroupTypeSet(TestVolumeGroupType):
-    fake_volume_group_type = volume_fakes.create_one_volume_group_type(
-        methods={
-            'get_keys': {'foo': 'bar'},
-            'set_keys': None,
-            'unset_keys': None,
-        },
+    fake_volume_group_type = sdk_fakes.generate_fake_resource(
+        _group_type.GroupType, group_specs={'foo': 'bar'}
     )
 
     columns = (
@@ -197,20 +197,16 @@ class TestVolumeGroupTypeSet(TestVolumeGroupType):
     def setUp(self):
         super().setUp()
 
-        self.volume_group_types_mock.get.return_value = (
+        self.volume_sdk_client.find_group_type.return_value = (
             self.fake_volume_group_type
         )
-        self.volume_group_types_mock.update.return_value = (
+        self.volume_sdk_client.update_group_type.return_value = (
             self.fake_volume_group_type
         )
 
         self.cmd = volume_group_type.SetVolumeGroupType(self.app, None)
 
     def test_volume_group_type_set(self):
-        self.set_volume_api_version('3.11')
-
-        self.fake_volume_group_type.set_keys.return_value = None
-
         arglist = [
             self.fake_volume_group_type.id,
             '--name',
@@ -233,21 +229,20 @@ class TestVolumeGroupTypeSet(TestVolumeGroupType):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.volume_group_types_mock.update.assert_called_once_with(
+        self.volume_sdk_client.update_group_type.assert_called_once_with(
             self.fake_volume_group_type.id,
             name='foo',
             description='hello, world',
             is_public=True,
         )
-        self.fake_volume_group_type.set_keys.assert_called_once_with(
+        self.volume_sdk_client.create_group_type_group_specs.assert_called_once_with(
+            self.fake_volume_group_type.id,
             {'fizz': 'buzz'},
         )
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, data)
 
     def test_volume_group_type_with_no_property_option(self):
-        self.set_volume_api_version('3.11')
-
         arglist = [
             self.fake_volume_group_type.id,
             '--no-property',
@@ -266,12 +261,13 @@ class TestVolumeGroupTypeSet(TestVolumeGroupType):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.volume_group_types_mock.get.assert_called_once_with(
-            self.fake_volume_group_type.id
+        self.volume_sdk_client.delete_group_type_group_specs_property.assert_called_once_with(
+            self.fake_volume_group_type.id,
+            'foo',
         )
-        self.fake_volume_group_type.get_keys.assert_called_once_with()
-        self.fake_volume_group_type.unset_keys.assert_called_once_with(
-            {'foo': 'bar'}.keys()
+        self.volume_sdk_client.create_group_type_group_specs.assert_called_once_with(
+            self.fake_volume_group_type.id,
+            {'fizz': 'buzz'},
         )
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, data)
@@ -305,8 +301,8 @@ class TestVolumeGroupTypeSet(TestVolumeGroupType):
 
 
 class TestVolumeGroupTypeUnset(TestVolumeGroupType):
-    fake_volume_group_type = volume_fakes.create_one_volume_group_type(
-        methods={'unset_keys': None},
+    fake_volume_group_type = sdk_fakes.generate_fake_resource(
+        _group_type.GroupType
     )
 
     columns = (
@@ -327,15 +323,13 @@ class TestVolumeGroupTypeUnset(TestVolumeGroupType):
     def setUp(self):
         super().setUp()
 
-        self.volume_group_types_mock.get.return_value = (
+        self.volume_sdk_client.find_group_type.return_value = (
             self.fake_volume_group_type
         )
 
         self.cmd = volume_group_type.UnsetVolumeGroupType(self.app, None)
 
     def test_volume_group_type_unset(self):
-        self.set_volume_api_version('3.11')
-
         arglist = [
             self.fake_volume_group_type.id,
             '--property',
@@ -349,14 +343,13 @@ class TestVolumeGroupTypeUnset(TestVolumeGroupType):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.volume_group_types_mock.get.assert_has_calls(
-            [
-                mock.call(self.fake_volume_group_type.id),
-                mock.call(self.fake_volume_group_type.id),
-            ]
+        self.volume_sdk_client.delete_group_type_group_specs_property.assert_called_once_with(
+            self.fake_volume_group_type.id,
+            'fizz',
         )
-        self.fake_volume_group_type.unset_keys.assert_called_once_with(
-            ['fizz']
+        self.volume_sdk_client.find_group_type.assert_called_once_with(
+            self.fake_volume_group_type.id,
+            ignore_missing=False,
         )
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, data)
@@ -384,20 +377,22 @@ class TestVolumeGroupTypeUnset(TestVolumeGroupType):
 
 
 class TestVolumeGroupTypeList(TestVolumeGroupType):
-    fake_volume_group_types = volume_fakes.create_volume_group_types()
+    fake_volume_group_types = list(
+        sdk_fakes.generate_fake_resources(_group_type.GroupType, count=2)
+    )
 
     columns = (
         'ID',
         'Name',
         'Is Public',
-        'Properties',
+        'Group Specs',
     )
     data = [
         (
             fake_volume_group_type.id,
             fake_volume_group_type.name,
             fake_volume_group_type.is_public,
-            fake_volume_group_type.group_specs,
+            format_columns.DictColumn(fake_volume_group_type.group_specs),
         )
         for fake_volume_group_type in fake_volume_group_types
     ]
@@ -405,18 +400,16 @@ class TestVolumeGroupTypeList(TestVolumeGroupType):
     def setUp(self):
         super().setUp()
 
-        self.volume_group_types_mock.list.return_value = (
+        self.volume_sdk_client.group_types.return_value = (
             self.fake_volume_group_types
         )
-        self.volume_group_types_mock.default.return_value = (
+        self.volume_sdk_client.get_group_type.return_value = (
             self.fake_volume_group_types[0]
         )
 
         self.cmd = volume_group_type.ListVolumeGroupType(self.app, None)
 
     def test_volume_group_type_list(self):
-        self.set_volume_api_version('3.11')
-
         arglist = []
         verifylist = [
             ('show_default', False),
@@ -425,13 +418,11 @@ class TestVolumeGroupTypeList(TestVolumeGroupType):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.volume_group_types_mock.list.assert_called_once_with()
+        self.volume_sdk_client.group_types.assert_called_once_with()
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(tuple(self.data), data)
 
     def test_volume_group_type_list_with_default_option(self):
-        self.set_volume_api_version('3.11')
-
         arglist = [
             '--default',
         ]
@@ -442,9 +433,14 @@ class TestVolumeGroupTypeList(TestVolumeGroupType):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.volume_group_types_mock.default.assert_called_once_with()
+        self.volume_sdk_client.get_group_type.assert_called_once_with(
+            'default'
+        )
         self.assertEqual(self.columns, columns)
-        self.assertCountEqual(tuple([self.data[0]]), data)
+        self.assertCountEqual(
+            tuple([self.data[0]]),
+            data,
+        )
 
     def test_volume_group_type_list_pre_v311(self):
         self.set_volume_api_version('3.10')
@@ -462,7 +458,9 @@ class TestVolumeGroupTypeList(TestVolumeGroupType):
 
 
 class TestVolumeGroupTypeShow(TestVolumeGroupType):
-    fake_volume_group_type = volume_fakes.create_one_volume_group_type()
+    fake_volume_group_type = sdk_fakes.generate_fake_resource(
+        _group_type.GroupType
+    )
 
     columns = (
         'ID',
@@ -482,15 +480,13 @@ class TestVolumeGroupTypeShow(TestVolumeGroupType):
     def setUp(self):
         super().setUp()
 
-        self.volume_group_types_mock.get.return_value = (
+        self.volume_sdk_client.find_group_type.return_value = (
             self.fake_volume_group_type
         )
 
         self.cmd = volume_group_type.ShowVolumeGroupType(self.app, None)
 
     def test_volume_group_type_show(self):
-        self.set_volume_api_version('3.11')
-
         arglist = [
             self.fake_volume_group_type.id,
         ]
@@ -501,8 +497,9 @@ class TestVolumeGroupTypeShow(TestVolumeGroupType):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.volume_group_types_mock.get.assert_called_once_with(
+        self.volume_sdk_client.find_group_type.assert_called_once_with(
             self.fake_volume_group_type.id,
+            ignore_missing=False,
         )
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, data)

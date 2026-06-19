@@ -845,20 +845,6 @@ def create_one_volume_group_type(attrs=None, methods=None):
     return group_type
 
 
-def create_volume_group_types(attrs=None, count=2):
-    """Create multiple fake group types.
-
-    :param attrs: A dictionary with all attributes of group type
-    :param count: The number of group types to be faked
-    :return: A list of FakeResource objects
-    """
-    group_types = []
-    for n in range(0, count):
-        group_types.append(create_one_volume_group_type(attrs))
-
-    return group_types
-
-
 def create_one_volume_message(attrs=None):
     """Create a fake message.
 
