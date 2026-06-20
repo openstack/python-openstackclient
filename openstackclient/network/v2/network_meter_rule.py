@@ -42,8 +42,8 @@ def _get_columns(
 
 def _get_attrs(
     client_manager: Any, parsed_args: argparse.Namespace
-) -> dict[str, Any]:
-    attrs: dict[str, Any] = {}
+) -> dict[str, object]:
+    attrs: dict[str, object] = {}
 
     if parsed_args.exclude:
         attrs['excluded'] = True
@@ -62,12 +62,12 @@ def _get_attrs(
     if parsed_args.meter is not None:
         attrs['metering_label_id'] = parsed_args.meter
     if parsed_args.project is not None:
-        identity_client = client_manager.identity
-        project_id = identity_common.find_project(
+        identity_client = client_manager.sdk_connection.identity
+        project_id = identity_common.find_project_id_sdk(
             identity_client,
             parsed_args.project,
             parsed_args.project_domain,
-        ).id
+        )
         attrs['project_id'] = project_id
 
     return attrs

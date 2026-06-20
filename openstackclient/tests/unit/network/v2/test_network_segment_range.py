@@ -12,7 +12,6 @@
 #   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #   License for the specific language governing permissions and limitations
 #   under the License.
-#
 
 from unittest import mock
 from unittest.mock import call
@@ -38,12 +37,7 @@ class TestAuxiliaryFunctions(tests_utils.TestCase):
             )
 
 
-class TestNetworkSegmentRange(network_fakes.TestNetworkV2):
-    def setUp(self):
-        super().setUp()
-
-
-class TestCreateNetworkSegmentRange(TestNetworkSegmentRange):
+class TestCreateNetworkSegmentRange(network_fakes.TestNetworkV2):
     # The network segment range to create.
     _network_segment_range = network_fakes.create_one_network_segment_range()
 
@@ -344,7 +338,7 @@ class TestCreateNetworkSegmentRange(TestNetworkSegmentRange):
         self.assertEqual(self.data, data)
 
 
-class TestDeleteNetworkSegmentRange(TestNetworkSegmentRange):
+class TestDeleteNetworkSegmentRange(network_fakes.TestNetworkV2):
     # The network segment ranges to delete.
     _network_segment_ranges = network_fakes.create_network_segment_ranges()
 
@@ -434,7 +428,7 @@ class TestDeleteNetworkSegmentRange(TestNetworkSegmentRange):
         )
 
 
-class TestListNetworkSegmentRange(TestNetworkSegmentRange):
+class TestListNetworkSegmentRange(network_fakes.TestNetworkV2):
     _network_segment_ranges = network_fakes.create_network_segment_ranges(
         count=3
     )
@@ -559,7 +553,7 @@ class TestListNetworkSegmentRange(TestNetworkSegmentRange):
         self.assertEqual(self.data_long, list(data))
 
 
-class TestSetNetworkSegmentRange(TestNetworkSegmentRange):
+class TestSetNetworkSegmentRange(network_fakes.TestNetworkV2):
     # The network segment range to set.
     _network_segment_range = network_fakes.create_one_network_segment_range()
     # The network segment range updated.
@@ -649,7 +643,7 @@ class TestSetNetworkSegmentRange(TestNetworkSegmentRange):
         self.assertIsNone(result)
 
 
-class TestShowNetworkSegmentRange(TestNetworkSegmentRange):
+class TestShowNetworkSegmentRange(network_fakes.TestNetworkV2):
     # The network segment range to show.
     _network_segment_range = network_fakes.create_one_network_segment_range()
 

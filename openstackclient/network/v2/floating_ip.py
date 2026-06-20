@@ -89,12 +89,12 @@ def _get_attrs(
         attrs['description'] = parsed_args.description
 
     if parsed_args.project:
-        identity_client = client_manager.identity
-        project_id = identity_common.find_project(
+        identity_client = client_manager.sdk_connection.identity
+        project_id = identity_common.find_project_id_sdk(
             identity_client,
             parsed_args.project,
             parsed_args.project_domain,
-        ).id
+        )
         attrs['project_id'] = project_id
 
     if parsed_args.dns_domain:
@@ -319,7 +319,6 @@ class ListFloatingIP(command.Lister):
         self, parsed_args: argparse.Namespace
     ) -> tuple[Sequence[str], Iterable[Any]]:
         network_client = self.app.client_manager.network
-        identity_client = self.app.client_manager.identity
 
         columns: tuple[str, ...] = (
             'id',
@@ -355,7 +354,7 @@ class ListFloatingIP(command.Lister):
                 'DNS Domain',
             )
 
-        query = {}
+        query: dict[str, object] = {}
 
         if parsed_args.networks is not None:
             network_ids = []
@@ -385,12 +384,13 @@ class ListFloatingIP(command.Lister):
             query['status'] = parsed_args.status
 
         if parsed_args.project is not None:
-            project = identity_common.find_project(
+            identity_client = self.app.client_manager.sdk_connection.identity
+            project_id = identity_common.find_project_id_sdk(
                 identity_client,
                 parsed_args.project,
                 parsed_args.project_domain,
             )
-            query['project_id'] = project.id
+            query['project_id'] = project_id
 
         if parsed_args.routers is not None:
             router_ids = []

@@ -15,20 +15,10 @@ from unittest import mock
 from osc_lib import exceptions
 
 from openstackclient.network.v2 import network_flavor_profile
-from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes_v3
 from openstackclient.tests.unit.network.v2 import fakes as network_fakes
 
 
-class TestFlavorProfile(network_fakes.TestNetworkV2):
-    def setUp(self):
-        super().setUp()
-
-        # Get the DomainManager Mock
-        self.domains_mock = self.identity_client.domains
-
-
-class TestCreateFlavorProfile(TestFlavorProfile):
-    domain = identity_fakes_v3.FakeDomain.create_one_domain()
+class TestCreateFlavorProfile(network_fakes.TestNetworkV2):
     new_flavor_profile = network_fakes.create_one_service_profile()
 
     columns = (
@@ -190,7 +180,7 @@ class TestCreateFlavorProfile(TestFlavorProfile):
         self.assertEqual(self.data, data)
 
 
-class TestDeleteFlavorProfile(TestFlavorProfile):
+class TestDeleteFlavorProfile(network_fakes.TestNetworkV2):
     # The network flavor_profiles to delete.
     _network_flavor_profiles = network_fakes.create_service_profile(count=2)
 
@@ -287,7 +277,7 @@ class TestDeleteFlavorProfile(TestFlavorProfile):
         )
 
 
-class TestListFlavorProfile(TestFlavorProfile):
+class TestListFlavorProfile(network_fakes.TestNetworkV2):
     # The network flavor profiles list
     _network_flavor_profiles = network_fakes.create_service_profile(count=2)
 
@@ -357,7 +347,7 @@ class TestListFlavorProfile(TestFlavorProfile):
         self.assertEqual(self.data, list(data))
 
 
-class TestShowFlavorProfile(TestFlavorProfile):
+class TestShowFlavorProfile(network_fakes.TestNetworkV2):
     # The network flavor profile to show.
     network_flavor_profile = network_fakes.create_one_service_profile()
     columns = (
@@ -404,7 +394,7 @@ class TestShowFlavorProfile(TestFlavorProfile):
         self.assertEqual(self.data, data)
 
 
-class TestSetFlavorProfile(TestFlavorProfile):
+class TestSetFlavorProfile(network_fakes.TestNetworkV2):
     # The network flavor profile to set.
     network_flavor_profile = network_fakes.create_one_service_profile()
 

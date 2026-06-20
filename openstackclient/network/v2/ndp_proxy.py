@@ -192,7 +192,6 @@ class ListNDPProxy(command.Lister):
         self, parsed_args: argparse.Namespace
     ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
         client = self.app.client_manager.network
-        identity_client = self.app.client_manager.identity
 
         columns = (
             'id',
@@ -222,11 +221,12 @@ class ListNDPProxy(command.Lister):
         if parsed_args.ip_address is not None:
             query['ip_address'] = parsed_args.ip_address
         if parsed_args.project:
-            project_id = identity_common.find_project(
+            identity_client = self.app.client_manager.sdk_connection.identity
+            project_id = identity_common.find_project_id_sdk(
                 identity_client,
                 parsed_args.project,
                 parsed_args.project_domain,
-            ).id
+            )
             query['project_id'] = project_id
         if parsed_args.name:
             query['name'] = parsed_args.name

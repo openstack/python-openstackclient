@@ -14,10 +14,11 @@
 from unittest.mock import call
 
 import ddt
+from openstack.identity.v3 import project as _project
+from openstack.test import fakes as sdk_fakes
 from osc_lib import exceptions
 
 from openstackclient.network.v2 import network_rbac
-from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes_v3
 from openstackclient.tests.unit.network.v2 import fakes as network_fakes
 from openstackclient.tests.unit import utils as tests_utils
 
@@ -25,9 +26,6 @@ from openstackclient.tests.unit import utils as tests_utils
 class TestNetworkRBAC(network_fakes.TestNetworkV2):
     def setUp(self):
         super().setUp()
-
-        # Get a shortcut to the ProjectManager Mock
-        self.projects_mock = self.identity_client.projects
 
 
 @ddt.ddt
@@ -38,7 +36,7 @@ class TestCreateNetworkRBAC(TestNetworkRBAC):
     as_object = network_fakes.create_one_address_scope()
     snp_object = network_fakes.FakeSubnetPool.create_one_subnet_pool()
     ag_object = network_fakes.create_one_address_group()
-    project = identity_fakes_v3.FakeProject.create_one_project()
+    project = sdk_fakes.generate_fake_resource(_project.Project)
     rbac_policy = network_fakes.create_one_network_rbac(
         attrs={
             'project_id': project.id,
@@ -85,7 +83,7 @@ class TestCreateNetworkRBAC(TestNetworkRBAC):
 
         self.network_client.find_address_group.return_value = self.ag_object
 
-        self.projects_mock.get.return_value = self.project
+        self.identity_sdk_client.find_project.return_value = self.project
 
     def test_network_rbac_create_no_type(self):
         arglist = [
@@ -454,8 +452,8 @@ class TestListNetworkRABC(TestNetworkRBAC):
 
         self.network_client.rbac_policies.return_value = self.rbac_policies
 
-        self.project = identity_fakes_v3.FakeProject.create_one_project()
-        self.projects_mock.get.return_value = self.project
+        self.project = sdk_fakes.generate_fake_resource(_project.Project)
+        self.identity_sdk_client.find_project.return_value = self.project
 
     def test_network_rbac_list(self):
         arglist = []
@@ -565,7 +563,7 @@ class TestListNetworkRABC(TestNetworkRBAC):
 
 
 class TestSetNetworkRBAC(TestNetworkRBAC):
-    project = identity_fakes_v3.FakeProject.create_one_project()
+    project = sdk_fakes.generate_fake_resource(_project.Project)
     rbac_policy = network_fakes.create_one_network_rbac(
         attrs={'target_tenant': project.id}
     )
@@ -579,7 +577,7 @@ class TestSetNetworkRBAC(TestNetworkRBAC):
         self.network_client.find_rbac_policy.return_value = self.rbac_policy
 
         self.network_client.update_rbac_policy.return_value = None
-        self.projects_mock.get.return_value = self.project
+        self.identity_sdk_client.find_project.return_value = self.project
 
     def test_network_rbac_set_nothing(self):
         arglist = [

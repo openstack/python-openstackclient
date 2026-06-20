@@ -14,12 +14,13 @@ from unittest import mock
 from unittest.mock import call
 import uuid
 
+from openstack.identity.v3 import project as _project
+from openstack.test import fakes as sdk_fakes
 from osc_lib.cli import format_columns
 from osc_lib import exceptions
 
 from openstackclient.network.v2 import port
 from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
-from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 from openstackclient.tests.unit.network.v2 import fakes as network_fakes
 from openstackclient.tests.unit import utils as test_utils
 
@@ -36,9 +37,6 @@ LIST_FIELDS_TO_RETRIEVE_LONG = [
 class TestPort(network_fakes.TestNetworkV2):
     def setUp(self):
         super().setUp()
-
-        # Get a shortcut to the ProjectManager Mock
-        self.projects_mock = self.identity_client.projects
 
     @staticmethod
     def _get_common_cols_data(fake_port):
@@ -1319,7 +1317,7 @@ class TestDeletePort(TestPort):
 
 
 class TestListPort(compute_fakes.FakeClientMixin, TestPort):
-    _project = identity_fakes.FakeProject.create_one_project()
+    _project = sdk_fakes.generate_fake_resource(_project.Project)
     _networks = network_fakes.create_networks(count=3)
     _sport1 = network_fakes.create_one_port(
         attrs={'project_id': _project.id, 'network_id': _networks[1]['id']}
@@ -1771,8 +1769,8 @@ class TestListPort(compute_fakes.FakeClientMixin, TestPort):
         self.assertCountEqual(self.data, list(data))
 
     def test_port_list_project(self):
-        project = identity_fakes.FakeProject.create_one_project()
-        self.projects_mock.get.return_value = project
+        project = sdk_fakes.generate_fake_resource(_project.Project)
+        self.identity_sdk_client.find_project.return_value = project
         arglist = [
             '--project',
             project.id,
@@ -1793,8 +1791,8 @@ class TestListPort(compute_fakes.FakeClientMixin, TestPort):
         self.assertCountEqual(self.data, list(data))
 
     def test_port_list_project_domain(self):
-        project = identity_fakes.FakeProject.create_one_project()
-        self.projects_mock.get.return_value = project
+        project = sdk_fakes.generate_fake_resource(_project.Project)
+        self.identity_sdk_client.find_project.return_value = project
         arglist = [
             '--project',
             project.id,

@@ -9,36 +9,24 @@
 #   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #   License for the specific language governing permissions and limitations
 #   under the License.
-#
 
 import random
 from unittest.mock import call
 
+from openstack.identity.v3 import domain as _domain
+from openstack.identity.v3 import project as _project
+from openstack.test import fakes as sdk_fakes
 from osc_lib.cli import format_columns
 from osc_lib import exceptions
 
 from openstackclient.network.v2 import network
-from openstackclient.tests.unit.identity.v2_0 import fakes as identity_fakes_v2
-from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes_v3
 from openstackclient.tests.unit.network.v2 import fakes as network_fakes
 from openstackclient.tests.unit import utils as tests_utils
 
 
-# Tests for Neutron network
-#
-class TestNetwork(network_fakes.TestNetworkV2):
-    def setUp(self):
-        super().setUp()
-
-        # Get a shortcut to the ProjectManager Mock
-        self.projects_mock = self.identity_client.projects
-        # Get a shortcut to the DomainManager Mock
-        self.domains_mock = self.identity_client.domains
-
-
-class TestCreateNetworkIdentityV3(TestNetwork):
-    project = identity_fakes_v3.FakeProject.create_one_project()
-    domain = identity_fakes_v3.FakeDomain.create_one_domain()
+class TestCreateNetworkIdentityV3(network_fakes.TestNetworkV2):
+    project = sdk_fakes.generate_fake_resource(_project.Project)
+    domain = sdk_fakes.generate_fake_resource(_domain.Domain)
     # The new network created.
     _network = network_fakes.create_one_network(
         attrs={
@@ -124,8 +112,7 @@ class TestCreateNetworkIdentityV3(TestNetwork):
         # Get the command object to test
         self.cmd = network.CreateNetwork(self.app, None)
 
-        self.projects_mock.get.return_value = self.project
-        self.domains_mock.get.return_value = self.domain
+        self.identity_sdk_client.find_project.return_value = self.project
         self.network_client.find_qos_policy.return_value = self.qos_policy
 
     def test_create_no_options(self):
@@ -362,151 +349,7 @@ class TestCreateNetworkIdentityV3(TestNetwork):
         )
 
 
-class TestCreateNetworkIdentityV2(
-    identity_fakes_v2.FakeClientMixin,
-    network_fakes.FakeClientMixin,
-    tests_utils.TestCommand,
-):
-    project = identity_fakes_v2.FakeProject.create_one_project()
-    # The new network created.
-    _network = network_fakes.create_one_network(
-        attrs={'project_id': project.id}
-    )
-    columns = (
-        'admin_state_up',
-        'availability_zone_hints',
-        'availability_zones',
-        'created_at',
-        'description',
-        'dns_domain',
-        'id',
-        'ipv4_address_scope',
-        'ipv6_address_scope',
-        'is_default',
-        'is_vlan_transparent',
-        'is_vlan_qinq',
-        'mtu',
-        'name',
-        'port_security_enabled',
-        'project_id',
-        'pvlan',
-        'provider:network_type',
-        'provider:physical_network',
-        'provider:segmentation_id',
-        'qos_policy_id',
-        'router:external',
-        'shared',
-        'status',
-        'segments',
-        'subnets',
-        'tags',
-        'revision_number',
-        'updated_at',
-    )
-
-    data = (
-        network.AdminStateColumn(_network.is_admin_state_up),
-        format_columns.ListColumn(_network.availability_zone_hints),
-        format_columns.ListColumn(_network.availability_zones),
-        _network.created_at,
-        _network.description,
-        _network.dns_domain,
-        _network.id,
-        _network.ipv4_address_scope_id,
-        _network.ipv6_address_scope_id,
-        _network.is_default,
-        _network.mtu,
-        _network.name,
-        _network.is_port_security_enabled,
-        _network.project_id,
-        _network.pvlan,
-        _network.provider_network_type,
-        _network.provider_physical_network,
-        _network.provider_segmentation_id,
-        _network.qos_policy_id,
-        network.RouterExternalColumn(_network.is_router_external),
-        _network.is_shared,
-        _network.is_vlan_transparent,
-        _network.is_vlan_qinq,
-        _network.status,
-        _network.segments,
-        format_columns.ListColumn(_network.subnet_ids),
-        format_columns.ListColumn(_network.tags),
-        _network.revision_number,
-        _network.updated_at,
-    )
-
-    def setUp(self):
-        super().setUp()
-
-        self.network_client.create_network.return_value = self._network
-
-        self.network_client.set_tags.return_value = None
-
-        # Get the command object to test
-        self.cmd = network.CreateNetwork(self.app, None)
-
-        # Get a shortcut to the ProjectManager Mock
-        self.projects_mock = self.identity_client.tenants
-        self.projects_mock.get.return_value = self.project
-
-        # There is no DomainManager Mock in fake identity v2.
-
-    def test_create_with_project_identityv2(self):
-        arglist = [
-            "--project",
-            self.project.name,
-            self._network.name,
-        ]
-        verifylist = [
-            ('enable', True),
-            ('share', None),
-            ('name', self._network.name),
-            ('project', self.project.name),
-            ('external', False),
-        ]
-
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-        columns, data = self.cmd.take_action(parsed_args)
-
-        self.network_client.create_network.assert_called_once_with(
-            **{
-                'admin_state_up': True,
-                'name': self._network.name,
-                'project_id': self.project.id,
-            }
-        )
-        self.assertFalse(self.network_client.set_tags.called)
-        self.assertEqual(set(self.columns), set(columns))
-        self.assertCountEqual(self.data, data)
-
-    def test_create_with_domain_identityv2(self):
-        arglist = [
-            "--project",
-            self.project.name,
-            "--project-domain",
-            "domain-name",
-            self._network.name,
-        ]
-        verifylist = [
-            ('enable', True),
-            ('share', None),
-            ('project', self.project.name),
-            ('project_domain', "domain-name"),
-            ('name', self._network.name),
-            ('external', False),
-        ]
-
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        self.assertRaises(
-            AttributeError,
-            self.cmd.take_action,
-            parsed_args,
-        )
-
-
-class TestDeleteNetwork(TestNetwork):
+class TestDeleteNetwork(network_fakes.TestNetworkV2):
     def setUp(self):
         super().setUp()
 
@@ -594,7 +437,7 @@ class TestDeleteNetwork(TestNetwork):
         self.network_client.delete_network.assert_has_calls(calls)
 
 
-class TestListNetwork(TestNetwork):
+class TestListNetwork(network_fakes.TestNetworkV2):
     # The networks going to be listed up.
     _networks = network_fakes.create_networks(count=3)
 
@@ -814,8 +657,8 @@ class TestListNetwork(TestNetwork):
         self.assertCountEqual(self.data, list(data))
 
     def test_network_list_project(self):
-        project = identity_fakes_v3.FakeProject.create_one_project()
-        self.projects_mock.get.return_value = project
+        project = sdk_fakes.generate_fake_resource(_project.Project)
+        self.identity_sdk_client.find_project.return_value = project
         arglist = [
             '--project',
             project.id,
@@ -834,8 +677,8 @@ class TestListNetwork(TestNetwork):
         self.assertCountEqual(self.data, list(data))
 
     def test_network_list_project_domain(self):
-        project = identity_fakes_v3.FakeProject.create_one_project()
-        self.projects_mock.get.return_value = project
+        project = sdk_fakes.generate_fake_resource(_project.Project)
+        self.identity_sdk_client.find_project.return_value = project
         arglist = [
             '--project',
             project.id,
@@ -1020,7 +863,7 @@ class TestListNetwork(TestNetwork):
         self.assertCountEqual(self.data, list(data))
 
 
-class TestSetNetwork(TestNetwork):
+class TestSetNetwork(network_fakes.TestNetworkV2):
     # The network to set.
     _network = network_fakes.create_one_network({'tags': ['green', 'red']})
     qos_policy = network_fakes.create_one_qos_policy(
@@ -1227,7 +1070,7 @@ class TestSetNetwork(TestNetwork):
         self._test_set_tags(with_tags=False)
 
 
-class TestShowNetwork(TestNetwork):
+class TestShowNetwork(network_fakes.TestNetworkV2):
     # The network to show.
     _network = network_fakes.create_one_network()
     columns = (
@@ -1332,7 +1175,7 @@ class TestShowNetwork(TestNetwork):
         self.assertCountEqual(self.data, data)
 
 
-class TestUnsetNetwork(TestNetwork):
+class TestUnsetNetwork(network_fakes.TestNetworkV2):
     # The network to set.
     _network = network_fakes.create_one_network({'tags': ['green', 'red']})
     qos_policy = network_fakes.create_one_qos_policy(

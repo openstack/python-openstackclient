@@ -15,26 +15,19 @@
 
 from unittest.mock import call
 
+from openstack.identity.v3 import domain as _domain
+from openstack.identity.v3 import project as _project
+from openstack.test import fakes as sdk_fakes
 from osc_lib import exceptions
 
 from openstackclient.network.v2 import network_meter_rule
-from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes_v3
 from openstackclient.tests.unit.network.v2 import fakes as network_fakes
 from openstackclient.tests.unit import utils as tests_utils
 
 
-class TestMeterRule(network_fakes.TestNetworkV2):
-    def setUp(self):
-        super().setUp()
-
-        self.projects_mock = self.identity_client.projects
-        self.domains_mock = self.identity_client.domains
-
-
-class TestCreateMeterRule(TestMeterRule):
-    project = identity_fakes_v3.FakeProject.create_one_project()
-    domain = identity_fakes_v3.FakeDomain.create_one_domain()
-
+class TestCreateMeterRule(network_fakes.TestNetworkV2):
+    project = sdk_fakes.generate_fake_resource(_project.Project)
+    domain = sdk_fakes.generate_fake_resource(_domain.Domain)
     new_rule = network_fakes.FakeNetworkMeterRule.create_one_rule()
 
     columns = (
@@ -63,14 +56,13 @@ class TestCreateMeterRule(TestMeterRule):
         fake_meter = network_fakes.FakeNetworkMeter.create_one_meter(
             {'id': self.new_rule.metering_label_id}
         )
-
         self.network_client.create_metering_label_rule.return_value = (
             self.new_rule
         )
-
-        self.projects_mock.get.return_value = self.project
-        self.cmd = network_meter_rule.CreateMeterRule(self.app, None)
+        self.identity_sdk_client.find_project.return_value = self.project
         self.network_client.find_metering_label.return_value = fake_meter
+
+        self.cmd = network_meter_rule.CreateMeterRule(self.app, None)
 
     def test_create_no_options(self):
         arglist = []
@@ -138,7 +130,7 @@ class TestCreateMeterRule(TestMeterRule):
         self.assertEqual(self.data, data)
 
 
-class TestDeleteMeterRule(TestMeterRule):
+class TestDeleteMeterRule(network_fakes.TestNetworkV2):
     def setUp(self):
         super().setUp()
         self.rule_list = network_fakes.FakeNetworkMeterRule.create_meter_rule(
@@ -225,7 +217,7 @@ class TestDeleteMeterRule(TestMeterRule):
         self.network_client.delete_metering_label_rule.assert_has_calls(calls)
 
 
-class TestListMeterRule(TestMeterRule):
+class TestListMeterRule(network_fakes.TestNetworkV2):
     rule_list = network_fakes.FakeNetworkMeterRule.create_meter_rule(count=2)
 
     columns = (
@@ -271,7 +263,7 @@ class TestListMeterRule(TestMeterRule):
         self.assertEqual(self.data, list(data))
 
 
-class TestShowMeterRule(TestMeterRule):
+class TestShowMeterRule(network_fakes.TestNetworkV2):
     new_rule = network_fakes.FakeNetworkMeterRule.create_one_rule()
 
     columns = (

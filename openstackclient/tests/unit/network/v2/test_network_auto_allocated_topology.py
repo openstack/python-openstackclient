@@ -13,20 +13,15 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from openstack.identity.v3 import project as _project
+from openstack.test import fakes as sdk_fakes
 
 from openstackclient.network.v2 import network_auto_allocated_topology
-from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 from openstackclient.tests.unit.network.v2 import fakes as network_fakes
 
 
-class TestAutoAllocatedTopology(network_fakes.TestNetworkV2):
-    def setUp(self):
-        super().setUp()
-        self.projects_mock = self.identity_client.projects
-
-
-class TestCreateAutoAllocatedTopology(TestAutoAllocatedTopology):
-    project = identity_fakes.FakeProject.create_one_project()
+class TestCreateAutoAllocatedTopology(network_fakes.TestNetworkV2):
+    project = sdk_fakes.generate_fake_resource(_project.Project)
     network_object = network_fakes.create_one_network()
 
     topology = network_fakes.create_one_topology(
@@ -130,8 +125,8 @@ class TestCreateAutoAllocatedTopology(TestAutoAllocatedTopology):
         self.assertEqual(self.data, data)
 
 
-class TestValidateAutoAllocatedTopology(TestAutoAllocatedTopology):
-    project = identity_fakes.FakeProject.create_one_project()
+class TestValidateAutoAllocatedTopology(network_fakes.TestNetworkV2):
+    project = sdk_fakes.generate_fake_resource(_project.Project)
     network_object = network_fakes.create_one_network()
 
     topology = network_fakes.create_one_topology(
@@ -213,8 +208,8 @@ class TestValidateAutoAllocatedTopology(TestAutoAllocatedTopology):
         )
 
 
-class TestDeleteAutoAllocatedTopology(TestAutoAllocatedTopology):
-    project = identity_fakes.FakeProject.create_one_project()
+class TestDeleteAutoAllocatedTopology(network_fakes.TestNetworkV2):
+    project = sdk_fakes.generate_fake_resource(_project.Project)
     network_object = network_fakes.create_one_network()
 
     topology = network_fakes.create_one_topology(

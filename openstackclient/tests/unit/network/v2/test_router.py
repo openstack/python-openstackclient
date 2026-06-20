@@ -9,29 +9,22 @@
 #   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #   License for the specific language governing permissions and limitations
 #   under the License.
-#
 
 from unittest import mock
 from unittest.mock import call
 
+from openstack.identity.v3 import project as _project
+from openstack.test import fakes as sdk_fakes
 from osc_lib.cli import format_columns
 from osc_lib import exceptions
 
 from openstackclient.network.v2 import router
-from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes_v3
 from openstackclient.tests.unit.network.v2 import fakes as network_fakes
 from openstackclient.tests.unit import utils as tests_utils
 
 
-class TestRouter(network_fakes.TestNetworkV2):
-    def setUp(self):
-        super().setUp()
-
-        self.projects_mock = self.identity_client.projects
-
-
-class TestAddPortToRouter(TestRouter):
-    '''Add port to Router'''
+class TestAddPortToRouter(network_fakes.TestNetworkV2):
+    """Add port to Router"""
 
     _port = network_fakes.create_one_port()
     _router = network_fakes.create_one_router(attrs={'port': _port.id})
@@ -75,8 +68,8 @@ class TestAddPortToRouter(TestRouter):
         self.assertIsNone(result)
 
 
-class TestAddSubnetToRouter(TestRouter):
-    '''Add subnet to Router'''
+class TestAddSubnetToRouter(network_fakes.TestNetworkV2):
+    """Add subnet to Router"""
 
     _subnet = network_fakes.FakeSubnet.create_one_subnet()
     _router = network_fakes.create_one_router(attrs={'subnet': _subnet.id})
@@ -164,7 +157,7 @@ class TestAddSubnetToRouter(TestRouter):
         self.assertIsNone(result)
 
 
-class TestCreateRouter(TestRouter):
+class TestCreateRouter(network_fakes.TestNetworkV2):
     # The new router created.
     new_router = network_fakes.create_one_router()
     _extensions = {'fake': network_fakes.create_one_extension()}
@@ -802,7 +795,7 @@ class TestCreateRouter(TestRouter):
         )
 
 
-class TestDeleteRouter(TestRouter):
+class TestDeleteRouter(network_fakes.TestNetworkV2):
     # The routers to delete.
     _routers = network_fakes.create_routers(count=2)
 
@@ -882,7 +875,7 @@ class TestDeleteRouter(TestRouter):
         )
 
 
-class TestListRouter(TestRouter):
+class TestListRouter(network_fakes.TestNetworkV2):
     # The routers going to be listed up.
     routers = network_fakes.create_routers(count=3)
     extensions = network_fakes.create_one_extension()
@@ -1126,8 +1119,8 @@ class TestListRouter(TestRouter):
         self.assertCountEqual(self.data, list(data))
 
     def test_router_list_project(self):
-        project = identity_fakes_v3.FakeProject.create_one_project()
-        self.projects_mock.get.return_value = project
+        project = sdk_fakes.generate_fake_resource(_project.Project)
+        self.identity_sdk_client.find_project.return_value = project
         arglist = [
             '--project',
             project.id,
@@ -1145,8 +1138,8 @@ class TestListRouter(TestRouter):
         self.assertCountEqual(self.data, list(data))
 
     def test_router_list_project_domain(self):
-        project = identity_fakes_v3.FakeProject.create_one_project()
-        self.projects_mock.get.return_value = project
+        project = sdk_fakes.generate_fake_resource(_project.Project)
+        self.identity_sdk_client.find_project.return_value = project
         arglist = [
             '--project',
             project.id,
@@ -1233,8 +1226,8 @@ class TestListRouter(TestRouter):
         self.assertCountEqual(self.data, list(data))
 
 
-class TestRemovePortFromRouter(TestRouter):
-    '''Remove port from a Router'''
+class TestRemovePortFromRouter(network_fakes.TestNetworkV2):
+    """Remove port from a Router"""
 
     _port = network_fakes.create_one_port()
     _router = network_fakes.create_one_router(attrs={'port': _port.id})
@@ -1278,8 +1271,8 @@ class TestRemovePortFromRouter(TestRouter):
         self.assertIsNone(result)
 
 
-class TestRemoveSubnetFromRouter(TestRouter):
-    '''Remove subnet from Router'''
+class TestRemoveSubnetFromRouter(network_fakes.TestNetworkV2):
+    """Remove subnet from Router"""
 
     _subnet = network_fakes.FakeSubnet.create_one_subnet()
     _router = network_fakes.create_one_router(attrs={'subnet': _subnet.id})
@@ -1322,7 +1315,7 @@ class TestRemoveSubnetFromRouter(TestRouter):
         self.assertIsNone(result)
 
 
-class TestAddExtraRoutesToRouter(TestRouter):
+class TestAddExtraRoutesToRouter(network_fakes.TestNetworkV2):
     _router = network_fakes.create_one_router()
 
     def setUp(self):
@@ -1412,7 +1405,7 @@ class TestAddExtraRoutesToRouter(TestRouter):
         self.assertEqual(2, len(result))
 
 
-class TestRemoveExtraRoutesFromRouter(TestRouter):
+class TestRemoveExtraRoutesFromRouter(network_fakes.TestNetworkV2):
     _router = network_fakes.create_one_router()
 
     def setUp(self):
@@ -1502,7 +1495,7 @@ class TestRemoveExtraRoutesFromRouter(TestRouter):
         self.assertEqual(2, len(result))
 
 
-class TestSetRouter(TestRouter):
+class TestSetRouter(network_fakes.TestNetworkV2):
     # The router to set.
     _default_route = {'destination': '10.20.20.0/24', 'nexthop': '10.20.30.1'}
     _network = network_fakes.create_one_network()
@@ -1988,7 +1981,7 @@ class TestSetRouter(TestRouter):
         )
 
 
-class TestShowRouter(TestRouter):
+class TestShowRouter(network_fakes.TestNetworkV2):
     # The router to set.
     _router = network_fakes.create_one_router()
     _port = network_fakes.create_one_port(
@@ -2133,7 +2126,7 @@ class TestShowRouter(TestRouter):
         )
 
 
-class TestUnsetRouter(TestRouter):
+class TestUnsetRouter(network_fakes.TestNetworkV2):
     def setUp(self):
         super().setUp()
         self.fake_network = network_fakes.create_one_network()
@@ -2343,7 +2336,7 @@ class TestUnsetRouter(TestRouter):
         )
 
 
-class TestGatewayOps(TestRouter):
+class TestGatewayOps(network_fakes.TestNetworkV2):
     def setUp(self):
         super().setUp()
         self._networks = []

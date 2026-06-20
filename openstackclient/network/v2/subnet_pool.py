@@ -91,12 +91,12 @@ def _get_attrs(
 
     # "subnet pool set" command doesn't support setting project.
     if 'project' in parsed_args and parsed_args.project is not None:
-        identity_client = client_manager.identity
-        project_id = identity_common.find_project(
+        identity_client = client_manager.sdk_connection.identity
+        project_id = identity_common.find_project_id_sdk(
             identity_client,
             parsed_args.project,
             parsed_args.project_domain,
-        ).id
+        )
         attrs['project_id'] = project_id
 
     if parsed_args.description is not None:
@@ -339,7 +339,6 @@ class ListSubnetPool(command.Lister):
     def take_action(
         self, parsed_args: argparse.Namespace
     ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
-        identity_client = self.app.client_manager.identity
         network_client = self.app.client_manager.network
         filters: dict[str, Any] = {}
         if parsed_args.share:
@@ -353,11 +352,12 @@ class ListSubnetPool(command.Lister):
         elif parsed_args.no_default:
             filters['is_default'] = False
         if parsed_args.project:
-            project_id = identity_common.find_project(
+            identity_client = self.app.client_manager.sdk_connection.identity
+            project_id = identity_common.find_project_id_sdk(
                 identity_client,
                 parsed_args.project,
                 parsed_args.project_domain,
-            ).id
+            )
             filters['project_id'] = project_id
         if parsed_args.name is not None:
             filters['name'] = parsed_args.name

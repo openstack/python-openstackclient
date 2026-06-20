@@ -9,15 +9,16 @@
 #   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #   License for the specific language governing permissions and limitations
 #   under the License.
-#
 
 from unittest.mock import call
 
+from openstack.identity.v3 import domain as _domain
+from openstack.identity.v3 import project as _project
+from openstack.test import fakes as sdk_fakes
 from osc_lib import exceptions
 
 from openstackclient.network import utils as network_utils
 from openstackclient.network.v2 import security_group_rule
-from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 from openstackclient.tests.unit.network.v2 import fakes as network_fakes
 from openstackclient.tests.unit import utils as tests_utils
 
@@ -26,15 +27,10 @@ class TestSecurityGroupRuleNetwork(network_fakes.TestNetworkV2):
     def setUp(self):
         super().setUp()
 
-        # Get a shortcut to the ProjectManager Mock
-        self.projects_mock = self.identity_client.projects
-        # Get a shortcut to the DomainManager Mock
-        self.domains_mock = self.identity_client.domains
-
 
 class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
-    project = identity_fakes.FakeProject.create_one_project()
-    domain = identity_fakes.FakeDomain.create_one_domain()
+    project = sdk_fakes.generate_fake_resource(_project.Project)
+    domain = sdk_fakes.generate_fake_resource(_domain.Domain)
     # The security group rule to be created.
     _security_group_rule = None
 
@@ -101,8 +97,7 @@ class TestCreateSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
             self._address_group
         )
 
-        self.projects_mock.get.return_value = self.project
-        self.domains_mock.get.return_value = self.domain
+        self.identity_sdk_client.find_project.return_value = self.project
 
         # Get the command object to test
         self.cmd = security_group_rule.CreateSecurityGroupRule(self.app, None)
@@ -1242,9 +1237,9 @@ class TestListSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
         self.assertEqual(self.expected_data_no_group, list(data))
 
     def test_list_with_project(self):
-        project = identity_fakes.FakeProject.create_one_project()
+        project = sdk_fakes.generate_fake_resource(_project.Project)
         self._security_group_rule_tcp.port_range_min = 80
-        self.projects_mock.get.return_value = project
+        self.identity_sdk_client.find_project.return_value = project
 
         arglist = [
             '--project',
@@ -1265,9 +1260,9 @@ class TestListSecurityGroupRuleNetwork(TestSecurityGroupRuleNetwork):
         self.assertEqual(self.expected_data_no_group, list(data))
 
     def test_list_with_project_domain(self):
-        project = identity_fakes.FakeProject.create_one_project()
+        project = sdk_fakes.generate_fake_resource(_project.Project)
         self._security_group_rule_tcp.port_range_min = 80
-        self.projects_mock.get.return_value = project
+        self.identity_sdk_client.find_project.return_value = project
 
         arglist = [
             '--project',

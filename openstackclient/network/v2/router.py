@@ -242,12 +242,12 @@ def _get_attrs(
         attrs['description'] = parsed_args.description
     # "router set" command doesn't support setting project.
     if 'project' in parsed_args and parsed_args.project is not None:
-        identity_client = client_manager.identity
-        project_id = identity_common.find_project(
+        identity_client = client_manager.sdk_connection.identity
+        project_id = identity_common.find_project_id_sdk(
             identity_client,
             parsed_args.project,
             parsed_args.project_domain,
-        ).id
+        )
         attrs['project_id'] = project_id
 
     attrs.update(_get_external_gateway_attrs(client_manager, parsed_args))
@@ -819,7 +819,6 @@ class ListRouter(command.Lister):
     def take_action(
         self, parsed_args: argparse.Namespace
     ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
-        identity_client = self.app.client_manager.identity
         client = self.app.client_manager.network
 
         columns: tuple[str, ...] = (
@@ -850,11 +849,12 @@ class ListRouter(command.Lister):
             args['is_admin_state_up'] = False
 
         if parsed_args.project:
-            project_id = identity_common.find_project(
+            identity_client = self.app.client_manager.sdk_connection.identity
+            project_id = identity_common.find_project_id_sdk(
                 identity_client,
                 parsed_args.project,
                 parsed_args.project_domain,
-            ).id
+            )
             args['project_id'] = project_id
 
         if parsed_args.marker is not None:

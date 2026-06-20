@@ -13,11 +13,13 @@
 
 from unittest.mock import call
 
+from openstack.identity.v3 import domain as _domain
+from openstack.identity.v3 import project as _project
+from openstack.test import fakes as sdk_fakes
 from osc_lib.cli import format_columns
 from osc_lib import exceptions
 
 from openstackclient.network.v2 import subnet as subnet_v2
-from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes_v3
 from openstackclient.tests.unit.network.v2 import fakes as network_fakes
 from openstackclient.tests.unit import utils as tests_utils
 
@@ -26,16 +28,11 @@ class TestSubnet(network_fakes.TestNetworkV2):
     def setUp(self):
         super().setUp()
 
-        # Get a shortcut to the ProjectManager Mock
-        self.projects_mock = self.identity_client.projects
-        # Get a shortcut to the DomainManager Mock
-        self.domains_mock = self.identity_client.domains
-
 
 class TestCreateSubnet(TestSubnet):
     def _init_subnet_variables(self):
-        self.project = identity_fakes_v3.FakeProject.create_one_project()
-        self.domain = identity_fakes_v3.FakeDomain.create_one_domain()
+        self.project = sdk_fakes.generate_fake_resource(_project.Project)
+        self.domain = sdk_fakes.generate_fake_resource(_domain.Domain)
         # An IPv4 subnet to be created with mostly default values
         self._subnet = network_fakes.FakeSubnet.create_one_subnet(
             attrs={
@@ -261,8 +258,7 @@ class TestCreateSubnet(TestSubnet):
         # Get the command object to test
         self.cmd = subnet_v2.CreateSubnet(self.app, None)
 
-        self.projects_mock.get.return_value = self.project
-        self.domains_mock.get.return_value = self.domain
+        self.identity_sdk_client.find_project.return_value = self.project
 
         # Mock SDK calls for all tests.
         self.network_client.create_subnet.return_value = self._subnet
@@ -968,8 +964,8 @@ class TestListSubnet(TestSubnet):
         self.assertCountEqual(self.data, list(data))
 
     def test_subnet_list_project(self):
-        project = identity_fakes_v3.FakeProject.create_one_project()
-        self.projects_mock.get.return_value = project
+        project = sdk_fakes.generate_fake_resource(_project.Project)
+        self.identity_sdk_client.find_project.return_value = project
         arglist = [
             '--project',
             project.id,
@@ -1013,8 +1009,8 @@ class TestListSubnet(TestSubnet):
         self.assertCountEqual(self.data, list(data))
 
     def test_subnet_list_project_domain(self):
-        project = identity_fakes_v3.FakeProject.create_one_project()
-        self.projects_mock.get.return_value = project
+        project = sdk_fakes.generate_fake_resource(_project.Project)
+        self.identity_sdk_client.find_project.return_value = project
         arglist = [
             '--project',
             project.id,

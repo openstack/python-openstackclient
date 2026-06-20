@@ -9,29 +9,20 @@
 #   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #   License for the specific language governing permissions and limitations
 #   under the License.
-#
 
-
+from openstack.identity.v3 import domain as _domain
+from openstack.identity.v3 import project as _project
+from openstack.test import fakes as sdk_fakes
 from osc_lib.cli import format_columns
 
 from openstackclient.network.v2 import ip_availability
-from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 from openstackclient.tests.unit.network.v2 import fakes as network_fakes
 from openstackclient.tests.unit import utils as tests_utils
 
 
-class TestIPAvailability(network_fakes.TestNetworkV2):
-    def setUp(self):
-        super().setUp()
-
-        # Get a shortcut to the ProjectManager Mock
-        self.projects_mock = self.identity_client.projects
-
-        self.project = identity_fakes.FakeProject.create_one_project()
-        self.projects_mock.get.return_value = self.project
-
-
-class TestListIPAvailability(TestIPAvailability):
+class TestListIPAvailability(network_fakes.TestNetworkV2):
+    project = sdk_fakes.generate_fake_resource(_project.Project)
+    domain = sdk_fakes.generate_fake_resource(_domain.Domain)
     _ip_availability = network_fakes.create_ip_availability(count=3)
     columns = (
         'Network ID',
@@ -53,10 +44,12 @@ class TestListIPAvailability(TestIPAvailability):
     def setUp(self):
         super().setUp()
 
-        self.cmd = ip_availability.ListIPAvailability(self.app, None)
+        self.identity_sdk_client.find_project.return_value = self.project
         self.network_client.network_ip_availabilities.return_value = (
             self._ip_availability
         )
+
+        self.cmd = ip_availability.ListIPAvailability(self.app, None)
 
     def test_list_no_options(self):
         arglist = []
@@ -132,7 +125,7 @@ class TestListIPAvailability(TestIPAvailability):
         self.assertCountEqual(self.data, list(data))
 
 
-class TestShowIPAvailability(TestIPAvailability):
+class TestShowIPAvailability(network_fakes.TestNetworkV2):
     _network = network_fakes.create_one_network()
     _ip_availability = network_fakes.create_one_ip_availability(
         attrs={'network_id': _network.id}

@@ -75,12 +75,12 @@ def _get_attrs(
     # NOTE(ralonsoh): 'project' parameter is defined only in create and list
     #                commands context only.
     if 'project' in parsed_args and parsed_args.project is not None:
-        identity_client = client_manager.identity
-        project_id = identity_common.find_project(
+        identity_client = client_manager.sdk_connection.identity
+        project_id = identity_common.find_project_id_sdk(
             identity_client,
             parsed_args.project,
             parsed_args.project_domain,
-        ).id
+        )
         attrs['project_id'] = project_id
 
     return attrs

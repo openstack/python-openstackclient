@@ -91,12 +91,12 @@ class ListIPAvailability(command.Lister):
         if parsed_args.ip_version:
             filters['ip_version'] = parsed_args.ip_version
         if parsed_args.project:
-            identity_client = self.app.client_manager.identity
-            project_id = identity_common.find_project(
+            identity_client = self.app.client_manager.sdk_connection.identity
+            project_id = identity_common.find_project_id_sdk(
                 identity_client,
                 parsed_args.project,
                 parsed_args.project_domain,
-            ).id
+            )
             filters['project_id'] = project_id
         if parsed_args.marker is not None:
             filters['marker'] = parsed_args.marker

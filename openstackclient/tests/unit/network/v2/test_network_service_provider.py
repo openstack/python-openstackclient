@@ -13,19 +13,13 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-
 from openstackclient.network.v2 import (
     network_service_provider as service_provider,
 )
 from openstackclient.tests.unit.network.v2 import fakes
 
 
-class TestNetworkServiceProvider(fakes.TestNetworkV2):
-    def setUp(self):
-        super().setUp()
-
-
-class TestListNetworkServiceProvider(TestNetworkServiceProvider):
+class TestListNetworkServiceProvider(fakes.TestNetworkV2):
     provider_list = (
         fakes.FakeNetworkServiceProvider.create_network_service_providers(
             count=2

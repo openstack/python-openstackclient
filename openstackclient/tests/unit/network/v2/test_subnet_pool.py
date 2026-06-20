@@ -12,28 +12,20 @@
 
 from unittest.mock import call
 
+from openstack.identity.v3 import domain as _domain
+from openstack.identity.v3 import project as _project
+from openstack.test import fakes as sdk_fakes
 from osc_lib.cli import format_columns
 from osc_lib import exceptions
 
 from openstackclient.network.v2 import subnet_pool
-from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes_v3
 from openstackclient.tests.unit.network.v2 import fakes as network_fakes
 from openstackclient.tests.unit import utils as test_utils
 
 
-class TestSubnetPool(network_fakes.TestNetworkV2):
-    def setUp(self):
-        super().setUp()
-
-        # Get a shortcut to the ProjectManager Mock
-        self.projects_mock = self.identity_client.projects
-        # Get a shortcut to the DomainManager Mock
-        self.domains_mock = self.identity_client.domains
-
-
-class TestCreateSubnetPool(TestSubnetPool):
-    project = identity_fakes_v3.FakeProject.create_one_project()
-    domain = identity_fakes_v3.FakeDomain.create_one_domain()
+class TestCreateSubnetPool(network_fakes.TestNetworkV2):
+    project = sdk_fakes.generate_fake_resource(_project.Project)
+    domain = sdk_fakes.generate_fake_resource(_domain.Domain)
     # The new subnet pool to create.
     _subnet_pool = network_fakes.FakeSubnetPool.create_one_subnet_pool()
 
@@ -86,8 +78,7 @@ class TestCreateSubnetPool(TestSubnetPool):
             self._address_scope
         )
 
-        self.projects_mock.get.return_value = self.project
-        self.domains_mock.get.return_value = self.domain
+        self.identity_sdk_client.find_project.return_value = self.project
 
     def test_create_no_options(self):
         arglist = []
@@ -378,7 +369,7 @@ class TestCreateSubnetPool(TestSubnetPool):
         self._test_create_with_tag(add_tags=False)
 
 
-class TestDeleteSubnetPool(TestSubnetPool):
+class TestDeleteSubnetPool(network_fakes.TestNetworkV2):
     # The subnet pools to delete.
     _subnet_pools = network_fakes.FakeSubnetPool.create_subnet_pools(count=2)
 
@@ -462,7 +453,7 @@ class TestDeleteSubnetPool(TestSubnetPool):
         )
 
 
-class TestListSubnetPool(TestSubnetPool):
+class TestListSubnetPool(network_fakes.TestNetworkV2):
     # The subnet pools going to be listed up.
     _subnet_pools = network_fakes.FakeSubnetPool.create_subnet_pools(count=3)
 
@@ -630,8 +621,8 @@ class TestListSubnetPool(TestSubnetPool):
         self.assertCountEqual(self.data, list(data))
 
     def test_subnet_pool_list_project(self):
-        project = identity_fakes_v3.FakeProject.create_one_project()
-        self.projects_mock.get.return_value = project
+        project = sdk_fakes.generate_fake_resource(_project.Project)
+        self.identity_sdk_client.find_project.return_value = project
         arglist = [
             '--project',
             project.id,
@@ -649,8 +640,8 @@ class TestListSubnetPool(TestSubnetPool):
         self.assertCountEqual(self.data, list(data))
 
     def test_subnet_pool_list_project_domain(self):
-        project = identity_fakes_v3.FakeProject.create_one_project()
-        self.projects_mock.get.return_value = project
+        project = sdk_fakes.generate_fake_resource(_project.Project)
+        self.identity_sdk_client.find_project.return_value = project
         arglist = [
             '--project',
             project.id,
@@ -741,7 +732,7 @@ class TestListSubnetPool(TestSubnetPool):
         self.assertCountEqual(self.data, list(data))
 
 
-class TestSetSubnetPool(TestSubnetPool):
+class TestSetSubnetPool(network_fakes.TestNetworkV2):
     # The subnet_pool to set.
     _subnet_pool = network_fakes.FakeSubnetPool.create_one_subnet_pool(
         {'default_quota': 10, 'tags': ['green', 'red']}
@@ -1054,7 +1045,7 @@ class TestSetSubnetPool(TestSubnetPool):
         self._test_set_tags(with_tags=False)
 
 
-class TestShowSubnetPool(TestSubnetPool):
+class TestShowSubnetPool(network_fakes.TestNetworkV2):
     # The subnet_pool to set.
     _subnet_pool = network_fakes.FakeSubnetPool.create_one_subnet_pool()
 
@@ -1130,7 +1121,7 @@ class TestShowSubnetPool(TestSubnetPool):
         self.assertCountEqual(self.data, data)
 
 
-class TestUnsetSubnetPool(TestSubnetPool):
+class TestUnsetSubnetPool(network_fakes.TestNetworkV2):
     def setUp(self):
         super().setUp()
         self._subnetpool = network_fakes.FakeSubnetPool.create_one_subnet_pool(

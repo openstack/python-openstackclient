@@ -13,31 +13,21 @@
 import copy
 from unittest.mock import call
 
+from openstack.identity.v3 import domain as _domain
+from openstack.identity.v3 import project as _project
+from openstack.test import fakes as sdk_fakes
 from osc_lib.cli import format_columns
 from osc_lib import exceptions
 import testtools
 
 from openstackclient.network.v2 import network_trunk
-from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes_v3
 from openstackclient.tests.unit.network.v2 import fakes as network_fakes
 from openstackclient.tests.unit import utils as test_utils
 
 
-# Tests for Neutron trunks
-#
-class TestNetworkTrunk(network_fakes.TestNetworkV2):
-    def setUp(self):
-        super().setUp()
-
-        # Get a shortcut to the ProjectManager Mock
-        self.projects_mock = self.identity_client.projects
-        # Get a shortcut to the DomainManager Mock
-        self.domains_mock = self.identity_client.domains
-
-
-class TestCreateNetworkTrunk(TestNetworkTrunk):
-    project = identity_fakes_v3.FakeProject.create_one_project()
-    domain = identity_fakes_v3.FakeDomain.create_one_domain()
+class TestCreateNetworkTrunk(network_fakes.TestNetworkV2):
+    project = sdk_fakes.generate_fake_resource(_project.Project)
+    domain = sdk_fakes.generate_fake_resource(_domain.Domain)
     trunk_networks = network_fakes.create_networks(count=2)
     parent_port = network_fakes.create_one_port(
         attrs={'project_id': project.id, 'network_id': trunk_networks[0]['id']}
@@ -83,18 +73,16 @@ class TestCreateNetworkTrunk(TestNetworkTrunk):
 
     def setUp(self):
         super().setUp()
-        self.network_client.create_trunk.return_value = self.new_trunk
 
+        self.identity_sdk_client.find_project.return_value = self.project
+        self.identity_sdk_client.find_domain.return_value = self.domain
+        self.network_client.create_trunk.return_value = self.new_trunk
         self.network_client.find_port.side_effect = [
             self.parent_port,
             self.sub_port,
         ]
 
-        # Get the command object to test
         self.cmd = network_trunk.CreateNetworkTrunk(self.app, None)
-
-        self.projects_mock.get.return_value = self.project
-        self.domains_mock.get.return_value = self.domain
 
     def test_create_no_options(self):
         arglist = []
@@ -286,10 +274,10 @@ class TestCreateNetworkTrunk(TestNetworkTrunk):
             self.check_parser(self.cmd, arglist, verifylist)
 
 
-class TestDeleteNetworkTrunk(TestNetworkTrunk):
+class TestDeleteNetworkTrunk(network_fakes.TestNetworkV2):
     # The trunk to be deleted.
-    project = identity_fakes_v3.FakeProject.create_one_project()
-    domain = identity_fakes_v3.FakeDomain.create_one_domain()
+    project = sdk_fakes.generate_fake_resource(_project.Project)
+    domain = sdk_fakes.generate_fake_resource(_domain.Domain)
     trunk_networks = network_fakes.create_networks(count=2)
     parent_port = network_fakes.create_one_port(
         attrs={'project_id': project.id, 'network_id': trunk_networks[0]['id']}
@@ -312,19 +300,19 @@ class TestDeleteNetworkTrunk(TestNetworkTrunk):
 
     def setUp(self):
         super().setUp()
+
         self.network_client.find_trunk.side_effect = [
             self.new_trunks[0],
             self.new_trunks[1],
         ]
-
         self.network_client.delete_trunk.return_value = None
         self.network_client.find_port.side_effect = [
             self.parent_port,
             self.sub_port,
         ]
 
-        self.projects_mock.get.return_value = self.project
-        self.domains_mock.get.return_value = self.domain
+        self.identity_sdk_client.find_project.return_value = self.project
+        self.identity_sdk_client.find_domain.return_value = self.domain
 
         # Get the command object to test
         self.cmd = network_trunk.DeleteNetworkTrunk(self.app, None)
@@ -386,9 +374,9 @@ class TestDeleteNetworkTrunk(TestNetworkTrunk):
         )
 
 
-class TestShowNetworkTrunk(TestNetworkTrunk):
-    project = identity_fakes_v3.FakeProject.create_one_project()
-    domain = identity_fakes_v3.FakeDomain.create_one_domain()
+class TestShowNetworkTrunk(network_fakes.TestNetworkV2):
+    project = sdk_fakes.generate_fake_resource(_project.Project)
+    domain = sdk_fakes.generate_fake_resource(_domain.Domain)
     # The trunk to set.
     new_trunk = network_fakes.create_one_trunk()
     columns = (
@@ -419,8 +407,8 @@ class TestShowNetworkTrunk(TestNetworkTrunk):
         self.network_client.find_trunk.return_value = self.new_trunk
         self.network_client.get_trunk.return_value = self.new_trunk
 
-        self.projects_mock.get.return_value = self.project
-        self.domains_mock.get.return_value = self.domain
+        self.identity_sdk_client.find_project.return_value = self.project
+        self.identity_sdk_client.find_domain.return_value = self.domain
 
         # Get the command object to test
         self.cmd = network_trunk.ShowNetworkTrunk(self.app, None)
@@ -455,9 +443,9 @@ class TestShowNetworkTrunk(TestNetworkTrunk):
         self.assertEqual(self.data, data)
 
 
-class TestListNetworkTrunk(TestNetworkTrunk):
-    project = identity_fakes_v3.FakeProject.create_one_project()
-    domain = identity_fakes_v3.FakeDomain.create_one_domain()
+class TestListNetworkTrunk(network_fakes.TestNetworkV2):
+    project = sdk_fakes.generate_fake_resource(_project.Project)
+    domain = sdk_fakes.generate_fake_resource(_domain.Domain)
     # Create trunks to be listed.
     new_trunks = network_fakes.create_trunks(
         {
@@ -491,8 +479,8 @@ class TestListNetworkTrunk(TestNetworkTrunk):
         super().setUp()
         self.network_client.trunks.return_value = self.new_trunks
 
-        self.projects_mock.get.return_value = self.project
-        self.domains_mock.get.return_value = self.domain
+        self.identity_sdk_client.find_project.return_value = self.project
+        self.identity_sdk_client.find_domain.return_value = self.domain
 
         # Get the command object to test
         self.cmd = network_trunk.ListNetworkTrunk(self.app, None)
@@ -524,9 +512,9 @@ class TestListNetworkTrunk(TestNetworkTrunk):
         self.assertEqual(self.data_long, list(data))
 
 
-class TestSetNetworkTrunk(TestNetworkTrunk):
-    project = identity_fakes_v3.FakeProject.create_one_project()
-    domain = identity_fakes_v3.FakeDomain.create_one_domain()
+class TestSetNetworkTrunk(network_fakes.TestNetworkV2):
+    project = sdk_fakes.generate_fake_resource(_project.Project)
+    domain = sdk_fakes.generate_fake_resource(_domain.Domain)
     trunk_networks = network_fakes.create_networks(count=2)
     parent_port = network_fakes.create_one_port(
         attrs={'project_id': project.id, 'network_id': trunk_networks[0]['id']}
@@ -577,8 +565,8 @@ class TestSetNetworkTrunk(TestNetworkTrunk):
             self.sub_port,
         ]
 
-        self.projects_mock.get.return_value = self.project
-        self.domains_mock.get.return_value = self.domain
+        self.identity_sdk_client.find_project.return_value = self.project
+        self.identity_sdk_client.find_domain.return_value = self.domain
 
         # Get the command object to test
         self.cmd = network_trunk.SetNetworkTrunk(self.app, None)
@@ -815,7 +803,7 @@ class TestSetNetworkTrunk(TestNetworkTrunk):
         )
 
 
-class TestListNetworkSubport(TestNetworkTrunk):
+class TestListNetworkSubport(network_fakes.TestNetworkV2):
     _trunk = network_fakes.create_one_trunk()
     _subports = _trunk['sub_ports']
 
@@ -863,9 +851,9 @@ class TestListNetworkSubport(TestNetworkTrunk):
         self.assertEqual(self.data, list(data))
 
 
-class TestUnsetNetworkTrunk(TestNetworkTrunk):
-    project = identity_fakes_v3.FakeProject.create_one_project()
-    domain = identity_fakes_v3.FakeDomain.create_one_domain()
+class TestUnsetNetworkTrunk(network_fakes.TestNetworkV2):
+    project = sdk_fakes.generate_fake_resource(_project.Project)
+    domain = sdk_fakes.generate_fake_resource(_domain.Domain)
     trunk_networks = network_fakes.create_networks(count=2)
     parent_port = network_fakes.create_one_port(
         attrs={'project_id': project.id, 'network_id': trunk_networks[0]['id']}

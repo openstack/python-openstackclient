@@ -219,12 +219,12 @@ class CreateSecurityGroupRule(
             attrs['remote_ip_prefix'] = '::/0'
         attrs['security_group_id'] = security_group_id
         if parsed_args.project is not None:
-            identity_client = self.app.client_manager.identity
-            project_id = identity_common.find_project(
+            identity_client = self.app.client_manager.sdk_connection.identity
+            project_id = identity_common.find_project_id_sdk(
                 identity_client,
                 parsed_args.project,
                 parsed_args.project_domain,
-            ).id
+            )
             attrs['project_id'] = project_id
 
         attrs.update(
@@ -411,12 +411,12 @@ class ListSecurityGroupRule(command.Lister):
         if parsed_args.protocol is not None:
             query['protocol'] = parsed_args.protocol
         if parsed_args.project is not None:
-            identity_client = self.app.client_manager.identity
-            project_id = identity_common.find_project(
+            identity_client = self.app.client_manager.sdk_connection.identity
+            project_id = identity_common.find_project_id_sdk(
                 identity_client,
                 parsed_args.project,
                 parsed_args.project_domain,
-            ).id
+            )
             query['project_id'] = project_id
 
         if parsed_args.marker is not None:

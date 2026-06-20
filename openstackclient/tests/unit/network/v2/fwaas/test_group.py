@@ -89,8 +89,8 @@ class TestFirewallGroup(network_fakes.TestNetworkV2):
             return self.resource
 
         self.network_client.find_firewall_group.side_effect = _find_resource
-        self.identity_client.projects.get.side_effect = lambda x: mock.Mock(
-            id=x
+        self.identity_sdk_client.find_project.side_effect = (
+            lambda name_or_id, **kw: mock.Mock(id=name_or_id)
         )
         self.res = 'firewall_group'
         self.res_plural = 'firewall_groups'

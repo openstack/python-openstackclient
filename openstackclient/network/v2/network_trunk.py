@@ -22,6 +22,9 @@ import logging
 from typing import Any
 
 from cliff import columns as cliff_columns
+from openstack.identity import v2 as identity_v2
+from openstack.identity import v3 as identity_v3
+from openstack.network import v2 as network_v2
 from openstack.network.v2 import trunk as _trunk
 from osc_lib.cli import format_columns
 from osc_lib.cli import identity as identity_utils
@@ -31,6 +34,7 @@ from osc_lib import utils as osc_utils
 
 from openstackclient import command
 from openstackclient.i18n import _
+from openstackclient.identity import common as identity_common
 
 LOG = logging.getLogger(__name__)
 
@@ -94,7 +98,8 @@ class CreateNetworkTrunk(command.ShowOne):
         self, parsed_args: argparse.Namespace
     ) -> tuple[Sequence[str], Iterable[Any]]:
         network_client = self.app.client_manager.network
-        identity_client = self.app.client_manager.identity
+        identity_client = self.app.client_manager.sdk_connection.identity
+
         attrs = _get_attrs_for_trunk(
             network_client, identity_client, parsed_args
         )
@@ -229,7 +234,8 @@ class SetNetworkTrunk(command.Command):
 
     def take_action(self, parsed_args: argparse.Namespace) -> None:
         network_client = self.app.client_manager.network
-        identity_client = self.app.client_manager.identity
+        identity_client = self.app.client_manager.sdk_connection.identity
+
         trunk_id = network_client.find_trunk(
             parsed_args.trunk,
             ignore_missing=False,
@@ -378,7 +384,9 @@ def _get_columns(
 
 
 def _get_attrs_for_trunk(
-    network_client: Any, identity_client: Any, parsed_args: argparse.Namespace
+    network_client: network_v2.Proxy,
+    identity_client: identity_v2.Proxy | identity_v3.Proxy,
+    parsed_args: argparse.Namespace,
 ) -> dict[str, Any]:
     attrs: dict[str, Any] = {}
     if parsed_args.name is not None:
@@ -402,11 +410,11 @@ def _get_attrs_for_trunk(
 
     # "trunk set" command doesn't support setting project.
     if 'project' in parsed_args and parsed_args.project is not None:
-        project_id = identity_utils.find_project(
+        project_id = identity_common.find_project_id_sdk(
             identity_client,
             parsed_args.project,
             parsed_args.project_domain,
-        ).id
+        )
         attrs['project_id'] = project_id
 
     return attrs

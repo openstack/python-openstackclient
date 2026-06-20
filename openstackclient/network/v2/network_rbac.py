@@ -78,22 +78,23 @@ def _get_attrs(
 
     attrs['object_id'] = object_id
 
-    identity_client = client_manager.identity
+    identity_client = client_manager.sdk_connection.identity
     if parsed_args.target_project is not None:
-        project_id = identity_common.find_project(
+        project_id = identity_common.find_project_id_sdk(
             identity_client,
             parsed_args.target_project,
             parsed_args.target_project_domain,
-        ).id
+        )
     elif parsed_args.target_all_projects:
         project_id = '*'
     attrs['target_tenant'] = project_id
+
     if parsed_args.project is not None:
-        project_id = identity_common.find_project(
+        project_id = identity_common.find_project_id_sdk(
             identity_client,
             parsed_args.project,
             parsed_args.project_domain,
-        ).id
+        )
         attrs['project_id'] = project_id
 
     return attrs
@@ -300,14 +301,16 @@ class ListNetworkRBAC(command.Lister):
         if parsed_args.action is not None:
             query['action'] = parsed_args.action
         if parsed_args.target_project is not None:
-            project_id = "*"
-
             if parsed_args.target_project != "*":
-                identity_client = self.app.client_manager.identity
-                project_id = identity_common.find_project(
+                identity_client = (
+                    self.app.client_manager.sdk_connection.identity
+                )
+                project_id = identity_common.find_project_id_sdk(
                     identity_client,
                     parsed_args.target_project,
-                ).id
+                )
+            else:
+                project_id = "*"
             query['target_project_id'] = project_id
         if parsed_args.marker is not None:
             query['marker'] = parsed_args.marker
@@ -366,12 +369,12 @@ class SetNetworkRBAC(common.NeutronCommandWithExtraArgs):
         )
         attrs = {}
         if parsed_args.target_project:
-            identity_client = self.app.client_manager.identity
-            project_id = identity_common.find_project(
+            identity_client = self.app.client_manager.sdk_connection.identity
+            project_id = identity_common.find_project_id_sdk(
                 identity_client,
                 parsed_args.target_project,
                 parsed_args.target_project_domain,
-            ).id
+            )
             attrs['target_tenant'] = project_id
         attrs.update(
             self._parse_extra_properties(parsed_args.extra_properties)
