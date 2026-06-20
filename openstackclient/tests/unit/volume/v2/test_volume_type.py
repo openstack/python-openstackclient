@@ -14,12 +14,12 @@
 from unittest.mock import call
 
 from openstack.block_storage.v3 import type as _type
+from openstack.identity.v3 import project as _project
 from openstack.test import fakes as sdk_fakes
 from osc_lib.cli import format_columns
 from osc_lib import exceptions
 from osc_lib import utils
 
-from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 from openstackclient.tests.unit import utils as tests_utils
 from openstackclient.tests.unit.volume.v2 import fakes as volume_fakes
 from openstackclient.volume.v2 import volume_type
@@ -30,7 +30,7 @@ class TestTypeCreate(volume_fakes.TestVolume):
         super().setUp()
 
         self.new_volume_type = sdk_fakes.generate_fake_resource(_type.Type)
-        self.project = identity_fakes.FakeProject.create_one_project()
+        self.project = sdk_fakes.generate_fake_resource(_project.Project)
         self.columns = (
             'description',
             'id',
@@ -47,9 +47,7 @@ class TestTypeCreate(volume_fakes.TestVolume):
         )
 
         self.volume_sdk_client.create_type.return_value = self.new_volume_type
-
-        self.projects_mock = self.identity_client.projects
-        self.projects_mock.get.return_value = self.project
+        self.identity_sdk_client.find_project.return_value = self.project
 
         self.cmd = volume_type.CreateVolumeType(self.app, None)
 
@@ -490,9 +488,8 @@ class TestTypeSet(volume_fakes.TestVolume):
     def setUp(self):
         super().setUp()
 
-        self.project = identity_fakes.FakeProject.create_one_project()
-        self.projects_mock = self.identity_client.projects
-        self.projects_mock.get.return_value = self.project
+        self.project = sdk_fakes.generate_fake_resource(_project.Project)
+        self.identity_sdk_client.find_project.return_value = self.project
 
         self.volume_type = sdk_fakes.generate_fake_resource(_type.Type)
         self.volume_sdk_client.find_type.return_value = self.volume_type
@@ -897,7 +894,6 @@ class TestTypeShow(volume_fakes.TestVolume):
 
 
 class TestTypeUnset(volume_fakes.TestVolume):
-    project = identity_fakes.FakeProject.create_one_project()
     volume_type = sdk_fakes.generate_fake_resource(_type.Type)
 
     def setUp(self):
@@ -905,8 +901,8 @@ class TestTypeUnset(volume_fakes.TestVolume):
 
         self.volume_sdk_client.find_type.return_value = self.volume_type
 
-        self.projects_mock = self.identity_client.projects
-        self.projects_mock.get.return_value = self.project
+        self.project = sdk_fakes.generate_fake_resource(_project.Project)
+        self.identity_sdk_client.find_project.return_value = self.project
 
         self.cmd = volume_type.UnsetVolumeType(self.app, None)
 
@@ -973,10 +969,10 @@ class TestTypeUnset(volume_fakes.TestVolume):
     def test_type_unset_failed_with_missing_volume_type_argument(self):
         arglist = [
             '--project',
-            'identity_fakes.project_id',
+            'foo',
         ]
         verifylist = [
-            ('project', 'identity_fakes.project_id'),
+            ('project', 'foo'),
         ]
 
         self.assertRaises(

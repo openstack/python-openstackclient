@@ -127,7 +127,9 @@ class ListMessages(command.Lister):
         volume_client = sdk_utils.ensure_service_version(
             self.app.client_manager.sdk_connection.volume, '3'
         )
-        identity_client = self.app.client_manager.identity
+        identity_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.identity, '3'
+        )
 
         if not sdk_utils.supports_microversion(volume_client, '3.3'):
             msg = _(
@@ -161,11 +163,11 @@ class ListMessages(command.Lister):
 
         project_id = None
         if parsed_args.project:
-            project_id = identity_common.find_project(
+            project_id = identity_common.find_project_id_sdk(
                 identity_client,
                 parsed_args.project,
                 parsed_args.project_domain,
-            ).id
+            )
 
         data = volume_client.messages(
             project_id=project_id,
