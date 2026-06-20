@@ -20,7 +20,7 @@ import itertools
 from collections.abc import Iterable, Sequence
 from typing import Any
 
-from osc_lib import utils
+from openstack import utils as sdk_utils
 
 from openstackclient import command
 from openstackclient.i18n import _
@@ -93,13 +93,13 @@ class ShowLimits(command.Lister):
                 '(only valid with --absolute)'
             ),
         )
+        identity_common.add_project_domain_option_to_parser(parser)
+        # deprecated alias for --project-domain
         parser.add_argument(
             '--domain',
             metavar='<domain>',
-            help=_(
-                'Domain the project belongs to (name or ID) '
-                '(only valid with --absolute)'
-            ),
+            dest='project_domain',
+            help=argparse.SUPPRESS,
         )
         return parser
 
@@ -108,20 +108,14 @@ class ShowLimits(command.Lister):
     ) -> tuple[Sequence[str], Iterable[tuple[Any, ...]]]:
         project_id = None
         if parsed_args.project is not None:
-            identity_client = self.app.client_manager.identity
-            if parsed_args.domain is not None:
-                domain = identity_common.find_domain(
-                    identity_client, parsed_args.domain
-                )
-                project_id = utils.find_resource(
-                    identity_client.projects,
-                    parsed_args.project,
-                    domain_id=domain.id,
-                ).id
-            else:
-                project_id = utils.find_resource(
-                    identity_client.projects, parsed_args.project
-                ).id
+            identity_client = sdk_utils.ensure_service_version(
+                self.app.client_manager.sdk_connection.identity, '3'
+            )
+            project_id = identity_common.find_project_id_sdk(
+                identity_client,
+                parsed_args.project,
+                parsed_args.project_domain,
+            )
 
         compute_limits = None
         volume_limits = None

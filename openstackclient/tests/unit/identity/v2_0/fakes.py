@@ -206,45 +206,6 @@ class TestIdentity(
 ): ...
 
 
-class FakeExtension:
-    """Fake one or more extension."""
-
-    @staticmethod
-    def create_one_extension(attrs=None):
-        """Create a fake extension.
-
-        :param Dictionary attrs:
-            A dictionary with all attributes
-        :return:
-            A FakeResource object with name, namespace, etc.
-        """
-        attrs = attrs or {}
-
-        # Set default attributes.
-        extension_info = {
-            'name': 'name-' + uuid.uuid4().hex,
-            'namespace': (
-                'http://docs.openstack.org/identity/api/ext/OS-KSCRUD/v1.0'
-            ),
-            'description': 'description-' + uuid.uuid4().hex,
-            'updated': '2013-07-07T12:00:0-00:00',
-            'alias': 'OS-KSCRUD',
-            'links': (
-                '[{"href":'
-                '"https://github.com/openstack/identity-api", "type":'
-                ' "text/html", "rel": "describedby"}]'
-            ),
-        }
-
-        # Overwrite default attributes.
-        extension_info.update(attrs)
-
-        extension = fakes.FakeResource(
-            info=copy.deepcopy(extension_info), loaded=True
-        )
-        return extension
-
-
 class FakeCatalog:
     """Fake one or more catalog."""
 

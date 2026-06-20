@@ -10,6 +10,8 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 
+from openstack.identity.v2 import extension as _extension
+from openstack.test import fakes as sdk_fakes
 
 from openstackclient.common import extension
 from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
@@ -41,14 +43,14 @@ class TestExtensionList(TestExtension):
     )
 
     volume_extension = volume_fakes.create_one_extension()
-    identity_extension = identity_fakes.FakeExtension.create_one_extension()
+    identity_extension = sdk_fakes.generate_fake_resource(_extension.Extension)
     compute_extension = compute_fakes.create_one_extension()
     network_extension = network_fakes.create_one_extension()
 
     def setUp(self):
         super().setUp()
 
-        self.identity_client.extensions.list.return_value = [
+        self.identity_sdk_client.extensions.return_value = [
             self.identity_extension
         ]
         self.compute_client.extensions.return_value = [self.compute_extension]
@@ -102,7 +104,7 @@ class TestExtensionList(TestExtension):
             ),
         )
         self._test_extension_list_helper(arglist, verifylist, datalist)
-        self.identity_client.extensions.list.assert_called_with()
+        self.identity_sdk_client.extensions.assert_called_with()
         self.compute_client.extensions.assert_called_with()
         self.volume_sdk_client.extensions.assert_called_with()
         self.network_client.extensions.assert_called_with()
@@ -120,7 +122,7 @@ class TestExtensionList(TestExtension):
                 self.identity_extension.alias,
                 self.identity_extension.description,
                 self.identity_extension.namespace,
-                '',
+                self.identity_extension.updated_at,
                 self.identity_extension.links,
             ),
             (
@@ -149,7 +151,7 @@ class TestExtensionList(TestExtension):
             ),
         )
         self._test_extension_list_helper(arglist, verifylist, datalist, True)
-        self.identity_client.extensions.list.assert_called_with()
+        self.identity_sdk_client.extensions.assert_called_with()
         self.compute_client.extensions.assert_called_with()
         self.volume_sdk_client.extensions.assert_called_with()
         self.network_client.extensions.assert_called_with()
@@ -169,7 +171,7 @@ class TestExtensionList(TestExtension):
             ),
         )
         self._test_extension_list_helper(arglist, verifylist, datalist)
-        self.identity_client.extensions.list.assert_called_with()
+        self.identity_sdk_client.extensions.assert_called_with()
 
     def test_extension_list_network(self):
         arglist = [

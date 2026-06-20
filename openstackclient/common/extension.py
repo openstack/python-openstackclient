@@ -20,6 +20,7 @@ import logging
 from collections.abc import Iterable, Sequence
 from typing import Any
 
+from openstack.identity import v2 as identity_v2
 from osc_lib import utils
 
 from openstackclient import command
@@ -55,7 +56,9 @@ class ListExtension(command.Lister):
             '--identity',
             action='store_true',
             default=False,
-            help=_('List extensions for the Identity API'),
+            help=_(
+                'List extensions for the Identity API (only supported by v2)'
+            ),
         )
         parser.add_argument(
             '--network',
@@ -84,7 +87,7 @@ class ListExtension(command.Lister):
         if parsed_args.long:
             columns += ('Namespace', 'Updated At', 'Links')
 
-        data = []
+        data: list[Any] = []
 
         # by default we want to show everything, unless the
         # user specifies one or more of the APIs to show
@@ -97,12 +100,16 @@ class ListExtension(command.Lister):
         )
 
         if parsed_args.identity or show_all:
-            identity_client = self.app.client_manager.identity
-            try:
-                data += identity_client.extensions.list()
-            except Exception:
-                message = _("Extensions list not supported by Identity API")
-                LOG.warning(message)
+            identity_client = self.app.client_manager.sdk_connection.identity
+            # only identity v2 support extensions
+            if isinstance(identity_client, identity_v2.Proxy):
+                try:
+                    data += identity_client.extensions()
+                except Exception:
+                    message = _(
+                        "Extensions list not supported by Identity API"
+                    )
+                    LOG.warning(message)
 
         if parsed_args.compute or show_all:
             compute_client = self.app.client_manager.compute
