@@ -11,6 +11,10 @@
 #    under the License.
 #
 
+import argparse
+from collections.abc import Iterable, Sequence
+from typing import Any
+
 from osc_lib.cli import identity as identity_utils
 from osc_lib import exceptions
 from osc_lib import utils
@@ -25,7 +29,9 @@ MIN_AS_NUM = 1
 MAX_AS_NUM = 4294967295
 
 
-def _get_attrs(client_manager, parsed_args):
+def _get_attrs(
+    client_manager: Any, parsed_args: argparse.Namespace
+) -> dict[str, Any]:
     attrs = {}
 
     # Validate password
@@ -67,7 +73,7 @@ def _get_attrs(client_manager, parsed_args):
 class CreateBgpPeer(command.ShowOne):
     _description = _("Create a BGP peer")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'name', metavar='<name>', help=_("Name of the BGP peer to create")
@@ -110,7 +116,9 @@ class CreateBgpPeer(command.ShowOne):
         identity_utils.add_project_owner_option_to_parser(parser)
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         client = self.app.client_manager.network
         attrs = _get_attrs(self.app.client_manager, parsed_args)
         obj = client.create_bgp_peer(**attrs)
@@ -124,7 +132,7 @@ class CreateBgpPeer(command.ShowOne):
 class DeleteBgpPeer(command.Command):
     _description = _("Delete a BGP peer")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'bgp_peer',
@@ -133,7 +141,7 @@ class DeleteBgpPeer(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
         id = client.find_bgp_peer(
             parsed_args.bgp_peer, ignore_missing=False
@@ -144,7 +152,9 @@ class DeleteBgpPeer(command.Command):
 class ListBgpPeer(command.Lister):
     _description = _("List BGP peers")
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         data = self.app.client_manager.network.bgp_peers(retrieve_all=True)
         headers = ('ID', 'Name', 'Peer IP', 'Remote AS')
         columns = ('id', 'name', 'peer_ip', 'remote_as')
@@ -163,7 +173,7 @@ class ListBgpPeer(command.Lister):
 class SetBgpPeer(command.Command):
     _description = _("Update a BGP peer")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument('--name', help=_("Updated name of the BGP peer"))
         parser.add_argument(
@@ -178,7 +188,7 @@ class SetBgpPeer(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
         id = client.find_bgp_peer(
             parsed_args.bgp_peer, ignore_missing=False
@@ -190,7 +200,7 @@ class SetBgpPeer(command.Command):
 class ShowBgpPeer(command.ShowOne):
     _description = _("Show information for a BGP peer")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'bgp_peer',
@@ -199,7 +209,9 @@ class ShowBgpPeer(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         client = self.app.client_manager.network
         obj = client.find_bgp_peer(parsed_args.bgp_peer, ignore_missing=False)
         display_columns, columns = utils.get_osc_show_columns_for_sdk_resource(

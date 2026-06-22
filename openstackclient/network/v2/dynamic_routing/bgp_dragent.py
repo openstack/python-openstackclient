@@ -11,6 +11,10 @@
 #    under the License.
 #
 
+import argparse
+from collections.abc import Iterable, Sequence
+from typing import Any
+
 from osc_lib import utils
 
 from openstackclient import command
@@ -20,7 +24,7 @@ from openstackclient.i18n import _
 class AddBgpSpeakerToDRAgent(command.Command):
     """Add a BGP speaker to a dynamic routing agent"""
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'dragent_id',
@@ -34,7 +38,7 @@ class AddBgpSpeakerToDRAgent(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
         speaker_id = client.find_bgp_speaker(
             parsed_args.bgp_speaker, ignore_missing=False
@@ -45,7 +49,7 @@ class AddBgpSpeakerToDRAgent(command.Command):
 class RemoveBgpSpeakerFromDRAgent(command.Command):
     """Removes a BGP speaker from a dynamic routing agent"""
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'dragent_id',
@@ -59,7 +63,7 @@ class RemoveBgpSpeakerFromDRAgent(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
         speaker_id = client.find_bgp_speaker(
             parsed_args.bgp_speaker, ignore_missing=False
@@ -76,7 +80,7 @@ class ListDRAgent(command.Lister):
     list_columns = ['id', 'host', 'admin_state_up', 'alive']
     unknown_parts_flag = False
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             '--bgp-speaker',
@@ -88,8 +92,11 @@ class ListDRAgent(command.Lister):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         client = self.app.client_manager.network
+        data: Iterable[Any]
         if parsed_args.bgp_speaker is not None:
             speaker_id = client.find_bgp_speaker(
                 parsed_args.bgp_speaker, ignore_missing=False

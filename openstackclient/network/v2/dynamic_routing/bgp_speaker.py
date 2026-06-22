@@ -12,6 +12,10 @@
 #
 
 
+import argparse
+from collections.abc import Iterable, Sequence
+from typing import Any
+
 from osc_lib.cli import identity as identity_utils
 from osc_lib import utils
 
@@ -21,8 +25,10 @@ from openstackclient.identity import common as identity_common
 from openstackclient.network.v2.dynamic_routing import bgp_peer
 
 
-def _get_attrs(client_manager, parsed_args):
-    attrs: dict[str, object] = {}
+def _get_attrs(
+    client_manager: Any, parsed_args: argparse.Namespace
+) -> dict[str, Any]:
+    attrs: dict[str, Any] = {}
     if parsed_args.name is not None:
         attrs['name'] = str(parsed_args.name)
     if 'local_as' in parsed_args:
@@ -49,7 +55,7 @@ def _get_attrs(client_manager, parsed_args):
     return attrs
 
 
-def add_common_arguments(parser):
+def add_common_arguments(parser: argparse.ArgumentParser) -> None:
     parser.add_argument(
         '--advertise-floating-ip-host-routes',
         action='store_true',
@@ -87,7 +93,7 @@ def add_common_arguments(parser):
 class AddNetworkToSpeaker(command.Command):
     _description = _("Add a network to a BGP speaker")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'bgp_speaker',
@@ -101,7 +107,7 @@ class AddNetworkToSpeaker(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
         speaker_id = client.find_bgp_speaker(
             parsed_args.bgp_speaker, ignore_missing=False
@@ -115,7 +121,7 @@ class AddNetworkToSpeaker(command.Command):
 class AddPeerToSpeaker(command.Command):
     _description = _("Add a peer to a BGP speaker")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'bgp_speaker',
@@ -129,7 +135,7 @@ class AddPeerToSpeaker(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
         speaker_id = client.find_bgp_speaker(
             parsed_args.bgp_speaker, ignore_missing=False
@@ -143,7 +149,7 @@ class AddPeerToSpeaker(command.Command):
 class CreateBgpSpeaker(command.ShowOne):
     _description = _("Create a BGP speaker")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'name',
@@ -174,7 +180,9 @@ class CreateBgpSpeaker(command.ShowOne):
         identity_utils.add_project_owner_option_to_parser(parser)
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         client = self.app.client_manager.network
         attrs = _get_attrs(self.app.client_manager, parsed_args)
         obj = client.create_bgp_speaker(**attrs)
@@ -188,7 +196,7 @@ class CreateBgpSpeaker(command.ShowOne):
 class DeleteBgpSpeaker(command.Command):
     _description = _("Delete a BGP speaker")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'bgp_speaker',
@@ -197,7 +205,7 @@ class DeleteBgpSpeaker(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
         id = client.find_bgp_speaker(
             parsed_args.bgp_speaker, ignore_missing=False
@@ -208,7 +216,7 @@ class DeleteBgpSpeaker(command.Command):
 class ListBgpSpeaker(command.Lister):
     _description = _("List BGP speakers")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             '--agent',
@@ -217,8 +225,11 @@ class ListBgpSpeaker(command.Lister):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         client = self.app.client_manager.network
+        data: Iterable[Any]
         if parsed_args.agent is not None:
             data = client.get_bgp_speakers_hosted_by_dragent(parsed_args.agent)
         else:
@@ -232,7 +243,7 @@ class ListBgpSpeaker(command.Lister):
 class ListRoutesAdvertisedBySpeaker(command.Lister):
     _description = _("List routes advertised")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'bgp_speaker',
@@ -241,7 +252,9 @@ class ListRoutesAdvertisedBySpeaker(command.Lister):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         client = self.app.client_manager.network
         speaker_id = client.find_bgp_speaker(
             parsed_args.bgp_speaker, ignore_missing=False
@@ -261,7 +274,7 @@ class ListRoutesAdvertisedBySpeaker(command.Lister):
 class RemoveNetworkFromSpeaker(command.Command):
     _description = _("Remove a network from a BGP speaker")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'bgp_speaker',
@@ -275,7 +288,7 @@ class RemoveNetworkFromSpeaker(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
         speaker_id = client.find_bgp_speaker(
             parsed_args.bgp_speaker, ignore_missing=False
@@ -289,7 +302,7 @@ class RemoveNetworkFromSpeaker(command.Command):
 class RemovePeerFromSpeaker(command.Command):
     _description = _("Remove a peer from a BGP speaker")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'bgp_speaker',
@@ -303,7 +316,7 @@ class RemovePeerFromSpeaker(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
         speaker_id = client.find_bgp_speaker(
             parsed_args.bgp_speaker, ignore_missing=False
@@ -317,7 +330,7 @@ class RemovePeerFromSpeaker(command.Command):
 class SetBgpSpeaker(command.Command):
     _description = _("Set BGP speaker properties")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'bgp_speaker',
@@ -328,7 +341,7 @@ class SetBgpSpeaker(command.Command):
         add_common_arguments(parser)
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
         id = client.find_bgp_speaker(
             parsed_args.bgp_speaker, ignore_missing=False
@@ -340,7 +353,7 @@ class SetBgpSpeaker(command.Command):
 class ShowBgpSpeaker(command.ShowOne):
     _description = _("Show a BGP speaker")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'bgp_speaker',
@@ -349,7 +362,9 @@ class ShowBgpSpeaker(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         client = self.app.client_manager.network
         obj = client.find_bgp_speaker(
             parsed_args.bgp_speaker, ignore_missing=False

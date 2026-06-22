@@ -817,8 +817,6 @@ disallow_untyped_defs = false
 
 [[tool.mypy.overrides]]
 module = [
-    # TODO: Remove all non-functional tests exceptions here
-    "openstackclient.network.v2.dynamic_routing.*",
     "openstackclient.tests.unit.*",
 ]
 ignore_errors = true
