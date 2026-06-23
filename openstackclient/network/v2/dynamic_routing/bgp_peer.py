@@ -9,7 +9,6 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
-#
 
 import argparse
 from collections.abc import Iterable, Sequence
@@ -29,9 +28,7 @@ MIN_AS_NUM = 1
 MAX_AS_NUM = 4294967295
 
 
-def _get_attrs(
-    client_manager: Any, parsed_args: argparse.Namespace
-) -> dict[str, Any]:
+def _get_attrs(parsed_args: argparse.Namespace) -> dict[str, Any]:
     attrs = {}
 
     # Validate password
@@ -58,15 +55,6 @@ def _get_attrs(
         attrs['peer_ip'] = parsed_args.peer_ip
     if 'password' in parsed_args:
         attrs['password'] = parsed_args.password
-
-    if 'project' in parsed_args and parsed_args.project is not None:
-        identity_client = client_manager.identity
-        project_id = identity_common.find_project(
-            identity_client,
-            parsed_args.project,
-            parsed_args.project_domain,
-        ).id
-        attrs['tenant_id'] = project_id
     return attrs
 
 
@@ -120,7 +108,17 @@ class CreateBgpPeer(command.ShowOne):
         self, parsed_args: argparse.Namespace
     ) -> tuple[Sequence[str], Iterable[Any]]:
         client = self.app.client_manager.network
-        attrs = _get_attrs(self.app.client_manager, parsed_args)
+
+        attrs = _get_attrs(parsed_args)
+        if parsed_args.project is not None:
+            identity_client = self.app.client_manager.sdk_connection.identity
+            project_id = identity_common.find_project_id_sdk(
+                identity_client,
+                parsed_args.project,
+                parsed_args.project_domain,
+            )
+            attrs['project_id'] = project_id
+
         obj = client.create_bgp_peer(**attrs)
         display_columns, columns = utils.get_osc_show_columns_for_sdk_resource(
             obj, {}, ['location', 'tenant_id']
@@ -193,7 +191,7 @@ class SetBgpPeer(command.Command):
         id = client.find_bgp_peer(
             parsed_args.bgp_peer, ignore_missing=False
         ).id
-        attrs = _get_attrs(self.app.client_manager, parsed_args)
+        attrs = _get_attrs(parsed_args)
         client.update_bgp_peer(id, **attrs)
 
 
