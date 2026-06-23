@@ -15,13 +15,13 @@ repos:
         files: .*\.(yaml|yml)$
         args: ['--unsafe']
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.15.1
+    rev: v0.15.18
     hooks:
       - id: ruff-check
         args: ['--fix', '--unsafe-fixes']
       - id: ruff-format
   - repo: https://opendev.org/openstack/hacking
-    rev: 8.0.0
+    rev: 8.1.0
     hooks:
       - id: hacking
         additional_dependencies: []
