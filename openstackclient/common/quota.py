@@ -157,7 +157,7 @@ def get_volume_quotas(
     default: bool = False,
 ) -> dict[str, Any]:
     try:
-        client = app.client_manager.sdk_connection.volume
+        client = app.client_manager.volume
         if default:
             quota = client.get_quota_set_defaults(project_id)
         else:
@@ -338,7 +338,7 @@ class ListQuota(command.Lister):
         parsed_args: argparse.Namespace,
         project_ids: list[str],
     ) -> tuple[tuple[str, ...], Any]:
-        volume_client = self.app.client_manager.sdk_connection.volume
+        volume_client = self.app.client_manager.volume
         result = []
 
         for project_id in project_ids:
@@ -613,7 +613,7 @@ class SetQuota(command.Command):
                 compute_kwargs['force'] = parsed_args.force
 
         if self.app.client_manager.is_volume_endpoint_enabled():
-            volume_client = self.app.client_manager.sdk_connection.volume
+            volume_client = self.app.client_manager.volume
 
             for k, v in VOLUME_QUOTAS.items():
                 value = getattr(parsed_args, k, None)
@@ -949,7 +949,7 @@ class DeleteQuota(command.Command):
             parsed_args.service == 'all'
             and self.app.client_manager.is_volume_endpoint_enabled()
         ):
-            volume_client = self.app.client_manager.sdk_connection.volume
+            volume_client = self.app.client_manager.volume
             volume_client.revert_quota_set(project.id)
 
         # network quotas (but only if we're not using nova-network, otherwise

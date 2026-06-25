@@ -297,7 +297,7 @@ class CreateImage(command.ShowOne):
 
         if not parsed_args.location and not parsed_args.copy_from:
             if parsed_args.volume:
-                volume_client = self.app.client_manager.sdk_connection.volume
+                volume_client = self.app.client_manager.volume
                 source_volume = volume_client.find_volume(
                     parsed_args.volume, ignore_missing=False
                 )
@@ -762,9 +762,7 @@ class SetImage(command.Command):
 
             if not parsed_args.location and not parsed_args.copy_from:
                 if parsed_args.volume:
-                    volume_client = (
-                        self.app.client_manager.sdk_connection.volume
-                    )
+                    volume_client = self.app.client_manager.volume
                     source_volume = volume_client.find_volume(
                         parsed_args.volume, ignore_missing=False
                     )

@@ -159,7 +159,7 @@ class CreateVolumeSnapshot(command.ShowOne):
         self, parsed_args: argparse.Namespace
     ) -> tuple[Sequence[str], Iterable[Any]]:
         volume_client = sdk_utils.ensure_service_version(
-            self.app.client_manager.sdk_connection.volume, '2'
+            self.app.client_manager.volume, '2'
         )
 
         volume = parsed_args.volume
@@ -222,7 +222,7 @@ class DeleteVolumeSnapshot(command.Command):
 
     def take_action(self, parsed_args: argparse.Namespace) -> None:
         volume_client = sdk_utils.ensure_service_version(
-            self.app.client_manager.sdk_connection.volume, '2'
+            self.app.client_manager.volume, '2'
         )
         result = 0
 
@@ -312,7 +312,7 @@ class ListVolumeSnapshot(command.Lister):
         self, parsed_args: argparse.Namespace
     ) -> tuple[Sequence[str], Iterable[tuple[Any, ...]]]:
         volume_client = sdk_utils.ensure_service_version(
-            self.app.client_manager.sdk_connection.volume, '2'
+            self.app.client_manager.volume, '2'
         )
         # we don't narrow types here since we want to handle both v2.0 and v3
         identity_client = self.app.client_manager.sdk_connection.identity
@@ -461,7 +461,7 @@ class SetVolumeSnapshot(command.Command):
 
     def take_action(self, parsed_args: argparse.Namespace) -> None:
         volume_client = sdk_utils.ensure_service_version(
-            self.app.client_manager.sdk_connection.volume, '2'
+            self.app.client_manager.volume, '2'
         )
 
         snapshot = volume_client.find_snapshot(
@@ -533,7 +533,7 @@ class ShowVolumeSnapshot(command.ShowOne):
         self, parsed_args: argparse.Namespace
     ) -> tuple[Sequence[str], Iterable[Any]]:
         volume_client = sdk_utils.ensure_service_version(
-            self.app.client_manager.sdk_connection.volume, '2'
+            self.app.client_manager.volume, '2'
         )
 
         snapshot = volume_client.find_snapshot(
@@ -570,7 +570,7 @@ class UnsetVolumeSnapshot(command.Command):
 
     def take_action(self, parsed_args: argparse.Namespace) -> None:
         volume_client = sdk_utils.ensure_service_version(
-            self.app.client_manager.sdk_connection.volume, '2'
+            self.app.client_manager.volume, '2'
         )
 
         snapshot = volume_client.find_snapshot(

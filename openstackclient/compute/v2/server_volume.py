@@ -122,7 +122,7 @@ class SetServerVolume(command.Command):
     def take_action(self, parsed_args: argparse.Namespace) -> None:
         compute_client = self.app.client_manager.compute
         volume_client = sdk_utils.ensure_service_version(
-            self.app.client_manager.sdk_connection.volume, '3'
+            self.app.client_manager.volume, '3'
         )
 
         if parsed_args.delete_on_termination is not None:

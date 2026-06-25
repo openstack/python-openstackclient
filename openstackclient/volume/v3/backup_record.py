@@ -47,7 +47,7 @@ restore."""
         self, parsed_args: argparse.Namespace
     ) -> tuple[Sequence[str], Iterable[Any]]:
         volume_client = sdk_utils.ensure_service_version(
-            self.app.client_manager.sdk_connection.volume, '3'
+            self.app.client_manager.volume, '3'
         )
         backup = volume_client.find_backup(
             parsed_args.backup, ignore_missing=False
@@ -90,7 +90,7 @@ rebuilt service instance"""
         self, parsed_args: argparse.Namespace
     ) -> tuple[Sequence[str], Iterable[Any]]:
         volume_client = sdk_utils.ensure_service_version(
-            self.app.client_manager.sdk_connection.volume, '3'
+            self.app.client_manager.volume, '3'
         )
         backup_data = volume_client.import_backup(
             parsed_args.backup_service, parsed_args.backup_metadata

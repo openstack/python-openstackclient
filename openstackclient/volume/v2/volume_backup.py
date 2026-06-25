@@ -112,7 +112,7 @@ class CreateVolumeBackup(command.ShowOne):
         self, parsed_args: argparse.Namespace
     ) -> tuple[Sequence[str], Iterable[Any]]:
         volume_client = sdk_utils.ensure_service_version(
-            self.app.client_manager.sdk_connection.volume, '2'
+            self.app.client_manager.volume, '2'
         )
 
         volume_id = volume_client.find_volume(
@@ -167,7 +167,7 @@ class DeleteVolumeBackup(command.Command):
 
     def take_action(self, parsed_args: argparse.Namespace) -> None:
         volume_client = sdk_utils.ensure_service_version(
-            self.app.client_manager.sdk_connection.volume, '2'
+            self.app.client_manager.volume, '2'
         )
         result = 0
 
@@ -253,7 +253,7 @@ class ListVolumeBackup(command.Lister):
         self, parsed_args: argparse.Namespace
     ) -> tuple[Sequence[str], Iterable[tuple[Any, ...]]]:
         volume_client = sdk_utils.ensure_service_version(
-            self.app.client_manager.sdk_connection.volume, '2'
+            self.app.client_manager.volume, '2'
         )
 
         columns: tuple[str, ...] = (
@@ -371,7 +371,7 @@ class RestoreVolumeBackup(command.ShowOne):
         self, parsed_args: argparse.Namespace
     ) -> tuple[Sequence[str], Iterable[Any]]:
         volume_client = sdk_utils.ensure_service_version(
-            self.app.client_manager.sdk_connection.volume, '2'
+            self.app.client_manager.volume, '2'
         )
 
         backup = volume_client.find_backup(
@@ -439,7 +439,7 @@ class SetVolumeBackup(command.Command):
 
     def take_action(self, parsed_args: argparse.Namespace) -> None:
         volume_client = sdk_utils.ensure_service_version(
-            self.app.client_manager.sdk_connection.volume, '2'
+            self.app.client_manager.volume, '2'
         )
 
         backup = volume_client.find_backup(
@@ -478,7 +478,7 @@ class ShowVolumeBackup(command.ShowOne):
         self, parsed_args: argparse.Namespace
     ) -> tuple[Sequence[str], Iterable[Any]]:
         volume_client = sdk_utils.ensure_service_version(
-            self.app.client_manager.sdk_connection.volume, '2'
+            self.app.client_manager.volume, '2'
         )
         backup = volume_client.find_backup(
             parsed_args.backup, ignore_missing=False

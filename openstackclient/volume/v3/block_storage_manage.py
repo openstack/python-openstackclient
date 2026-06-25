@@ -110,7 +110,7 @@ class BlockStorageManageVolumes(command.Lister):
         self, parsed_args: argparse.Namespace
     ) -> tuple[list[str], Iterable[tuple[Any, ...]]]:
         volume_client = sdk_utils.ensure_service_version(
-            self.app.client_manager.sdk_connection.volume, '3'
+            self.app.client_manager.volume, '3'
         )
 
         if parsed_args.host is None and parsed_args.cluster is None:
@@ -284,7 +284,7 @@ class BlockStorageManageSnapshots(command.Lister):
         self, parsed_args: argparse.Namespace
     ) -> tuple[list[str], Iterable[tuple[Any, ...]]]:
         volume_client = sdk_utils.ensure_service_version(
-            self.app.client_manager.sdk_connection.volume, '3'
+            self.app.client_manager.volume, '3'
         )
 
         if parsed_args.host is None and parsed_args.cluster is None:

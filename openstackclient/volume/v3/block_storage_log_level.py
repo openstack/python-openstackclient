@@ -70,7 +70,7 @@ class BlockStorageLogLevelList(command.Lister):
         self, parsed_args: argparse.Namespace
     ) -> tuple[list[str], list[tuple[Any, ...]]]:
         volume_client = sdk_utils.ensure_service_version(
-            self.app.client_manager.sdk_connection.volume, '3'
+            self.app.client_manager.volume, '3'
         )
         columns = [
             "Binary",
@@ -150,7 +150,7 @@ class BlockStorageLogLevelSet(command.Command):
 
     def take_action(self, parsed_args: argparse.Namespace) -> None:
         volume_client = sdk_utils.ensure_service_version(
-            self.app.client_manager.sdk_connection.volume, '3'
+            self.app.client_manager.volume, '3'
         )
 
         if not sdk_utils.supports_microversion(volume_client, '3.32'):

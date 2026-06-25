@@ -120,7 +120,7 @@ class ListExtension(command.Lister):
                 LOG.warning(message)
 
         if parsed_args.volume or show_all:
-            volume_client = self.app.client_manager.sdk_connection.volume
+            volume_client = self.app.client_manager.volume
             try:
                 data += volume_client.extensions()
             except Exception:

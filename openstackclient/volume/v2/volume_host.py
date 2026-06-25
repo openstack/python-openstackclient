@@ -44,7 +44,7 @@ class FailoverVolumeHost(command.Command):
 
     def take_action(self, parsed_args: argparse.Namespace) -> None:
         volume_client = sdk_utils.ensure_service_version(
-            self.app.client_manager.sdk_connection.volume, '2'
+            self.app.client_manager.volume, '2'
         )
         service = _service.Service(host=parsed_args.host)
         volume_client.failover_service(
@@ -75,7 +75,7 @@ class SetVolumeHost(command.Command):
 
     def take_action(self, parsed_args: argparse.Namespace) -> None:
         volume_client = sdk_utils.ensure_service_version(
-            self.app.client_manager.sdk_connection.volume, '2'
+            self.app.client_manager.volume, '2'
         )
         service = _service.Service(host=parsed_args.host)
         if parsed_args.enable:

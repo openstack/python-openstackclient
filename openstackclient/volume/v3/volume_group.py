@@ -175,7 +175,7 @@ class CreateVolumeGroup(command.ShowOne):
         self, parsed_args: argparse.Namespace
     ) -> tuple[Sequence[str], Iterable[Any]]:
         volume_client = sdk_utils.ensure_service_version(
-            self.app.client_manager.sdk_connection.volume, '3'
+            self.app.client_manager.volume, '3'
         )
 
         if parsed_args.volume_group_type_legacy:
@@ -299,7 +299,7 @@ class DeleteVolumeGroup(command.Command):
 
     def take_action(self, parsed_args: argparse.Namespace) -> None:
         volume_client = sdk_utils.ensure_service_version(
-            self.app.client_manager.sdk_connection.volume, '3'
+            self.app.client_manager.volume, '3'
         )
 
         if not sdk_utils.supports_microversion(volume_client, '3.13'):
@@ -366,7 +366,7 @@ class SetVolumeGroup(command.ShowOne):
         self, parsed_args: argparse.Namespace
     ) -> tuple[Sequence[str], Iterable[Any]]:
         volume_client = sdk_utils.ensure_service_version(
-            self.app.client_manager.sdk_connection.volume, '3'
+            self.app.client_manager.volume, '3'
         )
 
         if not sdk_utils.supports_microversion(volume_client, '3.13'):
@@ -444,7 +444,7 @@ class ListVolumeGroup(command.Lister):
         self, parsed_args: argparse.Namespace
     ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
         volume_client = sdk_utils.ensure_service_version(
-            self.app.client_manager.sdk_connection.volume, '3'
+            self.app.client_manager.volume, '3'
         )
 
         if not sdk_utils.supports_microversion(volume_client, '3.13'):
@@ -533,7 +533,7 @@ class ShowVolumeGroup(command.ShowOne):
         self, parsed_args: argparse.Namespace
     ) -> tuple[Sequence[str], Iterable[Any]]:
         volume_client = sdk_utils.ensure_service_version(
-            self.app.client_manager.sdk_connection.volume, '3'
+            self.app.client_manager.volume, '3'
         )
 
         if not sdk_utils.supports_microversion(volume_client, '3.13'):
@@ -609,7 +609,7 @@ class FailoverVolumeGroup(command.Command):
 
     def take_action(self, parsed_args: argparse.Namespace) -> None:
         volume_client = sdk_utils.ensure_service_version(
-            self.app.client_manager.sdk_connection.volume, '3'
+            self.app.client_manager.volume, '3'
         )
 
         if not sdk_utils.supports_microversion(volume_client, '3.38'):

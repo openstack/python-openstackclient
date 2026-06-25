@@ -39,11 +39,9 @@ class TestImagev1(FakeClientMixin, utils.TestCommand):
 
         # TODO(stephenfin): Rename to 'volume_client' now that all commands are
         # migrated to SDK
-        self.app.client_manager.sdk_connection.volume = mock.Mock(
-            spec=block_storage_v2.Proxy
-        )
-        self.app.client_manager.sdk_connection.volume.api_version = '2'
-        self.volume_sdk_client = self.app.client_manager.sdk_connection.volume
+        self.app.client_manager.volume = mock.Mock(spec=block_storage_v2.Proxy)
+        self.app.client_manager.volume.api_version = '2'
+        self.volume_sdk_client = self.app.client_manager.volume
 
 
 def create_one_image(attrs=None):
