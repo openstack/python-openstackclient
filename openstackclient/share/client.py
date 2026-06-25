@@ -16,13 +16,13 @@ import argparse
 import logging
 from typing import TYPE_CHECKING, Any
 
-if TYPE_CHECKING:
-    from manilaclient import client
-
 from osc_lib import exceptions
 from osc_lib import utils
 
 from openstackclient.i18n import _
+
+if TYPE_CHECKING:
+    from manilaclient import client
 
 LOG = logging.getLogger(__name__)
 
@@ -37,16 +37,16 @@ _share_api_version = None
 
 def make_client(instance: Any) -> 'client.Client':
     """Returns a manilaclient.client.Client instance."""
-    from manilaclient import api_versions
+    # Defer client imports until we actually need them
     from manilaclient import client
 
-    check_version = instance._api_version[API_NAME]
-    if check_version.isdigit():
-        check_version = f"{check_version}.0"
+    if _share_api_version is not None:
+        version = _share_api_version
+    else:
+        from manilaclient import api_versions
 
-    version = api_versions.get_api_version(check_version)
-
-    instance.setup_auth()
+        check_version = instance._api_version[API_NAME]
+        version = api_versions.get_api_version(check_version)
 
     LOG.debug('Instantiating Shared File System client: %s', client.Client)
     LOG.debug('Shared File System API version: %s', version)
