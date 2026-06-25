@@ -58,6 +58,7 @@ class ClientManager(clientmanager.ClientManager):
     image: image_v2.Proxy
     network: network_v2.Proxy
     object_store: object_store_v1.APIv1
+    share: Any
     volume: Any
 
     def __init__(
@@ -73,7 +74,7 @@ class ClientManager(clientmanager.ClientManager):
         )
 
         # TODO(dtroyer): For compatibility; mark this for removal when plugin
-        #                interface v2 is removed
+        # interface v2 is removed
         self._region_name = self.region_name
         self._interface = self.interface
         self._cacert = self.cacert
