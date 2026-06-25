@@ -37,6 +37,9 @@ IGNORED_MODULES = (
     'neutronclient.osc.v2.taas',
     'neutronclient.osc.v2.networking_bgpvpn',
     'neutronclient.osc.v2.dynamic_routing',
+    # FIXME(stephenfin): this is ignored temporarily while we complete
+    # implementation. This should be dropped once completed.
+    'openstackclient.share.v2',
 )
 
 
