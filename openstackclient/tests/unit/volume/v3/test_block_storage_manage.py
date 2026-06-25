@@ -67,7 +67,7 @@ class TestBlockStorageVolumeManage(volume_fakes.TestVolume):
     def setUp(self):
         super().setUp()
 
-        self.volume_sdk_client.manageable_volumes.return_value = iter(
+        self.volume_client.manageable_volumes.return_value = iter(
             FAKE_VOLUME_MANAGE_LIST
         )
 
@@ -93,7 +93,7 @@ class TestBlockStorageVolumeManage(volume_fakes.TestVolume):
         self.assertEqual(expected_columns, columns)
         self.assertEqual(expected_data, tuple(data))
 
-        self.volume_sdk_client.manageable_volumes.assert_called_once_with(
+        self.volume_client.manageable_volumes.assert_called_once_with(
             details=False, host='fake_host'
         )
 
@@ -181,7 +181,7 @@ class TestBlockStorageVolumeManage(volume_fakes.TestVolume):
         self.assertEqual(expected_columns, columns)
         self.assertEqual(expected_data, tuple(data))
 
-        self.volume_sdk_client.manageable_volumes.assert_called_once_with(
+        self.volume_client.manageable_volumes.assert_called_once_with(
             details=True, host='fake_host'
         )
         mock_warning.assert_called_once()
@@ -241,7 +241,7 @@ class TestBlockStorageVolumeManage(volume_fakes.TestVolume):
         self.assertEqual(expected_columns, columns)
         self.assertEqual(expected_data, tuple(data))
 
-        self.volume_sdk_client.manageable_volumes.assert_called_once_with(
+        self.volume_client.manageable_volumes.assert_called_once_with(
             details=True,
             host='fake_host',
             marker='fake_marker',
@@ -255,7 +255,7 @@ class TestBlockStorageSnapshotManage(volume_fakes.TestVolume):
     def setUp(self):
         super().setUp()
 
-        self.volume_sdk_client.manageable_snapshots.return_value = iter(
+        self.volume_client.manageable_snapshots.return_value = iter(
             FAKE_SNAPSHOT_MANAGE_LIST
         )
 
@@ -286,7 +286,7 @@ class TestBlockStorageSnapshotManage(volume_fakes.TestVolume):
         self.assertEqual(expected_columns, columns)
         self.assertEqual(expected_data, tuple(data))
 
-        self.volume_sdk_client.manageable_snapshots.assert_called_once_with(
+        self.volume_client.manageable_snapshots.assert_called_once_with(
             details=False, host='fake_host'
         )
 
@@ -375,7 +375,7 @@ class TestBlockStorageSnapshotManage(volume_fakes.TestVolume):
         self.assertEqual(expected_columns, columns)
         self.assertEqual(expected_data, tuple(data))
 
-        self.volume_sdk_client.manageable_snapshots.assert_called_once_with(
+        self.volume_client.manageable_snapshots.assert_called_once_with(
             details=True, host='fake_host'
         )
         mock_warning.assert_called_once()
@@ -437,7 +437,7 @@ class TestBlockStorageSnapshotManage(volume_fakes.TestVolume):
         self.assertEqual(expected_columns, columns)
         self.assertEqual(expected_data, tuple(data))
 
-        self.volume_sdk_client.manageable_snapshots.assert_called_once_with(
+        self.volume_client.manageable_snapshots.assert_called_once_with(
             details=True,
             host='fake_host',
             marker='fake_marker',

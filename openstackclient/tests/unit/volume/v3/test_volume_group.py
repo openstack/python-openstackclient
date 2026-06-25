@@ -68,21 +68,19 @@ class TestVolumeGroupCreate(volume_fakes.TestVolume):
     def setUp(self):
         super().setUp()
 
-        self.volume_sdk_client.find_type.return_value = self.fake_volume_type
-        self.volume_sdk_client.find_group_type.return_value = (
+        self.volume_client.find_type.return_value = self.fake_volume_type
+        self.volume_client.find_group_type.return_value = (
             self.fake_volume_group_type
         )
-        self.volume_sdk_client.create_group.return_value = (
+        self.volume_client.create_group.return_value = self.fake_volume_group
+        self.volume_client.get_group.return_value = self.fake_volume_group
+        self.volume_client.create_group_from_source.return_value = (
             self.fake_volume_group
         )
-        self.volume_sdk_client.get_group.return_value = self.fake_volume_group
-        self.volume_sdk_client.create_group_from_source.return_value = (
-            self.fake_volume_group
-        )
-        self.volume_sdk_client.find_group_snapshot.return_value = (
+        self.volume_client.find_group_snapshot.return_value = (
             self.fake_volume_group_snapshot
         )
-        self.volume_sdk_client.find_group.return_value = self.fake_volume_group
+        self.volume_client.find_group.return_value = self.fake_volume_group
 
         self.cmd = volume_group.CreateVolumeGroup(self.app, None)
 
@@ -106,20 +104,20 @@ class TestVolumeGroupCreate(volume_fakes.TestVolume):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.volume_sdk_client.find_group_type.assert_called_once_with(
+        self.volume_client.find_group_type.assert_called_once_with(
             self.fake_volume_group_type.id, ignore_missing=False
         )
-        self.volume_sdk_client.find_type.assert_called_once_with(
+        self.volume_client.find_type.assert_called_once_with(
             self.fake_volume_type.id, ignore_missing=False
         )
-        self.volume_sdk_client.create_group.assert_called_once_with(
+        self.volume_client.create_group.assert_called_once_with(
             group_type=self.fake_volume_group_type.id,
             volume_types=[self.fake_volume_type.id],
             name=None,
             description=None,
             availability_zone=None,
         )
-        self.volume_sdk_client.get_group.assert_called_once_with(
+        self.volume_client.get_group.assert_called_once_with(
             self.fake_volume_group.id
         )
         self.assertEqual(self.columns, columns)
@@ -144,13 +142,13 @@ class TestVolumeGroupCreate(volume_fakes.TestVolume):
         with mock.patch.object(self.cmd.log, 'warning') as mock_warning:
             columns, data = self.cmd.take_action(parsed_args)
 
-        self.volume_sdk_client.find_group_type.assert_called_once_with(
+        self.volume_client.find_group_type.assert_called_once_with(
             self.fake_volume_group_type.id, ignore_missing=False
         )
-        self.volume_sdk_client.find_type.assert_called_once_with(
+        self.volume_client.find_type.assert_called_once_with(
             self.fake_volume_type.id, ignore_missing=False
         )
-        self.volume_sdk_client.create_group.assert_called_once_with(
+        self.volume_client.create_group.assert_called_once_with(
             group_type=self.fake_volume_group_type.id,
             volume_types=[self.fake_volume_type.id],
             name=None,
@@ -213,13 +211,13 @@ class TestVolumeGroupCreate(volume_fakes.TestVolume):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.volume_sdk_client.find_group_type.assert_called_once_with(
+        self.volume_client.find_group_type.assert_called_once_with(
             self.fake_volume_group_type.id, ignore_missing=False
         )
-        self.volume_sdk_client.find_type.assert_called_once_with(
+        self.volume_client.find_type.assert_called_once_with(
             self.fake_volume_type.id, ignore_missing=False
         )
-        self.volume_sdk_client.create_group.assert_called_once_with(
+        self.volume_client.create_group.assert_called_once_with(
             group_type=self.fake_volume_group_type.id,
             volume_types=[self.fake_volume_type.id],
             name='foo',
@@ -268,16 +266,16 @@ class TestVolumeGroupCreate(volume_fakes.TestVolume):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.volume_sdk_client.find_group.assert_called_once_with(
+        self.volume_client.find_group.assert_called_once_with(
             self.fake_volume_group.id, ignore_missing=False
         )
-        self.volume_sdk_client.create_group_from_source.assert_called_once_with(
+        self.volume_client.create_group_from_source.assert_called_once_with(
             group_snapshot_id=None,
             source_group_id=self.fake_volume_group.id,
             name=None,
             description=None,
         )
-        self.volume_sdk_client.get_group.assert_called_once_with(
+        self.volume_client.get_group.assert_called_once_with(
             self.fake_volume_group.id
         )
         self.assertEqual(self.columns, columns)
@@ -297,16 +295,16 @@ class TestVolumeGroupCreate(volume_fakes.TestVolume):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.volume_sdk_client.find_group_snapshot.assert_called_once_with(
+        self.volume_client.find_group_snapshot.assert_called_once_with(
             self.fake_volume_group_snapshot.id, ignore_missing=False
         )
-        self.volume_sdk_client.create_group_from_source.assert_called_once_with(
+        self.volume_client.create_group_from_source.assert_called_once_with(
             group_snapshot_id=self.fake_volume_group_snapshot.id,
             source_group_id=None,
             name=None,
             description=None,
         )
-        self.volume_sdk_client.get_group.assert_called_once_with(
+        self.volume_client.get_group.assert_called_once_with(
             self.fake_volume_group.id
         )
         self.assertEqual(self.columns, columns)
@@ -362,8 +360,8 @@ class TestVolumeGroupDelete(volume_fakes.TestVolume):
     def setUp(self):
         super().setUp()
 
-        self.volume_sdk_client.find_group.return_value = self.fake_volume_group
-        self.volume_sdk_client.delete_group.return_value = None
+        self.volume_client.find_group.return_value = self.fake_volume_group
+        self.volume_client.delete_group.return_value = None
 
         self.cmd = volume_group.DeleteVolumeGroup(self.app, None)
 
@@ -382,10 +380,10 @@ class TestVolumeGroupDelete(volume_fakes.TestVolume):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.volume_sdk_client.find_group.assert_called_once_with(
+        self.volume_client.find_group.assert_called_once_with(
             self.fake_volume_group.id, ignore_missing=False
         )
-        self.volume_sdk_client.delete_group.assert_called_once_with(
+        self.volume_client.delete_group.assert_called_once_with(
             self.fake_volume_group, delete_volumes=True
         )
         self.assertIsNone(result)
@@ -443,10 +441,8 @@ class TestVolumeGroupSet(volume_fakes.TestVolume):
     def setUp(self):
         super().setUp()
 
-        self.volume_sdk_client.find_group.return_value = self.fake_volume_group
-        self.volume_sdk_client.update_group.return_value = (
-            self.fake_volume_group
-        )
+        self.volume_client.find_group.return_value = self.fake_volume_group
+        self.volume_client.update_group.return_value = self.fake_volume_group
 
         self.cmd = volume_group.SetVolumeGroup(self.app, None)
 
@@ -469,10 +465,10 @@ class TestVolumeGroupSet(volume_fakes.TestVolume):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.volume_sdk_client.find_group.assert_called_once_with(
+        self.volume_client.find_group.assert_called_once_with(
             self.fake_volume_group.id, ignore_missing=False
         )
-        self.volume_sdk_client.update_group.assert_called_once_with(
+        self.volume_client.update_group.assert_called_once_with(
             self.fake_volume_group,
             name='foo',
             description='hello, world',
@@ -495,7 +491,7 @@ class TestVolumeGroupSet(volume_fakes.TestVolume):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.volume_sdk_client.enable_group_replication.assert_called_once_with(
+        self.volume_client.enable_group_replication.assert_called_once_with(
             self.fake_volume_group
         )
         self.assertEqual(self.columns, columns)
@@ -568,7 +564,7 @@ class TestVolumeGroupList(volume_fakes.TestVolume):
     def setUp(self):
         super().setUp()
 
-        self.volume_sdk_client.groups.return_value = self.fake_volume_groups
+        self.volume_client.groups.return_value = self.fake_volume_groups
 
         self.cmd = volume_group.ListVolumeGroup(self.app, None)
 
@@ -585,7 +581,7 @@ class TestVolumeGroupList(volume_fakes.TestVolume):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.volume_sdk_client.groups.assert_called_once_with(
+        self.volume_client.groups.assert_called_once_with(
             all_projects=True,
         )
         self.assertEqual(self.columns, columns)
@@ -616,8 +612,8 @@ class TestVolumeGroupFailover(volume_fakes.TestVolume):
     def setUp(self):
         super().setUp()
 
-        self.volume_sdk_client.find_group.return_value = self.fake_volume_group
-        self.volume_sdk_client.failover_group_replication.return_value = None
+        self.volume_client.find_group.return_value = self.fake_volume_group
+        self.volume_client.failover_group_replication.return_value = None
 
         self.cmd = volume_group.FailoverVolumeGroup(self.app, None)
 
@@ -639,10 +635,10 @@ class TestVolumeGroupFailover(volume_fakes.TestVolume):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.volume_sdk_client.find_group.assert_called_once_with(
+        self.volume_client.find_group.assert_called_once_with(
             self.fake_volume_group.id, ignore_missing=False
         )
-        self.volume_sdk_client.failover_group_replication.assert_called_once_with(
+        self.volume_client.failover_group_replication.assert_called_once_with(
             self.fake_volume_group,
             allowed_attached_volume=True,
             secondary_backend_id='foo',

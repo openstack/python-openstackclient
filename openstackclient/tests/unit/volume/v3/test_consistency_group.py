@@ -35,7 +35,7 @@ class TestConsistencyGroupAddVolume(volume_fakes.TestVolume):
         self.consistency_group = sdk_fakes.generate_fake_resource(
             _consistency_group.ConsistencyGroup
         )
-        self.volume_sdk_client.find_consistency_group.return_value = (
+        self.volume_client.find_consistency_group.return_value = (
             self.consistency_group
         )
 
@@ -47,7 +47,7 @@ class TestConsistencyGroupAddVolume(volume_fakes.TestVolume):
         volume = sdk_fakes.generate_fake_resource(
             _type.Type,
         )
-        self.volume_sdk_client.find_volume.return_value = volume
+        self.volume_client.find_volume.return_value = volume
         arglist = [
             self.consistency_group.id,
             volume.id,
@@ -60,13 +60,13 @@ class TestConsistencyGroupAddVolume(volume_fakes.TestVolume):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.volume_sdk_client.find_volume.assert_called_once_with(
+        self.volume_client.find_volume.assert_called_once_with(
             volume.id, ignore_missing=False
         )
-        self.volume_sdk_client.find_consistency_group.assert_called_once_with(
+        self.volume_client.find_consistency_group.assert_called_once_with(
             self.consistency_group.id, ignore_missing=False
         )
-        self.volume_sdk_client.update_consistency_group.assert_called_once_with(
+        self.volume_client.update_consistency_group.assert_called_once_with(
             self.consistency_group, add_volumes=volume.id
         )
         self.assertIsNone(result)
@@ -76,7 +76,7 @@ class TestConsistencyGroupAddVolume(volume_fakes.TestVolume):
             sdk_fakes.generate_fake_resource(_type.Type),
             sdk_fakes.generate_fake_resource(_type.Type),
         ]
-        self.volume_sdk_client.find_volume.side_effect = volumes
+        self.volume_client.find_volume.side_effect = volumes
         arglist = [
             self.consistency_group.id,
             volumes[0].id,
@@ -90,7 +90,7 @@ class TestConsistencyGroupAddVolume(volume_fakes.TestVolume):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.volume_sdk_client.update_consistency_group.assert_called_once_with(
+        self.volume_client.update_consistency_group.assert_called_once_with(
             self.consistency_group,
             add_volumes=volumes[0].id + ',' + volumes[1].id,
         )
@@ -102,7 +102,7 @@ class TestConsistencyGroupAddVolume(volume_fakes.TestVolume):
         mock_error,
     ):
         volume = sdk_fakes.generate_fake_resource(_type.Type)
-        self.volume_sdk_client.find_volume.side_effect = [
+        self.volume_client.find_volume.side_effect = [
             volume,
             exceptions.CommandError,
         ]
@@ -124,17 +124,17 @@ class TestConsistencyGroupAddVolume(volume_fakes.TestVolume):
             {'result': 1, 'total': 2},
         )
         self.assertIsNone(result)
-        self.volume_sdk_client.find_volume.assert_any_call(
+        self.volume_client.find_volume.assert_any_call(
             volume.id, ignore_missing=False
         )
-        self.volume_sdk_client.find_volume.assert_any_call(
+        self.volume_client.find_volume.assert_any_call(
             'unexist_volume', ignore_missing=False
         )
-        self.assertEqual(2, self.volume_sdk_client.find_volume.call_count)
-        self.volume_sdk_client.find_consistency_group.assert_called_once_with(
+        self.assertEqual(2, self.volume_client.find_volume.call_count)
+        self.volume_client.find_consistency_group.assert_called_once_with(
             self.consistency_group.id, ignore_missing=False
         )
-        self.volume_sdk_client.update_consistency_group.assert_called_once_with(
+        self.volume_client.update_consistency_group.assert_called_once_with(
             self.consistency_group, add_volumes=volume.id
         )
 
@@ -160,15 +160,15 @@ class TestConsistencyGroupCreate(volume_fakes.TestVolume):
         self.consistency_group_snapshot = sdk_fakes.generate_fake_resource(
             _consistency_group_snapshot.ConsistencyGroupSnapshot
         )
-        self.volume_sdk_client.create_consistency_group.return_value = (
+        self.volume_client.create_consistency_group.return_value = (
             self.new_consistency_group
         )
-        self.volume_sdk_client.create_consistency_group_from_source.return_value = self.new_consistency_group
-        self.volume_sdk_client.find_type.return_value = self.volume_type
-        self.volume_sdk_client.find_consistency_group_snapshot.return_value = (
+        self.volume_client.create_consistency_group_from_source.return_value = self.new_consistency_group
+        self.volume_client.find_type.return_value = self.volume_type
+        self.volume_client.find_consistency_group_snapshot.return_value = (
             self.consistency_group_snapshot
         )
-        self.volume_sdk_client.find_consistency_group.return_value = (
+        self.volume_client.find_consistency_group.return_value = (
             self.new_consistency_group
         )
 
@@ -207,11 +207,11 @@ class TestConsistencyGroupCreate(volume_fakes.TestVolume):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.volume_sdk_client.find_type.assert_called_once_with(
+        self.volume_client.find_type.assert_called_once_with(
             self.volume_type.id, ignore_missing=False
         )
-        self.volume_sdk_client.find_consistency_group.assert_not_called()
-        self.volume_sdk_client.create_consistency_group.assert_called_once_with(
+        self.volume_client.find_consistency_group.assert_not_called()
+        self.volume_client.create_consistency_group.assert_called_once_with(
             volume_types=self.volume_type.id,
             name=self.new_consistency_group.name,
             description=self.new_consistency_group.description,
@@ -242,11 +242,11 @@ class TestConsistencyGroupCreate(volume_fakes.TestVolume):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.volume_sdk_client.find_type.assert_called_once_with(
+        self.volume_client.find_type.assert_called_once_with(
             self.volume_type.id, ignore_missing=False
         )
-        self.volume_sdk_client.find_consistency_group.assert_not_called()
-        self.volume_sdk_client.create_consistency_group.assert_called_once_with(
+        self.volume_client.find_consistency_group.assert_not_called()
+        self.volume_client.create_consistency_group.assert_called_once_with(
             volume_types=self.volume_type.id,
             name=None,
             description=self.new_consistency_group.description,
@@ -273,11 +273,11 @@ class TestConsistencyGroupCreate(volume_fakes.TestVolume):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.volume_sdk_client.find_type.assert_not_called()
-        self.volume_sdk_client.find_consistency_group.assert_called_once_with(
+        self.volume_client.find_type.assert_not_called()
+        self.volume_client.find_consistency_group.assert_called_once_with(
             self.new_consistency_group.id, ignore_missing=False
         )
-        self.volume_sdk_client.create_consistency_group_from_source.assert_called_once_with(
+        self.volume_client.create_consistency_group_from_source.assert_called_once_with(
             consistency_group_snapshot=None,
             consistency_group=self.new_consistency_group.id,
             name=self.new_consistency_group.name,
@@ -304,11 +304,11 @@ class TestConsistencyGroupCreate(volume_fakes.TestVolume):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.volume_sdk_client.find_type.assert_not_called()
-        self.volume_sdk_client.find_consistency_group_snapshot.assert_called_once_with(
+        self.volume_client.find_type.assert_not_called()
+        self.volume_client.find_consistency_group_snapshot.assert_called_once_with(
             self.consistency_group_snapshot.id, ignore_missing=False
         )
-        self.volume_sdk_client.create_consistency_group_from_source.assert_called_once_with(
+        self.volume_client.create_consistency_group_from_source.assert_called_once_with(
             consistency_group_snapshot=self.consistency_group_snapshot.id,
             consistency_group=None,
             name=self.new_consistency_group.name,
@@ -332,10 +332,10 @@ class TestConsistencyGroupDelete(volume_fakes.TestVolume):
             ),
         ]
 
-        self.volume_sdk_client.find_consistency_group.side_effect = (
+        self.volume_client.find_consistency_group.side_effect = (
             self.consistency_groups
         )
-        self.volume_sdk_client.delete_consistency_group.return_value = None
+        self.volume_client.delete_consistency_group.return_value = None
 
         self.cmd = consistency_group.DeleteConsistencyGroup(self.app, None)
 
@@ -346,10 +346,10 @@ class TestConsistencyGroupDelete(volume_fakes.TestVolume):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.volume_sdk_client.find_consistency_group.assert_called_once_with(
+        self.volume_client.find_consistency_group.assert_called_once_with(
             self.consistency_groups[0].id, ignore_missing=False
         )
-        self.volume_sdk_client.delete_consistency_group.assert_called_once_with(
+        self.volume_client.delete_consistency_group.assert_called_once_with(
             self.consistency_groups[0], force=False
         )
         self.assertIsNone(result)
@@ -367,13 +367,13 @@ class TestConsistencyGroupDelete(volume_fakes.TestVolume):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.volume_sdk_client.delete_consistency_group.assert_called_once_with(
+        self.volume_client.delete_consistency_group.assert_called_once_with(
             self.consistency_groups[0], force=True
         )
         self.assertIsNone(result)
 
     def test_delete_multiple_consistency_groups(self):
-        self.volume_sdk_client.find_consistency_group.side_effect = (
+        self.volume_client.find_consistency_group.side_effect = (
             self.consistency_groups
         )
         arglist = [cg.id for cg in self.consistency_groups]
@@ -384,16 +384,16 @@ class TestConsistencyGroupDelete(volume_fakes.TestVolume):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         result = self.cmd.take_action(parsed_args)
 
-        self.volume_sdk_client.delete_consistency_group.assert_any_call(
+        self.volume_client.delete_consistency_group.assert_any_call(
             self.consistency_groups[0], force=False
         )
-        self.volume_sdk_client.delete_consistency_group.assert_any_call(
+        self.volume_client.delete_consistency_group.assert_any_call(
             self.consistency_groups[1], force=False
         )
         self.assertIsNone(result)
 
     def test_delete_multiple_consistency_groups_with_exception(self):
-        self.volume_sdk_client.find_consistency_group.side_effect = [
+        self.volume_client.find_consistency_group.side_effect = [
             self.consistency_groups[0],
             exceptions.CommandError,
         ]
@@ -415,16 +415,16 @@ class TestConsistencyGroupDelete(volume_fakes.TestVolume):
                 '1 of 2 consistency groups failed to delete.', str(e)
             )
 
-        self.volume_sdk_client.find_consistency_group.assert_any_call(
+        self.volume_client.find_consistency_group.assert_any_call(
             self.consistency_groups[0].id, ignore_missing=False
         )
-        self.volume_sdk_client.find_consistency_group.assert_any_call(
+        self.volume_client.find_consistency_group.assert_any_call(
             'unexist_consistency_group', ignore_missing=False
         )
         self.assertEqual(
-            2, self.volume_sdk_client.find_consistency_group.call_count
+            2, self.volume_client.find_consistency_group.call_count
         )
-        self.volume_sdk_client.delete_consistency_group.assert_called_once_with(
+        self.volume_client.delete_consistency_group.assert_called_once_with(
             self.consistency_groups[0], force=False
         )
 
@@ -455,7 +455,7 @@ class TestConsistencyGroupList(volume_fakes.TestVolume):
                 _consistency_group.ConsistencyGroup
             ),
         ]
-        self.volume_sdk_client.consistency_groups.return_value = (
+        self.volume_client.consistency_groups.return_value = (
             self.consistency_groups
         )
 
@@ -493,7 +493,7 @@ class TestConsistencyGroupList(volume_fakes.TestVolume):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.volume_sdk_client.consistency_groups.assert_called_once_with(
+        self.volume_client.consistency_groups.assert_called_once_with(
             all_tenants=False,
         )
         self.assertEqual(self.column_headers, columns)
@@ -509,7 +509,7 @@ class TestConsistencyGroupList(volume_fakes.TestVolume):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.volume_sdk_client.consistency_groups.assert_called_once_with(
+        self.volume_client.consistency_groups.assert_called_once_with(
             all_tenants=True,
         )
         self.assertEqual(self.column_headers, columns)
@@ -527,7 +527,7 @@ class TestConsistencyGroupList(volume_fakes.TestVolume):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.volume_sdk_client.consistency_groups.assert_called_once_with(
+        self.volume_client.consistency_groups.assert_called_once_with(
             all_tenants=False,
         )
         self.assertEqual(self.column_headers_long, columns)
@@ -541,7 +541,7 @@ class TestConsistencyGroupRemoveVolume(volume_fakes.TestVolume):
         self.consistency_group = sdk_fakes.generate_fake_resource(
             _consistency_group.ConsistencyGroup
         )
-        self.volume_sdk_client.find_consistency_group.return_value = (
+        self.volume_client.find_consistency_group.return_value = (
             self.consistency_group
         )
 
@@ -551,7 +551,7 @@ class TestConsistencyGroupRemoveVolume(volume_fakes.TestVolume):
 
     def test_remove_one_volume_from_consistency_group(self):
         volume = sdk_fakes.generate_fake_resource(_type.Type)
-        self.volume_sdk_client.find_volume.return_value = volume
+        self.volume_client.find_volume.return_value = volume
         arglist = [
             self.consistency_group.id,
             volume.id,
@@ -564,7 +564,7 @@ class TestConsistencyGroupRemoveVolume(volume_fakes.TestVolume):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.volume_sdk_client.update_consistency_group.assert_called_once_with(
+        self.volume_client.update_consistency_group.assert_called_once_with(
             self.consistency_group, remove_volumes=volume.id
         )
         self.assertIsNone(result)
@@ -574,7 +574,7 @@ class TestConsistencyGroupRemoveVolume(volume_fakes.TestVolume):
             sdk_fakes.generate_fake_resource(_type.Type),
             sdk_fakes.generate_fake_resource(_type.Type),
         ]
-        self.volume_sdk_client.find_volume.side_effect = volumes
+        self.volume_client.find_volume.side_effect = volumes
         arglist = [
             self.consistency_group.id,
             volumes[0].id,
@@ -588,7 +588,7 @@ class TestConsistencyGroupRemoveVolume(volume_fakes.TestVolume):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.volume_sdk_client.update_consistency_group.assert_called_once_with(
+        self.volume_client.update_consistency_group.assert_called_once_with(
             self.consistency_group,
             remove_volumes=volumes[0].id + ',' + volumes[1].id,
         )
@@ -600,7 +600,7 @@ class TestConsistencyGroupRemoveVolume(volume_fakes.TestVolume):
         mock_error,
     ):
         volume = sdk_fakes.generate_fake_resource(_type.Type)
-        self.volume_sdk_client.find_volume.side_effect = [
+        self.volume_client.find_volume.side_effect = [
             volume,
             exceptions.CommandError,
         ]
@@ -622,17 +622,17 @@ class TestConsistencyGroupRemoveVolume(volume_fakes.TestVolume):
             {'result': 1, 'total': 2},
         )
         self.assertIsNone(result)
-        self.volume_sdk_client.find_volume.assert_any_call(
+        self.volume_client.find_volume.assert_any_call(
             volume.id, ignore_missing=False
         )
-        self.volume_sdk_client.find_volume.assert_any_call(
+        self.volume_client.find_volume.assert_any_call(
             'unexist_volume', ignore_missing=False
         )
-        self.assertEqual(2, self.volume_sdk_client.find_volume.call_count)
-        self.volume_sdk_client.find_consistency_group.assert_called_once_with(
+        self.assertEqual(2, self.volume_client.find_volume.call_count)
+        self.volume_client.find_consistency_group.assert_called_once_with(
             self.consistency_group.id, ignore_missing=False
         )
-        self.volume_sdk_client.update_consistency_group.assert_called_once_with(
+        self.volume_client.update_consistency_group.assert_called_once_with(
             self.consistency_group, remove_volumes=volume.id
         )
 
@@ -644,7 +644,7 @@ class TestConsistencyGroupSet(volume_fakes.TestVolume):
         self.consistency_group = sdk_fakes.generate_fake_resource(
             _consistency_group.ConsistencyGroup
         )
-        self.volume_sdk_client.find_consistency_group.return_value = (
+        self.volume_client.find_consistency_group.return_value = (
             self.consistency_group
         )
 
@@ -666,10 +666,10 @@ class TestConsistencyGroupSet(volume_fakes.TestVolume):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.volume_sdk_client.find_consistency_group.assert_called_once_with(
+        self.volume_client.find_consistency_group.assert_called_once_with(
             self.consistency_group.id, ignore_missing=False
         )
-        self.volume_sdk_client.update_consistency_group.assert_called_once_with(
+        self.volume_client.update_consistency_group.assert_called_once_with(
             self.consistency_group, name=new_name
         )
         self.assertIsNone(result)
@@ -690,10 +690,10 @@ class TestConsistencyGroupSet(volume_fakes.TestVolume):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.volume_sdk_client.find_consistency_group.assert_called_once_with(
+        self.volume_client.find_consistency_group.assert_called_once_with(
             self.consistency_group.id, ignore_missing=False
         )
-        self.volume_sdk_client.update_consistency_group.assert_called_once_with(
+        self.volume_client.update_consistency_group.assert_called_once_with(
             self.consistency_group, description=new_description
         )
         self.assertIsNone(result)
@@ -725,7 +725,7 @@ class TestConsistencyGroupShow(volume_fakes.TestVolume):
             self.consistency_group.status,
             self.consistency_group.volume_types,
         )
-        self.volume_sdk_client.find_consistency_group.return_value = (
+        self.volume_client.find_consistency_group.return_value = (
             self.consistency_group
         )
         self.cmd = consistency_group.ShowConsistencyGroup(self.app, None)
@@ -735,7 +735,7 @@ class TestConsistencyGroupShow(volume_fakes.TestVolume):
         verifylist = [("consistency_group", self.consistency_group.id)]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
-        self.volume_sdk_client.find_consistency_group.assert_called_once_with(
+        self.volume_client.find_consistency_group.assert_called_once_with(
             self.consistency_group.id, ignore_missing=False
         )
         self.assertEqual(self.columns, columns)

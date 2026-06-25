@@ -310,8 +310,8 @@ class TestImageCreate(image_fakes.TestImagev2, volume_fakes.TestVolume):
         mock_get_data_f.return_value = None
 
         volume = sdk_fakes.generate_fake_resource(_volume.Volume)
-        self.volume_sdk_client.find_volume.return_value = volume
-        self.volume_sdk_client.upload_volume_to_image.return_value = {
+        self.volume_client.find_volume.return_value = volume
+        self.volume_client.upload_volume_to_image.return_value = {
             'volume_type': {'name': 'fake_type'}
         }
 
@@ -327,7 +327,7 @@ class TestImageCreate(image_fakes.TestImagev2, volume_fakes.TestVolume):
 
         self.cmd.take_action(parsed_args)
 
-        self.volume_sdk_client.upload_volume_to_image.assert_called_once_with(
+        self.volume_client.upload_volume_to_image.assert_called_once_with(
             volume.id,
             self.new_image.name,
             force=False,
@@ -342,8 +342,8 @@ class TestImageCreate(image_fakes.TestImagev2, volume_fakes.TestVolume):
         mock_get_data_f.return_value = None
 
         volume = sdk_fakes.generate_fake_resource(_volume.Volume)
-        self.volume_sdk_client.find_volume.return_value = volume
-        self.volume_sdk_client.upload_volume_to_image.return_value = {
+        self.volume_client.find_volume.return_value = volume
+        self.volume_client.upload_volume_to_image.return_value = {
             'volume_type': {'name': 'fake_type'}
         }
 
@@ -370,8 +370,8 @@ class TestImageCreate(image_fakes.TestImagev2, volume_fakes.TestVolume):
         mock_get_data_f.return_value = None
 
         volume = sdk_fakes.generate_fake_resource(_volume.Volume)
-        self.volume_sdk_client.find_volume.return_value = volume
-        self.volume_sdk_client.upload_volume_to_image.return_value = {
+        self.volume_client.find_volume.return_value = volume
+        self.volume_client.upload_volume_to_image.return_value = {
             'volume_type': {'name': 'fake_type'}
         }
 
@@ -388,7 +388,7 @@ class TestImageCreate(image_fakes.TestImagev2, volume_fakes.TestVolume):
 
         self.cmd.take_action(parsed_args)
 
-        self.volume_sdk_client.upload_volume_to_image.assert_called_once_with(
+        self.volume_client.upload_volume_to_image.assert_called_once_with(
             volume.id,
             self.new_image.name,
             force=False,

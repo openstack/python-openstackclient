@@ -228,7 +228,7 @@ class TestServerVolumeUpdate(compute_fakes.TestCompute):
         self.compute_client.find_server.return_value = self.server
 
         self.volume = sdk_fakes.generate_fake_resource(_volume.Volume)
-        self.volume_sdk_client.find_volume.return_value = self.volume
+        self.volume_client.find_volume.return_value = self.volume
 
         # Get the command object to test
         self.cmd = server_volume.UpdateServerVolume(self.app, None)

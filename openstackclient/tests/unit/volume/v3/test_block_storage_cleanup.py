@@ -43,7 +43,7 @@ class TestBlockStorageCleanup(volume_fakes.TestVolume):
     def setUp(self):
         super().setUp()
 
-        self.volume_sdk_client.cleanup_service_workers.return_value = (
+        self.volume_client.cleanup_service_workers.return_value = (
             FAKE_CLEANUP_RESPONSE
         )
 
@@ -87,7 +87,7 @@ class TestBlockStorageCleanup(volume_fakes.TestVolume):
         self.assertEqual(expected_columns, columns)
         self.assertEqual(expected_data, tuple(data))
 
-        self.volume_sdk_client.cleanup_service_workers.assert_called_once_with()
+        self.volume_client.cleanup_service_workers.assert_called_once_with()
 
     def test_block_storage_cleanup_pre_324(self):
         arglist = []
@@ -168,7 +168,7 @@ class TestBlockStorageCleanup(volume_fakes.TestVolume):
         self.assertEqual(expected_columns, columns)
         self.assertEqual(expected_data, tuple(data))
 
-        self.volume_sdk_client.cleanup_service_workers.assert_called_once_with(
+        self.volume_client.cleanup_service_workers.assert_called_once_with(
             cluster_name=fake_cluster,
             host=fake_host,
             binary=fake_binary,

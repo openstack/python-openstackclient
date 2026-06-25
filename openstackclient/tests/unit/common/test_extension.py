@@ -60,9 +60,7 @@ class TestExtensionList(TestExtension):
             self.identity_extension
         ]
         self.compute_client.extensions.return_value = [self.compute_extension]
-        self.volume_sdk_client.extensions.return_value = [
-            self.volume_extension
-        ]
+        self.volume_client.extensions.return_value = [self.volume_extension]
         self.network_client.extensions.return_value = [self.network_extension]
 
         # Get the command object to test
@@ -112,7 +110,7 @@ class TestExtensionList(TestExtension):
         self._test_extension_list_helper(arglist, verifylist, datalist)
         self.identity_sdk_client.extensions.assert_called_with()
         self.compute_client.extensions.assert_called_with()
-        self.volume_sdk_client.extensions.assert_called_with()
+        self.volume_client.extensions.assert_called_with()
         self.network_client.extensions.assert_called_with()
 
     def test_extension_list_long(self):
@@ -159,7 +157,7 @@ class TestExtensionList(TestExtension):
         self._test_extension_list_helper(arglist, verifylist, datalist, True)
         self.identity_sdk_client.extensions.assert_called_with()
         self.compute_client.extensions.assert_called_with()
-        self.volume_sdk_client.extensions.assert_called_with()
+        self.volume_client.extensions.assert_called_with()
         self.network_client.extensions.assert_called_with()
 
     def test_extension_list_identity(self):
@@ -277,7 +275,7 @@ class TestExtensionList(TestExtension):
             ),
         )
         self._test_extension_list_helper(arglist, verifylist, datalist)
-        self.volume_sdk_client.extensions.assert_called_with()
+        self.volume_client.extensions.assert_called_with()
 
 
 class TestExtensionShow(TestExtension):

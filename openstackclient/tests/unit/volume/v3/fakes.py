@@ -26,11 +26,12 @@ class FakeClientMixin:
     def setUp(self):
         super().setUp()
 
-        # TODO(stephenfin): Rename to 'volume_client' now that all commands are
-        # migrated to SDK
+        # TODO(stephenfin): Switch to spec_set once keystoneauth exposes
+        # instance attributes as class attributes
+        # https://review.opendev.org/c/openstack/keystoneauth/+/994090
         self.app.client_manager.volume = mock.Mock(spec=block_storage_v3.Proxy)
         self.app.client_manager.volume.api_version = '3'
-        self.volume_sdk_client = self.app.client_manager.volume
+        self.volume_client = self.app.client_manager.volume
         self.set_volume_api_version()  # default to the lowest
 
     def set_volume_api_version(self, version: str = '3.0'):
@@ -42,8 +43,8 @@ class FakeClientMixin:
         """
         assert re.match(r'3.\d+', version)
 
-        self.volume_sdk_client.default_microversion = version
-        self.volume_sdk_client.get_endpoint_data.return_value = (
+        self.volume_client.default_microversion = version
+        self.volume_client.get_endpoint_data.return_value = (
             discover.EndpointData(
                 min_microversion='3.0',  # cinder has not bumped this yet
                 max_microversion=version,

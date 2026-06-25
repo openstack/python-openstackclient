@@ -44,12 +44,8 @@ class TestTransferAccept(volume_fakes.TestVolume):
             self.volume_transfer.volume_id,
         )
 
-        self.volume_sdk_client.find_transfer.return_value = (
-            self.volume_transfer
-        )
-        self.volume_sdk_client.accept_transfer.return_value = (
-            self.volume_transfer
-        )
+        self.volume_client.find_transfer.return_value = self.volume_transfer
+        self.volume_client.accept_transfer.return_value = self.volume_transfer
 
         self.cmd = volume_transfer_request.AcceptTransferRequest(
             self.app, None
@@ -69,10 +65,10 @@ class TestTransferAccept(volume_fakes.TestVolume):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.volume_sdk_client.find_transfer.assert_called_once_with(
+        self.volume_client.find_transfer.assert_called_once_with(
             self.volume_transfer.id, ignore_missing=False
         )
-        self.volume_sdk_client.accept_transfer.assert_called_once_with(
+        self.volume_client.accept_transfer.assert_called_once_with(
             self.volume_transfer.id,
             'key_value',
         )
@@ -81,7 +77,7 @@ class TestTransferAccept(volume_fakes.TestVolume):
 
     def test_transfer_accept_non_admin(self):
         """Non-admin users get ResourceNotFound on find_transfer; we fall back."""
-        self.volume_sdk_client.find_transfer.side_effect = (
+        self.volume_client.find_transfer.side_effect = (
             sdk_exceptions.ResourceNotFound
         )
         arglist = [
@@ -97,7 +93,7 @@ class TestTransferAccept(volume_fakes.TestVolume):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.volume_sdk_client.accept_transfer.assert_called_once_with(
+        self.volume_client.accept_transfer.assert_called_once_with(
             self.volume_transfer.id,
             'key_value',
         )
@@ -141,10 +137,8 @@ class TestTransferCreate(volume_fakes.TestVolume):
             self.volume_transfer.volume_id,
         )
 
-        self.volume_sdk_client.find_volume.return_value = self.volume
-        self.volume_sdk_client.create_transfer.return_value = (
-            self.volume_transfer
-        )
+        self.volume_client.find_volume.return_value = self.volume
+        self.volume_client.create_transfer.return_value = self.volume_transfer
 
         self.cmd = volume_transfer_request.CreateTransferRequest(
             self.app, None
@@ -157,7 +151,7 @@ class TestTransferCreate(volume_fakes.TestVolume):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.volume_sdk_client.create_transfer.assert_called_once_with(
+        self.volume_client.create_transfer.assert_called_once_with(
             volume_id=self.volume.id,
             name=None,
         )
@@ -178,7 +172,7 @@ class TestTransferCreate(volume_fakes.TestVolume):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.volume_sdk_client.create_transfer.assert_called_once_with(
+        self.volume_client.create_transfer.assert_called_once_with(
             volume_id=self.volume.id,
             name=self.volume_transfer.name,
         )
@@ -201,7 +195,7 @@ class TestTransferCreate(volume_fakes.TestVolume):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.volume_sdk_client.create_transfer.assert_called_once_with(
+        self.volume_client.create_transfer.assert_called_once_with(
             volume_id=self.volume.id,
             name=None,
             no_snapshots=True,
@@ -239,7 +233,7 @@ class TestTransferDelete(volume_fakes.TestVolume):
             sdk_fakes.generate_fake_resource(_transfer.Transfer),
             sdk_fakes.generate_fake_resource(_transfer.Transfer),
         ]
-        self.volume_sdk_client.delete_transfer.return_value = None
+        self.volume_client.delete_transfer.return_value = None
 
         self.cmd = volume_transfer_request.DeleteTransferRequest(
             self.app, None
@@ -252,7 +246,7 @@ class TestTransferDelete(volume_fakes.TestVolume):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.volume_sdk_client.delete_transfer.assert_called_once_with(
+        self.volume_client.delete_transfer.assert_called_once_with(
             self.volume_transfers[0].id, ignore_missing=False
         )
         self.assertIsNone(result)
@@ -267,7 +261,7 @@ class TestTransferDelete(volume_fakes.TestVolume):
         calls = [
             call(v.id, ignore_missing=False) for v in self.volume_transfers
         ]
-        self.volume_sdk_client.delete_transfer.assert_has_calls(calls)
+        self.volume_client.delete_transfer.assert_has_calls(calls)
         self.assertIsNone(result)
 
     def test_delete_multiple_transfers_with_exception(self):
@@ -278,7 +272,7 @@ class TestTransferDelete(volume_fakes.TestVolume):
         verifylist = [('transfer_request', arglist)]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.volume_sdk_client.delete_transfer.side_effect = [
+        self.volume_client.delete_transfer.side_effect = [
             None,
             exceptions.CommandError,
         ]
@@ -300,7 +294,7 @@ class TestTransferList(volume_fakes.TestVolume):
         self.volume_transfers = [
             sdk_fakes.generate_fake_resource(_transfer.Transfer),
         ]
-        self.volume_sdk_client.transfers.return_value = self.volume_transfers
+        self.volume_client.transfers.return_value = self.volume_transfers
 
         self.cmd = volume_transfer_request.ListTransferRequest(self.app, None)
 
@@ -311,7 +305,7 @@ class TestTransferList(volume_fakes.TestVolume):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.volume_sdk_client.transfers.assert_called_once_with(
+        self.volume_client.transfers.assert_called_once_with(
             details=True, all_projects=False
         )
         self.assertEqual(('ID', 'Name', 'Volume'), columns)
@@ -333,7 +327,7 @@ class TestTransferList(volume_fakes.TestVolume):
 
         columns, _data = self.cmd.take_action(parsed_args)
 
-        self.volume_sdk_client.transfers.assert_called_once_with(
+        self.volume_client.transfers.assert_called_once_with(
             details=True, all_projects=True
         )
         self.assertEqual(('ID', 'Name', 'Volume'), columns)
@@ -360,9 +354,7 @@ class TestTransferShow(volume_fakes.TestVolume):
             self.volume_transfer.volume_id,
         )
 
-        self.volume_sdk_client.find_transfer.return_value = (
-            self.volume_transfer
-        )
+        self.volume_client.find_transfer.return_value = self.volume_transfer
 
         self.cmd = volume_transfer_request.ShowTransferRequest(self.app, None)
 
@@ -373,7 +365,7 @@ class TestTransferShow(volume_fakes.TestVolume):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.volume_sdk_client.find_transfer.assert_called_once_with(
+        self.volume_client.find_transfer.assert_called_once_with(
             self.volume_transfer.id, ignore_missing=False
         )
         self.assertEqual(self.columns, columns)
