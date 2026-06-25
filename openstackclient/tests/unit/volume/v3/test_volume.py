@@ -899,9 +899,6 @@ class TestVolumeDelete(volume_fakes.TestVolume):
     def setUp(self):
         super().setUp()
 
-        self.volumes_mock = self.volume_client.volumes
-        self.volumes_mock.reset_mock()
-
         self.volumes = list(sdk_fakes.generate_fake_resources(_volume.Volume))
         self.volume_sdk_client.find_volume.side_effect = self.volumes
         self.volume_sdk_client.delete_volume.return_value = None

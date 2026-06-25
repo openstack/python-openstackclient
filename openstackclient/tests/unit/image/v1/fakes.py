@@ -19,9 +19,7 @@ from openstack.block_storage import v2 as block_storage_v2
 from openstack.image import v1 as image_v1
 from openstack.image.v1 import image
 
-from openstackclient.tests.unit import fakes
 from openstackclient.tests.unit import utils
-from openstackclient.tests.unit.volume.v2 import fakes as volume_fakes
 
 
 class FakeClientMixin:
@@ -39,12 +37,8 @@ class TestImagev1(FakeClientMixin, utils.TestCommand):
     def setUp(self):
         super().setUp()
 
-        self.app.client_manager.volume = volume_fakes.FakeVolumeClient(
-            endpoint=fakes.AUTH_URL,
-            token=fakes.AUTH_TOKEN,
-        )
-        self.volume_client = self.app.client_manager.volume
-
+        # TODO(stephenfin): Rename to 'volume_client' now that all commands are
+        # migrated to SDK
         self.app.client_manager.sdk_connection.volume = mock.Mock(
             spec=block_storage_v2.Proxy
         )
