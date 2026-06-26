@@ -10,31 +10,24 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack.block_storage.v3 import cluster as _cluster
+from openstack.test import fakes as sdk_fakes
 from osc_lib import exceptions
 
 from openstackclient.tests.unit.volume.v3 import fakes as volume_fakes
 from openstackclient.volume.v3 import block_storage_cluster
 
 
-class TestBlockStorageCluster(volume_fakes.TestVolume):
-    def setUp(self):
-        super().setUp()
-
-        # Get a shortcut to the BlockStorageClusterManager Mock
-        self.cluster_mock = self.volume_client.clusters
-        self.cluster_mock.reset_mock()
-
-
-class TestBlockStorageClusterList(TestBlockStorageCluster):
-    # The cluster to be listed
-    fake_clusters = volume_fakes.create_clusters()
+class TestBlockStorageClusterList(volume_fakes.TestVolume):
+    fake_clusters = list(
+        sdk_fakes.generate_fake_resources(_cluster.Cluster, count=2)
+    )
 
     def setUp(self):
         super().setUp()
 
-        self.cluster_mock.list.return_value = self.fake_clusters
+        self.volume_sdk_client.clusters.return_value = self.fake_clusters
 
-        # Get the command object to test
         self.cmd = block_storage_cluster.ListBlockStorageCluster(
             self.app, None
         )
@@ -69,15 +62,14 @@ class TestBlockStorageClusterList(TestBlockStorageCluster):
         self.assertEqual(expected_columns, columns)
         self.assertEqual(expected_data, tuple(data))
 
-        # checking if proper call was made to list clusters
-        self.cluster_mock.list.assert_called_with(
+        self.volume_sdk_client.clusters.assert_called_once_with(
             name=None,
             binary=None,
             is_up=None,
             disabled=None,
             num_hosts=None,
             num_down_hosts=None,
-            detailed=False,
+            details=False,
         )
 
     def test_cluster_list_with_full_options(self):
@@ -139,15 +131,14 @@ class TestBlockStorageClusterList(TestBlockStorageCluster):
         self.assertEqual(expected_columns, columns)
         self.assertEqual(expected_data, tuple(data))
 
-        # checking if proper call was made to list clusters
-        self.cluster_mock.list.assert_called_with(
+        self.volume_sdk_client.clusters.assert_called_once_with(
             name='foo',
             binary='bar',
             is_up=True,
             disabled=True,
             num_hosts=5,
             num_down_hosts=0,
-            detailed=True,
+            details=True,
         )
 
     def test_cluster_list_pre_v37(self):
@@ -173,8 +164,8 @@ class TestBlockStorageClusterList(TestBlockStorageCluster):
         )
 
 
-class TestBlockStorageClusterSet(TestBlockStorageCluster):
-    cluster = volume_fakes.create_one_cluster()
+class TestBlockStorageClusterSet(volume_fakes.TestVolume):
+    cluster = sdk_fakes.generate_fake_resource(_cluster.Cluster)
     columns = (
         'Name',
         'Binary',
@@ -209,11 +200,12 @@ class TestBlockStorageClusterSet(TestBlockStorageCluster):
     def setUp(self):
         super().setUp()
 
-        self.cluster_mock.update.return_value = self.cluster
+        self.volume_sdk_client.enable_cluster.return_value = self.cluster
+        self.volume_sdk_client.disable_cluster.return_value = self.cluster
 
         self.cmd = block_storage_cluster.SetBlockStorageCluster(self.app, None)
 
-    def test_cluster_set(self):
+    def test_cluster_set_enable(self):
         self.set_volume_api_version('3.7')
 
         arglist = [
@@ -233,12 +225,10 @@ class TestBlockStorageClusterSet(TestBlockStorageCluster):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, tuple(data))
 
-        self.cluster_mock.update.assert_called_once_with(
-            self.cluster.name,
-            'cinder-volume',
-            disabled=False,
-            disabled_reason=None,
+        self.volume_sdk_client.enable_cluster.assert_called_once_with(
+            _cluster.Cluster(name=self.cluster.name, binary='cinder-volume')
         )
+        self.volume_sdk_client.disable_cluster.assert_not_called()
 
     def test_cluster_set_disable_with_reason(self):
         self.set_volume_api_version('3.7')
@@ -263,12 +253,13 @@ class TestBlockStorageClusterSet(TestBlockStorageCluster):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, tuple(data))
 
-        self.cluster_mock.update.assert_called_once_with(
-            self.cluster.name,
-            self.cluster.binary,
-            disabled=True,
-            disabled_reason='foo',
+        self.volume_sdk_client.disable_cluster.assert_called_once_with(
+            _cluster.Cluster(
+                name=self.cluster.name, binary=self.cluster.binary
+            ),
+            reason='foo',
         )
+        self.volume_sdk_client.enable_cluster.assert_not_called()
 
     def test_cluster_set_only_with_disable_reason(self):
         self.set_volume_api_version('3.7')
@@ -341,8 +332,8 @@ class TestBlockStorageClusterSet(TestBlockStorageCluster):
         )
 
 
-class TestBlockStorageClusterShow(TestBlockStorageCluster):
-    cluster = volume_fakes.create_one_cluster()
+class TestBlockStorageClusterShow(volume_fakes.TestVolume):
+    cluster = sdk_fakes.generate_fake_resource(_cluster.Cluster)
     columns = (
         'Name',
         'Binary',
@@ -377,7 +368,7 @@ class TestBlockStorageClusterShow(TestBlockStorageCluster):
     def setUp(self):
         super().setUp()
 
-        self.cluster_mock.show.return_value = self.cluster
+        self.volume_sdk_client.get_cluster.return_value = self.cluster
 
         self.cmd = block_storage_cluster.ShowBlockStorageCluster(
             self.app, None
@@ -387,13 +378,11 @@ class TestBlockStorageClusterShow(TestBlockStorageCluster):
         self.set_volume_api_version('3.7')
 
         arglist = [
-            '--binary',
-            self.cluster.binary,
             self.cluster.name,
         ]
         verifylist = [
             ('cluster', self.cluster.name),
-            ('binary', self.cluster.binary),
+            ('binary', None),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
@@ -402,22 +391,19 @@ class TestBlockStorageClusterShow(TestBlockStorageCluster):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, tuple(data))
 
-        self.cluster_mock.show.assert_called_once_with(
-            self.cluster.name,
-            binary=self.cluster.binary,
+        self.volume_sdk_client.get_cluster.assert_called_once_with(
+            self.cluster.name
         )
 
     def test_cluster_show_pre_v37(self):
         self.set_volume_api_version('3.6')
 
         arglist = [
-            '--binary',
-            self.cluster.binary,
             self.cluster.name,
         ]
         verifylist = [
             ('cluster', self.cluster.name),
-            ('binary', self.cluster.binary),
+            ('binary', None),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
