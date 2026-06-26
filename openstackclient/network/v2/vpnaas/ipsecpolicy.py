@@ -200,12 +200,14 @@ class CreateIPsecPolicy(command.ShowOne):
     ) -> tuple[Sequence[str], Iterable[Any]]:
         client = self.app.client_manager.network
         attrs = _get_common_attrs(parsed_args)
-        if 'project' in parsed_args and parsed_args.project is not None:
-            attrs['project_id'] = identity_common.find_project(
-                self.app.client_manager.identity,
+        if parsed_args.project is not None:
+            identity_client = self.app.client_manager.sdk_connection.identity
+            project_id = identity_common.find_project_id_sdk(
+                identity_client,
                 parsed_args.project,
                 parsed_args.project_domain,
-            ).id
+            )
+            attrs['project_id'] = project_id
         if parsed_args.name:
             attrs['name'] = str(parsed_args.name)
         obj = client.create_vpn_ipsec_policy(**attrs)

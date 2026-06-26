@@ -85,13 +85,15 @@ class CreateEndpointGroup(command.ShowOne):
         self, parsed_args: argparse.Namespace
     ) -> tuple[Sequence[str], Iterable[Any]]:
         client = self.app.client_manager.network
-        attrs = {}
+        attrs: dict[str, Any] = {}
         if parsed_args.project is not None:
-            attrs['project_id'] = identity_common.find_project(
-                self.app.client_manager.identity,
+            identity_client = self.app.client_manager.sdk_connection.identity
+            project_id = identity_common.find_project_id_sdk(
+                identity_client,
                 parsed_args.project,
                 parsed_args.project_domain,
-            ).id
+            )
+            attrs['project_id'] = project_id
         if parsed_args.description:
             attrs['description'] = parsed_args.description
 
