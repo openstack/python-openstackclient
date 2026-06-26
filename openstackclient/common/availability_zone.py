@@ -166,7 +166,7 @@ class ListAvailabilityZone(command.Lister):
         self, parsed_args: argparse.Namespace
     ) -> list[dict[str, str]]:
         volume_client = sdk_utils.ensure_service_version(
-            self.app.client_manager.sdk_connection.volume, '3'
+            self.app.client_manager.volume, '3'
         )
         data = []
         try:

@@ -787,7 +787,7 @@ with status ``SHELVED`` or ``SHELVED_OFFLOADED``."""
         self, parsed_args: argparse.Namespace
     ) -> tuple[Sequence[str], Iterable[Any]]:
         compute_client = self.app.client_manager.compute
-        volume_client = self.app.client_manager.sdk_connection.volume
+        volume_client = self.app.client_manager.volume
 
         server = compute_client.find_server(
             parsed_args.server,
@@ -1596,7 +1596,7 @@ class CreateServer(command.ShowOne):
                 self.app.stdout.flush()
 
         compute_client = self.app.client_manager.compute
-        volume_client = self.app.client_manager.sdk_connection.volume
+        volume_client = self.app.client_manager.volume
         image_client = self.app.client_manager.image
 
         # Lookup parsed_args.image
@@ -4268,7 +4268,7 @@ volume from a server with status ``SHELVED`` or ``SHELVED_OFFLOADED``."""
     def take_action(self, parsed_args: argparse.Namespace) -> None:
         compute_client = self.app.client_manager.compute
         volume_client = sdk_utils.ensure_service_version(
-            self.app.client_manager.sdk_connection.volume, '3'
+            self.app.client_manager.volume, '3'
         )
 
         server = compute_client.find_server(

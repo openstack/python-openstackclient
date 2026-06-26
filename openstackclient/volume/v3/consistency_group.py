@@ -91,7 +91,7 @@ class AddVolumeToConsistencyGroup(command.Command):
 
     def take_action(self, parsed_args: argparse.Namespace) -> None:
         volume_client = sdk_utils.ensure_service_version(
-            self.app.client_manager.sdk_connection.volume, '3'
+            self.app.client_manager.volume, '3'
         )
         result, add_uuid = _find_volumes(parsed_args.volumes, volume_client)
 
@@ -173,7 +173,7 @@ class CreateConsistencyGroup(command.ShowOne):
         self, parsed_args: argparse.Namespace
     ) -> tuple[Sequence[str], Iterable[Any]]:
         volume_client = sdk_utils.ensure_service_version(
-            self.app.client_manager.sdk_connection.volume, '3'
+            self.app.client_manager.volume, '3'
         )
         if parsed_args.volume_type:
             volume_type_id = volume_client.find_type(
@@ -239,7 +239,7 @@ class DeleteConsistencyGroup(command.Command):
 
     def take_action(self, parsed_args: argparse.Namespace) -> None:
         volume_client = sdk_utils.ensure_service_version(
-            self.app.client_manager.sdk_connection.volume, '3'
+            self.app.client_manager.volume, '3'
         )
         result = 0
 
@@ -293,7 +293,7 @@ class ListConsistencyGroup(command.Lister):
         self, parsed_args: argparse.Namespace
     ) -> tuple[Sequence[str], Iterable[tuple[Any, ...]]]:
         volume_client = sdk_utils.ensure_service_version(
-            self.app.client_manager.sdk_connection.volume, '3'
+            self.app.client_manager.volume, '3'
         )
 
         if parsed_args.long:
@@ -357,7 +357,7 @@ class RemoveVolumeFromConsistencyGroup(command.Command):
 
     def take_action(self, parsed_args: argparse.Namespace) -> None:
         volume_client = sdk_utils.ensure_service_version(
-            self.app.client_manager.sdk_connection.volume, '3'
+            self.app.client_manager.volume, '3'
         )
         result, remove_uuid = _find_volumes(parsed_args.volumes, volume_client)
 
@@ -402,7 +402,7 @@ class SetConsistencyGroup(command.Command):
 
     def take_action(self, parsed_args: argparse.Namespace) -> None:
         volume_client = sdk_utils.ensure_service_version(
-            self.app.client_manager.sdk_connection.volume, '3'
+            self.app.client_manager.volume, '3'
         )
         kwargs = {}
         if parsed_args.name:
@@ -432,7 +432,7 @@ class ShowConsistencyGroup(command.ShowOne):
         self, parsed_args: argparse.Namespace
     ) -> tuple[Sequence[str], Iterable[Any]]:
         volume_client = sdk_utils.ensure_service_version(
-            self.app.client_manager.sdk_connection.volume, '3'
+            self.app.client_manager.volume, '3'
         )
         consistency_group = volume_client.find_consistency_group(
             parsed_args.consistency_group, ignore_missing=False

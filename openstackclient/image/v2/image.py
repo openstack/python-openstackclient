@@ -604,7 +604,7 @@ class CreateImage(command.ShowOne):
         self, parsed_args: argparse.Namespace
     ) -> dict[str, Any]:
         volume_client = sdk_utils.ensure_service_version(
-            self.app.client_manager.sdk_connection.volume, '3'
+            self.app.client_manager.volume, '3'
         )
 
         unsupported_opts = {

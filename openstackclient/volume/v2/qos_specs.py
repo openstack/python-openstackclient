@@ -52,7 +52,7 @@ class AssociateQos(command.Command):
 
     def take_action(self, parsed_args: argparse.Namespace) -> None:
         volume_client = sdk_utils.ensure_service_version(
-            self.app.client_manager.sdk_connection.volume, '2'
+            self.app.client_manager.volume, '2'
         )
         qos_spec = volume_client.find_qos_spec(
             parsed_args.qos_spec, ignore_missing=False
@@ -103,7 +103,7 @@ class CreateQos(command.ShowOne):
         self, parsed_args: argparse.Namespace
     ) -> tuple[Sequence[str], Iterable[Any]]:
         volume_client = sdk_utils.ensure_service_version(
-            self.app.client_manager.sdk_connection.volume, '2'
+            self.app.client_manager.volume, '2'
         )
         attrs: dict[str, Any] = {'consumer': parsed_args.consumer}
         if parsed_args.properties:
@@ -142,7 +142,7 @@ class DeleteQos(command.Command):
 
     def take_action(self, parsed_args: argparse.Namespace) -> None:
         volume_client = sdk_utils.ensure_service_version(
-            self.app.client_manager.sdk_connection.volume, '2'
+            self.app.client_manager.volume, '2'
         )
         result = 0
 
@@ -197,7 +197,7 @@ class DisassociateQos(command.Command):
 
     def take_action(self, parsed_args: argparse.Namespace) -> None:
         volume_client = sdk_utils.ensure_service_version(
-            self.app.client_manager.sdk_connection.volume, '2'
+            self.app.client_manager.volume, '2'
         )
         qos_spec = volume_client.find_qos_spec(
             parsed_args.qos_spec, ignore_missing=False
@@ -219,7 +219,7 @@ class ListQos(command.Lister):
         self, parsed_args: argparse.Namespace
     ) -> tuple[Sequence[str], Iterable[tuple[Any, ...]]]:
         volume_client = sdk_utils.ensure_service_version(
-            self.app.client_manager.sdk_connection.volume, '2'
+            self.app.client_manager.volume, '2'
         )
         qos_specs_list = list(volume_client.qos_specs())
 
@@ -282,7 +282,7 @@ class SetQos(command.Command):
 
     def take_action(self, parsed_args: argparse.Namespace) -> None:
         volume_client = sdk_utils.ensure_service_version(
-            self.app.client_manager.sdk_connection.volume, '2'
+            self.app.client_manager.volume, '2'
         )
         qos_spec = volume_client.find_qos_spec(
             parsed_args.qos_spec, ignore_missing=False
@@ -328,7 +328,7 @@ class ShowQos(command.ShowOne):
         self, parsed_args: argparse.Namespace
     ) -> tuple[Sequence[str], Iterable[Any]]:
         volume_client = sdk_utils.ensure_service_version(
-            self.app.client_manager.sdk_connection.volume, '2'
+            self.app.client_manager.volume, '2'
         )
         qos_spec = volume_client.find_qos_spec(
             parsed_args.qos_spec, ignore_missing=False
@@ -386,7 +386,7 @@ class UnsetQos(command.Command):
 
     def take_action(self, parsed_args: argparse.Namespace) -> None:
         volume_client = sdk_utils.ensure_service_version(
-            self.app.client_manager.sdk_connection.volume, '2'
+            self.app.client_manager.volume, '2'
         )
         qos_spec = volume_client.find_qos_spec(
             parsed_args.qos_spec, ignore_missing=False

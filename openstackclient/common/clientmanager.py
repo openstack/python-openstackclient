@@ -23,6 +23,8 @@ import sys
 from typing import Any, Protocol, TypeVar, runtime_checkable
 
 from keystoneauth1 import access as ksa_access
+from openstack.block_storage import v2 as volume_v2
+from openstack.block_storage import v3 as volume_v3
 from openstack.compute import v2 as compute_v2
 from openstack.image import v2 as image_v2
 from openstack.network import v2 as network_v2
@@ -51,7 +53,7 @@ class ClientManager(clientmanager.ClientManager):
 
     # this is a hack to keep mypy happy: the actual attributes are set in
     # get_plugin_modules below
-    # TODO(stephenfin): Change the types of identity, object store and volume
+    # TODO(stephenfin): Change the types of identity, object store and share
     # once we've migrated everything to SDK
     compute: compute_v2.Proxy
     identity: Any
@@ -59,7 +61,7 @@ class ClientManager(clientmanager.ClientManager):
     network: network_v2.Proxy
     object_store: object_store_v1.APIv1
     share: Any
-    volume: Any
+    volume: volume_v2.Proxy | volume_v3.Proxy
 
     def __init__(
         self,

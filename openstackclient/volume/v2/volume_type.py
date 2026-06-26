@@ -294,7 +294,7 @@ class CreateVolumeType(command.ShowOne):
         self, parsed_args: argparse.Namespace
     ) -> tuple[Sequence[str], Iterable[Any]]:
         volume_client = sdk_utils.ensure_service_version(
-            self.app.client_manager.sdk_connection.volume, '2'
+            self.app.client_manager.volume, '2'
         )
         # we don't narrow types here since we want to handle both v2.0 and v3
         identity_client = self.app.client_manager.sdk_connection.identity
@@ -391,7 +391,7 @@ class DeleteVolumeType(command.Command):
 
     def take_action(self, parsed_args: argparse.Namespace) -> None:
         volume_client = sdk_utils.ensure_service_version(
-            self.app.client_manager.sdk_connection.volume, '2'
+            self.app.client_manager.volume, '2'
         )
         result = 0
 
@@ -465,7 +465,7 @@ class ListVolumeType(command.Lister):
         self, parsed_args: argparse.Namespace
     ) -> tuple[Sequence[str], Iterable[tuple[Any, ...]]]:
         volume_client = sdk_utils.ensure_service_version(
-            self.app.client_manager.sdk_connection.volume, '2'
+            self.app.client_manager.volume, '2'
         )
 
         if parsed_args.long:
@@ -676,7 +676,7 @@ class SetVolumeType(command.Command):
 
     def take_action(self, parsed_args: argparse.Namespace) -> None:
         volume_client = sdk_utils.ensure_service_version(
-            self.app.client_manager.sdk_connection.volume, '2'
+            self.app.client_manager.volume, '2'
         )
         # we don't narrow types here since we want to handle both v2.0 and v3
         identity_client = self.app.client_manager.sdk_connection.identity
@@ -791,7 +791,7 @@ class ShowVolumeType(command.ShowOne):
         self, parsed_args: argparse.Namespace
     ) -> tuple[Sequence[str], Iterable[Any]]:
         volume_client = sdk_utils.ensure_service_version(
-            self.app.client_manager.sdk_connection.volume, '2'
+            self.app.client_manager.volume, '2'
         )
 
         volume_type = volume_client.find_type(
@@ -879,7 +879,7 @@ class UnsetVolumeType(command.Command):
 
     def take_action(self, parsed_args: argparse.Namespace) -> None:
         volume_client = sdk_utils.ensure_service_version(
-            self.app.client_manager.sdk_connection.volume, '2'
+            self.app.client_manager.volume, '2'
         )
         # we don't narrow types here since we want to handle both v2.0 and v3
         identity_client = self.app.client_manager.sdk_connection.identity

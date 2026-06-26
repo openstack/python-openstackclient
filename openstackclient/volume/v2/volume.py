@@ -282,7 +282,7 @@ class CreateVolume(command.ShowOne):
         size = parsed_args.size
 
         volume_client = sdk_utils.ensure_service_version(
-            self.app.client_manager.sdk_connection.volume, '2'
+            self.app.client_manager.volume, '2'
         )
         image_client = self.app.client_manager.image
 
@@ -421,7 +421,7 @@ class DeleteVolume(command.Command):
 
     def take_action(self, parsed_args: argparse.Namespace) -> None:
         volume_client = sdk_utils.ensure_service_version(
-            self.app.client_manager.sdk_connection.volume, '2'
+            self.app.client_manager.volume, '2'
         )
         result = 0
 
@@ -502,7 +502,7 @@ class ListVolume(command.Lister):
         self, parsed_args: argparse.Namespace
     ) -> tuple[Sequence[str], Iterable[tuple[Any, ...]]]:
         volume_client = sdk_utils.ensure_service_version(
-            self.app.client_manager.sdk_connection.volume, '2'
+            self.app.client_manager.volume, '2'
         )
         # we don't narrow types here since we want to handle both v2.0 and v3
         identity_client = self.app.client_manager.sdk_connection.identity
@@ -630,7 +630,7 @@ class MigrateVolume(command.Command):
 
     def take_action(self, parsed_args: argparse.Namespace) -> None:
         volume_client = sdk_utils.ensure_service_version(
-            self.app.client_manager.sdk_connection.volume, '2'
+            self.app.client_manager.volume, '2'
         )
 
         volume = volume_client.find_volume(
@@ -802,7 +802,7 @@ class SetVolume(command.Command):
 
     def take_action(self, parsed_args: argparse.Namespace) -> None:
         volume_client = sdk_utils.ensure_service_version(
-            self.app.client_manager.sdk_connection.volume, '2'
+            self.app.client_manager.volume, '2'
         )
         volume = volume_client.find_volume(
             parsed_args.volume, ignore_missing=False
@@ -982,7 +982,7 @@ class ShowVolume(command.ShowOne):
         self, parsed_args: argparse.Namespace
     ) -> tuple[Sequence[str], Iterable[Any]]:
         volume_client = sdk_utils.ensure_service_version(
-            self.app.client_manager.sdk_connection.volume, '2'
+            self.app.client_manager.volume, '2'
         )
 
         volume = volume_client.find_volume(
@@ -1028,7 +1028,7 @@ class UnsetVolume(command.Command):
 
     def take_action(self, parsed_args: argparse.Namespace) -> None:
         volume_client = sdk_utils.ensure_service_version(
-            self.app.client_manager.sdk_connection.volume, '2'
+            self.app.client_manager.volume, '2'
         )
         volume = volume_client.find_volume(
             parsed_args.volume, ignore_missing=False

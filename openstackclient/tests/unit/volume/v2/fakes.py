@@ -27,11 +27,9 @@ class FakeClientMixin:
 
         # TODO(stephenfin): Rename to 'volume_client' now that all commands are
         # migrated to SDK
-        self.app.client_manager.sdk_connection.volume = mock.Mock(
-            spec=block_storage_v2.Proxy,
-        )
-        self.app.client_manager.sdk_connection.volume.api_version = '2'
-        self.volume_sdk_client = self.app.client_manager.sdk_connection.volume
+        self.app.client_manager.volume = mock.Mock(spec=block_storage_v2.Proxy)
+        self.app.client_manager.volume.api_version = '2'
+        self.volume_sdk_client = self.app.client_manager.volume
         self.set_volume_api_version()  # default to the lowest
 
     def set_volume_api_version(self, version: str | None = None):

@@ -127,7 +127,7 @@ class ShowLimits(command.Lister):
             )
 
         if self.app.client_manager.is_volume_endpoint_enabled():
-            volume_client = self.app.client_manager.sdk_connection.volume
+            volume_client = self.app.client_manager.volume
             volume_limits = volume_client.get_limits(
                 project=project_id,
             )
