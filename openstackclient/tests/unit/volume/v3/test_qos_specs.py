@@ -12,39 +12,31 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 
-import copy
-from unittest import mock
 from unittest.mock import call
 
+from openstack.block_storage.v3 import qos_spec as _qos_spec
+from openstack.block_storage.v3 import type as _type
+from openstack.test import fakes as sdk_fakes
 from osc_lib.cli import format_columns
 from osc_lib import exceptions
-from osc_lib import utils
 
 from openstackclient.tests.unit.volume.v3 import fakes as volume_fakes
 from openstackclient.volume.v3 import qos_specs
 
 
-class TestQos(volume_fakes.TestVolume):
+class TestQosAssociate(volume_fakes.TestVolume):
     def setUp(self):
         super().setUp()
 
-        self.qos_mock = self.volume_client.qos_specs
-        self.qos_mock.reset_mock()
+        self.volume_type = sdk_fakes.generate_fake_resource(_type.Type)
+        self.qos_spec = sdk_fakes.generate_fake_resource(
+            _qos_spec.QoSSpec,
+            consumer='front-end',
+            specs={'foo': 'bar', 'iops': '9001'},
+        )
 
-        self.types_mock = self.volume_client.volume_types
-        self.types_mock.reset_mock()
-
-
-class TestQosAssociate(TestQos):
-    volume_type = volume_fakes.create_one_volume_type()
-    qos_spec = volume_fakes.create_one_qos()
-
-    def setUp(self):
-        super().setUp()
-
-        self.qos_mock.get.return_value = self.qos_spec
-        self.types_mock.get.return_value = self.volume_type
-        # Get the command object to test
+        self.volume_sdk_client.find_qos_spec.return_value = self.qos_spec
+        self.volume_sdk_client.find_type.return_value = self.volume_type
         self.cmd = qos_specs.AssociateQos(self.app, None)
 
     def test_qos_associate(self):
@@ -57,20 +49,30 @@ class TestQosAssociate(TestQos):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.qos_mock.associate.assert_called_with(
+        self.volume_sdk_client.find_qos_spec.assert_called_once_with(
+            self.qos_spec.id, ignore_missing=False
+        )
+        self.volume_sdk_client.find_type.assert_called_once_with(
+            self.volume_type.id, ignore_missing=False
+        )
+        self.volume_sdk_client.associate_qos_spec.assert_called_once_with(
             self.qos_spec.id, self.volume_type.id
         )
         self.assertIsNone(result)
 
 
-class TestQosCreate(TestQos):
+class TestQosCreate(volume_fakes.TestVolume):
     columns = ('consumer', 'id', 'name', 'properties')
 
     def setUp(self):
         super().setUp()
 
-        self.new_qos_spec = volume_fakes.create_one_qos()
-        self.qos_mock.create.return_value = self.new_qos_spec
+        self.new_qos_spec = sdk_fakes.generate_fake_resource(
+            _qos_spec.QoSSpec,
+            consumer='front-end',
+            specs={'foo': 'bar', 'iops': '9001'},
+        )
+        self.volume_sdk_client.create_qos_spec.return_value = self.new_qos_spec
 
         self.data = (
             self.new_qos_spec.consumer,
@@ -79,7 +81,6 @@ class TestQosCreate(TestQos):
             format_columns.DictColumn(self.new_qos_spec.specs),
         )
 
-        # Get the command object to test
         self.cmd = qos_specs.CreateQos(self.app, None)
 
     def test_qos_create_without_properties(self):
@@ -93,8 +94,8 @@ class TestQosCreate(TestQos):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.qos_mock.create.assert_called_with(
-            self.new_qos_spec.name, {'consumer': 'both'}
+        self.volume_sdk_client.create_qos_spec.assert_called_once_with(
+            name=self.new_qos_spec.name, consumer='both'
         )
 
         self.assertEqual(self.columns, columns)
@@ -114,8 +115,9 @@ class TestQosCreate(TestQos):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.qos_mock.create.assert_called_with(
-            self.new_qos_spec.name, {'consumer': self.new_qos_spec.consumer}
+        self.volume_sdk_client.create_qos_spec.assert_called_once_with(
+            name=self.new_qos_spec.name,
+            consumer=self.new_qos_spec.consumer,
         )
 
         self.assertEqual(self.columns, columns)
@@ -133,34 +135,36 @@ class TestQosCreate(TestQos):
         ]
         verifylist = [
             ('consumer', self.new_qos_spec.consumer),
-            ('property', self.new_qos_spec.specs),
+            ('properties', self.new_qos_spec.specs),
             ('name', self.new_qos_spec.name),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.qos_mock.create.assert_called_with(
-            self.new_qos_spec.name,
-            {
-                'consumer': self.new_qos_spec.consumer,
-                'foo': 'bar',
-                'iops': '9001',
-            },
+        self.volume_sdk_client.create_qos_spec.assert_called_once_with(
+            name=self.new_qos_spec.name,
+            consumer=self.new_qos_spec.consumer,
+            foo='bar',
+            iops='9001',
         )
 
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, data)
 
 
-class TestQosDelete(TestQos):
-    qos_specs = volume_fakes.create_qoses(count=2)
-
+class TestQosDelete(volume_fakes.TestVolume):
     def setUp(self):
         super().setUp()
 
-        self.qos_mock.get = volume_fakes.get_qoses(self.qos_specs)
-        # Get the command object to test
+        self.qos_specs = [
+            sdk_fakes.generate_fake_resource(_qos_spec.QoSSpec, specs={}),
+            sdk_fakes.generate_fake_resource(_qos_spec.QoSSpec, specs={}),
+        ]
+        qos_by_id = {q.id: q for q in self.qos_specs}
+        self.volume_sdk_client.find_qos_spec.side_effect = lambda x, **kwargs: (
+            qos_by_id[x]
+        )
         self.cmd = qos_specs.DeleteQos(self.app, None)
 
     def test_qos_delete(self):
@@ -170,7 +174,9 @@ class TestQosDelete(TestQos):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.qos_mock.delete.assert_called_with(self.qos_specs[0].id, False)
+        self.volume_sdk_client.delete_qos_spec.assert_called_once_with(
+            self.qos_specs[0].id, ignore_missing=False, force=False
+        )
         self.assertIsNone(result)
 
     def test_qos_delete_with_force(self):
@@ -180,7 +186,9 @@ class TestQosDelete(TestQos):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.qos_mock.delete.assert_called_with(self.qos_specs[0].id, True)
+        self.volume_sdk_client.delete_qos_spec.assert_called_once_with(
+            self.qos_specs[0].id, ignore_missing=False, force=True
+        )
         self.assertIsNone(result)
 
     def test_delete_multiple_qoses(self):
@@ -196,8 +204,8 @@ class TestQosDelete(TestQos):
 
         calls = []
         for q in self.qos_specs:
-            calls.append(call(q.id, False))
-        self.qos_mock.delete.assert_has_calls(calls)
+            calls.append(call(q.id, ignore_missing=False, force=False))
+        self.volume_sdk_client.delete_qos_spec.assert_has_calls(calls)
         self.assertIsNone(result)
 
     def test_delete_multiple_qoses_with_exception(self):
@@ -211,37 +219,30 @@ class TestQosDelete(TestQos):
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        find_mock_result = [self.qos_specs[0], exceptions.CommandError]
-        with mock.patch.object(
-            utils, 'find_resource', side_effect=find_mock_result
-        ) as find_mock:
-            try:
-                self.cmd.take_action(parsed_args)
-                self.fail('CommandError should be raised.')
-            except exceptions.CommandError as e:
-                self.assertEqual(
-                    '1 of 2 QoS specifications failed to delete.', str(e)
-                )
-
-            find_mock.assert_any_call(self.qos_mock, self.qos_specs[0].id)
-            find_mock.assert_any_call(self.qos_mock, 'unexist_qos')
-
-            self.assertEqual(2, find_mock.call_count)
-            self.qos_mock.delete.assert_called_once_with(
-                self.qos_specs[0].id, False
+        try:
+            self.cmd.take_action(parsed_args)
+            self.fail('CommandError should be raised.')
+        except exceptions.CommandError as e:
+            self.assertEqual(
+                '1 of 2 QoS specifications failed to delete.', str(e)
             )
 
+        self.volume_sdk_client.delete_qos_spec.assert_called_once_with(
+            self.qos_specs[0].id, ignore_missing=False, force=False
+        )
 
-class TestQosDisassociate(TestQos):
-    volume_type = volume_fakes.create_one_volume_type()
-    qos_spec = volume_fakes.create_one_qos()
 
+class TestQosDisassociate(volume_fakes.TestVolume):
     def setUp(self):
         super().setUp()
 
-        self.qos_mock.get.return_value = self.qos_spec
-        self.types_mock.get.return_value = self.volume_type
-        # Get the command object to test
+        self.volume_type = sdk_fakes.generate_fake_resource(_type.Type)
+        self.qos_spec = sdk_fakes.generate_fake_resource(
+            _qos_spec.QoSSpec, consumer='front-end', specs={}
+        )
+
+        self.volume_sdk_client.find_qos_spec.return_value = self.qos_spec
+        self.volume_sdk_client.find_type.return_value = self.volume_type
         self.cmd = qos_specs.DisassociateQos(self.app, None)
 
     def test_qos_disassociate_with_volume_type(self):
@@ -258,7 +259,7 @@ class TestQosDisassociate(TestQos):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.qos_mock.disassociate.assert_called_with(
+        self.volume_sdk_client.disassociate_qos_spec.assert_called_once_with(
             self.qos_spec.id, self.volume_type.id
         )
         self.assertIsNone(result)
@@ -273,14 +274,13 @@ class TestQosDisassociate(TestQos):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.qos_mock.disassociate_all.assert_called_with(self.qos_spec.id)
+        self.volume_sdk_client.disassociate_all_qos_spec.assert_called_once_with(
+            self.qos_spec.id
+        )
         self.assertIsNone(result)
 
 
-class TestQosList(TestQos):
-    qos_specs = volume_fakes.create_qoses(count=2)
-    qos_association = volume_fakes.create_one_qos_association()
-
+class TestQosList(volume_fakes.TestVolume):
     columns = (
         'ID',
         'Name',
@@ -288,25 +288,42 @@ class TestQosList(TestQos):
         'Associations',
         'Properties',
     )
-    data = []
-    for q in qos_specs:
-        data.append(
-            (
-                q.id,
-                q.name,
-                q.consumer,
-                format_columns.ListColumn([qos_association.name]),
-                format_columns.DictColumn(q.specs),
-            )
-        )
 
     def setUp(self):
         super().setUp()
 
-        self.qos_mock.list.return_value = self.qos_specs
-        self.qos_mock.get_associations.return_value = [self.qos_association]
+        self.qos_specs = [
+            sdk_fakes.generate_fake_resource(
+                _qos_spec.QoSSpec,
+                consumer='front-end',
+                specs={'foo': 'bar', 'iops': '9001'},
+            ),
+            sdk_fakes.generate_fake_resource(
+                _qos_spec.QoSSpec,
+                consumer='front-end',
+                specs={'foo': 'bar', 'iops': '9001'},
+            ),
+        ]
+        self.qos_association = sdk_fakes.generate_fake_resource(
+            _qos_spec.QoSSpecAssociation
+        )
+        self.volume_sdk_client.qos_specs.return_value = self.qos_specs
+        self.volume_sdk_client.qos_spec_associations.return_value = [
+            self.qos_association
+        ]
 
-        # Get the command object to test
+        self.data = []
+        for q in self.qos_specs:
+            self.data.append(
+                (
+                    q.id,
+                    q.name,
+                    q.consumer,
+                    format_columns.ListColumn([self.qos_association.name]),
+                    format_columns.DictColumn(q.specs),
+                )
+            )
+
         self.cmd = qos_specs.ListQos(self.app, None)
 
     def test_qos_list(self):
@@ -316,47 +333,23 @@ class TestQosList(TestQos):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        self.qos_mock.list.assert_called_with()
+        self.volume_sdk_client.qos_specs.assert_called_once_with()
 
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, list(data))
 
-    def test_qos_list_no_association(self):
-        self.qos_mock.reset_mock()
-        self.qos_mock.get_associations.side_effect = [
-            [self.qos_association],
-            exceptions.NotFound("NotFound"),
-        ]
 
-        arglist = []
-        verifylist = []
-
-        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
-
-        columns, data = self.cmd.take_action(parsed_args)
-        self.qos_mock.list.assert_called_with()
-
-        self.assertEqual(self.columns, columns)
-
-        ex_data = copy.deepcopy(self.data)
-        ex_data[1] = (
-            self.qos_specs[1].id,
-            self.qos_specs[1].name,
-            self.qos_specs[1].consumer,
-            format_columns.ListColumn(None),
-            format_columns.DictColumn(self.qos_specs[1].specs),
-        )
-        self.assertCountEqual(ex_data, list(data))
-
-
-class TestQosSet(TestQos):
-    qos_spec = volume_fakes.create_one_qos()
-
+class TestQosSet(volume_fakes.TestVolume):
     def setUp(self):
         super().setUp()
 
-        self.qos_mock.get.return_value = self.qos_spec
-        # Get the command object to test
+        self.qos_spec = sdk_fakes.generate_fake_resource(
+            _qos_spec.QoSSpec,
+            consumer='front-end',
+            specs={'foo': 'bar', 'iops': '9001'},
+        )
+
+        self.volume_sdk_client.find_qos_spec.return_value = self.qos_spec
         self.cmd = qos_specs.SetQos(self.app, None)
 
     def test_qos_set_with_properties_with_id(self):
@@ -371,43 +364,50 @@ class TestQosSet(TestQos):
         new_property = {"a": "b", "c": "d"}
         verifylist = [
             ('no_property', True),
-            ('property', new_property),
+            ('properties', new_property),
             ('qos_spec', self.qos_spec.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
 
-        self.qos_mock.unset_keys.assert_called_with(
+        self.volume_sdk_client.delete_qos_spec_metadata.assert_called_once_with(
             self.qos_spec.id,
             list(self.qos_spec.specs.keys()),
         )
-        self.qos_mock.set_keys.assert_called_with(
-            self.qos_spec.id, {"a": "b", "c": "d"}
+        self.volume_sdk_client.update_qos_spec.assert_called_once_with(
+            self.qos_spec.id, a='b', c='d'
         )
         self.assertIsNone(result)
 
 
-class TestQosShow(TestQos):
-    qos_spec = volume_fakes.create_one_qos()
-    qos_association = volume_fakes.create_one_qos_association()
-
+class TestQosShow(volume_fakes.TestVolume):
     columns = ('associations', 'consumer', 'id', 'name', 'properties')
-    data = (
-        format_columns.ListColumn([qos_association.name]),
-        qos_spec.consumer,
-        qos_spec.id,
-        qos_spec.name,
-        format_columns.DictColumn(qos_spec.specs),
-    )
 
     def setUp(self):
         super().setUp()
 
-        self.qos_mock.get.return_value = self.qos_spec
-        self.qos_mock.get_associations.return_value = [self.qos_association]
+        self.qos_spec = sdk_fakes.generate_fake_resource(
+            _qos_spec.QoSSpec,
+            consumer='front-end',
+            specs={'foo': 'bar', 'iops': '9001'},
+        )
+        self.qos_association = sdk_fakes.generate_fake_resource(
+            _qos_spec.QoSSpecAssociation
+        )
+        self.volume_sdk_client.find_qos_spec.return_value = self.qos_spec
+        self.volume_sdk_client.qos_spec_associations.return_value = [
+            self.qos_association
+        ]
 
-        # Get the command object to test
+        self.data = (
+            format_columns.ListColumn([self.qos_association.name]),
+            self.qos_spec.consumer,
+            self.qos_spec.id,
+            self.qos_spec.name,
+            format_columns.DictColumn(self.qos_spec.specs),
+        )
+
         self.cmd = qos_specs.ShowQos(self.app, None)
 
     def test_qos_show(self):
@@ -417,20 +417,22 @@ class TestQosShow(TestQos):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        self.qos_mock.get.assert_called_with(self.qos_spec.id)
+        self.volume_sdk_client.find_qos_spec.assert_called_once_with(
+            self.qos_spec.id, ignore_missing=False
+        )
 
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, tuple(data))
 
 
-class TestQosUnset(TestQos):
-    qos_spec = volume_fakes.create_one_qos()
-
+class TestQosUnset(volume_fakes.TestVolume):
     def setUp(self):
         super().setUp()
 
-        self.qos_mock.get.return_value = self.qos_spec
-        # Get the command object to test
+        self.qos_spec = sdk_fakes.generate_fake_resource(
+            _qos_spec.QoSSpec, consumer='front-end', specs={}
+        )
+        self.volume_sdk_client.find_qos_spec.return_value = self.qos_spec
         self.cmd = qos_specs.UnsetQos(self.app, None)
 
     def test_qos_unset_with_properties(self):
@@ -442,14 +444,14 @@ class TestQosUnset(TestQos):
             self.qos_spec.id,
         ]
         verifylist = [
-            ('property', ['iops', 'foo']),
+            ('properties', ['iops', 'foo']),
             ('qos_spec', self.qos_spec.id),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
 
-        self.qos_mock.unset_keys.assert_called_with(
+        self.volume_sdk_client.delete_qos_spec_metadata.assert_called_once_with(
             self.qos_spec.id, ['iops', 'foo']
         )
         self.assertIsNone(result)
