@@ -3,6 +3,13 @@ Identity v2 Commands
 ====================
 
 
+catalog
+-------
+
+.. autoprogram-cliff:: openstack.identity.v2
+   :command: catalog *
+
+
 ec2 credentials (Identity v2)
 -----------------------------
 

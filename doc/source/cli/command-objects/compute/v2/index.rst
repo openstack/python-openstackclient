@@ -153,6 +153,20 @@ supported: live migration, cold migration, resize and evacuation.
    :command: server migration *
 
 
+server share
+------------
+
+.. autoprogram-cliff:: openstack.compute.v2
+   :command: server share *
+
+
+server volume
+-------------
+
+.. autoprogram-cliff:: openstack.compute.v2
+   :command: server volume *
+
+
 server
 ------
 

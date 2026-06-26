@@ -15,6 +15,9 @@ image member
 .. autoprogram-cliff:: openstack.image.v2
    :command: image member list
 
+.. autoprogram-cliff:: openstack.image.v2
+   :command: image member get
+
 
 image metadef
 -------------
@@ -64,6 +67,24 @@ image metadef
 .. autoprogram-cliff:: openstack.image.v2
    :command: image metadef property show
 
+.. autoprogram-cliff:: openstack.image.v2
+   :command: image metadef property delete
+
+.. autoprogram-cliff:: openstack.image.v2
+   :command: image metadef property set
+
+.. autoprogram-cliff:: openstack.image.v2
+   :command: image metadef namespace unset
+
+.. autoprogram-cliff:: openstack.image.v2
+   :command: image metadef resource type association create
+
+.. autoprogram-cliff:: openstack.image.v2
+   :command: image metadef resource type association delete
+
+.. autoprogram-cliff:: openstack.image.v2
+   :command: image metadef resource type association list
+
 
 image task
 ----------
@@ -104,3 +125,33 @@ image
 
 .. autoprogram-cliff:: openstack.image.v2
    :command: image import
+
+
+image import info
+-----------------
+
+.. autoprogram-cliff:: openstack.image.v2
+   :command: image import info
+
+
+image stores
+------------
+
+.. autoprogram-cliff:: openstack.image.v2
+   :command: image stores list
+
+
+cached image
+------------
+
+.. autoprogram-cliff:: openstack.image.v2
+   :command: cached image list
+
+.. autoprogram-cliff:: openstack.image.v2
+   :command: cached image queue
+
+.. autoprogram-cliff:: openstack.image.v2
+   :command: cached image delete
+
+.. autoprogram-cliff:: openstack.image.v2
+   :command: cached image clear

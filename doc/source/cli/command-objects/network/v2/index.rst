@@ -404,6 +404,13 @@ network access for servers on project networks.
    :command: router *
 
 
+security group default statefulness
+-----------------------------------
+
+.. autoprogram-cliff:: openstack.network.v2
+   :command: security group default statefulness *
+
+
 security group rule
 -------------------
 
