@@ -205,47 +205,6 @@ def create_one_consistency_group(attrs=None):
     return consistency_group
 
 
-def create_consistency_groups(attrs=None, count=2):
-    """Create multiple fake consistency groups.
-
-    :param dict attrs:
-        A dictionary with all attributes
-    :param int count:
-        The number of consistency groups to fake
-    :return:
-        A list of FakeResource objects faking the consistency groups
-    """
-    consistency_groups = []
-    for i in range(0, count):
-        consistency_group = create_one_consistency_group(attrs)
-        consistency_groups.append(consistency_group)
-
-    return consistency_groups
-
-
-def get_consistency_groups(consistency_groups=None, count=2):
-    """Note:
-
-    Get an iterable MagicMock object with a list of faked
-    consistency_groups.
-
-    If consistency_groups list is provided, then initialize
-    the Mock object with the list. Otherwise create one.
-
-    :param List consistency_groups:
-        A list of FakeResource objects faking consistency_groups
-    :param Integer count:
-        The number of consistency_groups to be faked
-    :return
-        An iterable Mock object with side_effect set to a list of faked
-        consistency_groups
-    """
-    if consistency_groups is None:
-        consistency_groups = create_consistency_groups(count)
-
-    return mock.Mock(side_effect=consistency_groups)
-
-
 def create_one_consistency_group_snapshot(attrs=None):
     """Create a fake consistency group snapshot.
 
