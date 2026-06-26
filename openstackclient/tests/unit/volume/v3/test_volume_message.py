@@ -29,7 +29,7 @@ class TestVolumeMessageDelete(volume_fakes.TestVolume):
     def setUp(self):
         super().setUp()
 
-        self.volume_sdk_client.delete_message.return_value = None
+        self.volume_client.delete_message.return_value = None
 
         # Get the command object to mock
         self.cmd = volume_message.DeleteMessage(self.app, None)
@@ -47,7 +47,7 @@ class TestVolumeMessageDelete(volume_fakes.TestVolume):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.volume_sdk_client.delete_message.assert_called_with(
+        self.volume_client.delete_message.assert_called_with(
             self.fake_messages[0].id, ignore_missing=False
         )
         self.assertIsNone(result)
@@ -69,7 +69,7 @@ class TestVolumeMessageDelete(volume_fakes.TestVolume):
         calls = []
         for m in self.fake_messages:
             calls.append(call(m.id, ignore_missing=False))
-        self.volume_sdk_client.delete_message.assert_has_calls(calls)
+        self.volume_client.delete_message.assert_has_calls(calls)
         self.assertIsNone(result)
 
     def test_message_delete_multiple_messages_with_exception(self):
@@ -85,7 +85,7 @@ class TestVolumeMessageDelete(volume_fakes.TestVolume):
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.volume_sdk_client.delete_message.side_effect = [
+        self.volume_client.delete_message.side_effect = [
             None,
             exceptions.CommandError,
         ]
@@ -95,14 +95,14 @@ class TestVolumeMessageDelete(volume_fakes.TestVolume):
         )
         self.assertEqual('Failed to delete 1 of 2 messages.', str(exc))
 
-        self.volume_sdk_client.delete_message.assert_any_call(
+        self.volume_client.delete_message.assert_any_call(
             self.fake_messages[0].id, ignore_missing=False
         )
-        self.volume_sdk_client.delete_message.assert_any_call(
+        self.volume_client.delete_message.assert_any_call(
             'invalid_message', ignore_missing=False
         )
 
-        self.assertEqual(2, self.volume_sdk_client.delete_message.call_count)
+        self.assertEqual(2, self.volume_client.delete_message.call_count)
 
     def test_message_delete_pre_v33(self):
         self.set_volume_api_version('3.2')
@@ -160,7 +160,7 @@ class TestVolumeMessageList(volume_fakes.TestVolume):
 
         self.project = sdk_fakes.generate_fake_resource(_project.Project)
         self.identity_sdk_client.find_project.return_value = self.project
-        self.volume_sdk_client.messages.return_value = self.fake_messages
+        self.volume_client.messages.return_value = self.fake_messages
         # Get the command to test
         self.cmd = volume_message.ListMessages(self.app, None)
 
@@ -177,7 +177,7 @@ class TestVolumeMessageList(volume_fakes.TestVolume):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.volume_sdk_client.messages.assert_called_once_with(
+        self.volume_client.messages.assert_called_once_with(
             project_id=None,
             marker=None,
             limit=None,
@@ -205,7 +205,7 @@ class TestVolumeMessageList(volume_fakes.TestVolume):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.volume_sdk_client.messages.assert_called_once_with(
+        self.volume_client.messages.assert_called_once_with(
             project_id=self.project.id,
             marker=self.fake_messages[0].id,
             limit=3,
@@ -262,7 +262,7 @@ class TestVolumeMessageShow(volume_fakes.TestVolume):
     def setUp(self):
         super().setUp()
 
-        self.volume_sdk_client.get_message.return_value = self.fake_message
+        self.volume_client.get_message.return_value = self.fake_message
         # Get the command object to test
         self.cmd = volume_message.ShowMessage(self.app, None)
 
@@ -274,7 +274,7 @@ class TestVolumeMessageShow(volume_fakes.TestVolume):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        self.volume_sdk_client.get_message.assert_called_once_with(
+        self.volume_client.get_message.assert_called_once_with(
             self.fake_message.id
         )
 

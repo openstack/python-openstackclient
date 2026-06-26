@@ -26,7 +26,7 @@ class TestBlockStorageClusterList(volume_fakes.TestVolume):
     def setUp(self):
         super().setUp()
 
-        self.volume_sdk_client.clusters.return_value = self.fake_clusters
+        self.volume_client.clusters.return_value = self.fake_clusters
 
         self.cmd = block_storage_cluster.ListBlockStorageCluster(
             self.app, None
@@ -62,7 +62,7 @@ class TestBlockStorageClusterList(volume_fakes.TestVolume):
         self.assertEqual(expected_columns, columns)
         self.assertEqual(expected_data, tuple(data))
 
-        self.volume_sdk_client.clusters.assert_called_once_with(
+        self.volume_client.clusters.assert_called_once_with(
             name=None,
             binary=None,
             is_up=None,
@@ -131,7 +131,7 @@ class TestBlockStorageClusterList(volume_fakes.TestVolume):
         self.assertEqual(expected_columns, columns)
         self.assertEqual(expected_data, tuple(data))
 
-        self.volume_sdk_client.clusters.assert_called_once_with(
+        self.volume_client.clusters.assert_called_once_with(
             name='foo',
             binary='bar',
             is_up=True,
@@ -200,8 +200,8 @@ class TestBlockStorageClusterSet(volume_fakes.TestVolume):
     def setUp(self):
         super().setUp()
 
-        self.volume_sdk_client.enable_cluster.return_value = self.cluster
-        self.volume_sdk_client.disable_cluster.return_value = self.cluster
+        self.volume_client.enable_cluster.return_value = self.cluster
+        self.volume_client.disable_cluster.return_value = self.cluster
 
         self.cmd = block_storage_cluster.SetBlockStorageCluster(self.app, None)
 
@@ -225,10 +225,10 @@ class TestBlockStorageClusterSet(volume_fakes.TestVolume):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, tuple(data))
 
-        self.volume_sdk_client.enable_cluster.assert_called_once_with(
+        self.volume_client.enable_cluster.assert_called_once_with(
             _cluster.Cluster(name=self.cluster.name, binary='cinder-volume')
         )
-        self.volume_sdk_client.disable_cluster.assert_not_called()
+        self.volume_client.disable_cluster.assert_not_called()
 
     def test_cluster_set_disable_with_reason(self):
         self.set_volume_api_version('3.7')
@@ -253,13 +253,13 @@ class TestBlockStorageClusterSet(volume_fakes.TestVolume):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, tuple(data))
 
-        self.volume_sdk_client.disable_cluster.assert_called_once_with(
+        self.volume_client.disable_cluster.assert_called_once_with(
             _cluster.Cluster(
                 name=self.cluster.name, binary=self.cluster.binary
             ),
             reason='foo',
         )
-        self.volume_sdk_client.enable_cluster.assert_not_called()
+        self.volume_client.enable_cluster.assert_not_called()
 
     def test_cluster_set_only_with_disable_reason(self):
         self.set_volume_api_version('3.7')
@@ -368,7 +368,7 @@ class TestBlockStorageClusterShow(volume_fakes.TestVolume):
     def setUp(self):
         super().setUp()
 
-        self.volume_sdk_client.get_cluster.return_value = self.cluster
+        self.volume_client.get_cluster.return_value = self.cluster
 
         self.cmd = block_storage_cluster.ShowBlockStorageCluster(
             self.app, None
@@ -391,7 +391,7 @@ class TestBlockStorageClusterShow(volume_fakes.TestVolume):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, tuple(data))
 
-        self.volume_sdk_client.get_cluster.assert_called_once_with(
+        self.volume_client.get_cluster.assert_called_once_with(
             self.cluster.name
         )
 

@@ -32,7 +32,7 @@ class TestConsistencyGroup(utils.TestCase):
         # TODO(stephenfin): Switch to spec_set once keystoneauth exposes
         # instance attributes as class attributes
         # https://review.opendev.org/c/openstack/keystoneauth/+/994090
-        self.volume_sdk_client = mock.Mock(spec=block_storage_v2.Proxy)
+        self.volume_client = mock.Mock(spec=block_storage_v2.Proxy)
 
     def test_find_consistency_group_by_id(self):
         cg_id = uuid.uuid4().hex
@@ -48,13 +48,13 @@ class TestConsistencyGroup(utils.TestCase):
                 'volume_types': ['123456'],
             }
         }
-        self.volume_sdk_client.get.side_effect = [
+        self.volume_client.get.side_effect = [
             fakes.FakeResponse(data=data),
         ]
 
-        result = volume.find_consistency_group(self.volume_sdk_client, cg_id)
+        result = volume.find_consistency_group(self.volume_client, cg_id)
 
-        self.volume_sdk_client.get.assert_has_calls(
+        self.volume_client.get.assert_has_calls(
             [
                 mock.call(f'/consistencygroups/{cg_id}'),
             ]
@@ -72,14 +72,14 @@ class TestConsistencyGroup(utils.TestCase):
                 }
             ],
         }
-        self.volume_sdk_client.get.side_effect = [
+        self.volume_client.get.side_effect = [
             fakes.FakeResponse(status_code=http.HTTPStatus.NOT_FOUND),
             fakes.FakeResponse(data=data),
         ]
 
-        result = volume.find_consistency_group(self.volume_sdk_client, cg_name)
+        result = volume.find_consistency_group(self.volume_client, cg_name)
 
-        self.volume_sdk_client.get.assert_has_calls(
+        self.volume_client.get.assert_has_calls(
             [
                 mock.call(f'/consistencygroups/{cg_name}'),
                 mock.call('/consistencygroups'),
@@ -89,14 +89,14 @@ class TestConsistencyGroup(utils.TestCase):
 
     def test_find_consistency_group_not_found(self):
         data = {'consistencygroups': []}
-        self.volume_sdk_client.get.side_effect = [
+        self.volume_client.get.side_effect = [
             fakes.FakeResponse(status_code=http.HTTPStatus.NOT_FOUND),
             fakes.FakeResponse(data=data),
         ]
         self.assertRaises(
             osc_lib_exceptions.NotFound,
             volume.find_consistency_group,
-            self.volume_sdk_client,
+            self.volume_client,
             'invalid-cg',
         )
 
@@ -114,7 +114,7 @@ class TestConsistencyGroup(utils.TestCase):
                 },
             ],
         }
-        self.volume_sdk_client.get.side_effect = [
+        self.volume_client.get.side_effect = [
             fakes.FakeResponse(status_code=http.HTTPStatus.NOT_FOUND),
             fakes.FakeResponse(data=data),
         ]
@@ -122,6 +122,6 @@ class TestConsistencyGroup(utils.TestCase):
         self.assertRaises(
             osc_lib_exceptions.NotFound,
             volume.find_consistency_group,
-            self.volume_sdk_client,
+            self.volume_client,
             cg_name,
         )

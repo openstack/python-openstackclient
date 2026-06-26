@@ -46,7 +46,7 @@ class TestTypeCreate(volume_fakes.TestVolume):
             format_columns.DictColumn(self.new_volume_type.extra_specs),
         )
 
-        self.volume_sdk_client.create_type.return_value = self.new_volume_type
+        self.volume_client.create_type.return_value = self.new_volume_type
         self.identity_sdk_client.find_project.return_value = self.project
 
         self.cmd = volume_type.CreateVolumeType(self.app, None)
@@ -66,7 +66,7 @@ class TestTypeCreate(volume_fakes.TestVolume):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        self.volume_sdk_client.create_type.assert_called_with(
+        self.volume_client.create_type.assert_called_with(
             name=self.new_volume_type.name,
             description=self.new_volume_type.description,
             is_public=True,
@@ -93,7 +93,7 @@ class TestTypeCreate(volume_fakes.TestVolume):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        self.volume_sdk_client.create_type.assert_called_with(
+        self.volume_client.create_type.assert_called_with(
             name=self.new_volume_type.name,
             description=self.new_volume_type.description,
             is_public=False,
@@ -134,15 +134,13 @@ class TestTypeCreate(volume_fakes.TestVolume):
                 'RESKEY:availability_zones': 'az1',
             },
         )
-        self.volume_sdk_client.update_type_extra_specs.return_value = (
-            result_type
-        )
+        self.volume_client.update_type_extra_specs.return_value = result_type
 
         columns, data = self.cmd.take_action(parsed_args)
-        self.volume_sdk_client.create_type.assert_called_with(
+        self.volume_client.create_type.assert_called_with(
             name=self.new_volume_type.name, description=None
         )
-        self.volume_sdk_client.update_type_extra_specs.assert_called_once_with(
+        self.volume_client.update_type_extra_specs.assert_called_once_with(
             self.new_volume_type.id,
             myprop='myvalue',
             multiattach='<is> True',
@@ -190,8 +188,8 @@ class TestTypeCreate(volume_fakes.TestVolume):
             control_location='front-end',
         )
         self.new_volume_type = sdk_fakes.generate_fake_resource(_type.Type)
-        self.volume_sdk_client.create_type.return_value = self.new_volume_type
-        self.volume_sdk_client.create_type_encryption.return_value = (
+        self.volume_client.create_type.return_value = self.new_volume_type
+        self.volume_client.create_type_encryption.return_value = (
             encryption_type
         )
         expected_encryption_info = {
@@ -238,11 +236,11 @@ class TestTypeCreate(volume_fakes.TestVolume):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        self.volume_sdk_client.create_type.assert_called_with(
+        self.volume_client.create_type.assert_called_with(
             name=self.new_volume_type.name,
             description=None,
         )
-        self.volume_sdk_client.create_type_encryption.assert_called_with(
+        self.volume_client.create_type_encryption.assert_called_with(
             self.new_volume_type,
             provider='LuksEncryptor',
             cipher='aes-xts-plain64',
@@ -259,8 +257,8 @@ class TestTypeDelete(volume_fakes.TestVolume):
     def setUp(self):
         super().setUp()
 
-        self.volume_sdk_client.find_type.side_effect = self.volume_types
-        self.volume_sdk_client.delete_type.return_value = None
+        self.volume_client.find_type.side_effect = self.volume_types
+        self.volume_client.delete_type.return_value = None
 
         self.cmd = volume_type.DeleteVolumeType(self.app, None)
 
@@ -271,12 +269,10 @@ class TestTypeDelete(volume_fakes.TestVolume):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.volume_sdk_client.find_type.assert_called_with(
+        self.volume_client.find_type.assert_called_with(
             self.volume_types[0].id, ignore_missing=False
         )
-        self.volume_sdk_client.delete_type.assert_called_with(
-            self.volume_types[0]
-        )
+        self.volume_client.delete_type.assert_called_with(self.volume_types[0])
         self.assertIsNone(result)
 
     def test_delete_multiple_types(self):
@@ -293,7 +289,7 @@ class TestTypeDelete(volume_fakes.TestVolume):
         calls = []
         for t in self.volume_types:
             calls.append(call(t))
-        self.volume_sdk_client.delete_type.assert_has_calls(calls)
+        self.volume_client.delete_type.assert_has_calls(calls)
         self.assertIsNone(result)
 
     def test_delete_multiple_types_with_exception(self):
@@ -307,7 +303,7 @@ class TestTypeDelete(volume_fakes.TestVolume):
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        self.volume_sdk_client.find_type.side_effect = [
+        self.volume_client.find_type.side_effect = [
             self.volume_types[0],
             exceptions.CommandError,
         ]
@@ -316,15 +312,15 @@ class TestTypeDelete(volume_fakes.TestVolume):
             self.fail('CommandError should be raised.')
         except exceptions.CommandError as e:
             self.assertEqual('1 of 2 volume types failed to delete.', str(e))
-        self.volume_sdk_client.find_type.assert_any_call(
+        self.volume_client.find_type.assert_any_call(
             self.volume_types[0].id, ignore_missing=False
         )
-        self.volume_sdk_client.find_type.assert_any_call(
+        self.volume_client.find_type.assert_any_call(
             'unexist_type', ignore_missing=False
         )
 
-        self.assertEqual(2, self.volume_sdk_client.find_type.call_count)
-        self.volume_sdk_client.delete_type.assert_called_once_with(
+        self.assertEqual(2, self.volume_client.find_type.call_count)
+        self.volume_client.delete_type.assert_called_once_with(
             self.volume_types[0]
         )
 
@@ -362,7 +358,7 @@ class TestTypeList(volume_fakes.TestVolume):
     def setUp(self):
         super().setUp()
 
-        self.volume_sdk_client.types.return_value = self.volume_types
+        self.volume_client.types.return_value = self.volume_types
 
         self.cmd = volume_type.ListVolumeType(self.app, None)
 
@@ -376,7 +372,7 @@ class TestTypeList(volume_fakes.TestVolume):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        self.volume_sdk_client.types.assert_called_once_with(is_public='none')
+        self.volume_client.types.assert_called_once_with(is_public='none')
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, list(data))
 
@@ -393,7 +389,7 @@ class TestTypeList(volume_fakes.TestVolume):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        self.volume_sdk_client.types.assert_called_once_with(is_public=True)
+        self.volume_client.types.assert_called_once_with(is_public=True)
         self.assertEqual(self.columns_long, columns)
         self.assertCountEqual(self.data_long, list(data))
 
@@ -409,12 +405,12 @@ class TestTypeList(volume_fakes.TestVolume):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        self.volume_sdk_client.types.assert_called_once_with(is_public=False)
+        self.volume_client.types.assert_called_once_with(is_public=False)
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, list(data))
 
     def test_type_list_with_default_option(self):
-        self.volume_sdk_client.get_type.return_value = self.volume_types[0]
+        self.volume_client.get_type.return_value = self.volume_types[0]
 
         arglist = [
             "--default",
@@ -428,7 +424,7 @@ class TestTypeList(volume_fakes.TestVolume):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        self.volume_sdk_client.get_type.assert_called_once_with('default')
+        self.volume_client.get_type.assert_called_once_with('default')
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data_with_default_type, list(data))
 
@@ -464,9 +460,7 @@ class TestTypeList(volume_fakes.TestVolume):
             for x in (0, 1)
         ]
 
-        self.volume_sdk_client.get_type_encryption.side_effect = (
-            encryption_types
-        )
+        self.volume_client.get_type_encryption.side_effect = encryption_types
         arglist = [
             "--encryption-type",
         ]
@@ -476,10 +470,10 @@ class TestTypeList(volume_fakes.TestVolume):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        self.volume_sdk_client.get_type_encryption.assert_has_calls(
+        self.volume_client.get_type_encryption.assert_has_calls(
             [call(self.volume_types[0].id), call(self.volume_types[1].id)],
         )
-        self.volume_sdk_client.types.assert_called_once_with(is_public='none')
+        self.volume_client.types.assert_called_once_with(is_public='none')
         self.assertEqual(encryption_columns, columns)
         self.assertCountEqual(encryption_data, list(data))
 
@@ -492,9 +486,9 @@ class TestTypeSet(volume_fakes.TestVolume):
         self.identity_sdk_client.find_project.return_value = self.project
 
         self.volume_type = sdk_fakes.generate_fake_resource(_type.Type)
-        self.volume_sdk_client.find_type.return_value = self.volume_type
-        self.volume_sdk_client.create_type_encryption.return_value = None
-        self.volume_sdk_client.update_type_encryption.return_value = None
+        self.volume_client.find_type.return_value = self.volume_type
+        self.volume_client.create_type_encryption.return_value = None
+        self.volume_client.update_type_encryption.return_value = None
 
         self.cmd = volume_type.SetVolumeType(self.app, None)
 
@@ -522,14 +516,14 @@ class TestTypeSet(volume_fakes.TestVolume):
             'description': 'new_description',
             'is_public': False,
         }
-        self.volume_sdk_client.update_type.assert_called_with(
+        self.volume_client.update_type.assert_called_with(
             self.volume_type.id, **kwargs
         )
         self.assertIsNone(result)
 
-        self.volume_sdk_client.add_type_access.assert_not_called()
-        self.volume_sdk_client.update_type_encryption.assert_not_called()
-        self.volume_sdk_client.create_type_encryption.assert_not_called()
+        self.volume_client.add_type_access.assert_not_called()
+        self.volume_client.update_type_encryption.assert_not_called()
+        self.volume_client.create_type_encryption.assert_not_called()
 
     def test_type_set_property(self):
         arglist = [
@@ -558,7 +552,7 @@ class TestTypeSet(volume_fakes.TestVolume):
         result = self.cmd.take_action(parsed_args)
         self.assertIsNone(result)
 
-        self.volume_sdk_client.update_type_extra_specs.assert_called_once_with(
+        self.volume_client.update_type_extra_specs.assert_called_once_with(
             self.volume_type.id,
             myprop='myvalue',
             multiattach='<is> True',
@@ -566,9 +560,9 @@ class TestTypeSet(volume_fakes.TestVolume):
             replication_enabled='<is> True',
             **{'RESKEY:availability_zones': 'az1'},
         )
-        self.volume_sdk_client.add_type_access.assert_not_called()
-        self.volume_sdk_client.update_type_encryption.assert_not_called()
-        self.volume_sdk_client.create_type_encryption.assert_not_called()
+        self.volume_client.add_type_access.assert_not_called()
+        self.volume_client.update_type_encryption.assert_not_called()
+        self.volume_client.create_type_encryption.assert_not_called()
 
     def test_type_set_with_empty_project(self):
         arglist = [
@@ -586,10 +580,10 @@ class TestTypeSet(volume_fakes.TestVolume):
         result = self.cmd.take_action(parsed_args)
         self.assertIsNone(result)
 
-        self.volume_sdk_client.update_type_extra_specs.assert_not_called()
-        self.volume_sdk_client.add_type_access.assert_not_called()
-        self.volume_sdk_client.update_type_encryption.assert_not_called()
-        self.volume_sdk_client.create_type_encryption.assert_not_called()
+        self.volume_client.update_type_extra_specs.assert_not_called()
+        self.volume_client.add_type_access.assert_not_called()
+        self.volume_client.update_type_encryption.assert_not_called()
+        self.volume_client.create_type_encryption.assert_not_called()
 
     def test_type_set_with_project(self):
         arglist = [
@@ -606,16 +600,16 @@ class TestTypeSet(volume_fakes.TestVolume):
         result = self.cmd.take_action(parsed_args)
         self.assertIsNone(result)
 
-        self.volume_sdk_client.update_type_extra_specs.assert_not_called()
-        self.volume_sdk_client.add_type_access.assert_called_with(
+        self.volume_client.update_type_extra_specs.assert_not_called()
+        self.volume_client.add_type_access.assert_called_with(
             self.volume_type.id,
             self.project.id,
         )
-        self.volume_sdk_client.update_type_encryption.assert_not_called()
-        self.volume_sdk_client.create_type_encryption.assert_not_called()
+        self.volume_client.update_type_encryption.assert_not_called()
+        self.volume_client.create_type_encryption.assert_not_called()
 
     def test_type_set_with_new_encryption(self):
-        self.volume_sdk_client.update_type_encryption.side_effect = (
+        self.volume_client.update_type_encryption.side_effect = (
             exceptions.NotFound('NotFound')
         )
         arglist = [
@@ -641,7 +635,7 @@ class TestTypeSet(volume_fakes.TestVolume):
         result = self.cmd.take_action(parsed_args)
         self.assertIsNone(result)
 
-        self.volume_sdk_client.update_type_encryption.assert_called_with(
+        self.volume_client.update_type_encryption.assert_called_with(
             encryption=None,
             volume_type=self.volume_type,
             provider='LuksEncryptor',
@@ -649,7 +643,7 @@ class TestTypeSet(volume_fakes.TestVolume):
             key_size=128,
             control_location='front-end',
         )
-        self.volume_sdk_client.create_type_encryption.assert_called_with(
+        self.volume_client.create_type_encryption.assert_called_with(
             self.volume_type,
             provider='LuksEncryptor',
             cipher='aes-xts-plain64',
@@ -678,19 +672,19 @@ class TestTypeSet(volume_fakes.TestVolume):
         result = self.cmd.take_action(parsed_args)
         self.assertIsNone(result)
 
-        self.volume_sdk_client.update_type_extra_specs.assert_not_called()
-        self.volume_sdk_client.add_type_access.assert_not_called()
-        self.volume_sdk_client.update_type_encryption.assert_called_with(
+        self.volume_client.update_type_extra_specs.assert_not_called()
+        self.volume_client.add_type_access.assert_not_called()
+        self.volume_client.update_type_encryption.assert_called_with(
             encryption=None,
             volume_type=self.volume_type,
             provider='LuksEncryptor',
             cipher='aes-xts-plain64',
             control_location='front-end',
         )
-        self.volume_sdk_client.create_type_encryption.assert_not_called()
+        self.volume_client.create_type_encryption.assert_not_called()
 
     def test_type_set_new_encryption_without_provider(self):
-        self.volume_sdk_client.update_type_encryption.side_effect = (
+        self.volume_client.update_type_encryption.side_effect = (
             exceptions.NotFound('NotFound')
         )
         arglist = [
@@ -720,16 +714,16 @@ class TestTypeSet(volume_fakes.TestVolume):
             str(exc),
         )
 
-        self.volume_sdk_client.update_type_extra_specs.assert_not_called()
-        self.volume_sdk_client.add_type_access.assert_not_called()
-        self.volume_sdk_client.update_type_encryption.assert_called_with(
+        self.volume_client.update_type_extra_specs.assert_not_called()
+        self.volume_client.add_type_access.assert_not_called()
+        self.volume_client.update_type_encryption.assert_called_with(
             encryption=None,
             volume_type=self.volume_type,
             cipher='aes-xts-plain64',
             key_size=128,
             control_location='front-end',
         )
-        self.volume_sdk_client.create_type_encryption.assert_not_called()
+        self.volume_client.create_type_encryption.assert_not_called()
 
 
 class TestTypeShow(volume_fakes.TestVolume):
@@ -755,7 +749,7 @@ class TestTypeShow(volume_fakes.TestVolume):
             format_columns.DictColumn(self.volume_type.extra_specs),
         )
 
-        self.volume_sdk_client.find_type.return_value = self.volume_type
+        self.volume_client.find_type.return_value = self.volume_type
 
         self.cmd = volume_type.ShowVolumeType(self.app, None)
 
@@ -768,7 +762,7 @@ class TestTypeShow(volume_fakes.TestVolume):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        self.volume_sdk_client.find_type.assert_called_with(
+        self.volume_client.find_type.assert_called_with(
             self.volume_type.id, ignore_missing=False
         )
 
@@ -787,16 +781,14 @@ class TestTypeShow(volume_fakes.TestVolume):
             'volume_type_id': private_type.id,
             'project_id': 'project-id-test',
         }
-        self.volume_sdk_client.find_type.return_value = private_type
-        self.volume_sdk_client.get_type_access.return_value = [
-            type_access_list
-        ]
+        self.volume_client.find_type.return_value = private_type
+        self.volume_client.get_type_access.return_value = [type_access_list]
 
         columns, data = self.cmd.take_action(parsed_args)
-        self.volume_sdk_client.find_type.assert_called_once_with(
+        self.volume_client.find_type.assert_called_once_with(
             self.volume_type.id, ignore_missing=False
         )
-        self.volume_sdk_client.get_type_access.assert_called_once_with(
+        self.volume_client.get_type_access.assert_called_once_with(
             private_type.id
         )
 
@@ -819,14 +811,14 @@ class TestTypeShow(volume_fakes.TestVolume):
         private_type = sdk_fakes.generate_fake_resource(
             _type.Type, is_public=False
         )
-        self.volume_sdk_client.find_type.return_value = private_type
-        self.volume_sdk_client.get_type_access.side_effect = Exception()
+        self.volume_client.find_type.return_value = private_type
+        self.volume_client.get_type_access.side_effect = Exception()
 
         columns, data = self.cmd.take_action(parsed_args)
-        self.volume_sdk_client.find_type.assert_called_once_with(
+        self.volume_client.find_type.assert_called_once_with(
             self.volume_type.id, ignore_missing=False
         )
-        self.volume_sdk_client.get_type_access.assert_called_once_with(
+        self.volume_client.get_type_access.assert_called_once_with(
             private_type.id
         )
 
@@ -846,10 +838,8 @@ class TestTypeShow(volume_fakes.TestVolume):
             _type.TypeEncryption,
         )
         self.volume_type = sdk_fakes.generate_fake_resource(_type.Type)
-        self.volume_sdk_client.find_type.return_value = self.volume_type
-        self.volume_sdk_client.get_type_encryption.return_value = (
-            encryption_type
-        )
+        self.volume_client.find_type.return_value = self.volume_type
+        self.volume_client.get_type_encryption.return_value = encryption_type
         expected_encryption_info = {
             'cipher': encryption_type.cipher,
             'control_location': encryption_type.control_location,
@@ -883,10 +873,10 @@ class TestTypeShow(volume_fakes.TestVolume):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        self.volume_sdk_client.find_type.assert_called_with(
+        self.volume_client.find_type.assert_called_with(
             self.volume_type.id, ignore_missing=False
         )
-        self.volume_sdk_client.get_type_encryption.assert_called_with(
+        self.volume_client.get_type_encryption.assert_called_with(
             self.volume_type.id
         )
         self.assertEqual(encryption_columns, columns)
@@ -899,7 +889,7 @@ class TestTypeUnset(volume_fakes.TestVolume):
     def setUp(self):
         super().setUp()
 
-        self.volume_sdk_client.find_type.return_value = self.volume_type
+        self.volume_client.find_type.return_value = self.volume_type
 
         self.project = sdk_fakes.generate_fake_resource(_project.Project)
         self.identity_sdk_client.find_project.return_value = self.project
@@ -922,7 +912,7 @@ class TestTypeUnset(volume_fakes.TestVolume):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
-        self.volume_sdk_client.delete_type_extra_specs.assert_called_once_with(
+        self.volume_client.delete_type_extra_specs.assert_called_once_with(
             self.volume_type.id, ['property', 'multi_property']
         )
         self.assertIsNone(result)
@@ -942,7 +932,7 @@ class TestTypeUnset(volume_fakes.TestVolume):
         result = self.cmd.take_action(parsed_args)
         self.assertIsNone(result)
 
-        self.volume_sdk_client.remove_type_access.assert_called_with(
+        self.volume_client.remove_type_access.assert_called_with(
             self.volume_type.id,
             self.project.id,
         )
@@ -963,8 +953,8 @@ class TestTypeUnset(volume_fakes.TestVolume):
 
         result = self.cmd.take_action(parsed_args)
         self.assertIsNone(result)
-        self.volume_sdk_client.delete_type_encryption.assert_not_called()
-        self.volume_sdk_client.remove_type_access.assert_not_called()
+        self.volume_client.delete_type_encryption.assert_not_called()
+        self.volume_client.remove_type_access.assert_not_called()
 
     def test_type_unset_failed_with_missing_volume_type_argument(self):
         arglist = [
@@ -995,7 +985,7 @@ class TestTypeUnset(volume_fakes.TestVolume):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
-        self.volume_sdk_client.delete_type_encryption.assert_called_with(
+        self.volume_client.delete_type_encryption.assert_called_with(
             None, self.volume_type.id
         )
         self.assertIsNone(result)

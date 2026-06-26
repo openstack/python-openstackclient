@@ -593,7 +593,7 @@ class TestImageSet(image_fakes.TestImagev1):
 
     def test_image_update_volume(self):
         source_volume = sdk_fakes.generate_fake_resource(_volume.Volume)
-        self.volume_sdk_client.find_volume.return_value = source_volume
+        self.volume_client.find_volume.return_value = source_volume
 
         arglist = [
             '--volume',
@@ -618,11 +618,11 @@ class TestImageSet(image_fakes.TestImagev1):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.volume_sdk_client.find_volume.assert_called_once_with(
+        self.volume_client.find_volume.assert_called_once_with(
             'volly', ignore_missing=False
         )
         source_volume.upload_to_image.assert_called_once_with(
-            self.volume_sdk_client,
+            self.volume_client,
             self._image.name,
             force=False,
             container_format=self._image.container_format,

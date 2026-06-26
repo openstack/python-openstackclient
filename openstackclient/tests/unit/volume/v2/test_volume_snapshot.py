@@ -42,12 +42,12 @@ class TestVolumeSnapshotCreate(volume_fakes.TestVolume):
         super().setUp()
 
         self.volume = sdk_fakes.generate_fake_resource(_volume.Volume)
-        self.volume_sdk_client.find_volume.return_value = self.volume
+        self.volume_client.find_volume.return_value = self.volume
         self.snapshot = sdk_fakes.generate_fake_resource(
             _snapshot.Snapshot, volume_id=self.volume.id
         )
-        self.volume_sdk_client.create_snapshot.return_value = self.snapshot
-        self.volume_sdk_client.manage_snapshot.return_value = self.snapshot
+        self.volume_client.create_snapshot.return_value = self.snapshot
+        self.volume_client.manage_snapshot.return_value = self.snapshot
 
         self.data = (
             self.snapshot.created_at,
@@ -88,10 +88,10 @@ class TestVolumeSnapshotCreate(volume_fakes.TestVolume):
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
-        self.volume_sdk_client.find_volume.assert_called_once_with(
+        self.volume_client.find_volume.assert_called_once_with(
             self.snapshot.volume_id, ignore_missing=False
         )
-        self.volume_sdk_client.create_snapshot.assert_called_with(
+        self.volume_client.create_snapshot.assert_called_with(
             volume_id=self.snapshot.volume_id,
             force=True,
             name=self.snapshot.name,
@@ -133,10 +133,10 @@ class TestVolumeSnapshotCreate(volume_fakes.TestVolume):
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
-        self.volume_sdk_client.find_volume.assert_called_once_with(
+        self.volume_client.find_volume.assert_called_once_with(
             self.snapshot.name, ignore_missing=False
         )
-        self.volume_sdk_client.create_snapshot.assert_called_once_with(
+        self.volume_client.create_snapshot.assert_called_once_with(
             volume_id=self.snapshot.volume_id,
             force=True,
             name=self.snapshot.name,
@@ -169,17 +169,17 @@ class TestVolumeSnapshotCreate(volume_fakes.TestVolume):
 
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
-        self.volume_sdk_client.find_volume.assert_called_once_with(
+        self.volume_client.find_volume.assert_called_once_with(
             self.snapshot.volume_id, ignore_missing=False
         )
-        self.volume_sdk_client.manage_snapshot.assert_called_with(
+        self.volume_client.manage_snapshot.assert_called_with(
             volume_id=self.snapshot.volume_id,
             ref=ref_dict,
             name=self.snapshot.name,
             description=None,
             metadata=None,
         )
-        self.volume_sdk_client.create_snapshot.assert_not_called()
+        self.volume_client.create_snapshot.assert_not_called()
 
 
 class TestVolumeSnapshotDelete(volume_fakes.TestVolume):
@@ -189,8 +189,8 @@ class TestVolumeSnapshotDelete(volume_fakes.TestVolume):
         self.snapshots = list(
             sdk_fakes.generate_fake_resources(_snapshot.Snapshot)
         )
-        self.volume_sdk_client.find_snapshot.side_effect = self.snapshots
-        self.volume_sdk_client.delete_snapshot.return_value = None
+        self.volume_client.find_snapshot.side_effect = self.snapshots
+        self.volume_client.delete_snapshot.return_value = None
 
         self.cmd = volume_snapshot.DeleteVolumeSnapshot(self.app, None)
 
@@ -202,10 +202,10 @@ class TestVolumeSnapshotDelete(volume_fakes.TestVolume):
         result = self.cmd.take_action(parsed_args)
         self.assertIsNone(result)
 
-        self.volume_sdk_client.find_snapshot.assert_called_once_with(
+        self.volume_client.find_snapshot.assert_called_once_with(
             self.snapshots[0].id, ignore_missing=False
         )
-        self.volume_sdk_client.delete_snapshot.assert_called_once_with(
+        self.volume_client.delete_snapshot.assert_called_once_with(
             self.snapshots[0].id, force=False
         )
 
@@ -217,10 +217,10 @@ class TestVolumeSnapshotDelete(volume_fakes.TestVolume):
         result = self.cmd.take_action(parsed_args)
         self.assertIsNone(result)
 
-        self.volume_sdk_client.find_snapshot.assert_called_once_with(
+        self.volume_client.find_snapshot.assert_called_once_with(
             self.snapshots[0].id, ignore_missing=False
         )
-        self.volume_sdk_client.delete_snapshot.assert_called_once_with(
+        self.volume_client.delete_snapshot.assert_called_once_with(
             self.snapshots[0].id, force=True
         )
 
@@ -236,15 +236,15 @@ class TestVolumeSnapshotDelete(volume_fakes.TestVolume):
         result = self.cmd.take_action(parsed_args)
         self.assertIsNone(result)
 
-        self.volume_sdk_client.find_snapshot.assert_has_calls(
+        self.volume_client.find_snapshot.assert_has_calls(
             [mock.call(x.id, ignore_missing=False) for x in self.snapshots]
         )
-        self.volume_sdk_client.delete_snapshot.assert_has_calls(
+        self.volume_client.delete_snapshot.assert_has_calls(
             [mock.call(x.id, force=False) for x in self.snapshots]
         )
 
     def test_delete_multiple_snapshots_with_exception(self):
-        self.volume_sdk_client.find_snapshot.side_effect = [
+        self.volume_client.find_snapshot.side_effect = [
             self.snapshots[0],
             sdk_exceptions.NotFoundException(),
         ]
@@ -266,13 +266,13 @@ class TestVolumeSnapshotDelete(volume_fakes.TestVolume):
         )
         self.assertEqual('1 of 2 snapshots failed to delete.', str(exc))
 
-        self.volume_sdk_client.find_snapshot.assert_has_calls(
+        self.volume_client.find_snapshot.assert_has_calls(
             [
                 mock.call(self.snapshots[0].id, ignore_missing=False),
                 mock.call('unexist_snapshot', ignore_missing=False),
             ]
         )
-        self.volume_sdk_client.delete_snapshot.assert_has_calls(
+        self.volume_client.delete_snapshot.assert_has_calls(
             [
                 mock.call(self.snapshots[0].id, force=False),
             ]
@@ -289,9 +289,9 @@ class TestVolumeSnapshotList(volume_fakes.TestVolume):
                 _snapshot.Snapshot, attrs={'volume_id': self.volume.name}
             )
         )
-        self.volume_sdk_client.volumes.return_value = [self.volume]
-        self.volume_sdk_client.find_volume.return_value = self.volume
-        self.volume_sdk_client.snapshots.return_value = self.snapshots
+        self.volume_client.volumes.return_value = [self.volume]
+        self.volume_client.find_volume.return_value = self.volume
+        self.volume_client.snapshots.return_value = self.snapshots
 
         self.columns = ("ID", "Name", "Description", "Status", "Size")
         self.columns_long = (
@@ -337,7 +337,7 @@ class TestVolumeSnapshotList(volume_fakes.TestVolume):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.volume_sdk_client.snapshots.assert_called_once_with(
+        self.volume_client.snapshots.assert_called_once_with(
             limit=None,
             marker=None,
             max_items=None,
@@ -374,7 +374,7 @@ class TestVolumeSnapshotList(volume_fakes.TestVolume):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.volume_sdk_client.snapshots.assert_called_once_with(
+        self.volume_client.snapshots.assert_called_once_with(
             limit=2,
             marker=self.snapshots[0].id,
             max_items=None,
@@ -396,7 +396,7 @@ class TestVolumeSnapshotList(volume_fakes.TestVolume):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.volume_sdk_client.snapshots.assert_called_once_with(
+        self.volume_client.snapshots.assert_called_once_with(
             limit=None,
             marker=None,
             max_items=None,
@@ -423,7 +423,7 @@ class TestVolumeSnapshotList(volume_fakes.TestVolume):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.volume_sdk_client.snapshots.assert_called_once_with(
+        self.volume_client.snapshots.assert_called_once_with(
             limit=None,
             marker=None,
             max_items=None,
@@ -450,7 +450,7 @@ class TestVolumeSnapshotList(volume_fakes.TestVolume):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.volume_sdk_client.snapshots.assert_called_once_with(
+        self.volume_client.snapshots.assert_called_once_with(
             limit=None,
             marker=None,
             max_items=None,
@@ -477,7 +477,7 @@ class TestVolumeSnapshotList(volume_fakes.TestVolume):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.volume_sdk_client.snapshots.assert_called_once_with(
+        self.volume_client.snapshots.assert_called_once_with(
             limit=None,
             marker=None,
             max_items=None,
@@ -514,10 +514,10 @@ class TestVolumeSnapshotSet(volume_fakes.TestVolume):
         self.snapshot = sdk_fakes.generate_fake_resource(
             _snapshot.Snapshot, metadata={'foo': 'bar'}
         )
-        self.volume_sdk_client.find_snapshot.return_value = self.snapshot
-        self.volume_sdk_client.delete_snapshot_metadata.return_value = None
-        self.volume_sdk_client.set_snapshot_metadata.return_value = None
-        self.volume_sdk_client.update_snapshot.return_value = None
+        self.volume_client.find_snapshot.return_value = self.snapshot
+        self.volume_client.delete_snapshot_metadata.return_value = None
+        self.volume_client.set_snapshot_metadata.return_value = None
+        self.volume_client.update_snapshot.return_value = None
 
         self.cmd = volume_snapshot.SetVolumeSnapshot(self.app, None)
 
@@ -533,12 +533,12 @@ class TestVolumeSnapshotSet(volume_fakes.TestVolume):
         result = self.cmd.take_action(parsed_args)
 
         self.assertIsNone(result)
-        self.volume_sdk_client.find_snapshot.assert_called_once_with(
+        self.volume_client.find_snapshot.assert_called_once_with(
             parsed_args.snapshot, ignore_missing=False
         )
-        self.volume_sdk_client.reset_snapshot_status.assert_not_called()
-        self.volume_sdk_client.update_snapshot.assert_not_called()
-        self.volume_sdk_client.set_snapshot_metadata.assert_not_called()
+        self.volume_client.reset_snapshot_status.assert_not_called()
+        self.volume_client.update_snapshot.assert_not_called()
+        self.volume_client.set_snapshot_metadata.assert_not_called()
 
     def test_snapshot_set_name_and_property(self):
         arglist = [
@@ -560,10 +560,10 @@ class TestVolumeSnapshotSet(volume_fakes.TestVolume):
         result = self.cmd.take_action(parsed_args)
 
         self.assertIsNone(result)
-        self.volume_sdk_client.update_snapshot.assert_called_with(
+        self.volume_client.update_snapshot.assert_called_with(
             self.snapshot.id, name="new_snapshot"
         )
-        self.volume_sdk_client.set_snapshot_metadata.assert_called_with(
+        self.volume_client.set_snapshot_metadata.assert_called_with(
             self.snapshot.id, x="y", foo="foo"
         )
 
@@ -581,13 +581,13 @@ class TestVolumeSnapshotSet(volume_fakes.TestVolume):
         result = self.cmd.take_action(parsed_args)
 
         self.assertIsNone(result)
-        self.volume_sdk_client.find_snapshot.assert_called_once_with(
+        self.volume_client.find_snapshot.assert_called_once_with(
             parsed_args.snapshot, ignore_missing=False
         )
-        self.volume_sdk_client.reset_snapshot_status.assert_not_called()
-        self.volume_sdk_client.update_snapshot.assert_not_called()
-        self.volume_sdk_client.set_snapshot_metadata.assert_not_called()
-        self.volume_sdk_client.delete_snapshot_metadata.assert_called_with(
+        self.volume_client.reset_snapshot_status.assert_not_called()
+        self.volume_client.update_snapshot.assert_not_called()
+        self.volume_client.set_snapshot_metadata.assert_not_called()
+        self.volume_client.delete_snapshot_metadata.assert_called_with(
             self.snapshot.id, keys=["foo"]
         )
 
@@ -608,15 +608,15 @@ class TestVolumeSnapshotSet(volume_fakes.TestVolume):
         result = self.cmd.take_action(parsed_args)
 
         self.assertIsNone(result)
-        self.volume_sdk_client.find_snapshot.assert_called_once_with(
+        self.volume_client.find_snapshot.assert_called_once_with(
             parsed_args.snapshot, ignore_missing=False
         )
-        self.volume_sdk_client.reset_snapshot_status.assert_not_called()
-        self.volume_sdk_client.update_snapshot.assert_not_called()
-        self.volume_sdk_client.delete_snapshot_metadata.assert_called_with(
+        self.volume_client.reset_snapshot_status.assert_not_called()
+        self.volume_client.update_snapshot.assert_not_called()
+        self.volume_client.delete_snapshot_metadata.assert_called_with(
             self.snapshot.id, keys=["foo"]
         )
-        self.volume_sdk_client.set_snapshot_metadata.assert_called_once_with(
+        self.volume_client.set_snapshot_metadata.assert_called_once_with(
             self.snapshot.id,
             foo_1="bar_1",
         )
@@ -629,12 +629,12 @@ class TestVolumeSnapshotSet(volume_fakes.TestVolume):
         result = self.cmd.take_action(parsed_args)
 
         self.assertIsNone(result)
-        self.volume_sdk_client.reset_snapshot_status.assert_called_with(
+        self.volume_client.reset_snapshot_status.assert_called_with(
             self.snapshot.id, "error"
         )
 
     def test_volume_set_state_failed(self):
-        self.volume_sdk_client.reset_snapshot_status.side_effect = (
+        self.volume_client.reset_snapshot_status.side_effect = (
             exceptions.CommandError()
         )
         arglist = ['--state', 'error', self.snapshot.id]
@@ -646,12 +646,12 @@ class TestVolumeSnapshotSet(volume_fakes.TestVolume):
             exceptions.CommandError, self.cmd.take_action, parsed_args
         )
         self.assertEqual('One or more of the set operations failed', str(exc))
-        self.volume_sdk_client.reset_snapshot_status.assert_called_once_with(
+        self.volume_client.reset_snapshot_status.assert_called_once_with(
             self.snapshot.id, 'error'
         )
 
     def test_volume_set_name_and_state_failed(self):
-        self.volume_sdk_client.reset_snapshot_status.side_effect = (
+        self.volume_client.reset_snapshot_status.side_effect = (
             exceptions.CommandError()
         )
         arglist = [
@@ -675,10 +675,10 @@ class TestVolumeSnapshotSet(volume_fakes.TestVolume):
         )
 
         self.assertEqual('One or more of the set operations failed', str(exc))
-        self.volume_sdk_client.update_snapshot.assert_called_once_with(
+        self.volume_client.update_snapshot.assert_called_once_with(
             self.snapshot.id, name="new_snapshot"
         )
-        self.volume_sdk_client.reset_snapshot_status.assert_called_once_with(
+        self.volume_client.reset_snapshot_status.assert_called_once_with(
             self.snapshot.id, 'error'
         )
 
@@ -710,7 +710,7 @@ class TestVolumeSnapshotShow(volume_fakes.TestVolume):
             self.snapshot.volume_id,
         )
 
-        self.volume_sdk_client.find_snapshot.return_value = self.snapshot
+        self.volume_client.find_snapshot.return_value = self.snapshot
 
         self.cmd = volume_snapshot.ShowVolumeSnapshot(self.app, None)
 
@@ -720,7 +720,7 @@ class TestVolumeSnapshotShow(volume_fakes.TestVolume):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
-        self.volume_sdk_client.find_snapshot.assert_called_with(
+        self.volume_client.find_snapshot.assert_called_with(
             self.snapshot.id, ignore_missing=False
         )
 
@@ -733,8 +733,8 @@ class TestVolumeSnapshotUnset(volume_fakes.TestVolume):
         super().setUp()
 
         self.snapshot = sdk_fakes.generate_fake_resource(_snapshot.Snapshot)
-        self.volume_sdk_client.find_snapshot.return_value = self.snapshot
-        self.volume_sdk_client.delete_snapshot_metadata.return_value = None
+        self.volume_client.find_snapshot.return_value = self.snapshot
+        self.volume_client.delete_snapshot_metadata.return_value = None
 
         self.cmd = volume_snapshot.UnsetVolumeSnapshot(self.app, None)
 
@@ -754,6 +754,6 @@ class TestVolumeSnapshotUnset(volume_fakes.TestVolume):
         result = self.cmd.take_action(parsed_args)
 
         self.assertIsNone(result)
-        self.volume_sdk_client.delete_snapshot_metadata.assert_called_with(
+        self.volume_client.delete_snapshot_metadata.assert_called_with(
             self.snapshot.id, keys=["foo"]
         )

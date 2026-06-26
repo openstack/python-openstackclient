@@ -45,11 +45,11 @@ class TestVolumeGroupSnapshotCreate(volume_fakes.TestVolume):
     def setUp(self):
         super().setUp()
 
-        self.volume_sdk_client.find_group.return_value = self.fake_volume_group
-        self.volume_sdk_client.create_group_snapshot.return_value = (
+        self.volume_client.find_group.return_value = self.fake_volume_group
+        self.volume_client.create_group_snapshot.return_value = (
             self.fake_volume_group_snapshot
         )
-        self.volume_sdk_client.find_group_snapshot.return_value = (
+        self.volume_client.find_group_snapshot.return_value = (
             self.fake_volume_group_snapshot
         )
 
@@ -72,12 +72,12 @@ class TestVolumeGroupSnapshotCreate(volume_fakes.TestVolume):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.volume_sdk_client.find_group.assert_called_once_with(
+        self.volume_client.find_group.assert_called_once_with(
             self.fake_volume_group.id,
             ignore_missing=False,
             details=False,
         )
-        self.volume_sdk_client.create_group_snapshot.assert_called_once_with(
+        self.volume_client.create_group_snapshot.assert_called_once_with(
             group_id=self.fake_volume_group.id,
             name=None,
             description=None,
@@ -104,12 +104,12 @@ class TestVolumeGroupSnapshotCreate(volume_fakes.TestVolume):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.volume_sdk_client.find_group.assert_called_once_with(
+        self.volume_client.find_group.assert_called_once_with(
             self.fake_volume_group.id,
             ignore_missing=False,
             details=False,
         )
-        self.volume_sdk_client.create_group_snapshot.assert_called_once_with(
+        self.volume_client.create_group_snapshot.assert_called_once_with(
             group_id=self.fake_volume_group.id,
             name='foo',
             description='hello, world',
@@ -149,10 +149,10 @@ class TestVolumeGroupSnapshotDelete(volume_fakes.TestVolume):
     def setUp(self):
         super().setUp()
 
-        self.volume_sdk_client.find_group_snapshot.return_value = (
+        self.volume_client.find_group_snapshot.return_value = (
             self.fake_volume_group_snapshot
         )
-        self.volume_sdk_client.delete_group_snapshot.return_value = None
+        self.volume_client.delete_group_snapshot.return_value = None
 
         self.cmd = volume_group_snapshot.DeleteVolumeGroupSnapshot(
             self.app, None
@@ -171,7 +171,7 @@ class TestVolumeGroupSnapshotDelete(volume_fakes.TestVolume):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.volume_sdk_client.delete_group_snapshot.assert_called_once_with(
+        self.volume_client.delete_group_snapshot.assert_called_once_with(
             self.fake_volume_group_snapshot.id,
         )
         self.assertIsNone(result)
@@ -223,7 +223,7 @@ class TestVolumeGroupSnapshotList(volume_fakes.TestVolume):
     def setUp(self):
         super().setUp()
 
-        self.volume_sdk_client.group_snapshots.return_value = (
+        self.volume_client.group_snapshots.return_value = (
             self.fake_volume_group_snapshots
         )
 
@@ -244,7 +244,7 @@ class TestVolumeGroupSnapshotList(volume_fakes.TestVolume):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.volume_sdk_client.group_snapshots.assert_called_once_with(
+        self.volume_client.group_snapshots.assert_called_once_with(
             all_projects=True,
         )
         self.assertEqual(self.columns, columns)

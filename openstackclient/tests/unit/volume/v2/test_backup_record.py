@@ -33,8 +33,8 @@ class TestBackupRecordExport(volume_fakes.TestVolume):
     def setUp(self):
         super().setUp()
 
-        self.volume_sdk_client.find_backup.return_value = self.fake_backup
-        self.volume_sdk_client.export_backup.return_value = self.fake_record
+        self.volume_client.find_backup.return_value = self.fake_backup
+        self.volume_client.export_backup.return_value = self.fake_record
 
         self.cmd = backup_record.ExportBackupRecord(self.app, None)
 
@@ -46,10 +46,10 @@ class TestBackupRecordExport(volume_fakes.TestVolume):
         parsed_args.formatter = 'table'
         columns, __ = self.cmd.take_action(parsed_args)
 
-        self.volume_sdk_client.find_backup.assert_called_once_with(
+        self.volume_client.find_backup.assert_called_once_with(
             self.fake_backup.name, ignore_missing=False
         )
-        self.volume_sdk_client.export_backup.assert_called_once_with(
+        self.volume_client.export_backup.assert_called_once_with(
             self.fake_backup
         )
         self.assertEqual(('Backup Service', 'Metadata'), columns)
@@ -62,10 +62,10 @@ class TestBackupRecordExport(volume_fakes.TestVolume):
         parsed_args.formatter = 'json'
         columns, __ = self.cmd.take_action(parsed_args)
 
-        self.volume_sdk_client.find_backup.assert_called_once_with(
+        self.volume_client.find_backup.assert_called_once_with(
             self.fake_backup.name, ignore_missing=False
         )
-        self.volume_sdk_client.export_backup.assert_called_once_with(
+        self.volume_client.export_backup.assert_called_once_with(
             self.fake_backup
         )
         self.assertEqual(('backup_service', 'backup_url'), columns)
@@ -82,7 +82,7 @@ class TestBackupRecordImport(volume_fakes.TestVolume):
     def setUp(self):
         super().setUp()
 
-        self.volume_sdk_client.import_backup.return_value = self.fake_import
+        self.volume_client.import_backup.return_value = self.fake_import
 
         self.cmd = backup_record.ImportBackupRecord(self.app, None)
 
@@ -102,7 +102,7 @@ class TestBackupRecordImport(volume_fakes.TestVolume):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, __ = self.cmd.take_action(parsed_args)
 
-        self.volume_sdk_client.import_backup.assert_called_once_with(
+        self.volume_client.import_backup.assert_called_once_with(
             "cinder.backup.drivers.swift.SwiftBackupDriver",
             "fake_backup_record_data",
         )

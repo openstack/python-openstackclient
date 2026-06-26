@@ -27,7 +27,7 @@ class TestServiceList(volume_fakes.TestVolume):
         super().setUp()
 
         self.service = sdk_fakes.generate_fake_resource(_service.Service)
-        self.volume_sdk_client.services.return_value = [self.service]
+        self.volume_client.services.return_value = [self.service]
 
         self.cmd = service.ListService(self.app, None)
 
@@ -66,7 +66,7 @@ class TestServiceList(volume_fakes.TestVolume):
         )
         self.assertEqual(expected_columns, columns)
         self.assertEqual(datalist, tuple(data))
-        self.volume_sdk_client.services.assert_called_with(
+        self.volume_client.services.assert_called_with(
             host=self.service.host,
             binary=self.service.binary,
         )
@@ -110,7 +110,7 @@ class TestServiceList(volume_fakes.TestVolume):
         )
         self.assertEqual(expected_columns, columns)
         self.assertEqual(datalist, tuple(data))
-        self.volume_sdk_client.services.assert_called_with(
+        self.volume_client.services.assert_called_with(
             host=self.service.host,
             binary=self.service.binary,
         )
@@ -154,7 +154,7 @@ class TestServiceList(volume_fakes.TestVolume):
         )
         self.assertEqual(expected_columns, columns)
         self.assertEqual(datalist, tuple(data))
-        self.volume_sdk_client.services.assert_called_with(
+        self.volume_client.services.assert_called_with(
             host=self.service.host,
             binary=self.service.binary,
         )
@@ -200,7 +200,7 @@ class TestServiceList(volume_fakes.TestVolume):
         )
         self.assertEqual(expected_columns, columns)
         self.assertEqual(datalist, tuple(data))
-        self.volume_sdk_client.services.assert_called_with(
+        self.volume_client.services.assert_called_with(
             host=self.service.host,
             binary=self.service.binary,
         )
@@ -213,7 +213,7 @@ class TestServiceSet(volume_fakes.TestVolume):
         self.service = sdk_fakes.generate_fake_resource(_service.Service)
         self.service.enable = mock.Mock(autospec=True)
         self.service.disable = mock.Mock(autospec=True)
-        self.volume_sdk_client.find_service.return_value = self.service
+        self.volume_client.find_service.return_value = self.service
 
         self.cmd = service.SetService(self.app, None)
 
@@ -248,7 +248,7 @@ class TestServiceSet(volume_fakes.TestVolume):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.service.enable.assert_called_with(self.volume_sdk_client)
+        self.service.enable.assert_called_with(self.volume_client)
         self.service.disable.assert_not_called()
         self.assertIsNone(result)
 
@@ -269,7 +269,7 @@ class TestServiceSet(volume_fakes.TestVolume):
 
         self.service.enable.assert_not_called()
         self.service.disable.assert_called_with(
-            self.volume_sdk_client, reason=None
+            self.volume_client, reason=None
         )
         self.assertIsNone(result)
 
@@ -294,7 +294,7 @@ class TestServiceSet(volume_fakes.TestVolume):
 
         self.service.enable.assert_not_called()
         self.service.disable.assert_called_with(
-            self.volume_sdk_client, reason=reason
+            self.volume_client, reason=reason
         )
         self.assertIsNone(result)
 

@@ -31,8 +31,8 @@ class TestVolumeHostSet(volume_fakes.TestVolume):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.volume_sdk_client.freeze_service.assert_not_called()
-        self.volume_sdk_client.thaw_service.assert_not_called()
+        self.volume_client.freeze_service.assert_not_called()
+        self.volume_client.thaw_service.assert_not_called()
         self.assertIsNone(result)
 
     def test_volume_host_set_enable(self):
@@ -42,10 +42,10 @@ class TestVolumeHostSet(volume_fakes.TestVolume):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.volume_sdk_client.thaw_service.assert_called_once_with(
+        self.volume_client.thaw_service.assert_called_once_with(
             _service.Service(host=self.service.host)
         )
-        self.volume_sdk_client.freeze_service.assert_not_called()
+        self.volume_client.freeze_service.assert_not_called()
         self.assertIsNone(result)
 
     def test_volume_host_set_disable(self):
@@ -55,10 +55,10 @@ class TestVolumeHostSet(volume_fakes.TestVolume):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.volume_sdk_client.freeze_service.assert_called_once_with(
+        self.volume_client.freeze_service.assert_called_once_with(
             _service.Service(host=self.service.host)
         )
-        self.volume_sdk_client.thaw_service.assert_not_called()
+        self.volume_client.thaw_service.assert_not_called()
         self.assertIsNone(result)
 
 
@@ -78,7 +78,7 @@ class TestVolumeHostFailover(volume_fakes.TestVolume):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.volume_sdk_client.failover_service.assert_called_once_with(
+        self.volume_client.failover_service.assert_called_once_with(
             _service.Service(host=self.service.host),
             backend_id='backend_test',
         )

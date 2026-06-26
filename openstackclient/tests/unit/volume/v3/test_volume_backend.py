@@ -86,7 +86,7 @@ class TestShowVolumeCapability(volume_fakes.TestVolume):
         super().setUp()
 
         self.capability = _create_fake_capability()
-        self.volume_sdk_client.get_capabilities.return_value = self.capability
+        self.volume_client.get_capabilities.return_value = self.capability
 
         self.cmd = volume_backend.ShowCapability(self.app, None)
 
@@ -128,7 +128,7 @@ class TestShowVolumeCapability(volume_fakes.TestVolume):
             self.assertIn(cap[0], capabilities)
 
         # checking if proper call was made to get capabilities
-        self.volume_sdk_client.get_capabilities.assert_called_with(
+        self.volume_client.get_capabilities.assert_called_with(
             'fake',
         )
 
@@ -140,7 +140,7 @@ class TestListVolumePool(volume_fakes.TestVolume):
         super().setUp()
 
         self.pool = _create_fake_pool()
-        self.volume_sdk_client.backend_pools.return_value = [self.pool]
+        self.volume_client.backend_pools.return_value = [self.pool]
 
         # Get the command object to test
         self.cmd = volume_backend.ListPool(self.app, None)
@@ -170,7 +170,7 @@ class TestListVolumePool(volume_fakes.TestVolume):
         self.assertEqual(datalist, tuple(data))
 
         # checking if proper call was made to list pools
-        self.volume_sdk_client.backend_pools.assert_called_with(
+        self.volume_client.backend_pools.assert_called_with(
             detailed=False,
         )
 
@@ -208,6 +208,6 @@ class TestListVolumePool(volume_fakes.TestVolume):
         # confirming if all expected values are present in the result.
         self.assertEqual(datalist, tuple(data))
 
-        self.volume_sdk_client.backend_pools.assert_called_with(
+        self.volume_client.backend_pools.assert_called_with(
             detailed=True,
         )

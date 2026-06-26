@@ -37,11 +37,14 @@ class TestImagev1(FakeClientMixin, utils.TestCommand):
     def setUp(self):
         super().setUp()
 
-        # TODO(stephenfin): Rename to 'volume_client' now that all commands are
-        # migrated to SDK
+        # avoid circular imports by defining this manually rather than using
+        # openstackclient.tests.unit.volume.v2.fakes.FakeClientMixin
+        # TODO(stephenfin): Switch to spec_set once keystoneauth exposes
+        # instance attributes as class attributes
+        # https://review.opendev.org/c/openstack/keystoneauth/+/994090
         self.app.client_manager.volume = mock.Mock(spec=block_storage_v2.Proxy)
         self.app.client_manager.volume.api_version = '2'
-        self.volume_sdk_client = self.app.client_manager.volume
+        self.volume_client = self.app.client_manager.volume
 
 
 def create_one_image(attrs=None):

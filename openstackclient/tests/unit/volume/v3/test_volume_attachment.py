@@ -56,8 +56,8 @@ class TestVolumeAttachmentCreate(volume_fakes.TestVolume):
     def setUp(self):
         super().setUp()
 
-        self.volume_sdk_client.find_volume.return_value = self.volume
-        self.volume_sdk_client.create_attachment.return_value = (
+        self.volume_client.find_volume.return_value = self.volume
+        self.volume_client.create_attachment.return_value = (
             self.volume_attachment
         )
         self.compute_client.find_server.return_value = self.server
@@ -88,13 +88,13 @@ class TestVolumeAttachmentCreate(volume_fakes.TestVolume):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.volume_sdk_client.find_volume.assert_called_once_with(
+        self.volume_client.find_volume.assert_called_once_with(
             self.volume.id, ignore_missing=False
         )
         self.compute_client.find_server.assert_called_once_with(
             self.server.id, ignore_missing=False
         )
-        self.volume_sdk_client.create_attachment.assert_called_once_with(
+        self.volume_client.create_attachment.assert_called_once_with(
             self.volume.id,
             connector={},
             instance=self.server.id,
@@ -155,13 +155,13 @@ class TestVolumeAttachmentCreate(volume_fakes.TestVolume):
             ]
         )
 
-        self.volume_sdk_client.find_volume.assert_called_once_with(
+        self.volume_client.find_volume.assert_called_once_with(
             self.volume.id, ignore_missing=False
         )
         self.compute_client.find_server.assert_called_once_with(
             self.server.id, ignore_missing=False
         )
-        self.volume_sdk_client.create_attachment.assert_called_once_with(
+        self.volume_client.create_attachment.assert_called_once_with(
             self.volume.id,
             connector=connect_info,
             instance=self.server.id,
@@ -246,7 +246,7 @@ class TestVolumeAttachmentDelete(volume_fakes.TestVolume):
     def setUp(self):
         super().setUp()
 
-        self.volume_sdk_client.delete_attachment.return_value = None
+        self.volume_client.delete_attachment.return_value = None
 
         self.cmd = volume_attachment.DeleteVolumeAttachment(self.app, None)
 
@@ -263,7 +263,7 @@ class TestVolumeAttachmentDelete(volume_fakes.TestVolume):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.volume_sdk_client.delete_attachment.assert_called_once_with(
+        self.volume_client.delete_attachment.assert_called_once_with(
             self.volume_attachment.id,
         )
         self.assertIsNone(result)
@@ -316,7 +316,7 @@ class TestVolumeAttachmentSet(volume_fakes.TestVolume):
     def setUp(self):
         super().setUp()
 
-        self.volume_sdk_client.update_attachment.return_value = (
+        self.volume_client.update_attachment.return_value = (
             self.volume_attachment
         )
 
@@ -367,7 +367,7 @@ class TestVolumeAttachmentSet(volume_fakes.TestVolume):
             ]
         )
 
-        self.volume_sdk_client.update_attachment.assert_called_once_with(
+        self.volume_client.update_attachment.assert_called_once_with(
             self.volume_attachment.id,
             connector=connect_info,
         )
@@ -404,7 +404,7 @@ class TestVolumeAttachmentComplete(volume_fakes.TestVolume):
     def setUp(self):
         super().setUp()
 
-        self.volume_sdk_client.complete_attachment.return_value = None
+        self.volume_client.complete_attachment.return_value = None
 
         self.cmd = volume_attachment.CompleteVolumeAttachment(self.app, None)
 
@@ -421,7 +421,7 @@ class TestVolumeAttachmentComplete(volume_fakes.TestVolume):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.volume_sdk_client.complete_attachment.assert_called_once_with(
+        self.volume_client.complete_attachment.assert_called_once_with(
             self.volume_attachment.id,
         )
         self.assertIsNone(result)
@@ -472,9 +472,7 @@ class TestVolumeAttachmentList(volume_fakes.TestVolume):
         super().setUp()
 
         self.identity_sdk_client.find_project.return_value = self.project
-        self.volume_sdk_client.attachments.return_value = (
-            self.volume_attachments
-        )
+        self.volume_client.attachments.return_value = self.volume_attachments
 
         self.cmd = volume_attachment.ListVolumeAttachment(self.app, None)
 
@@ -494,7 +492,7 @@ class TestVolumeAttachmentList(volume_fakes.TestVolume):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.volume_sdk_client.attachments.assert_called_once_with(
+        self.volume_client.attachments.assert_called_once_with(
             search_opts={
                 'all_tenants': False,
                 'project_id': None,
@@ -535,7 +533,7 @@ class TestVolumeAttachmentList(volume_fakes.TestVolume):
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        self.volume_sdk_client.attachments.assert_called_once_with(
+        self.volume_client.attachments.assert_called_once_with(
             search_opts={
                 'all_tenants': True,
                 'project_id': self.project.id,

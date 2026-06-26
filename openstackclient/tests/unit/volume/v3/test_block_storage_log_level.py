@@ -28,7 +28,7 @@ class TestBlockStorageLogLevelList(volume_fakes.TestVolume):
         self.log_level = sdk_fakes.generate_fake_resource(
             _service.LogLevel, binary='cinder-scheduler'
         )
-        self.volume_sdk_client.get_service_log_levels.return_value = [
+        self.volume_client.get_service_log_levels.return_value = [
             self.log_level
         ]
 
@@ -72,7 +72,7 @@ class TestBlockStorageLogLevelList(volume_fakes.TestVolume):
         self.assertEqual(expected_columns, columns)
         self.assertEqual(datalist, tuple(data))
 
-        self.volume_sdk_client.get_service_log_levels.assert_called_with(
+        self.volume_client.get_service_log_levels.assert_called_with(
             server=self.log_level.host,
             binary=self.log_level.binary,
             prefix='cinder.',
@@ -135,7 +135,7 @@ class TestBlockStorageLogLevelSet(volume_fakes.TestVolume):
         self.log_level = sdk_fakes.generate_fake_resource(
             _service.LogLevel, binary='cinder-api'
         )
-        self.volume_sdk_client.set_service_log_levels.return_value = None
+        self.volume_client.set_service_log_levels.return_value = None
 
         self.cmd = service.BlockStorageLogLevelSet(self.app, None)
 
@@ -162,7 +162,7 @@ class TestBlockStorageLogLevelSet(volume_fakes.TestVolume):
         ret = self.cmd.take_action(parsed_args)
 
         self.assertIsNone(ret)
-        self.volume_sdk_client.set_service_log_levels.assert_called_with(
+        self.volume_client.set_service_log_levels.assert_called_with(
             level='ERROR',
             server=self.log_level.host,
             binary=self.log_level.binary,
@@ -254,7 +254,7 @@ class TestBlockStorageLogLevelSet(volume_fakes.TestVolume):
 
             self.cmd.take_action(parsed_args)
 
-            self.volume_sdk_client.set_service_log_levels.assert_called_with(
+            self.volume_client.set_service_log_levels.assert_called_with(
                 level=log_level.upper(),
                 server=self.log_level.host,
                 binary=self.log_level.binary,
