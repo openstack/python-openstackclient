@@ -628,6 +628,33 @@ tap_service_list = "openstackclient.network.v2.taas.tap_service:ListTapService"
 tap_service_show = "openstackclient.network.v2.taas.tap_service:ShowTapService"
 tap_service_update = "openstackclient.network.v2.taas.tap_service:UpdateTapService"
 
+[project.entry-points."openstack.network.v2.vpnaas"]
+vpn_endpoint_group_create = "openstackclient.network.v2.vpnaas.endpoint_group:CreateEndpointGroup"
+vpn_endpoint_group_delete = "openstackclient.network.v2.vpnaas.endpoint_group:DeleteEndpointGroup"
+vpn_endpoint_group_list = "openstackclient.network.v2.vpnaas.endpoint_group:ListEndpointGroup"
+vpn_endpoint_group_set = "openstackclient.network.v2.vpnaas.endpoint_group:SetEndpointGroup"
+vpn_endpoint_group_show = "openstackclient.network.v2.vpnaas.endpoint_group:ShowEndpointGroup"
+vpn_ike_policy_create = "openstackclient.network.v2.vpnaas.ikepolicy:CreateIKEPolicy"
+vpn_ike_policy_delete = "openstackclient.network.v2.vpnaas.ikepolicy:DeleteIKEPolicy"
+vpn_ike_policy_list = "openstackclient.network.v2.vpnaas.ikepolicy:ListIKEPolicy"
+vpn_ike_policy_set = "openstackclient.network.v2.vpnaas.ikepolicy:SetIKEPolicy"
+vpn_ike_policy_show = "openstackclient.network.v2.vpnaas.ikepolicy:ShowIKEPolicy"
+vpn_ipsec_policy_create = "openstackclient.network.v2.vpnaas.ipsecpolicy:CreateIPsecPolicy"
+vpn_ipsec_policy_delete = "openstackclient.network.v2.vpnaas.ipsecpolicy:DeleteIPsecPolicy"
+vpn_ipsec_policy_list = "openstackclient.network.v2.vpnaas.ipsecpolicy:ListIPsecPolicy"
+vpn_ipsec_policy_set = "openstackclient.network.v2.vpnaas.ipsecpolicy:SetIPsecPolicy"
+vpn_ipsec_policy_show = "openstackclient.network.v2.vpnaas.ipsecpolicy:ShowIPsecPolicy"
+vpn_ipsec_site_connection_create = "openstackclient.network.v2.vpnaas.ipsec_site_connection:CreateIPsecSiteConnection"
+vpn_ipsec_site_connection_delete = "openstackclient.network.v2.vpnaas.ipsec_site_connection:DeleteIPsecSiteConnection"
+vpn_ipsec_site_connection_list = "openstackclient.network.v2.vpnaas.ipsec_site_connection:ListIPsecSiteConnection"
+vpn_ipsec_site_connection_set = "openstackclient.network.v2.vpnaas.ipsec_site_connection:SetIPsecSiteConnection"
+vpn_ipsec_site_connection_show = "openstackclient.network.v2.vpnaas.ipsec_site_connection:ShowIPsecSiteConnection"
+vpn_service_create = "openstackclient.network.v2.vpnaas.vpnservice:CreateVPNService"
+vpn_service_delete = "openstackclient.network.v2.vpnaas.vpnservice:DeleteVPNService"
+vpn_service_list = "openstackclient.network.v2.vpnaas.vpnservice:ListVPNService"
+vpn_service_set = "openstackclient.network.v2.vpnaas.vpnservice:SetVPNSercice"
+vpn_service_show = "openstackclient.network.v2.vpnaas.vpnservice:ShowVPNService"
+
 [project.entry-points."openstack.object_store.v1"]
 object_store_account_set = "openstackclient.object.v1.account:SetAccount"
 object_store_account_show = "openstackclient.object.v1.account:ShowAccount"
@@ -838,7 +865,11 @@ warn_unused_ignores = true
 exclude = "(?x)(doc | examples | hacking | releasenotes)"
 
 [[tool.mypy.overrides]]
-module = ["openstackclient.tests.functional.*"]
+module = [
+    # TODO: Remove all non-functional tests exceptions here
+    "openstackclient.network.v2.vpnaas.*",
+    "openstackclient.tests.functional.*",
+]
 disallow_untyped_defs = false
 
 [[tool.mypy.overrides]]

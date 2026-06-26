@@ -25,7 +25,13 @@ DEFAULT_API_VERSION = '2.0'
 API_VERSION_OPTION = 'os_network_api_version'
 API_NAME = 'network'
 API_VERSIONS = ('2.0', '2')
-API_EXTENSIONS = ('bgpvpn', 'fwaas', 'taas', 'dynamic_routing')
+API_EXTENSIONS = (
+    'bgpvpn',
+    'fwaas',
+    'taas',
+    'dynamic_routing',
+    'vpnaas',
+)
 
 
 def make_client(instance: Any) -> Any:

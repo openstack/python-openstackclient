@@ -1,0 +1,11 @@
+---
+features:
+  - |
+    ``neutron-vpnaas`` OSC commands were moved from
+    ``python-neutronclient``. The following commands are included:
+
+    * ``vpn endpoint group create|delete|list|set|show``
+    * ``vpn ike policy create|delete|list|set|show``
+    * ``vpn ipsec policy create|delete|list|set|show``
+    * ``vpn ipsec site connection create|delete|list|set|show``
+    * ``vpn service create|delete|list|set|show``
