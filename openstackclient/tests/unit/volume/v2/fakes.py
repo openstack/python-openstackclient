@@ -13,33 +13,19 @@
 
 from unittest import mock
 
-from cinderclient import api_versions
 from keystoneauth1 import discover
 from openstack.block_storage import v2 as block_storage_v2
 from openstack.image import v2 as image_v2
 
-from openstackclient.tests.unit import fakes
 from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 from openstackclient.tests.unit import utils
-
-
-class FakeVolumeClient:
-    def __init__(self, **kwargs):
-        self.auth_token = kwargs['token']
-        self.management_url = kwargs['endpoint']
-        self.api_version = api_versions.APIVersion('2.0')
 
 
 class FakeClientMixin:
     def setUp(self):
         super().setUp()
 
-        self.app.client_manager.volume = FakeVolumeClient(
-            endpoint=fakes.AUTH_URL, token=fakes.AUTH_TOKEN
-        )
-        self.volume_client = self.app.client_manager.volume
-
-        # TODO(stephenfin): Rename to 'volume_client' once all commands are
+        # TODO(stephenfin): Rename to 'volume_client' now that all commands are
         # migrated to SDK
         self.app.client_manager.sdk_connection.volume = mock.Mock(
             spec=block_storage_v2.Proxy,
@@ -56,8 +42,6 @@ class FakeClientMixin:
         :returns: None
         """
         assert version is None
-
-        self.volume_client.api_version = None
 
         self.volume_sdk_client.default_microversion = None
         self.volume_sdk_client.get_endpoint_data.return_value = (
