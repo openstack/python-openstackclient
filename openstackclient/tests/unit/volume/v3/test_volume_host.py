@@ -12,16 +12,16 @@
 #   under the License.
 
 from openstack.block_storage.v3 import service as _service
+from openstack.test import fakes as sdk_fakes
 
 from openstackclient.tests.unit.volume.v3 import fakes as volume_fakes
 from openstackclient.volume.v3 import volume_host
 
 
 class TestVolumeHostSet(volume_fakes.TestVolume):
-    service = volume_fakes.create_one_service()
-
     def setUp(self):
         super().setUp()
+        self.service = sdk_fakes.generate_fake_resource(_service.Service)
         self.cmd = volume_host.SetVolumeHost(self.app, None)
 
     def test_volume_host_set_nothing(self):
@@ -63,10 +63,9 @@ class TestVolumeHostSet(volume_fakes.TestVolume):
 
 
 class TestVolumeHostFailover(volume_fakes.TestVolume):
-    service = volume_fakes.create_one_service()
-
     def setUp(self):
         super().setUp()
+        self.service = sdk_fakes.generate_fake_resource(_service.Service)
         self.cmd = volume_host.FailoverVolumeHost(self.app, None)
 
     def test_volume_host_failover(self):

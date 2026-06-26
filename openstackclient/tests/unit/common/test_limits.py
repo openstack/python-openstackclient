@@ -9,11 +9,57 @@
 #   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #   License for the specific language governing permissions and limitations
 #   under the License.
-#
+
+from openstack.block_storage.v3 import limits as _volume_limits
 
 from openstackclient.common import limits
 from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
 from openstackclient.tests.unit.volume.v3 import fakes as volume_fakes
+
+
+def _create_fake_volume_limits():
+    return _volume_limits.Limit(
+        absolute={
+            'totalSnapshotsUsed': 1,
+            'maxTotalBackups': 10,
+            'maxTotalVolumeGigabytes': 1000,
+            'maxTotalSnapshots': 10,
+            'maxTotalBackupGigabytes': 1000,
+            'totalBackupGigabytesUsed': 0,
+            'maxTotalVolumes': 10,
+            'totalVolumesUsed': 4,
+            'totalBackupsUsed': 0,
+            'totalGigabytesUsed': 35,
+        },
+        rate=[
+            {
+                "uri": "*",
+                "limit": [
+                    {
+                        "value": 10,
+                        "verb": "POST",
+                        "remaining": 2,
+                        "unit": "MINUTE",
+                        "next-available": "2011-12-15T22:42:45Z",
+                    },
+                    {
+                        "value": 10,
+                        "verb": "PUT",
+                        "remaining": 2,
+                        "unit": "MINUTE",
+                        "next-available": "2011-12-15T22:42:45Z",
+                    },
+                    {
+                        "value": 100,
+                        "verb": "DELETE",
+                        "remaining": 100,
+                        "unit": "MINUTE",
+                        "next-available": "2011-12-15T22:42:45Z",
+                    },
+                ],
+            }
+        ],
+    )
 
 
 class TestComputeLimits(compute_fakes.TestCompute):
@@ -101,7 +147,7 @@ class TestVolumeLimits(volume_fakes.TestVolume):
         super().setUp()
         self.app.client_manager.compute_endpoint_enabled = False
 
-        self.fake_limits = volume_fakes.create_limits()
+        self.fake_limits = _create_fake_volume_limits()
 
         self.absolute_data = [
             ('max_total_backup_gigabytes', 1000),

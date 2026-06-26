@@ -10,11 +10,21 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 
+import uuid
+
+from openstack.block_storage.v3 import availability_zone as _volume_az
+
 from openstackclient.common import availability_zone
 from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
 from openstackclient.tests.unit.network.v2 import fakes as network_fakes
 from openstackclient.tests.unit import utils
 from openstackclient.tests.unit.volume.v3 import fakes as volume_fakes
+
+
+def _create_fake_volume_az():
+    return _volume_az.AvailabilityZone(
+        name=uuid.uuid4().hex, state={'available': True}
+    )
 
 
 def _build_compute_az_datalist(compute_az, long_datalist=False):
@@ -86,7 +96,7 @@ class TestAvailabilityZoneList(
         self.compute_client.availability_zones.return_value = self.compute_azs
         self.network_azs = network_fakes.create_availability_zones()
         self.network_client.availability_zones.return_value = self.network_azs
-        self.volume_azs = volume_fakes.create_availability_zones(count=1)
+        self.volume_azs = [_create_fake_volume_az()]
         self.volume_sdk_client.availability_zones.return_value = (
             self.volume_azs
         )

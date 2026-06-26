@@ -38,7 +38,6 @@ from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
 from openstackclient.tests.unit.image.v2 import fakes as image_fakes
 from openstackclient.tests.unit.network.v2 import fakes as network_fakes
 from openstackclient.tests.unit import utils as test_utils
-from openstackclient.tests.unit.volume.v3 import fakes as volume_fakes
 
 
 class TestPowerStateColumn(test_utils.TestCase):
@@ -2541,7 +2540,7 @@ class TestServerCreate(TestServer):
     def test_server_create_with_block_device_full(self):
         self.set_compute_api_version('2.67')
 
-        self.volume_alt = volume_fakes.create_one_volume()
+        self.volume_alt = sdk_fakes.generate_fake_resource(_volume.Volume)
         block_device = (
             f'uuid={self.volume.id},source_type=volume,'
             f'destination_type=volume,disk_bus=ide,device_type=disk,'
