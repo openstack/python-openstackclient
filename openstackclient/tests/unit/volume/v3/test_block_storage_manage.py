@@ -12,34 +12,65 @@
 
 from unittest import mock
 
+from openstack.block_storage.v3 import (
+    manageable_snapshot as _manageable_snapshot,
+)
+from openstack.block_storage.v3 import manageable_volume as _manageable_volume
 from osc_lib import exceptions
 
 from openstackclient.tests.unit import utils as tests_utils
 from openstackclient.tests.unit.volume.v3 import fakes as volume_fakes
 from openstackclient.volume.v3 import block_storage_manage
 
+FAKE_VOLUME_MANAGE_LIST = [
+    _manageable_volume.ManageableVolume(
+        reference={'source-name': 'fake-volume'},
+        size='1',
+        safe_to_manage=False,
+        reason_not_safe='already managed',
+        cinder_id='fake-volume',
+        extra_info=None,
+    ),
+    _manageable_volume.ManageableVolume(
+        reference={'source-name': 'fake-volume'},
+        size='2',
+        safe_to_manage=False,
+        reason_not_safe='already managed',
+        cinder_id='fake-volume',
+        extra_info=None,
+    ),
+]
 
-class TestBlockStorageManage(volume_fakes.TestVolume):
+FAKE_SNAPSHOT_MANAGE_LIST = [
+    _manageable_snapshot.ManageableSnapshot(
+        reference={'source-name': 'fake-snapshot'},
+        source_reference={'source-name': 'fake-source'},
+        size='1',
+        safe_to_manage=False,
+        reason_not_safe='already managed',
+        cinder_id='fake-snapshot',
+        extra_info=None,
+    ),
+    _manageable_snapshot.ManageableSnapshot(
+        reference={'source-name': 'fake-snapshot'},
+        source_reference={'source-name': 'fake-source'},
+        size='2',
+        safe_to_manage=False,
+        reason_not_safe='already managed',
+        cinder_id='fake-snapshot',
+        extra_info=None,
+    ),
+]
+
+
+class TestBlockStorageVolumeManage(volume_fakes.TestVolume):
     def setUp(self):
         super().setUp()
 
-        self.volumes_mock = self.volume_client.volumes
-        self.volumes_mock.reset_mock()
-        self.snapshots_mock = self.volume_client.volume_snapshots
-        self.snapshots_mock.reset_mock()
-
-
-class TestBlockStorageVolumeManage(TestBlockStorageManage):
-    volume_manage_list = volume_fakes.create_volume_manage_list_records()
-
-    def setUp(self):
-        super().setUp()
-
-        self.volumes_mock.list_manageable.return_value = (
-            self.volume_manage_list
+        self.volume_sdk_client.manageable_volumes.return_value = iter(
+            FAKE_VOLUME_MANAGE_LIST
         )
 
-        # Get the command object to test
         self.cmd = block_storage_manage.BlockStorageManageVolumes(
             self.app, None
         )
@@ -47,54 +78,28 @@ class TestBlockStorageVolumeManage(TestBlockStorageManage):
     def test_block_storage_volume_manage_list(self):
         self.set_volume_api_version('3.8')
 
-        arglist = [
-            'fake_host',
-        ]
-        verifylist = [
-            ('host', 'fake_host'),
-        ]
+        arglist = ['fake_host']
+        verifylist = [('host', 'fake_host')]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
 
-        expected_columns = [
-            'reference',
-            'size',
-            'safe_to_manage',
-        ]
-        datalist = []
-        for volume_record in self.volume_manage_list:
-            manage_details = (
-                volume_record.reference,
-                volume_record.size,
-                volume_record.safe_to_manage,
-            )
-            datalist.append(manage_details)
-        datalist = tuple(datalist)
+        expected_columns = ['reference', 'size', 'safe_to_manage']
+        expected_data = tuple(
+            (v.reference, v.size, v.safe_to_manage)
+            for v in FAKE_VOLUME_MANAGE_LIST
+        )
 
         self.assertEqual(expected_columns, columns)
-        self.assertEqual(datalist, tuple(data))
+        self.assertEqual(expected_data, tuple(data))
 
-        # checking if proper call was made to get volume manageable list
-        self.volumes_mock.list_manageable.assert_called_with(
-            host='fake_host',
-            detailed=False,
-            marker=None,
-            limit=None,
-            offset=None,
-            sort=None,
-            cluster=None,
+        self.volume_sdk_client.manageable_volumes.assert_called_once_with(
+            details=False, host='fake_host'
         )
 
     def test_block_storage_volume_manage_list__pre_v38(self):
-        self.set_volume_api_version('3.7')
-
-        arglist = [
-            'fake_host',
-        ]
-        verifylist = [
-            ('host', 'fake_host'),
-        ]
+        arglist = ['fake_host']
+        verifylist = [('host', 'fake_host')]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         exc = self.assertRaises(
@@ -107,13 +112,8 @@ class TestBlockStorageVolumeManage(TestBlockStorageManage):
     def test_block_storage_volume_manage_list__pre_v317(self):
         self.set_volume_api_version('3.16')
 
-        arglist = [
-            '--cluster',
-            'fake_cluster',
-        ]
-        verifylist = [
-            ('cluster', 'fake_cluster'),
-        ]
+        arglist = ['--cluster', 'fake_cluster']
+        verifylist = [('cluster', 'fake_cluster')]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         exc = self.assertRaises(
@@ -127,15 +127,8 @@ class TestBlockStorageVolumeManage(TestBlockStorageManage):
     def test_block_storage_volume_manage_list__host_and_cluster(self):
         self.set_volume_api_version('3.17')
 
-        arglist = [
-            'fake_host',
-            '--cluster',
-            'fake_cluster',
-        ]
-        verifylist = [
-            ('host', 'fake_host'),
-            ('cluster', 'fake_cluster'),
-        ]
+        arglist = ['fake_host', '--cluster', 'fake_cluster']
+        verifylist = [('host', 'fake_host'), ('cluster', 'fake_cluster')]
         exc = self.assertRaises(
             tests_utils.ParserException,
             self.check_parser,
@@ -151,11 +144,7 @@ class TestBlockStorageVolumeManage(TestBlockStorageManage):
         """This option is deprecated."""
         self.set_volume_api_version('3.8')
 
-        arglist = [
-            '--detailed',
-            'True',
-            'fake_host',
-        ]
+        arglist = ['--detailed', 'True', 'fake_host']
         verifylist = [
             ('host', 'fake_host'),
             ('detailed', 'True'),
@@ -177,31 +166,23 @@ class TestBlockStorageVolumeManage(TestBlockStorageManage):
             'cinder_id',
             'extra_info',
         ]
-        datalist = []
-        for volume_record in self.volume_manage_list:
-            manage_details = (
-                volume_record.reference,
-                volume_record.size,
-                volume_record.safe_to_manage,
-                volume_record.reason_not_safe,
-                volume_record.cinder_id,
-                volume_record.extra_info,
+        expected_data = tuple(
+            (
+                v.reference,
+                v.size,
+                v.safe_to_manage,
+                v.reason_not_safe,
+                v.cinder_id,
+                v.extra_info,
             )
-            datalist.append(manage_details)
-        datalist = tuple(datalist)
+            for v in FAKE_VOLUME_MANAGE_LIST
+        )
 
         self.assertEqual(expected_columns, columns)
-        self.assertEqual(datalist, tuple(data))
+        self.assertEqual(expected_data, tuple(data))
 
-        # checking if proper call was made to get volume manageable list
-        self.volumes_mock.list_manageable.assert_called_with(
-            host='fake_host',
-            detailed=True,
-            marker=None,
-            limit=None,
-            offset=None,
-            sort=None,
-            cluster=None,
+        self.volume_sdk_client.manageable_volumes.assert_called_once_with(
+            details=True, host='fake_host'
         )
         mock_warning.assert_called_once()
         self.assertIn(
@@ -245,45 +226,39 @@ class TestBlockStorageVolumeManage(TestBlockStorageManage):
             'cinder_id',
             'extra_info',
         ]
-        datalist = []
-        for volume_record in self.volume_manage_list:
-            manage_details = (
-                volume_record.reference,
-                volume_record.size,
-                volume_record.safe_to_manage,
-                volume_record.reason_not_safe,
-                volume_record.cinder_id,
-                volume_record.extra_info,
+        expected_data = tuple(
+            (
+                v.reference,
+                v.size,
+                v.safe_to_manage,
+                v.reason_not_safe,
+                v.cinder_id,
+                v.extra_info,
             )
-            datalist.append(manage_details)
-        datalist = tuple(datalist)
+            for v in FAKE_VOLUME_MANAGE_LIST
+        )
 
         self.assertEqual(expected_columns, columns)
-        self.assertEqual(datalist, tuple(data))
+        self.assertEqual(expected_data, tuple(data))
 
-        # checking if proper call was made to get volume manageable list
-        self.volumes_mock.list_manageable.assert_called_with(
+        self.volume_sdk_client.manageable_volumes.assert_called_once_with(
+            details=True,
             host='fake_host',
-            detailed=True,
             marker='fake_marker',
             limit='5',
             offset='3',
             sort='size:asc',
-            cluster=None,
         )
 
 
-class TestBlockStorageSnapshotManage(TestBlockStorageManage):
-    snapshot_manage_list = volume_fakes.create_snapshot_manage_list_records()
-
+class TestBlockStorageSnapshotManage(volume_fakes.TestVolume):
     def setUp(self):
         super().setUp()
 
-        self.snapshots_mock.list_manageable.return_value = (
-            self.snapshot_manage_list
+        self.volume_sdk_client.manageable_snapshots.return_value = iter(
+            FAKE_SNAPSHOT_MANAGE_LIST
         )
 
-        # Get the command object to test
         self.cmd = block_storage_manage.BlockStorageManageSnapshots(
             self.app, None
         )
@@ -291,12 +266,8 @@ class TestBlockStorageSnapshotManage(TestBlockStorageManage):
     def test_block_storage_snapshot_manage_list(self):
         self.set_volume_api_version('3.8')
 
-        arglist = [
-            'fake_host',
-        ]
-        verifylist = [
-            ('host', 'fake_host'),
-        ]
+        arglist = ['fake_host']
+        verifylist = [('host', 'fake_host')]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         columns, data = self.cmd.take_action(parsed_args)
@@ -307,40 +278,21 @@ class TestBlockStorageSnapshotManage(TestBlockStorageManage):
             'safe_to_manage',
             'source_reference',
         ]
-        datalist = []
-        for snapshot_record in self.snapshot_manage_list:
-            manage_details = (
-                snapshot_record.reference,
-                snapshot_record.size,
-                snapshot_record.safe_to_manage,
-                snapshot_record.source_reference,
-            )
-            datalist.append(manage_details)
-        datalist = tuple(datalist)
+        expected_data = tuple(
+            (s.reference, s.size, s.safe_to_manage, s.source_reference)
+            for s in FAKE_SNAPSHOT_MANAGE_LIST
+        )
 
         self.assertEqual(expected_columns, columns)
-        self.assertEqual(datalist, tuple(data))
+        self.assertEqual(expected_data, tuple(data))
 
-        # checking if proper call was made to get snapshot manageable list
-        self.snapshots_mock.list_manageable.assert_called_with(
-            host='fake_host',
-            detailed=False,
-            marker=None,
-            limit=None,
-            offset=None,
-            sort=None,
-            cluster=None,
+        self.volume_sdk_client.manageable_snapshots.assert_called_once_with(
+            details=False, host='fake_host'
         )
 
     def test_block_storage_snapshot_manage_list__pre_v38(self):
-        self.set_volume_api_version('3.7')
-
-        arglist = [
-            'fake_host',
-        ]
-        verifylist = [
-            ('host', 'fake_host'),
-        ]
+        arglist = ['fake_host']
+        verifylist = [('host', 'fake_host')]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         exc = self.assertRaises(
@@ -353,13 +305,8 @@ class TestBlockStorageSnapshotManage(TestBlockStorageManage):
     def test_block_storage_snapshot_manage_list__pre_v317(self):
         self.set_volume_api_version('3.16')
 
-        arglist = [
-            '--cluster',
-            'fake_cluster',
-        ]
-        verifylist = [
-            ('cluster', 'fake_cluster'),
-        ]
+        arglist = ['--cluster', 'fake_cluster']
+        verifylist = [('cluster', 'fake_cluster')]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         exc = self.assertRaises(
@@ -373,15 +320,8 @@ class TestBlockStorageSnapshotManage(TestBlockStorageManage):
     def test_block_storage_snapshot_manage_list__host_and_cluster(self):
         self.set_volume_api_version('3.17')
 
-        arglist = [
-            'fake_host',
-            '--cluster',
-            'fake_cluster',
-        ]
-        verifylist = [
-            ('host', 'fake_host'),
-            ('cluster', 'fake_cluster'),
-        ]
+        arglist = ['fake_host', '--cluster', 'fake_cluster']
+        verifylist = [('host', 'fake_host'), ('cluster', 'fake_cluster')]
         exc = self.assertRaises(
             tests_utils.ParserException,
             self.check_parser,
@@ -396,11 +336,7 @@ class TestBlockStorageSnapshotManage(TestBlockStorageManage):
     def test_block_storage_snapshot_manage_list__detailed(self):
         self.set_volume_api_version('3.8')
 
-        arglist = [
-            '--detailed',
-            'True',
-            'fake_host',
-        ]
+        arglist = ['--detailed', 'True', 'fake_host']
         verifylist = [
             ('host', 'fake_host'),
             ('detailed', 'True'),
@@ -423,32 +359,24 @@ class TestBlockStorageSnapshotManage(TestBlockStorageManage):
             'cinder_id',
             'extra_info',
         ]
-        datalist = []
-        for snapshot_record in self.snapshot_manage_list:
-            manage_details = (
-                snapshot_record.reference,
-                snapshot_record.size,
-                snapshot_record.safe_to_manage,
-                snapshot_record.source_reference,
-                snapshot_record.reason_not_safe,
-                snapshot_record.cinder_id,
-                snapshot_record.extra_info,
+        expected_data = tuple(
+            (
+                s.reference,
+                s.size,
+                s.safe_to_manage,
+                s.source_reference,
+                s.reason_not_safe,
+                s.cinder_id,
+                s.extra_info,
             )
-            datalist.append(manage_details)
-        datalist = tuple(datalist)
+            for s in FAKE_SNAPSHOT_MANAGE_LIST
+        )
 
         self.assertEqual(expected_columns, columns)
-        self.assertEqual(datalist, tuple(data))
+        self.assertEqual(expected_data, tuple(data))
 
-        # checking if proper call was made to get snapshot manageable list
-        self.snapshots_mock.list_manageable.assert_called_with(
-            host='fake_host',
-            detailed=True,
-            marker=None,
-            limit=None,
-            offset=None,
-            sort=None,
-            cluster=None,
+        self.volume_sdk_client.manageable_snapshots.assert_called_once_with(
+            details=True, host='fake_host'
         )
         mock_warning.assert_called_once()
         self.assertIn(
@@ -493,30 +421,27 @@ class TestBlockStorageSnapshotManage(TestBlockStorageManage):
             'cinder_id',
             'extra_info',
         ]
-        datalist = []
-        for snapshot_record in self.snapshot_manage_list:
-            manage_details = (
-                snapshot_record.reference,
-                snapshot_record.size,
-                snapshot_record.safe_to_manage,
-                snapshot_record.source_reference,
-                snapshot_record.reason_not_safe,
-                snapshot_record.cinder_id,
-                snapshot_record.extra_info,
+        expected_data = tuple(
+            (
+                s.reference,
+                s.size,
+                s.safe_to_manage,
+                s.source_reference,
+                s.reason_not_safe,
+                s.cinder_id,
+                s.extra_info,
             )
-            datalist.append(manage_details)
-        datalist = tuple(datalist)
+            for s in FAKE_SNAPSHOT_MANAGE_LIST
+        )
 
         self.assertEqual(expected_columns, columns)
-        self.assertEqual(datalist, tuple(data))
+        self.assertEqual(expected_data, tuple(data))
 
-        # checking if proper call was made to get snapshot manageable list
-        self.snapshots_mock.list_manageable.assert_called_with(
+        self.volume_sdk_client.manageable_snapshots.assert_called_once_with(
+            details=True,
             host='fake_host',
-            detailed=True,
             marker='fake_marker',
             limit='5',
             offset='3',
             sort='size:asc',
-            cluster=None,
         )

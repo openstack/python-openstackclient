@@ -17,7 +17,7 @@ import argparse
 from collections.abc import Iterable
 from typing import Any
 
-from cinderclient import api_versions
+from openstack import utils as sdk_utils
 from osc_lib import exceptions
 from osc_lib import utils
 
@@ -109,7 +109,9 @@ class BlockStorageManageVolumes(command.Lister):
     def take_action(
         self, parsed_args: argparse.Namespace
     ) -> tuple[list[str], Iterable[tuple[Any, ...]]]:
-        volume_client = self.app.client_manager.volume
+        volume_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.volume, '3'
+        )
 
         if parsed_args.host is None and parsed_args.cluster is None:
             msg = _(
@@ -118,7 +120,7 @@ class BlockStorageManageVolumes(command.Lister):
             )
             raise exceptions.CommandError(msg)
 
-        if volume_client.api_version < api_versions.APIVersion('3.8'):
+        if not sdk_utils.supports_microversion(volume_client, '3.8'):
             msg = _(
                 "--os-volume-api-version 3.8 or greater is required to "
                 "support the 'block storage volume manageable list' command"
@@ -126,7 +128,7 @@ class BlockStorageManageVolumes(command.Lister):
             raise exceptions.CommandError(msg)
 
         if parsed_args.cluster:
-            if volume_client.api_version < api_versions.APIVersion('3.17'):
+            if not sdk_utils.supports_microversion(volume_client, '3.17'):
                 msg = _(
                     "--os-volume-api-version 3.17 or greater is required to "
                     "support the '--cluster' option"
@@ -172,15 +174,21 @@ class BlockStorageManageVolumes(command.Lister):
                 ]
             )
 
-        data = volume_client.volumes.list_manageable(
-            host=parsed_args.host,
-            detailed=detailed,
-            marker=parsed_args.marker,
-            limit=parsed_args.limit,
-            offset=parsed_args.offset,
-            sort=parsed_args.sort,
-            cluster=parsed_args.cluster,
-        )
+        query: dict[str, Any] = {}
+        if parsed_args.host:
+            query['host'] = parsed_args.host
+        if parsed_args.cluster:
+            query['cluster'] = parsed_args.cluster
+        if parsed_args.marker:
+            query['marker'] = parsed_args.marker
+        if parsed_args.limit:
+            query['limit'] = parsed_args.limit
+        if parsed_args.offset:
+            query['offset'] = parsed_args.offset
+        if parsed_args.sort:
+            query['sort'] = parsed_args.sort
+
+        data = volume_client.manageable_volumes(details=detailed, **query)
 
         return (
             columns,
@@ -275,7 +283,9 @@ class BlockStorageManageSnapshots(command.Lister):
     def take_action(
         self, parsed_args: argparse.Namespace
     ) -> tuple[list[str], Iterable[tuple[Any, ...]]]:
-        volume_client = self.app.client_manager.volume
+        volume_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.sdk_connection.volume, '3'
+        )
 
         if parsed_args.host is None and parsed_args.cluster is None:
             msg = _(
@@ -285,7 +295,7 @@ class BlockStorageManageSnapshots(command.Lister):
             )
             raise exceptions.CommandError(msg)
 
-        if volume_client.api_version < api_versions.APIVersion('3.8'):
+        if not sdk_utils.supports_microversion(volume_client, '3.8'):
             msg = _(
                 "--os-volume-api-version 3.8 or greater is required to "
                 "support the 'block storage volume snapshot manageable list' "
@@ -294,7 +304,7 @@ class BlockStorageManageSnapshots(command.Lister):
             raise exceptions.CommandError(msg)
 
         if parsed_args.cluster:
-            if volume_client.api_version < api_versions.APIVersion('3.17'):
+            if not sdk_utils.supports_microversion(volume_client, '3.17'):
                 msg = _(
                     "--os-volume-api-version 3.17 or greater is required to "
                     "support the '--cluster' option"
@@ -341,15 +351,21 @@ class BlockStorageManageSnapshots(command.Lister):
                 ]
             )
 
-        data = volume_client.volume_snapshots.list_manageable(
-            host=parsed_args.host,
-            detailed=detailed,
-            marker=parsed_args.marker,
-            limit=parsed_args.limit,
-            offset=parsed_args.offset,
-            sort=parsed_args.sort,
-            cluster=parsed_args.cluster,
-        )
+        query: dict[str, Any] = {}
+        if parsed_args.host:
+            query['host'] = parsed_args.host
+        if parsed_args.cluster:
+            query['cluster'] = parsed_args.cluster
+        if parsed_args.marker:
+            query['marker'] = parsed_args.marker
+        if parsed_args.limit:
+            query['limit'] = parsed_args.limit
+        if parsed_args.offset:
+            query['offset'] = parsed_args.offset
+        if parsed_args.sort:
+            query['sort'] = parsed_args.sort
+
+        data = volume_client.manageable_snapshots(details=detailed, **query)
 
         return (
             columns,
