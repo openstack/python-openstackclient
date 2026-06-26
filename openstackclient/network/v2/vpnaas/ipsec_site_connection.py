@@ -12,10 +12,12 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
-#
 
+import argparse
+from collections.abc import Iterable, Sequence
 from typing import Any
 
+from openstack.network import v2 as network_v2
 from osc_lib.cli import format_columns
 from osc_lib.cli import identity as identity_utils
 from osc_lib import exceptions
@@ -27,9 +29,7 @@ from openstackclient.i18n import _
 from openstackclient.identity import common as identity_common
 from openstackclient.network.v2.vpnaas import utils as vpn_utils
 
-
 _formatters = {'peer_cidrs': format_columns.ListColumn}
-
 
 _attr_map = [
     ('id', 'ID', column_util.LIST_BOTH),
@@ -84,11 +84,13 @@ _attr_map_dict = {
 }
 
 
-def _convert_to_lowercase(string):
+def _convert_to_lowercase(string: str) -> str:
     return string.lower()
 
 
-def _get_common_parser(parser, is_create=True):
+def _get_common_parser(
+    parser: argparse.ArgumentParser, is_create: bool = True
+) -> argparse.ArgumentParser:
     parser.add_argument(
         '--description',
         metavar='<description>',
@@ -152,7 +154,9 @@ def _get_common_parser(parser, is_create=True):
     return parser
 
 
-def _get_common_attrs(client, parsed_args):
+def _get_common_attrs(
+    network_client: network_v2.Proxy, parsed_args: argparse.Namespace
+) -> dict[str, Any]:
     attrs: dict[str, Any] = {}
     if parsed_args.description:
         attrs['description'] = str(parsed_args.description)
@@ -168,12 +172,12 @@ def _get_common_attrs(client, parsed_args):
         vpn_utils.validate_dpd_dict(parsed_args.dpd)
         attrs['dpd'] = parsed_args.dpd
     if parsed_args.local_endpoint_group:
-        _local_epg = client.find_vpn_endpoint_group(
+        _local_epg = network_client.find_vpn_endpoint_group(
             parsed_args.local_endpoint_group, ignore_missing=False
         ).id
         attrs['local_ep_group_id'] = _local_epg
     if parsed_args.peer_endpoint_group:
-        _peer_epg = client.find_vpn_endpoint_group(
+        _peer_epg = network_client.find_vpn_endpoint_group(
             parsed_args.peer_endpoint_group, ignore_missing=False
         ).id
         attrs['peer_ep_group_id'] = _peer_epg
@@ -187,7 +191,7 @@ def _get_common_attrs(client, parsed_args):
 class CreateIPsecSiteConnection(command.ShowOne):
     _description = _("Create an IPsec site connection")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         _get_common_parser(parser)
         parser.add_argument(
@@ -237,7 +241,9 @@ class CreateIPsecSiteConnection(command.ShowOne):
         identity_utils.add_project_owner_option_to_parser(parser)
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         client = self.app.client_manager.network
         attrs = _get_common_attrs(client, parsed_args)
         if 'project' in parsed_args and parsed_args.project is not None:
@@ -290,7 +296,7 @@ class CreateIPsecSiteConnection(command.ShowOne):
 class DeleteIPsecSiteConnection(command.Command):
     _description = _("Delete IPsec site connection(s)")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'ipsec_site_connection',
@@ -300,7 +306,7 @@ class DeleteIPsecSiteConnection(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
         result = 0
         for ipsec_conn in parsed_args.ipsec_site_connection:
@@ -330,7 +336,7 @@ class ListIPsecSiteConnection(command.Lister):
         "List IPsec site connections that belong to a given project"
     )
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             '--long',
@@ -340,7 +346,9 @@ class ListIPsecSiteConnection(command.Lister):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[tuple[Any, ...]]]:
         client = self.app.client_manager.network
         obj = client.vpn_ipsec_site_connections()
         headers, columns = column_util.get_column_definitions(
@@ -358,7 +366,7 @@ class ListIPsecSiteConnection(command.Lister):
 class SetIPsecSiteConnection(command.Command):
     _description = _("Set IPsec site connection properties")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         _get_common_parser(parser)
         parser.add_argument(
@@ -384,7 +392,7 @@ class SetIPsecSiteConnection(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
         attrs = _get_common_attrs(client, parsed_args)
         if parsed_args.peer_id:
@@ -408,7 +416,7 @@ class SetIPsecSiteConnection(command.Command):
 class ShowIPsecSiteConnection(command.ShowOne):
     _description = _("Show information of a given IPsec site connection")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'ipsec_site_connection',
@@ -417,7 +425,9 @@ class ShowIPsecSiteConnection(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         client = self.app.client_manager.network
         obj = client.find_vpn_ipsec_site_connection(
             parsed_args.ipsec_site_connection, ignore_missing=False

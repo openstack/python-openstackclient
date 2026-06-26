@@ -12,10 +12,12 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
-#
 
+import argparse
+from collections.abc import Iterable, Sequence
 from typing import Any
 
+from openstack.network import v2 as network_v2
 from osc_lib.cli import identity as identity_utils
 from osc_lib import exceptions
 from osc_lib import utils
@@ -55,7 +57,9 @@ _attr_map_dict = {
 }
 
 
-def _get_common_parser(parser):
+def _get_common_parser(
+    parser: argparse.ArgumentParser,
+) -> argparse.ArgumentParser:
     parser.add_argument(
         '--description',
         metavar='<description>',
@@ -81,7 +85,9 @@ def _get_common_parser(parser):
     return parser
 
 
-def _get_common_attrs(client, parsed_args):
+def _get_common_attrs(
+    client: network_v2.Proxy, parsed_args: argparse.Namespace
+) -> dict[str, Any]:
     attrs: dict[str, Any] = {}
     if parsed_args.description:
         attrs['description'] = str(parsed_args.description)
@@ -105,7 +111,7 @@ def _get_common_attrs(client, parsed_args):
 class CreateVPNService(command.ShowOne):
     _description = _("Create an VPN service")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         _get_common_parser(parser)
         parser.add_argument(
@@ -120,7 +126,9 @@ class CreateVPNService(command.ShowOne):
         identity_utils.add_project_owner_option_to_parser(parser)
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         client = self.app.client_manager.network
         attrs = _get_common_attrs(client, parsed_args)
         if 'project' in parsed_args and parsed_args.project is not None:
@@ -147,7 +155,7 @@ class CreateVPNService(command.ShowOne):
 class DeleteVPNService(command.Command):
     _description = _("Delete VPN service(s)")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'vpnservice',
@@ -157,7 +165,7 @@ class DeleteVPNService(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
         result = 0
         for vpn in parsed_args.vpnservice:
@@ -181,7 +189,7 @@ class DeleteVPNService(command.Command):
 class ListVPNService(command.Lister):
     _description = _("List VPN services that belong to a given project")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             '--long',
@@ -191,7 +199,9 @@ class ListVPNService(command.Lister):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[tuple[Any, ...]]]:
         client = self.app.client_manager.network
         obj = client.vpn_services()
         headers, columns = column_util.get_column_definitions(
@@ -203,7 +213,7 @@ class ListVPNService(command.Lister):
 class SetVPNSercice(command.Command):
     _description = _("Set VPN service properties")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         _get_common_parser(parser)
         parser.add_argument(
@@ -216,7 +226,7 @@ class SetVPNSercice(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
         attrs = _get_common_attrs(client, parsed_args)
         if parsed_args.name:
@@ -237,7 +247,7 @@ class SetVPNSercice(command.Command):
 class ShowVPNService(command.ShowOne):
     _description = _("Display VPN service details")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'vpnservice',
@@ -246,7 +256,9 @@ class ShowVPNService(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         client = self.app.client_manager.network
         obj = client.find_vpn_service(
             parsed_args.vpnservice, ignore_missing=False

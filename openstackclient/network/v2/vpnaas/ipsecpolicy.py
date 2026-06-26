@@ -12,7 +12,10 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
-#
+
+import argparse
+from collections.abc import Iterable, Sequence
+from typing import Any
 
 from osc_lib.cli import identity as identity_utils
 from osc_lib import exceptions
@@ -112,11 +115,11 @@ _pfs_groups = [
 ]
 
 
-def _convert_to_lowercase(string):
+def _convert_to_lowercase(string: str) -> str:
     return string.lower()
 
 
-def _get_common_parser(parser):
+def _get_common_parser(parser: argparse.ArgumentParser) -> None:
     parser.add_argument(
         '--description',
         metavar='<description>',
@@ -160,8 +163,8 @@ def _get_common_parser(parser):
     )
 
 
-def _get_common_attrs(parsed_args):
-    attrs = {}
+def _get_common_attrs(parsed_args: argparse.Namespace) -> dict[str, Any]:
+    attrs: dict[str, Any] = {}
     if parsed_args.description:
         attrs['description'] = str(parsed_args.description)
     if parsed_args.auth_algorithm:
@@ -183,7 +186,7 @@ def _get_common_attrs(parsed_args):
 class CreateIPsecPolicy(command.ShowOne):
     _description = _("Create an IPsec policy")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         _get_common_parser(parser)
         parser.add_argument(
@@ -192,7 +195,9 @@ class CreateIPsecPolicy(command.ShowOne):
         identity_utils.add_project_owner_option_to_parser(parser)
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         client = self.app.client_manager.network
         attrs = _get_common_attrs(parsed_args)
         if 'project' in parsed_args and parsed_args.project is not None:
@@ -222,7 +227,7 @@ class CreateIPsecPolicy(command.ShowOne):
 class DeleteIPsecPolicy(command.Command):
     _description = _("Delete IPsec policy(policies)")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'ipsecpolicy',
@@ -232,7 +237,7 @@ class DeleteIPsecPolicy(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
         result = 0
         for ipsec in parsed_args.ipsecpolicy:
@@ -259,7 +264,7 @@ class DeleteIPsecPolicy(command.Command):
 class ListIPsecPolicy(command.Lister):
     _description = _("List IPsec policies that belong to a given project")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             '--long',
@@ -269,7 +274,9 @@ class ListIPsecPolicy(command.Lister):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[tuple[Any, ...]]]:
         client = self.app.client_manager.network
         obj = client.vpn_ipsec_policies()
         headers, columns = column_util.get_column_definitions(
@@ -281,7 +288,7 @@ class ListIPsecPolicy(command.Lister):
 class SetIPsecPolicy(command.Command):
     _description = _("Set IPsec policy properties")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         _get_common_parser(parser)
         parser.add_argument(
@@ -294,7 +301,7 @@ class SetIPsecPolicy(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
         attrs = _get_common_attrs(parsed_args)
         if parsed_args.name:
@@ -315,7 +322,7 @@ class SetIPsecPolicy(command.Command):
 class ShowIPsecPolicy(command.ShowOne):
     _description = _("Display IPsec policy details")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'ipsecpolicy',
@@ -324,7 +331,9 @@ class ShowIPsecPolicy(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         client = self.app.client_manager.network
         obj = client.find_vpn_ipsec_policy(
             parsed_args.ipsecpolicy, ignore_missing=False

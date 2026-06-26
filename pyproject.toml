@@ -866,8 +866,6 @@ exclude = "(?x)(doc | examples | hacking | releasenotes)"
 
 [[tool.mypy.overrides]]
 module = [
-    # TODO: Remove all non-functional tests exceptions here
-    "openstackclient.network.v2.vpnaas.*",
     "openstackclient.tests.functional.*",
 ]
 disallow_untyped_defs = false

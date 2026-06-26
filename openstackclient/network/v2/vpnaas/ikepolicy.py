@@ -12,7 +12,10 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
-#
+
+import argparse
+from collections.abc import Iterable, Sequence
+from typing import Any
 
 from osc_lib.cli import identity as identity_utils
 from osc_lib import exceptions
@@ -116,11 +119,13 @@ _pfs_groups = [
 ]
 
 
-def _convert_to_lowercase(string):
+def _convert_to_lowercase(string: str) -> str:
     return string.lower()
 
 
-def _get_common_parser(parser):
+def _get_common_parser(
+    parser: argparse.ArgumentParser,
+) -> argparse.ArgumentParser:
     parser.add_argument(
         '--description',
         metavar='<description>',
@@ -165,8 +170,8 @@ def _get_common_parser(parser):
     return parser
 
 
-def _get_common_attrs(parsed_args):
-    attrs = {}
+def _get_common_attrs(parsed_args: argparse.Namespace) -> dict[str, Any]:
+    attrs: dict[str, Any] = {}
     if parsed_args.description:
         attrs['description'] = parsed_args.description
     if parsed_args.auth_algorithm:
@@ -188,7 +193,7 @@ def _get_common_attrs(parsed_args):
 class CreateIKEPolicy(command.ShowOne):
     _description = _("Create an IKE policy")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         _get_common_parser(parser)
         parser.add_argument(
@@ -197,7 +202,9 @@ class CreateIKEPolicy(command.ShowOne):
         identity_utils.add_project_owner_option_to_parser(parser)
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         client = self.app.client_manager.network
         attrs = _get_common_attrs(parsed_args)
         if 'project' in parsed_args and parsed_args.project is not None:
@@ -219,7 +226,7 @@ class CreateIKEPolicy(command.ShowOne):
 class DeleteIKEPolicy(command.Command):
     _description = _("Delete IKE policy (policies)")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'ikepolicy',
@@ -229,7 +236,7 @@ class DeleteIKEPolicy(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
         result = 0
         for ike in parsed_args.ikepolicy:
@@ -256,7 +263,7 @@ class DeleteIKEPolicy(command.Command):
 class ListIKEPolicy(command.Lister):
     _description = _("List IKE policies that belong to a given project")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             '--long',
@@ -265,7 +272,9 @@ class ListIKEPolicy(command.Lister):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[tuple[Any, ...]]]:
         client = self.app.client_manager.network
         obj = client.vpn_ike_policies()
         headers, columns = column_util.get_column_definitions(
@@ -277,7 +286,7 @@ class ListIKEPolicy(command.Lister):
 class SetIKEPolicy(command.Command):
     _description = _("Set IKE policy properties")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         _get_common_parser(parser)
         parser.add_argument(
@@ -290,7 +299,7 @@ class SetIKEPolicy(command.Command):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
         client = self.app.client_manager.network
         attrs = _get_common_attrs(parsed_args)
         if parsed_args.name:
@@ -311,7 +320,7 @@ class SetIKEPolicy(command.Command):
 class ShowIKEPolicy(command.ShowOne):
     _description = _("Display IKE policy details")
 
-    def get_parser(self, prog_name):
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'ikepolicy',
@@ -320,7 +329,9 @@ class ShowIKEPolicy(command.ShowOne):
         )
         return parser
 
-    def take_action(self, parsed_args):
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[Sequence[str], Iterable[Any]]:
         client = self.app.client_manager.network
         obj = client.find_vpn_ike_policy(
             parsed_args.ikepolicy, ignore_missing=False

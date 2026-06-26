@@ -12,13 +12,13 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
-#
-
 
 """VPN Utilities and helper functions."""
 
 import argparse
+from collections.abc import Callable
 import functools
+from typing import Any
 
 from osc_lib import exceptions
 
@@ -37,7 +37,7 @@ lifetime_keys = ['units', 'value']
 lifetime_units = ['seconds']
 
 
-def validate_dpd_dict(dpd_dict):
+def validate_dpd_dict(dpd_dict: dict[str, Any]) -> None:
     for key, value in dpd_dict.items():
         if key not in DPD_SUPPORTED_KEYS:
             message = _(
@@ -69,7 +69,7 @@ def validate_dpd_dict(dpd_dict):
     return
 
 
-def validate_lifetime_dict(lifetime_dict):
+def validate_lifetime_dict(lifetime_dict: dict[str, Any]) -> None:
 
     for key, value in lifetime_dict.items():
         if key not in lifetime_keys:
@@ -102,7 +102,7 @@ def validate_lifetime_dict(lifetime_dict):
     return
 
 
-def lifetime_help(policy):
+def lifetime_help(policy: str) -> str:
     lifetime = (
         _(
             "%s lifetime attributes. "
@@ -114,7 +114,7 @@ def lifetime_help(policy):
     return lifetime
 
 
-def dpd_help(policy):
+def dpd_help(policy: str) -> str:
     dpd = (
         _(
             " %s Dead Peer Detection attributes."
@@ -129,7 +129,11 @@ def dpd_help(policy):
     return dpd
 
 
-def str2dict(strdict, required_keys=None, optional_keys=None):
+def str2dict(
+    strdict: str,
+    required_keys: list[str] | None = None,
+    optional_keys: list[str] | None = None,
+) -> dict[str, str]:
     """Convert key1=value1,key2=value2,... string into dictionary.
 
     :param strdict: string in the form of key1=value1,key2=value2
@@ -187,7 +191,10 @@ def str2dict(strdict, required_keys=None, optional_keys=None):
     return result
 
 
-def str2dict_type(optional_keys=None, required_keys=None):
+def str2dict_type(
+    optional_keys: list[str] | None = None,
+    required_keys: list[str] | None = None,
+) -> Callable[[str], dict[str, str]]:
     return functools.partial(
         str2dict, optional_keys=optional_keys, required_keys=required_keys
     )
