@@ -18,6 +18,7 @@ from collections.abc import Iterable, Sequence
 from typing import Any
 
 from osc_lib.cli import identity as identity_utils
+from osc_lib.cli import parseractions
 from osc_lib import exceptions
 from osc_lib import utils
 from osc_lib.utils import columns as column_util
@@ -163,9 +164,14 @@ def _get_common_parser(
     )
     parser.add_argument(
         '--lifetime',
-        metavar="units=UNITS,value=VALUE",
-        type=vpn_utils.str2dict_type(optional_keys=['units', 'value']),
-        help=vpn_utils.lifetime_help("IKE"),
+        metavar='units=<units>,value=<value>',
+        action=parseractions.MultiKeyValueAction,
+        optional_keys=['units', 'value'],
+        help=_(
+            "IKE lifetime attributes. "
+            "'units'-seconds, default:seconds. "
+            "'value'-non negative integer, default:3600."
+        ),
     )
     return parser
 

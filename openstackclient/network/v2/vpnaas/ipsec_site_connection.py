@@ -20,6 +20,7 @@ from typing import Any
 from openstack.network import v2 as network_v2
 from osc_lib.cli import format_columns
 from osc_lib.cli import identity as identity_utils
+from osc_lib.cli import parseractions
 from osc_lib import exceptions
 from osc_lib import utils
 from osc_lib.utils import columns as column_util
@@ -98,11 +99,17 @@ def _get_common_parser(
     )
     parser.add_argument(
         '--dpd',
-        metavar="action=ACTION,interval=INTERVAL,timeout=TIMEOUT",
-        type=vpn_utils.str2dict_type(
-            optional_keys=['action', 'interval', 'timeout']
+        metavar="action=<action>,interval=<interval>,timeout=<timeout>",
+        action=parseractions.MultiKeyValueAction,
+        optional_keys=['action', 'interval', 'timeout'],
+        help=_(
+            "IPSec Connection Dead Peer Detection attributes. "
+            "'action'-hold,clear,disabled,restart,restart-by-peer. "
+            "'interval' and 'timeout' are non negative integers.  "
+            "'interval' should be less than 'timeout' value. "
+            "'action', default:hold 'interval', default:30, "
+            "'timeout', default:120."
         ),
-        help=vpn_utils.dpd_help("IPsec connection"),
     )
     parser.add_argument('--mtu', help=_('MTU size for the connection'))
     parser.add_argument(
