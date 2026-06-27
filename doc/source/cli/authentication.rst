@@ -4,10 +4,8 @@
 Authentication
 ==============
 
-OpenStackClient leverages `python-keystoneclient`_ authentication
-plugins to support a number of different authentication methods.
-
-.. _`python-keystoneclient`: https://docs.openstack.org/python-keystoneclient/latest/using-sessions.html#sharing-authentication-plugins
+OpenStackClient leverages *keystoneauth* authentication plugins to support a
+number of different authentication methods.
 
 Authentication Process
 ----------------------
@@ -15,7 +13,8 @@ Authentication Process
 The user provides some number of authentication credential options.
 If an authentication type is not provided (``--os-auth-type``), the
 authentication options are examined to determine if one of the default
-types can be used. If no match is found an error is reported and OSC exits.
+types can be used. If no match is found an error is reported and
+OpenStackClient exits.
 
 Note that the authentication call to the Identity service has not yet
 occurred. It is deferred until the last possible moment in order to
@@ -25,7 +24,7 @@ processing detects an invalid command.
 Authentication Plugins
 ----------------------
 
-The Keystone client library implements the base set of plugins. Additional
+The *keystoneauth* library implements the base set of plugins. Additional
 plugins may be available from the Keystone project or other sources.
 
 There are at least three authentication types that are always available:
@@ -33,15 +32,15 @@ There are at least three authentication types that are always available:
 * **Password**: A project, username and password are used to identify the
   user.  An optional domain may also be included. This is the most common
   type and is the default any time a username is supplied.  An authentication
-  URL for the Identity service is also required. [Required: ``--os-auth-url``,
-  ``--os-project-name``, ``--os-username``; Optional: ``--os-password``]
+  URL for the Identity service is also required.
+
 * **Token**: This is slightly different from the usual token authentication
-  in that a token and an authentication
-  URL are supplied and the plugin retrieves a new token.
-  [Required: ``--os-auth-url``, ``--os-token``]
+  in that a token and an authentication URL are supplied and the plugin
+  retrieves a new token.
+
 * **Others**: Other authentication plugins such as SAML, Kerberos, and OAuth1.0
-  are under development and also supported. To use them, they must be selected
-  by supplying the ``--os-auth-type`` option.
+  are also supported. To use them, they must be selected by supplying the
+  ``--os-auth-type`` option.
 
 Detailed Process
 ----------------
