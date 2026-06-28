@@ -33,7 +33,7 @@ LOG = logging.getLogger(__name__)
 
 class AliveColumn(cliff_columns.FormattableColumn[bool]):
     def human_readable(self) -> str:
-        return ":-)" if self._value else "XXX"
+        return "OK" if self._value else "ERROR"
 
 
 class AdminStateColumn(cliff_columns.FormattableColumn[bool]):
