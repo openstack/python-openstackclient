@@ -1890,6 +1890,130 @@ class TestListPort(compute_fakes.FakeClientMixin, TestPort):
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, list(data))
 
+    def test_port_list_pvlan_type(self):
+        arglist = [
+            '--pvlan-type',
+            'community',
+        ]
+        verifylist = [
+            ('pvlan_type', 'community'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, _data = self.cmd.take_action(parsed_args)
+        expected_fields = [
+            *LIST_FIELDS_TO_RETRIEVE,
+            'pvlan_type',
+            'pvlan_community',
+        ]
+        filters = {
+            'pvlan_type': 'community',
+            'fields': expected_fields,
+        }
+
+        self.network_client.ports.assert_called_once_with(**filters)
+        expected_columns = [*self.columns, 'PVLAN Type', 'PVLAN Community']
+        self.assertEqual(expected_columns, columns)
+
+    def test_port_list_pvlan_community(self):
+        arglist = [
+            '--pvlan-community',
+            'community_1',
+        ]
+        verifylist = [
+            ('pvlan_community', 'community_1'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, _data = self.cmd.take_action(parsed_args)
+        expected_fields = [
+            *LIST_FIELDS_TO_RETRIEVE,
+            'pvlan_type',
+            'pvlan_community',
+        ]
+        filters = {
+            'pvlan_community': 'community_1',
+            'fields': expected_fields,
+        }
+
+        self.network_client.ports.assert_called_once_with(**filters)
+        expected_columns = [*self.columns, 'PVLAN Type', 'PVLAN Community']
+        self.assertEqual(expected_columns, columns)
+
+    def test_port_list_pvlan(self):
+        port_pvlan = network_fakes.create_one_port(
+            attrs={
+                'pvlan_type': 'community',
+                'pvlan_community': 'community_1',
+            }
+        )
+        port_no_pvlan = network_fakes.create_one_port(
+            attrs={'pvlan_type': None, 'pvlan_community': None}
+        )
+        self.network_client.ports.return_value = [port_pvlan, port_no_pvlan]
+
+        arglist = [
+            '--pvlan',
+        ]
+        verifylist = [
+            ('pvlan', True),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+        expected_fields = [
+            *LIST_FIELDS_TO_RETRIEVE,
+            'pvlan_type',
+            'pvlan_community',
+        ]
+
+        self.network_client.ports.assert_called_once_with(
+            fields=expected_fields
+        )
+        expected_columns = [*self.columns, 'PVLAN Type', 'PVLAN Community']
+        self.assertEqual(expected_columns, columns)
+        result = list(data)
+        self.assertEqual(1, len(result))
+        # First column is the port ID
+        self.assertEqual(port_pvlan.id, result[0][0])
+
+    def test_port_list_no_pvlan(self):
+        port_pvlan = network_fakes.create_one_port(
+            attrs={
+                'pvlan_type': 'community',
+                'pvlan_community': 'community_1',
+            }
+        )
+        port_no_pvlan = network_fakes.create_one_port(
+            attrs={'pvlan_type': None, 'pvlan_community': None}
+        )
+        self.network_client.ports.return_value = [port_pvlan, port_no_pvlan]
+
+        arglist = [
+            '--no-pvlan',
+        ]
+        verifylist = [
+            ('no_pvlan', True),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+        expected_fields = [
+            *LIST_FIELDS_TO_RETRIEVE,
+            'pvlan_type',
+            'pvlan_community',
+        ]
+
+        self.network_client.ports.assert_called_once_with(
+            fields=expected_fields
+        )
+        expected_columns = [*self.columns, 'PVLAN Type', 'PVLAN Community']
+        self.assertEqual(expected_columns, columns)
+        result = list(data)
+        self.assertEqual(1, len(result))
+        # First column is the port ID
+        self.assertEqual(port_no_pvlan.id, result[0][0])
+
     def test_port_list_status(self):
         arglist = [
             '--status',
