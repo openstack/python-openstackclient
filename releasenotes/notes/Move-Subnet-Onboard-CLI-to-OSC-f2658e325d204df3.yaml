@@ -1,0 +1,8 @@
+---
+features:
+  - |
+    OSC command for ``subnet onboard`` moved from
+    ``python-neutronclient``. The following command is now
+    available from openstackclient:
+
+    * ``network onboard subnets``
