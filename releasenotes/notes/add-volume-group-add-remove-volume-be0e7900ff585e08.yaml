@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Add new ``volume group add volume`` and ``volume group remove volume``
+    commands that allow adding volumes to, and removing volumes from, a
+    generic volume group.

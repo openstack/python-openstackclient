@@ -16,6 +16,7 @@ from openstack.block_storage.v3 import group as _group
 from openstack.block_storage.v3 import group_snapshot as _group_snapshot
 from openstack.block_storage.v3 import group_type as _group_type
 from openstack.block_storage.v3 import type as _type
+from openstack.block_storage.v3 import volume as _volume
 from openstack.test import fakes as sdk_fakes
 from osc_lib import exceptions
 
@@ -667,3 +668,91 @@ class TestVolumeGroupFailover(volume_fakes.TestVolume):
         self.assertIn(
             '--os-volume-api-version 3.38 or greater is required', str(exc)
         )
+
+
+class TestVolumeGroupAddVolumes(volume_fakes.TestVolume):
+    fake_volume_group = sdk_fakes.generate_fake_resource(_group.Group)
+    fake_volumes = [
+        sdk_fakes.generate_fake_resource(_volume.Volume),
+        sdk_fakes.generate_fake_resource(_volume.Volume),
+    ]
+
+    def setUp(self):
+        super().setUp()
+
+        self.volume_client.find_group.return_value = self.fake_volume_group
+        self.volume_client.find_volume.side_effect = self.fake_volumes
+
+        self.cmd = volume_group.AddVolumesToGroup(self.app, None)
+
+    def test_add_volumes_to_group(self):
+        arglist = [
+            self.fake_volume_group.id,
+            self.fake_volumes[0].id,
+            self.fake_volumes[1].id,
+        ]
+        verifylist = [
+            ('group', self.fake_volume_group.id),
+            ('volumes', [self.fake_volumes[0].id, self.fake_volumes[1].id]),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        self.volume_client.find_group.assert_called_once_with(
+            self.fake_volume_group.id, ignore_missing=False
+        )
+        self.assertEqual(
+            self.volume_client.find_volume.call_count,
+            len(self.fake_volumes),
+        )
+        volume_ids = ','.join(v.id for v in self.fake_volumes)
+        self.volume_client.update_group.assert_called_once_with(
+            self.fake_volume_group,
+            add_volumes=volume_ids,
+        )
+        self.assertIsNone(result)
+
+
+class TestVolumeGroupRemoveVolumes(volume_fakes.TestVolume):
+    fake_volume_group = sdk_fakes.generate_fake_resource(_group.Group)
+    fake_volumes = [
+        sdk_fakes.generate_fake_resource(_volume.Volume),
+        sdk_fakes.generate_fake_resource(_volume.Volume),
+    ]
+
+    def setUp(self):
+        super().setUp()
+
+        self.volume_client.find_group.return_value = self.fake_volume_group
+        self.volume_client.find_volume.side_effect = self.fake_volumes
+
+        self.cmd = volume_group.RemoveVolumesFromGroup(self.app, None)
+
+    def test_remove_volumes_from_group(self):
+        arglist = [
+            self.fake_volume_group.id,
+            self.fake_volumes[0].id,
+            self.fake_volumes[1].id,
+        ]
+        verifylist = [
+            ('group', self.fake_volume_group.id),
+            ('volumes', [self.fake_volumes[0].id, self.fake_volumes[1].id]),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        self.volume_client.find_group.assert_called_once_with(
+            self.fake_volume_group.id, ignore_missing=False
+        )
+        self.assertEqual(
+            self.volume_client.find_volume.call_count,
+            len(self.fake_volumes),
+        )
+        volume_ids = ','.join(v.id for v in self.fake_volumes)
+        self.volume_client.update_group.assert_called_once_with(
+            self.fake_volume_group,
+            remove_volumes=volume_ids,
+        )
+        self.assertIsNone(result)

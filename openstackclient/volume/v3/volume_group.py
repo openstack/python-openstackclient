@@ -629,3 +629,71 @@ class FailoverVolumeGroup(command.Command):
             allowed_attached_volume=parsed_args.allow_attached_volume,
             secondary_backend_id=parsed_args.secondary_backend_id,
         )
+
+
+class AddVolumesToGroup(command.Command):
+    """Add volume(s) to volume group."""
+
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
+        parser = super().get_parser(prog_name)
+        parser.add_argument(
+            'group',
+            metavar='<group>',
+            help=_('Name or ID of the volume group.'),
+        )
+        parser.add_argument(
+            'volumes',
+            metavar='<volume>',
+            nargs='+',
+            help=_('Volume(s) to add to the group (name or ID)'),
+        )
+        return parser
+
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
+        volume_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.volume, '3'
+        )
+
+        group = volume_client.find_group(
+            parsed_args.group,
+            ignore_missing=False,
+        )
+        volumes = [
+            volume_client.find_volume(v, ignore_missing=False).id
+            for v in parsed_args.volumes
+        ]
+        volume_client.update_group(group, add_volumes=','.join(volumes))
+
+
+class RemoveVolumesFromGroup(command.Command):
+    """Remove volume(s) from volume group."""
+
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
+        parser = super().get_parser(prog_name)
+        parser.add_argument(
+            'group',
+            metavar='<group>',
+            help=_('Name or ID of the volume group.'),
+        )
+        parser.add_argument(
+            'volumes',
+            metavar='<volume>',
+            nargs='+',
+            help=_('Volume(s) to remove from the group (name or ID)'),
+        )
+        return parser
+
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
+        volume_client = sdk_utils.ensure_service_version(
+            self.app.client_manager.volume, '3'
+        )
+
+        group = volume_client.find_group(
+            parsed_args.group,
+            ignore_missing=False,
+        )
+        volumes = [
+            volume_client.find_volume(v, ignore_missing=False).id
+            for v in parsed_args.volumes
+        ]
+        volume_client.update_group(group, remove_volumes=','.join(volumes))
