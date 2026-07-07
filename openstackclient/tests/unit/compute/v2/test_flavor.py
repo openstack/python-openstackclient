@@ -1223,7 +1223,6 @@ class TestFlavorUnset(compute_fakes.TestCompute):
         )
 
     def test_flavor_unset_project_deleted_project(self):
-        # Simulate a project that has been deleted from Keystone
         self.identity_sdk_client.find_project.side_effect = [
             sdk_exceptions.ResourceNotFound()
         ]
@@ -1240,18 +1239,13 @@ class TestFlavorUnset(compute_fakes.TestCompute):
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
-        # TODO(bug #2099702): This should succeed. When removing a project
-        # from a flavor's access list, the project may no longer exist in
-        # Keystone (deleted tenant). The command should pass the raw project
-        # ID through to Nova's removeTenantAccess API, which already handles
-        # this case since the fix for bug #1980845. Instead, the command
-        # fails because find_project_id_sdk() validates the project against
-        # Keystone with validate_actor_existence=True (the default) and
-        # raises CommandError when it doesn't exist.
-        self.assertRaises(
-            exceptions.CommandError, self.cmd.take_action, parsed_args
+        result = self.cmd.take_action(parsed_args)
+        self.assertIsNone(result)
+
+        self.compute_client.flavor_remove_tenant_access.assert_called_with(
+            self.flavor.id,
+            deleted_project_id,
         )
-        self.compute_client.flavor_remove_tenant_access.assert_not_called()
 
     def test_flavor_unset_nothing(self):
         arglist = [
