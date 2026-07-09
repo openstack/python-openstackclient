@@ -120,12 +120,18 @@ class ListExtension(command.Lister):
                 LOG.warning(message)
 
         if parsed_args.volume or show_all:
-            volume_client = self.app.client_manager.volume
-            try:
-                data += volume_client.extensions()
-            except Exception:
+            if self.app.client_manager.is_volume_endpoint_enabled():
+                volume_client = self.app.client_manager.volume
+                try:
+                    data += volume_client.extensions()
+                except Exception:
+                    message = _(
+                        "Extensions list not supported by Block Storage API"
+                    )
+                    LOG.warning(message)
+            elif parsed_args.volume:
                 message = _(
-                    "Extensions list not supported by Block Storage API"
+                    "Block Storage API is not available in the current cloud"
                 )
                 LOG.warning(message)
 

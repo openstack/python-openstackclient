@@ -1307,6 +1307,71 @@ class TestServerCreate(TestServer):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist(), data)
 
+    def test_server_create_without_volume_endpoint(self):
+        self.app.client_manager.volume_endpoint_enabled = False
+
+        arglist = [
+            '--image',
+            self.image.id,
+            '--flavor',
+            self.flavor.id,
+            self.server.name,
+        ]
+        verifylist = [
+            ('image', self.image.id),
+            ('flavor', self.flavor.id),
+            ('config_drive', False),
+            ('server_name', self.server.name),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.compute_client.create_server.assert_called_once_with(
+            name=self.server.name,
+            image_id=self.image.id,
+            flavor_id=self.flavor.id,
+            min_count=1,
+            max_count=1,
+            networks=[],
+            block_device_mapping=[
+                {
+                    'uuid': self.image.id,
+                    'boot_index': 0,
+                    'source_type': 'image',
+                    'destination_type': 'local',
+                    'delete_on_termination': True,
+                },
+            ],
+        )
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist(), data)
+
+    def test_server_create_volume_requires_volume_endpoint(self):
+        self.app.client_manager.volume_endpoint_enabled = False
+
+        arglist = [
+            '--flavor',
+            self.flavor.id,
+            '--volume',
+            self.volume.name,
+            self.server.name,
+        ]
+        verifylist = [
+            ('flavor', self.flavor.id),
+            ('volume', self.volume.name),
+            ('server_name', self.server.name),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        ex = self.assertRaises(
+            exceptions.CommandError, self.cmd.take_action, parsed_args
+        )
+        self.assertIn(
+            'Volume service is not available in the current cloud', str(ex)
+        )
+
     def test_server_create_with_options(self):
         server_group = sdk_fakes.generate_fake_resource(
             _server_group.ServerGroup

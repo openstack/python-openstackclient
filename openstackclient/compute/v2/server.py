@@ -1143,6 +1143,26 @@ class BDMAction(parseractions.MultiKeyValueAction):
             super().__call__(parser, namespace, values, option_string)
 
 
+def _server_create_needs_volume_client(
+    parsed_args: argparse.Namespace,
+) -> bool:
+    if parsed_args.volume or parsed_args.snapshot:
+        return True
+
+    for mapping in parsed_args.block_device_mapping:
+        if mapping['source_type'] in ('volume', 'snapshot'):
+            return True
+
+    return False
+
+
+def _get_required_volume_client(app: Any) -> Any:
+    if not app.client_manager.is_volume_endpoint_enabled():
+        msg = _('Volume service is not available in the current cloud')
+        raise exceptions.CommandError(msg)
+    return app.client_manager.volume
+
+
 class CreateServer(command.ShowOne):
     _description = _("Create a new server")
 
@@ -1596,8 +1616,11 @@ class CreateServer(command.ShowOne):
                 self.app.stdout.flush()
 
         compute_client = self.app.client_manager.compute
-        volume_client = self.app.client_manager.volume
         image_client = self.app.client_manager.image
+
+        volume_client = None
+        if _server_create_needs_volume_client(parsed_args):
+            volume_client = _get_required_volume_client(self.app)
 
         # Lookup parsed_args.image
         image = None
@@ -1669,6 +1692,7 @@ class CreateServer(command.ShowOne):
                 msg = _('--volume is not allowed with --boot-from-volume')
                 raise exceptions.CommandError(msg)
 
+            assert volume_client is not None  # narrow type
             volume = volume_client.find_volume(
                 parsed_args.volume,
                 ignore_missing=False,
@@ -1681,6 +1705,7 @@ class CreateServer(command.ShowOne):
                 msg = _('--snapshot is not allowed with --boot-from-volume')
                 raise exceptions.CommandError(msg)
 
+            assert volume_client is not None  # narrow type
             snapshot = volume_client.find_snapshot(
                 parsed_args.snapshot,
                 ignore_missing=False,
@@ -1823,12 +1848,14 @@ class CreateServer(command.ShowOne):
             # The 'uuid' field isn't necessarily a UUID yet; let's validate it
             # just in case
             if mapping['source_type'] == 'volume':
+                assert volume_client is not None  # narrow type
                 volume_id = volume_client.find_volume(
                     mapping['uuid'],
                     ignore_missing=False,
                 ).id
                 mapping['uuid'] = volume_id
             elif mapping['source_type'] == 'snapshot':
+                assert volume_client is not None  # narrow type
                 snapshot_id = volume_client.find_snapshot(
                     mapping['uuid'],
                     ignore_missing=False,

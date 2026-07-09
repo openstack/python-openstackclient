@@ -113,6 +113,31 @@ class TestExtensionList(TestExtension):
         self.volume_client.extensions.assert_called_with()
         self.network_client.extensions.assert_called_with()
 
+    def test_extension_list_no_volume_endpoint(self):
+        self.app.client_manager.volume_endpoint_enabled = False
+
+        arglist = []
+        verifylist = []
+        datalist = (
+            (
+                self.identity_extension.name,
+                self.identity_extension.alias,
+                self.identity_extension.description,
+            ),
+            (
+                self.compute_extension.name,
+                self.compute_extension.alias,
+                self.compute_extension.description,
+            ),
+            (
+                self.network_extension.name,
+                self.network_extension.alias,
+                self.network_extension.description,
+            ),
+        )
+        self._test_extension_list_helper(arglist, verifylist, datalist)
+        self.volume_client.extensions.assert_not_called()
+
     def test_extension_list_long(self):
         arglist = [
             '--long',

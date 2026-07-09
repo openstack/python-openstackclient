@@ -205,6 +205,14 @@ class ListAvailabilityZone(command.Lister):
     def _get_volume_availability_zones(
         self, parsed_args: argparse.Namespace
     ) -> list[dict[str, str]]:
+        if not self.app.client_manager.is_volume_endpoint_enabled():
+            if parsed_args.volume:
+                message = _(
+                    "Block Storage API is not available in the current cloud"
+                )
+                LOG.warning(message)
+            return []
+
         volume_client = sdk_utils.ensure_service_version(
             self.app.client_manager.volume, '3'
         )

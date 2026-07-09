@@ -146,6 +146,30 @@ class TestAvailabilityZoneList(
             datalist += _build_volume_az_datalist(volume_az)
         self.assertEqual(datalist, tuple(data))
 
+    def test_availability_zone_list_no_volume_endpoint(self):
+        self.app.client_manager.volume_endpoint_enabled = False
+
+        arglist = []
+        verifylist = []
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.compute_client.availability_zones.assert_called_with(details=True)
+        self.network_client.availability_zones.assert_called_with()
+        self.share_sdk_client.availability_zones.assert_called_with()
+        self.volume_client.availability_zones.assert_not_called()
+
+        self.assertEqual(self.short_columnslist, columns)
+        datalist = ()
+        for compute_az in self.compute_azs:
+            datalist += _build_compute_az_datalist(compute_az)
+        for network_az in self.network_azs:
+            datalist += _build_network_az_datalist(network_az)
+        for share_az in self.share_azs:
+            datalist += _build_share_az_datalist(share_az)
+        self.assertEqual(datalist, tuple(data))
+
     def test_availability_zone_list_long(self):
         arglist = [
             '--long',
