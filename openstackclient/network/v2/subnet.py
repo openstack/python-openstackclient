@@ -730,6 +730,26 @@ class SetSubnet(common.NeutronCommandWithExtraArgs):
             metavar='<description>',
             help=_("Set subnet description"),
         )
+        leak_routes_grp = parser.add_mutually_exclusive_group()
+        leak_routes_grp.add_argument(
+            '--leak-routes',
+            action='store_true',
+            dest='leak_routes',
+            default=None,
+            help=_(
+                "Leak subnet routes to the underlay BGP fabric "
+                "(ovn-bgp extension required)"
+            ),
+        )
+        leak_routes_grp.add_argument(
+            '--no-leak-routes',
+            action='store_false',
+            dest='leak_routes',
+            help=_(
+                "Do not leak subnet routes to the underlay "
+                "BGP fabric (ovn-bgp extension required)"
+            ),
+        )
         _tag.add_tag_option_to_parser_for_set(parser, _('subnet'))
         _get_common_parse_arguments(parser, is_create=False)
         return parser
@@ -757,11 +777,14 @@ class SetSubnet(common.NeutronCommandWithExtraArgs):
             attrs['allocation_pools'] = []
         if 'service_types' in attrs:
             attrs['service_types'] += obj.service_types
+        if parsed_args.leak_routes is not None:
+            attrs['leak_routes'] = parsed_args.leak_routes
         attrs.update(
             self._parse_extra_properties(parsed_args.extra_properties)
         )
         if attrs:
-            client.update_subnet(obj, **attrs)
+            with common.check_missing_extension_if_error(client, attrs):
+                client.update_subnet(obj, **attrs)
         # tags is a subresource and it needs to be updated separately.
         _tag.update_tags_for_set(client, obj, parsed_args)
         return

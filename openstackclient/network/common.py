@@ -33,6 +33,7 @@ _required_opt_extensions_map = {
     'dns_domain': 'dns-integration',
     'dns_name': 'dns-integration',
     'extra_dhcp_opts': 'extra_dhcp_opt',
+    'leak_routes': 'ovn-bgp',
     'qos_policy_id': 'qos',
     'security_groups': 'security-groups',
 }
