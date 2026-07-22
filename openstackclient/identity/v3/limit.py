@@ -171,7 +171,7 @@ class ListLimit(command.Lister):
         if parsed_args.service:
             kwargs["service_id"] = common_utils.find_service_sdk(
                 identity_client, parsed_args.service
-            )
+            ).id
 
         if parsed_args.region:
             kwargs["region_id"] = identity_client.get_region(

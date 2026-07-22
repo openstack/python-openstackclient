@@ -450,3 +450,44 @@ class TestLimitList(identity_fakes.TestIdentity):
             ),
         )
         self.assertEqual(datalist, tuple(data))
+
+    def test_limit_list_with_service_filter(self):
+        self.identity_sdk_client.find_service.return_value = self.service
+
+        arglist = [
+            '--service',
+            self.service.name,
+        ]
+        verifylist = [
+            ('service', self.service.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.identity_sdk_client.limits.assert_called_with(
+            service_id=self.service.id,
+        )
+
+        collist = (
+            'ID',
+            'Project ID',
+            'Service ID',
+            'Resource Name',
+            'Resource Limit',
+            'Description',
+            'Region ID',
+        )
+        self.assertEqual(collist, columns)
+        datalist = (
+            (
+                self.limit.id,
+                self.project.id,
+                self.service.id,
+                self.limit.resource_name,
+                self.limit.resource_limit,
+                None,
+                None,
+            ),
+        )
+        self.assertEqual(datalist, tuple(data))
