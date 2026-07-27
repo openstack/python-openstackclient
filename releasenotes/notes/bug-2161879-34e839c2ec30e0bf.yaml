@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    Fix misleading help text of ``volume transfer request create --snapshots``
+    and ``--no-snapshots``.
+    [Bug `2161879 <https://launchpad.net/bugs/2161879>`_]
