@@ -1239,6 +1239,15 @@ class CreateServer(command.ShowOne):
                 'options.'
             ),
         )
+        parser.add_argument(
+            '--delete-on-termination',
+            action='store_true',
+            default=False,
+            help=_(
+                'Delete the boot volume automatically when the server is '
+                'deleted (only valid with --boot-from-volume).'
+            ),
+        )
         # TODO(stephenfin): Remove this in the v7.0
         parser.add_argument(
             '--block-device-mapping',
@@ -1698,6 +1707,16 @@ class CreateServer(command.ShowOne):
                 ignore_missing=False,
             ).id
 
+        if (
+            parsed_args.delete_on_termination
+            and not parsed_args.boot_from_volume
+        ):
+            msg = _(
+                "--delete-on-termination can only be used with "
+                "--boot-from-volume"
+            )
+            raise exceptions.CommandError(msg)
+
         snapshot = None
         if parsed_args.snapshot:
             # --snapshot and --boot-from-volume are mutually exclusive.
@@ -1783,6 +1802,7 @@ class CreateServer(command.ShowOne):
                     'source_type': 'image',
                     'destination_type': 'volume',
                     'volume_size': parsed_args.boot_from_volume,
+                    'delete_on_termination': parsed_args.delete_on_termination,
                 }
             ]
             # If booting from volume we do not pass an image to compute.
