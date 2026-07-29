@@ -267,7 +267,7 @@ class SetLimit(command.ShowOne):
         kwargs = {}
         if parsed_args.description:
             kwargs["description"] = parsed_args.description
-        if parsed_args.resource_limit:
+        if parsed_args.resource_limit is not None:
             kwargs["resource_limit"] = parsed_args.resource_limit
         limit = identity_client.update_limit(parsed_args.limit_id, **kwargs)
 
