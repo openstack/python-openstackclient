@@ -906,6 +906,29 @@ class ListPort(command.Lister):
             help=_("List only ports with the specified project (name or ID)"),
         )
         parser.add_argument(
+            '--pvlan-type',
+            metavar='<type>',
+            help=_("List only ports with the specified PVLAN type"),
+        )
+        parser.add_argument(
+            '--pvlan-community',
+            metavar='<community-name>',
+            help=_("List only ports within a specified PVLAN community"),
+        )
+        pvlan_group = parser.add_mutually_exclusive_group()
+        pvlan_group.add_argument(
+            '--pvlan',
+            action='store_true',
+            default=False,
+            help=_("List only ports with PVLAN enabled"),
+        )
+        pvlan_group.add_argument(
+            '--no-pvlan',
+            action='store_true',
+            default=False,
+            help=_("List only ports with PVLAN disabled"),
+        )
+        parser.add_argument(
             '--name',
             metavar='<name>',
             help=_("List only ports with the specified name"),
@@ -971,6 +994,14 @@ class ListPort(command.Lister):
         ]
 
         filters = {}
+        if (
+            parsed_args.pvlan
+            or parsed_args.no_pvlan
+            or parsed_args.pvlan_type is not None
+            or parsed_args.pvlan_community is not None
+        ):
+            columns.extend(['pvlan_type', 'pvlan_community'])
+            column_headers.extend(['PVLAN Type', 'PVLAN Community'])
         if parsed_args.long:
             columns.extend(
                 ['security_groups', 'device_owner', 'tags', 'trunk_details']
@@ -1021,6 +1052,10 @@ class ListPort(command.Lister):
             )
         if parsed_args.security_groups:
             filters['security_group_ids'] = parsed_args.security_groups
+        if parsed_args.pvlan_type is not None:
+            filters['pvlan_type'] = parsed_args.pvlan_type
+        if parsed_args.pvlan_community is not None:
+            filters['pvlan_community'] = parsed_args.pvlan_community
         if parsed_args.marker is not None:
             filters['marker'] = parsed_args.marker
         if parsed_args.limit is not None:
@@ -1031,6 +1066,11 @@ class ListPort(command.Lister):
         _tag.get_tag_filtering_args(parsed_args, filters)
 
         data = network_client.ports(fields=columns, **filters)
+
+        if parsed_args.pvlan:
+            data = (p for p in data if p.pvlan_type is not None)
+        elif parsed_args.no_pvlan:
+            data = (p for p in data if p.pvlan_type is None)
 
         if parsed_args.long:
             columns = [

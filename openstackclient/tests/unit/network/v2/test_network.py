@@ -814,6 +814,38 @@ class TestListNetwork(network_fakes.TestNetworkV2):
         self.assertEqual(self.columns, columns)
         self.assertCountEqual(self.data, list(data))
 
+    def test_network_list_pvlan(self):
+        arglist = [
+            '--pvlan',
+        ]
+        verifylist = [
+            ('long', False),
+            ('pvlan', True),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network_client.networks.assert_called_once_with(**{'pvlan': True})
+        self.assertEqual(self.columns, columns)
+        self.assertCountEqual(self.data, list(data))
+
+    def test_network_list_no_pvlan(self):
+        arglist = [
+            '--no-pvlan',
+        ]
+        verifylist = [
+            ('long', False),
+            ('no_pvlan', True),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network_client.networks.assert_called_once_with(
+            **{'pvlan': False}
+        )
+        self.assertEqual(self.columns, columns)
+        self.assertCountEqual(self.data, list(data))
+
     def test_network_list_dhcp_agent(self):
         arglist = ['--agent', self._agent.id]
         verifylist = [

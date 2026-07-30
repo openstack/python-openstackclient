@@ -504,6 +504,17 @@ class ListNetwork(command.Lister):
                 "List only networks with the specified project (name or ID)"
             ),
         )
+        pvlan_group = parser.add_mutually_exclusive_group()
+        pvlan_group.add_argument(
+            '--pvlan',
+            action='store_true',
+            help=_("List only networks with PVLAN enabled"),
+        )
+        pvlan_group.add_argument(
+            '--no-pvlan',
+            action='store_true',
+            help=_("List only networks with PVLAN disabled"),
+        )
         identity_common.add_project_domain_option_to_parser(parser)
         shared_group = parser.add_mutually_exclusive_group()
         shared_group.add_argument(
@@ -672,7 +683,10 @@ class ListNetwork(command.Lister):
         if parsed_args.segmentation_id:
             args['provider:segmentation_id'] = parsed_args.segmentation_id
             args['provider_segmentation_id'] = parsed_args.segmentation_id
-
+        if parsed_args.pvlan:
+            args['pvlan'] = True
+        elif parsed_args.no_pvlan:
+            args['pvlan'] = False
         if parsed_args.marker is not None:
             args['marker'] = parsed_args.marker
         if parsed_args.limit is not None:
