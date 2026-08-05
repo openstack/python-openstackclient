@@ -87,7 +87,7 @@ class CreateTransferRequest(command.ShowOne):
             action='store_true',
             dest='snapshots',
             help=_(
-                'Allow transfer volumes without snapshots (default) '
+                'Also transfer volume snapshots (default) '
                 '(supported by --os-volume-api-version 3.55 or later)'
             ),
             default=None,
@@ -97,7 +97,7 @@ class CreateTransferRequest(command.ShowOne):
             action='store_false',
             dest='snapshots',
             help=_(
-                'Disallow transfer volumes without snapshots '
+                'Do not transfer volume snapshots '
                 '(supported by --os-volume-api-version 3.55 or later)'
             ),
         )
