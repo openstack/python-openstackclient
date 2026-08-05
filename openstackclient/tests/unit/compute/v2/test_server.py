@@ -3404,6 +3404,86 @@ class TestServerCreate(TestServer):
         )
         self.compute_client.create_server.assert_not_called()
 
+    def test_server_create_delete_on_termination_without_boot_from_volume(
+        self,
+    ):
+        # Fail if --delete-on-termination is used without --boot-from-volume
+        arglist = [
+            '--image',
+            self.image.id,
+            '--flavor',
+            self.flavor.id,
+            '--delete-on-termination',
+            self.server.name,
+        ]
+        verifylist = [
+            ('image', self.image.id),
+            ('flavor', self.flavor.id),
+            ('delete_on_termination', True),
+            ('config_drive', False),
+            ('server_name', self.server.name),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        exc = self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args,
+        )
+
+        self.assertIn(
+            '--delete-on-termination can only be used with --boot-from-volume',
+            str(exc),
+        )
+
+        self.compute_client.create_server.assert_not_called()
+
+    def test_server_create_boot_from_volume_delete_on_termination(self):
+        arglist = [
+            '--image',
+            self.image.id,
+            '--flavor',
+            self.flavor.id,
+            '--boot-from-volume',
+            '10',
+            '--delete-on-termination',
+            self.server.name,
+        ]
+        verifylist = [
+            ('image', self.image.id),
+            ('flavor', self.flavor.id),
+            ('boot_from_volume', 10),
+            ('delete_on_termination', True),
+            ('config_drive', False),
+            ('server_name', self.server.name),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.compute_client.create_server.assert_called_once_with(
+            name=self.server.name,
+            image_id='',
+            flavor_id=self.flavor.id,
+            min_count=1,
+            max_count=1,
+            networks=[],
+            block_device_mapping=[
+                {
+                    'uuid': self.image.id,
+                    'boot_index': 0,
+                    'source_type': 'image',
+                    'destination_type': 'volume',
+                    'volume_size': 10,
+                    'delete_on_termination': True,
+                },
+            ],
+        )
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist(), data)
+
     def test_server_create_boot_from_volume_no_image(self):
         # Test --boot-from-volume option without --image or
         # --image-property.
