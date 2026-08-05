@@ -269,7 +269,7 @@ class CreateVolumeGroup(command.ShowOne):
                 name=parsed_args.name,
                 description=parsed_args.description,
             )
-            group = volume_client.get_group(group.id)
+            group = volume_client.get_group(group['id'])
             return _format_group(group)
 
 

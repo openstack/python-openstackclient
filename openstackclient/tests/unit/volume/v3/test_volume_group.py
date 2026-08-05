@@ -74,9 +74,9 @@ class TestVolumeGroupCreate(volume_fakes.TestVolume):
         )
         self.volume_client.create_group.return_value = self.fake_volume_group
         self.volume_client.get_group.return_value = self.fake_volume_group
-        self.volume_client.create_group_from_source.return_value = (
-            self.fake_volume_group
-        )
+        self.volume_client.create_group_from_source.return_value = {
+            'id': self.fake_volume_group.id
+        }
         self.volume_client.find_group_snapshot.return_value = (
             self.fake_volume_group_snapshot
         )
