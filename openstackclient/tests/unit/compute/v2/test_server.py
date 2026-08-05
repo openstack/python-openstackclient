@@ -84,6 +84,41 @@ class TestServer(compute_fakes.TestCompute):
         return servers
 
 
+class TestAddressesColumn(test_utils.TestCommand):
+    def setUp(self):
+        super().setUp()
+
+        self.addr_a = server.AddressesColumn(
+            {'demo-net': [{'addr': '10.0.0.144', 'version': 4}]}
+        )
+        self.addr_b = server.AddressesColumn(
+            {'network1': [{'addr': '192.168.1.254', 'version': 4}]}
+        )
+
+    def test_sorting(self):
+        """Verify AddressesColumn objects can be sorted."""
+        addresses = [
+            self.addr_b,
+            self.addr_a,
+        ]
+
+        self.assertEqual(
+            [self.addr_a, self.addr_b],
+            sorted(addresses),
+        )
+
+    def test_comparison(self):
+        """Verify AddressesColumn comparison uses human-readable values."""
+        addr_a_dup = server.AddressesColumn(
+            {'demo-net': [{'addr': '10.0.0.144', 'version': 4}]}
+        )
+
+        self.assertLess(self.addr_a, self.addr_b)
+        self.assertGreater(self.addr_b, self.addr_a)
+        self.assertEqual(self.addr_a, addr_a_dup)
+        self.assertNotEqual(self.addr_a, self.addr_b)
+
+
 class TestServerAddFixedIP(TestServer):
     def setUp(self):
         super().setUp()
