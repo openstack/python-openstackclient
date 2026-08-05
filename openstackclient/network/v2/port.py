@@ -396,20 +396,24 @@ def _add_updatable_args(
         '--vnic-type',
         metavar='<vnic-type>',
         choices=(
+            'accelerator-direct',
+            'accelerator-direct-physical',
             'direct',
             'direct-physical',
             'macvtap',
             'normal',
             'baremetal',
             'virtio-forwarder',
+            'smart-nic',
             'vdpa',
             'remote-managed',
         ),
         help=_(
-            "VNIC type for this port (direct | direct-physical | "
-            "macvtap | normal | baremetal | virtio-forwarder | vdpa | "
-            "remote-managed) "
-            "(default: normal)"
+            "VNIC type for this port (accelerator-direct | "
+            "accelerator-direct-physical | direct | "
+            "direct-physical | macvtap | normal | baremetal | "
+            "virtio-forwarder | smart-nic | vdpa | "
+            "remote-managed) (default: normal)"
         ),
     )
     parser.add_argument(
