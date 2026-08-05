@@ -633,6 +633,7 @@ class UnsetFlavor(command.Command):
                     identity_client,
                     parsed_args.project,
                     parsed_args.project_domain,
+                    validate_actor_existence=False,
                 )
                 compute_client.flavor_remove_tenant_access(
                     flavor.id, project_id
