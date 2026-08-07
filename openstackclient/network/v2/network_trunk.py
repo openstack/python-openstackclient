@@ -308,31 +308,116 @@ class ListNetworkSubport(command.Lister):
         self, parsed_args: argparse.Namespace
     ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
         network_client = self.app.client_manager.network
-        trunk_id = network_client.find_trunk(
+        return _list_trunk_subports(network_client, parsed_args.trunk)
+
+
+class ListNetworkTrunkSubport(command.Lister):
+    """List all subports for a given network trunk"""
+
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
+        parser = super().get_parser(prog_name)
+        parser.add_argument(
+            'trunk',
+            metavar="<trunk>",
+            help=_("List subports belonging to this trunk (name or ID)"),
+        )
+        return parser
+
+    def take_action(
+        self, parsed_args: argparse.Namespace
+    ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
+        network_client = self.app.client_manager.network
+        return _list_trunk_subports(network_client, parsed_args.trunk)
+
+
+class AddNetworkTrunkSubport(command.Command):
+    """Add a subport to a given network trunk"""
+
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
+        parser = super().get_parser(prog_name)
+        parser.add_argument(
+            'trunk',
+            metavar="<trunk>",
+            help=_("Trunk to add the subport to (name or ID)"),
+        )
+        parser.add_argument(
+            'port',
+            metavar="<port>",
+            help=_("Port to add as a subport (name or ID)"),
+        )
+        parser.add_argument(
+            '--segmentation-type',
+            metavar="<segmentation-type>",
+            help=_("Segmentation type of the subport, e.g. 'vlan'"),
+        )
+        parser.add_argument(
+            '--segmentation-id',
+            metavar="<segmentation-id>",
+            type=int,
+            help=_("Segmentation ID of the subport"),
+        )
+        return parser
+
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
+        network_client = self.app.client_manager.network
+        trunk = network_client.find_trunk(
             parsed_args.trunk,
             ignore_missing=False,
         )
-        data = network_client.get_trunk_subports(trunk_id)
-        headers: tuple[str, ...] = (
-            'Port',
-            'Segmentation Type',
-            'Segmentation ID',
+        subport: dict[str, Any] = {
+            'port_id': network_client.find_port(
+                parsed_args.port,
+                ignore_missing=False,
+            ).id
+        }
+        if parsed_args.segmentation_type is not None:
+            subport['segmentation_type'] = parsed_args.segmentation_type
+        if parsed_args.segmentation_id is not None:
+            subport['segmentation_id'] = parsed_args.segmentation_id
+        try:
+            network_client.add_trunk_subports(trunk, [subport])
+        except Exception as e:
+            msg = _("Failed to add subport to trunk '%(t)s': %(e)s") % {
+                't': parsed_args.trunk,
+                'e': e,
+            }
+            raise exceptions.CommandError(msg)
+
+
+class RemoveNetworkTrunkSubport(command.Command):
+    """Remove subport(s) from a given network trunk"""
+
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
+        parser = super().get_parser(prog_name)
+        parser.add_argument(
+            'trunk',
+            metavar="<trunk>",
+            help=_("Trunk to remove the subport(s) from (name or ID)"),
         )
-        columns: tuple[str, ...] = (
-            'port_id',
-            'segmentation_type',
-            'segmentation_id',
+        parser.add_argument(
+            'port',
+            metavar="<port>",
+            nargs="+",
+            help=_("Port(s) to remove as a subport (name or ID)"),
         )
-        return (
-            headers,
-            (
-                osc_utils.get_dict_properties(
-                    s,
-                    columns,
-                )
-                for s in data[SUB_PORTS]
-            ),
+        return parser
+
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
+        network_client = self.app.client_manager.network
+        trunk = network_client.find_trunk(
+            parsed_args.trunk,
+            ignore_missing=False,
         )
+        attrs = [
+            {
+                'port_id': network_client.find_port(
+                    port,
+                    ignore_missing=False,
+                ).id
+            }
+            for port in parsed_args.port
+        ]
+        network_client.delete_trunk_subports(trunk, attrs)
 
 
 class UnsetNetworkTrunk(command.Command):
@@ -380,6 +465,36 @@ def _get_columns(
     hidden_columns = ['location', 'tenant_id']
     return osc_utils.get_osc_show_columns_for_sdk_resource(
         item, {}, hidden_columns
+    )
+
+
+def _list_trunk_subports(
+    network_client: network_v2.Proxy, trunk: str
+) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
+    trunk_obj = network_client.find_trunk(
+        trunk,
+        ignore_missing=False,
+    )
+    data = network_client.get_trunk_subports(trunk_obj)
+    headers: tuple[str, ...] = (
+        'Port',
+        'Segmentation Type',
+        'Segmentation ID',
+    )
+    columns: tuple[str, ...] = (
+        'port_id',
+        'segmentation_type',
+        'segmentation_id',
+    )
+    return (
+        headers,
+        (
+            osc_utils.get_dict_properties(
+                s,
+                columns,
+            )
+            for s in data[SUB_PORTS]
+        ),
     )
 
 

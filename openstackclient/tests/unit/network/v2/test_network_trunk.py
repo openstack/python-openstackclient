@@ -942,3 +942,308 @@ class TestUnsetNetworkTrunk(network_fakes.TestNetworkV2):
             arglist,
             verifylist,
         )
+
+
+class TestListNetworkTrunkSubport(network_fakes.TestNetworkV2):
+    _trunk = network_fakes.create_one_trunk()
+    _subports = _trunk['sub_ports']
+
+    columns = (
+        'Port',
+        'Segmentation Type',
+        'Segmentation ID',
+    )
+    data = []
+    for s in _subports:
+        data.append(
+            (
+                s['port_id'],
+                s['segmentation_type'],
+                s['segmentation_id'],
+            )
+        )
+
+    def setUp(self):
+        super().setUp()
+
+        self.network_client.find_trunk.return_value = self._trunk
+        self.network_client.get_trunk_subports.return_value = {
+            network_trunk.SUB_PORTS: self._subports
+        }
+
+        # Get the command object to test
+        self.cmd = network_trunk.ListNetworkTrunkSubport(self.app, None)
+
+    def test_trunk_subport_list(self):
+        arglist = [
+            self._trunk['name'],
+        ]
+        verifylist = [
+            ('trunk', self._trunk['name']),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network_client.find_trunk.assert_called_once_with(
+            self._trunk['name'], ignore_missing=False
+        )
+        self.network_client.get_trunk_subports.assert_called_once_with(
+            self._trunk
+        )
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
+
+    def test_trunk_subport_list_no_trunk_fail(self):
+        self.assertRaises(
+            test_utils.ParserException,
+            self.check_parser,
+            self.cmd,
+            [],
+            [],
+        )
+
+
+class TestAddNetworkTrunkSubport(network_fakes.TestNetworkV2):
+    project = sdk_fakes.generate_fake_resource(_project.Project)
+    trunk_networks = network_fakes.create_networks(count=2)
+    parent_port = network_fakes.create_one_port(
+        attrs={'project_id': project.id, 'network_id': trunk_networks[0]['id']}
+    )
+    sub_port = network_fakes.create_one_port(
+        attrs={'project_id': project.id, 'network_id': trunk_networks[1]['id']}
+    )
+    _trunk = network_fakes.create_one_trunk(
+        attrs={
+            'project_id': project.id,
+            'port_id': parent_port['id'],
+            'sub_ports': {
+                'port_id': sub_port['id'],
+                'segmentation_id': 42,
+                'segmentation_type': 'vlan',
+            },
+        }
+    )
+
+    def setUp(self):
+        super().setUp()
+
+        self.network_client.find_trunk.return_value = self._trunk
+        self.network_client.find_port.return_value = self.sub_port
+        self.network_client.add_trunk_subports.return_value = None
+
+        # Get the command object to test
+        self.cmd = network_trunk.AddNetworkTrunkSubport(self.app, None)
+
+    def test_add_subport_port_only(self):
+        arglist = [
+            self._trunk['name'],
+            self.sub_port['name'],
+        ]
+        verifylist = [
+            ('trunk', self._trunk['name']),
+            ('port', self.sub_port['name']),
+            ('segmentation_type', None),
+            ('segmentation_id', None),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        self.network_client.find_trunk.assert_called_once_with(
+            self._trunk['name'], ignore_missing=False
+        )
+        self.network_client.add_trunk_subports.assert_called_once_with(
+            self._trunk, [{'port_id': self.sub_port['id']}]
+        )
+        self.assertIsNone(result)
+
+    def test_add_subport_all_options(self):
+        arglist = [
+            self._trunk['name'],
+            self.sub_port['name'],
+            '--segmentation-type',
+            'vlan',
+            '--segmentation-id',
+            '42',
+        ]
+        verifylist = [
+            ('trunk', self._trunk['name']),
+            ('port', self.sub_port['name']),
+            ('segmentation_type', 'vlan'),
+            ('segmentation_id', 42),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        self.network_client.add_trunk_subports.assert_called_once_with(
+            self._trunk,
+            [
+                {
+                    'port_id': self.sub_port['id'],
+                    'segmentation_type': 'vlan',
+                    'segmentation_id': 42,
+                }
+            ],
+        )
+        self.assertIsNone(result)
+
+    def test_add_subport_invalid_segmentation_id_fail(self):
+        arglist = [
+            self._trunk['name'],
+            self.sub_port['name'],
+            '--segmentation-type',
+            'vlan',
+            '--segmentation-id',
+            'boom',
+        ]
+        verifylist = [
+            ('trunk', self._trunk['name']),
+            ('port', self.sub_port['name']),
+        ]
+        self.assertRaises(
+            test_utils.ParserException,
+            self.check_parser,
+            self.cmd,
+            arglist,
+            verifylist,
+        )
+        self.network_client.add_trunk_subports.assert_not_called()
+
+    def test_add_subport_no_port_fail(self):
+        arglist = [
+            self._trunk['name'],
+        ]
+        verifylist = [
+            ('trunk', self._trunk['name']),
+        ]
+        self.assertRaises(
+            test_utils.ParserException,
+            self.check_parser,
+            self.cmd,
+            arglist,
+            verifylist,
+        )
+
+    def test_add_subport_with_exception(self):
+        arglist = [
+            self._trunk['name'],
+            self.sub_port['name'],
+        ]
+        verifylist = [
+            ('trunk', self._trunk['name']),
+            ('port', self.sub_port['name']),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.network_client.add_trunk_subports.side_effect = (
+            exceptions.CommandError
+        )
+
+        with self.assertRaises(exceptions.CommandError) as cm:
+            self.cmd.take_action(parsed_args)
+        self.assertIn(
+            f"Failed to add subport to trunk '{self._trunk['name']}': ",
+            str(cm.exception),
+        )
+        self.network_client.add_trunk_subports.assert_called_once_with(
+            self._trunk, [{'port_id': self.sub_port['id']}]
+        )
+
+
+class TestRemoveNetworkTrunkSubport(network_fakes.TestNetworkV2):
+    project = sdk_fakes.generate_fake_resource(_project.Project)
+    trunk_networks = network_fakes.create_networks(count=2)
+    parent_port = network_fakes.create_one_port(
+        attrs={'project_id': project.id, 'network_id': trunk_networks[0]['id']}
+    )
+    sub_ports = network_fakes.create_ports(
+        attrs={
+            'project_id': project.id,
+            'network_id': trunk_networks[1]['id'],
+        },
+        count=2,
+    )
+    _trunk = network_fakes.create_one_trunk(
+        attrs={
+            'project_id': project.id,
+            'port_id': parent_port['id'],
+            'sub_ports': {
+                'port_id': sub_ports[0]['id'],
+                'segmentation_id': 42,
+                'segmentation_type': 'vlan',
+            },
+        }
+    )
+
+    def setUp(self):
+        super().setUp()
+
+        self.network_client.find_trunk.return_value = self._trunk
+        self.network_client.find_port.side_effect = self.sub_ports
+        self.network_client.delete_trunk_subports.return_value = None
+
+        # Get the command object to test
+        self.cmd = network_trunk.RemoveNetworkTrunkSubport(self.app, None)
+
+    def test_remove_single_subport(self):
+        arglist = [
+            self._trunk['name'],
+            self.sub_ports[0]['name'],
+        ]
+        verifylist = [
+            ('trunk', self._trunk['name']),
+            ('port', [self.sub_ports[0]['name']]),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        self.network_client.find_trunk.assert_called_once_with(
+            self._trunk['name'], ignore_missing=False
+        )
+        self.network_client.delete_trunk_subports.assert_called_once_with(
+            self._trunk, [{'port_id': self.sub_ports[0]['id']}]
+        )
+        self.assertIsNone(result)
+
+    def test_remove_multiple_subports(self):
+        arglist = [
+            self._trunk['name'],
+            self.sub_ports[0]['name'],
+            self.sub_ports[1]['name'],
+        ]
+        verifylist = [
+            ('trunk', self._trunk['name']),
+            (
+                'port',
+                [self.sub_ports[0]['name'], self.sub_ports[1]['name']],
+            ),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        self.network_client.delete_trunk_subports.assert_called_once_with(
+            self._trunk,
+            [
+                {'port_id': self.sub_ports[0]['id']},
+                {'port_id': self.sub_ports[1]['id']},
+            ],
+        )
+        self.assertIsNone(result)
+
+    def test_remove_subport_no_port_fail(self):
+        arglist = [
+            self._trunk['name'],
+        ]
+        verifylist = [
+            ('trunk', self._trunk['name']),
+        ]
+        self.assertRaises(
+            test_utils.ParserException,
+            self.check_parser,
+            self.cmd,
+            arglist,
+            verifylist,
+        )

@@ -1,0 +1,8 @@
+---
+features:
+  - |
+    Add ``network trunk subport list``, ``network trunk subport add`` and
+    ``network trunk subport remove`` commands. These take the trunk as a
+    positional argument, providing a friendlier interface than
+    ``network subport list --trunk``, ``network trunk set --subport`` and
+    ``network trunk unset --subport``, which all remain available.

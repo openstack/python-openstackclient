@@ -146,3 +146,41 @@ class NetworkTrunkTests(common.NetworkTests):
             ],
             json_output,
         )
+
+    def test_network_trunk_subport_add_remove_list(self):
+        trunk_name = uuid.uuid4().hex
+        json_output = json.loads(
+            self.openstack(
+                f'network trunk create {trunk_name} --parent-port {self.parent_port_name} -f json '
+            )
+        )
+        self.addCleanup(self.openstack, 'network trunk delete ' + trunk_name)
+        self.assertEqual(trunk_name, json_output['name'])
+
+        # Add subport to trunk
+        self.openstack(
+            f'network trunk subport add {trunk_name} {self.sub_port_name} '
+            '--segmentation-type vlan --segmentation-id 42'
+        )
+        json_output = json.loads(
+            self.openstack(f'network trunk subport list {trunk_name} -f json')
+        )
+        self.assertEqual(
+            [
+                {
+                    'Port': self.sub_port_id,
+                    'Segmentation ID': 42,
+                    'Segmentation Type': 'vlan',
+                }
+            ],
+            json_output,
+        )
+
+        # Remove subport from trunk
+        self.openstack(
+            f'network trunk subport remove {trunk_name} {self.sub_port_name}'
+        )
+        json_output = json.loads(
+            self.openstack(f'network trunk subport list {trunk_name} -f json')
+        )
+        self.assertEqual([], json_output)
