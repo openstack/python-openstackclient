@@ -27,6 +27,7 @@ from osc_lib import exceptions
 
 from openstackclient.image.v2 import image as _image
 from openstackclient.tests.unit.image.v2 import fakes as image_fakes
+from openstackclient.tests.unit import utils as test_utils
 from openstackclient.tests.unit.volume.v3 import fakes as volume_fakes
 
 
@@ -234,6 +235,128 @@ class TestImageCreate(image_fakes.TestImagev2, volume_fakes.TestVolume):
 
         self.assertEqual(self.expected_columns, columns)
         self.assertCountEqual(self.expected_data, data)
+
+    def test_image_create_file_with_size(self):
+        imagefile = tempfile.NamedTemporaryFile(delete=False)
+        imagefile.write(b'\0')
+        imagefile.close()
+
+        arglist = [
+            '--file',
+            imagefile.name,
+            '--size',
+            '2048',
+            (
+                '--unprotected'
+                if not self.new_image.is_protected
+                else '--protected'
+            ),
+            (
+                '--public'
+                if self.new_image.visibility == 'public'
+                else '--private'
+            ),
+            '--property',
+            'Alpha=1',
+            '--property',
+            'Beta=2',
+            '--tag',
+            self.new_image.tags[0],
+            '--tag',
+            self.new_image.tags[1],
+            self.new_image.name,
+        ]
+        verifylist = [
+            ('filename', imagefile.name),
+            ('size', 2048),
+            ('is_protected', self.new_image.is_protected),
+            ('visibility', self.new_image.visibility),
+            ('properties', {'Alpha': '1', 'Beta': '2'}),
+            ('tags', self.new_image.tags),
+            ('name', self.new_image.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.image_client.create_image.assert_called_with(
+            name=self.new_image.name,
+            allow_duplicates=True,
+            container_format=_image.DEFAULT_CONTAINER_FORMAT,
+            disk_format=_image.DEFAULT_DISK_FORMAT,
+            is_protected=self.new_image.is_protected,
+            visibility=self.new_image.visibility,
+            Alpha='1',
+            Beta='2',
+            tags=self.new_image.tags,
+            filename=imagefile.name,
+            size=2048,
+        )
+        self.image_client.get_image.assert_called_once_with(self.new_image)
+
+        self.assertEqual(self.expected_columns, columns)
+        self.assertCountEqual(self.expected_data, data)
+
+    @mock.patch('sys.stdin', side_effect=[None])
+    def test_image_create_size_requires_upload(self, raw_input):
+        arglist = [
+            '--size',
+            '2048',
+            self.new_image.name,
+        ]
+        verifylist = [
+            ('size', 2048),
+            ('name', self.new_image.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args,
+        )
+
+    def test_image_create_size_must_be_positive(self):
+        arglist = [
+            '--size',
+            '0',
+            self.new_image.name,
+        ]
+        self.assertRaises(
+            test_utils.ParserException,
+            self.check_parser,
+            self.cmd,
+            arglist,
+            [],
+        )
+
+    @mock.patch('openstackclient.image.v2.image.get_data_from_stdin')
+    def test_image_create_stdin_with_size(self, mock_get_data_from_stdin):
+        fake_stdin = io.BytesIO(b'some fake data')
+        mock_get_data_from_stdin.return_value = fake_stdin
+
+        arglist = [
+            '--size',
+            '2048',
+            self.new_image.name,
+        ]
+        verifylist = [
+            ('size', 2048),
+            ('name', self.new_image.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+
+        self.image_client.create_image.assert_called_with(
+            name=self.new_image.name,
+            allow_duplicates=True,
+            container_format=_image.DEFAULT_CONTAINER_FORMAT,
+            disk_format=_image.DEFAULT_DISK_FORMAT,
+            data=fake_stdin,
+            validate_checksum=False,
+            size=2048,
+        )
 
     @mock.patch('openstackclient.image.v2.image.get_data_from_stdin')
     def test_image_create__progress_ignore_with_stdin(
@@ -2031,6 +2154,52 @@ class TestImageStage(image_fakes.TestImagev2):
         self.image_client.stage_image.assert_called_once_with(
             self.image,
             data=fake_stdin,
+        )
+
+    def test_stage_image__with_size(self):
+        imagefile = tempfile.NamedTemporaryFile(delete=False)
+        imagefile.write(b'\0' * 1024)
+        imagefile.close()
+
+        arglist = [
+            '--file',
+            imagefile.name,
+            '--size',
+            '2048',
+            self.image.name,
+        ]
+        verifylist = [
+            ('filename', imagefile.name),
+            ('size', 2048),
+            ('image', self.image.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+
+        self.image_client.stage_image.assert_called_once_with(
+            self.image,
+            filename=imagefile.name,
+            size=2048,
+        )
+
+    @mock.patch('sys.stdin', side_effect=[None])
+    def test_stage_image__size_requires_upload(self, raw_input):
+        arglist = [
+            '--size',
+            '2048',
+            self.image.name,
+        ]
+        verifylist = [
+            ('size', 2048),
+            ('image', self.image.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args,
         )
 
 

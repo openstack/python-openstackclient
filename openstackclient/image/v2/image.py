@@ -151,6 +151,19 @@ def _get_member_columns(item: Any) -> tuple[tuple[str, ...], tuple[str, ...]]:
     )
 
 
+def _parse_image_size(value: str) -> int:
+    try:
+        size = int(value)
+    except ValueError:
+        raise argparse.ArgumentTypeError(
+            _("'%(value)s' is not a valid size (use a positive integer)")
+            % {'value': value}
+        )
+    if size <= 0:
+        raise argparse.ArgumentTypeError(_("Size must be a positive integer"))
+    return size
+
+
 def get_data_from_stdin() -> Any:
     # distinguish cases where:
     # (1) stdin is not valid (as in cron jobs):
@@ -291,7 +304,7 @@ class AddProjectToImage(command.ShowOne):
 class CreateImage(command.ShowOne):
     _description = _("Create/upload an image")
 
-    deadopts = ('size', 'location', 'copy-from', 'checksum', 'store')
+    deadopts = ('location', 'copy-from', 'checksum', 'store')
 
     def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
@@ -299,7 +312,6 @@ class CreateImage(command.ShowOne):
         # that v2 either doesn't support or supports weirdly.
         # --checksum - could be faked clientside perhaps?
         # --location - maybe location add?
-        # --size - passing image size is actually broken in python-glanceclient
         # --copy-from - does not exist in v2
         # --store - does not exits in v2
         parser.add_argument(
@@ -351,6 +363,15 @@ class CreateImage(command.ShowOne):
             metavar="<ram-mb>",
             type=int,
             help=_("Minimum RAM size needed to boot image, in megabytes"),
+        )
+        parser.add_argument(
+            "--size",
+            metavar="<size>",
+            type=_parse_image_size,
+            help=_(
+                "Size of image data in bytes. Providing this can improve "
+                "upload performance."
+            ),
         )
         source_group = parser.add_mutually_exclusive_group()
         source_group.add_argument(
@@ -520,6 +541,10 @@ class CreateImage(command.ShowOne):
             )
             raise exceptions.CommandError(msg)
 
+        if parsed_args.size is not None and fp is None:
+            msg = _("--size requires image data via --file or stdin")
+            raise exceptions.CommandError(msg)
+
         if parsed_args.progress and parsed_args.filename:
             # NOTE(stephenfin): we only show a progress bar if the user
             # requested it *and* we're reading from a file (not stdin)
@@ -589,6 +614,11 @@ class CreateImage(command.ShowOne):
             kwargs['img_signature_hash_method'] = signer.hash_method
             if signer.padding_method:
                 kwargs['img_signature_key_type'] = signer.padding_method
+
+        # Pass size only when uploading data. The SDK calculates size
+        # automatically when possible if it is not provided.
+        if parsed_args.size is not None:
+            kwargs['size'] = parsed_args.size
 
         image = image_client.create_image(**kwargs)
 
@@ -1608,8 +1638,15 @@ class StageImage(command.Command):
                 'Alternatively, images can be passed via stdin.'
             ),
         )
-        # NOTE(stephenfin): glanceclient had a --size argument but it didn't do
-        # anything so we have chosen not to port this
+        parser.add_argument(
+            '--size',
+            metavar='<size>',
+            type=_parse_image_size,
+            help=_(
+                'Size of image data in bytes. Providing this can improve '
+                'upload performance.'
+            ),
+        )
         parser.add_argument(
             '--progress',
             action='store_true',
@@ -1646,6 +1683,10 @@ class StageImage(command.Command):
         else:
             fp = get_data_from_stdin()
 
+        if parsed_args.size is not None and fp is None:
+            msg = _("--size requires image data via --file or stdin")
+            raise exceptions.CommandError(msg)
+
         kwargs: dict[str, Any] = {}
 
         if parsed_args.progress and parsed_args.filename:
@@ -1660,6 +1701,11 @@ class StageImage(command.Command):
             kwargs['filename'] = parsed_args.filename
         elif fp:
             kwargs['data'] = fp
+
+        # Pass size only when uploading data. The SDK calculates size
+        # automatically when possible if it is not provided.
+        if parsed_args.size is not None:
+            kwargs['size'] = parsed_args.size
 
         image_client.stage_image(image, **kwargs)
 

@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    The ``openstack image create`` and ``openstack image stage`` commands
+    now accept a ``--size`` option to specify the size of image data being
+    uploaded in bytes. Providing this can improve upload performance.
