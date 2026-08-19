@@ -64,6 +64,12 @@ class IdentityTests(base.TestCase):
         'interface',
         'url',
     ]
+    ENDPOINT_GROUP_FIELDS = [
+        'description',
+        'filters',
+        'id',
+        'name',
+    ]
 
     REGION_LIST_HEADERS = ['Region', 'Parent Region', 'Description']
     ENDPOINT_LIST_HEADERS = [
@@ -76,6 +82,12 @@ class IdentityTests(base.TestCase):
         'URL',
     ]
     ENDPOINT_LIST_PROJECT_HEADERS = ['ID', 'Name']
+    ENDPOINT_GROUP_LIST_HEADERS = [
+        'ID',
+        'Name',
+        'Description',
+    ]
+    ENDPOINT_GROUP_LIST_PROJECT_HEADERS = ['ID', 'Name', 'Description']
 
     MAPPING_FIELDS = ['id', 'rules', 'schema_version']
 
@@ -391,6 +403,27 @@ class IdentityTests(base.TestCase):
         items = self.parse_show(raw_output)
         self.assert_show_fields(items, self.ENDPOINT_FIELDS)
         return endpoint['id']
+
+    def _create_dummy_endpoint_group(
+        self, filters={'interface': 'public'}, add_clean_up=True
+    ):
+        endpoint_group = data_utils.rand_name('EndpointGroup')
+        # Create filters file
+        with tempfile.NamedTemporaryFile(mode='w+') as f:
+            f.write(json.dumps(filters))
+            f.flush()
+            raw_output = self.openstack(
+                f'endpoint group create {endpoint_group} {f.name}'
+            )
+        endpoint_group = self.parse_show_as_object(raw_output)
+        if add_clean_up:
+            self.addCleanup(
+                self.openstack,
+                'endpoint group delete {}'.format(endpoint_group['id']),
+            )
+        items = self.parse_show(raw_output)
+        self.assert_show_fields(items, self.ENDPOINT_GROUP_FIELDS)
+        return endpoint_group['id']
 
     def _create_dummy_mapping(self, add_clean_up=True):
         mapping = data_utils.rand_name('Mapping')
