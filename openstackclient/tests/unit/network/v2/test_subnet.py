@@ -1472,6 +1472,48 @@ class TestSetSubnet(TestSubnet):
         self.network_client.update_subnet.assert_called_with(_subnet, **attrs)
         self.assertIsNone(result)
 
+    def test_set_leak_routes(self):
+        arglist = [
+            self._subnet.name,
+            '--leak-routes',
+        ]
+        verifylist = [
+            ('subnet', self._subnet.name),
+            ('leak_routes', True),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+
+        attrs = {
+            'leak_routes': True,
+        }
+        self.network_client.update_subnet.assert_called_once_with(
+            self._subnet, **attrs
+        )
+        self.assertIsNone(result)
+
+    def test_set_no_leak_routes(self):
+        arglist = [
+            self._subnet.name,
+            '--no-leak-routes',
+        ]
+        verifylist = [
+            ('subnet', self._subnet.name),
+            ('leak_routes', False),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+
+        attrs = {
+            'leak_routes': False,
+        }
+        self.network_client.update_subnet.assert_called_once_with(
+            self._subnet, **attrs
+        )
+        self.assertIsNone(result)
+
 
 class TestShowSubnet(TestSubnet):
     # The subnets to be shown
