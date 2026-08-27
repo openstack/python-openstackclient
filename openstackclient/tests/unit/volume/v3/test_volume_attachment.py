@@ -69,6 +69,7 @@ class TestVolumeAttachmentCreate(volume_fakes.TestVolume):
 
         arglist = [
             self.volume.id,
+            '--server',
             self.server.id,
         ]
         verifylist = [
@@ -108,6 +109,7 @@ class TestVolumeAttachmentCreate(volume_fakes.TestVolume):
 
         arglist = [
             self.volume.id,
+            '--server',
             self.server.id,
             '--connect',
             '--initiator',
@@ -175,6 +177,7 @@ class TestVolumeAttachmentCreate(volume_fakes.TestVolume):
 
         arglist = [
             self.volume.id,
+            '--server',
             self.server.id,
         ]
         verifylist = [
@@ -195,6 +198,7 @@ class TestVolumeAttachmentCreate(volume_fakes.TestVolume):
 
         arglist = [
             self.volume.id,
+            '--server',
             self.server.id,
             '--mode',
             'rw',
@@ -218,6 +222,7 @@ class TestVolumeAttachmentCreate(volume_fakes.TestVolume):
 
         arglist = [
             self.volume.id,
+            '--server',
             self.server.id,
             '--initiator',
             'iqn.1993-08.org.debian:01:cad181614cec',

@@ -101,9 +101,10 @@ class CreateVolumeAttachment(command.ShowOne):
             help=_('Name or ID of volume to attach to server.'),
         )
         parser.add_argument(
-            'server',
+            'server_old',
             metavar='<server>',
-            help=_('Name or ID of server to attach volume to.'),
+            nargs='?',
+            help=argparse.SUPPRESS,
         )
         parser.add_argument(
             '--connect',
@@ -135,6 +136,11 @@ class CreateVolumeAttachment(command.ShowOne):
             '--host',
             metavar='<host>',
             help=_('Name of the host attaching to'),
+        )
+        parser.add_argument(
+            '--server',
+            metavar='<server>',
+            help=_('Name or ID of server attaching to'),
         )
         parser.add_argument(
             '--platform',
@@ -198,6 +204,15 @@ class CreateVolumeAttachment(command.ShowOne):
                     "support the '--mode' option"
                 )
                 raise exceptions.CommandError(msg)
+
+        if parsed_args.server_old:
+            msg = _(
+                'The <server> positional argument is deprecated in favour of '
+                'the --server <server> option argument'
+            )
+            self.log.warning(msg)
+            # we could raise a warning here if they were both set but meh
+            parsed_args.server = parsed_args.server or parsed_args.server_old
 
         connector = {}
         if parsed_args.connect:
