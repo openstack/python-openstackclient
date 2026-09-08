@@ -23,6 +23,7 @@ import sys
 from typing import Any, Protocol, TypeVar, runtime_checkable
 
 from keystoneauth1 import access as ksa_access
+from openstack.accelerator import v2 as accelerator_v2
 from openstack.block_storage import v2 as volume_v2
 from openstack.block_storage import v3 as volume_v3
 from openstack.compute import v2 as compute_v2
@@ -55,6 +56,7 @@ class ClientManager(clientmanager.ClientManager):
     # get_plugin_modules below
     # TODO(stephenfin): Change the types of identity, object store and share
     # once we've migrated everything to SDK
+    accelerator: accelerator_v2.Proxy
     compute: compute_v2.Proxy
     identity: Any
     image: image_v2.Proxy
@@ -273,9 +275,13 @@ def build_plugin_option_parser(
 PLUGIN_MODULES = get_plugin_modules(
     'openstack.cli.base',
 )
-# Append list of external plugin modules
+# Append list of external plugin modules, skipping any whose API_NAME
+# is already provided by a base module to avoid argparse conflicts
+# (e.g. cyborgclient's accelerator plugin is superseded by the in-tree
+# accelerator module).
+_base_api_names = {mod.API_NAME for mod in PLUGIN_MODULES}
 PLUGIN_MODULES.extend(
-    get_plugin_modules(
-        'openstack.cli.extension',
-    )
+    mod
+    for mod in get_plugin_modules('openstack.cli.extension')
+    if mod.API_NAME not in _base_api_names
 )
