@@ -522,3 +522,38 @@ class UnsetSubnetPool(command.Command):
         )
         # tags is a subresource and it needs to be updated separately.
         _tag.update_tags_for_unset(client, obj, parsed_args)
+
+
+class AddNetworkSubnetPool(command.Command):
+    """Onboard network subnets into a subnet pool"""
+
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
+        parser = super().get_parser(prog_name)
+        parser.add_argument(
+            'network',
+            metavar="<network>",
+            help=_("Onboard all subnets associated with this network"),
+        )
+        parser.add_argument(
+            'subnetpool',
+            metavar="<subnetpool>",
+            help=_("Target subnet pool for onboarding subnets"),
+        )
+        return parser
+
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
+        client = self.app.client_manager.network
+        subnet_pool = client.find_subnet_pool(
+            parsed_args.subnetpool, ignore_missing=False
+        )
+        network = client.find_network(
+            parsed_args.network, ignore_missing=False
+        )
+        try:
+            client.onboard_network_subnets(subnet_pool, network)
+        except Exception as e:
+            msg = _("Failed to onboard subnets for network '%(n)s': %(e)s") % {
+                'n': parsed_args.network,
+                'e': e,
+            }
+            raise exceptions.CommandError(msg)

@@ -482,6 +482,7 @@ network_segment_range_list = "openstackclient.network.v2.network_segment_range:L
 network_segment_range_set = "openstackclient.network.v2.network_segment_range:SetNetworkSegmentRange"
 network_segment_range_show = "openstackclient.network.v2.network_segment_range:ShowNetworkSegmentRange"
 network_service_provider_list = "openstackclient.network.v2.network_service_provider:ListNetworkServiceProvider"
+network_onboard_subnet = "openstackclient.network.v2.subnet_onboard:NetworkOnboardSubnets"
 network_subport_list = "openstackclient.network.v2.network_trunk:ListNetworkSubport"
 network_trunk_create = "openstackclient.network.v2.network_trunk:CreateNetworkTrunk"
 network_trunk_delete = "openstackclient.network.v2.network_trunk:DeleteNetworkTrunk"
@@ -548,6 +549,7 @@ subnet_pool_list = "openstackclient.network.v2.subnet_pool:ListSubnetPool"
 subnet_pool_set = "openstackclient.network.v2.subnet_pool:SetSubnetPool"
 subnet_pool_show = "openstackclient.network.v2.subnet_pool:ShowSubnetPool"
 subnet_pool_unset = "openstackclient.network.v2.subnet_pool:UnsetSubnetPool"
+subnet_pool_add_network = "openstackclient.network.v2.subnet_pool:AddNetworkSubnetPool"
 
 [project.entry-points."openstack.network.v2.bgpvpn"]
 bgpvpn_create = "openstackclient.network.v2.bgpvpn.bgpvpn:CreateBgpvpn"
