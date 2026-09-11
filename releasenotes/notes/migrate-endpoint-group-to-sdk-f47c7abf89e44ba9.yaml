@@ -1,0 +1,4 @@
+---
+features:
+  - |
+    Migrate ``endpoint group`` commands from keystoneclient to SDK.

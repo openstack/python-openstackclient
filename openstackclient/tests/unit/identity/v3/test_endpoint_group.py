@@ -13,34 +13,21 @@
 
 from unittest import mock
 
+from openstack.identity.v3 import domain as _domain
+from openstack.identity.v3 import endpoint as _endpoint
+from openstack.identity.v3 import endpoint_group as _endpoint_group
+from openstack.identity.v3 import project as _project
+from openstack.identity.v3 import region as _region
+from openstack.identity.v3 import service as _service
+from openstack.test import fakes as sdk_fakes
+
 from openstackclient.identity.v3 import endpoint_group
 from openstackclient.tests.unit.identity.v3 import fakes as identity_fakes
 
 
-class TestEndpointGroup(identity_fakes.TestIdentity):
-    def setUp(self):
-        super().setUp()
+class TestEndpointGroupCreate(identity_fakes.TestIdentity):
+    endpoint_group_file_path = '/tmp/path/to/file'
 
-        # Get a shortcut to the EndpointManager Mock
-        self.endpoint_groups_mock = self.identity_client.endpoint_groups
-        self.endpoint_groups_mock.reset_mock()
-        self.epf_mock = self.identity_client.endpoint_filter
-        self.epf_mock.reset_mock()
-
-        # Get a shortcut to the ServiceManager Mock
-        self.services_mock = self.identity_client.services
-        self.services_mock.reset_mock()
-
-        # Get a shortcut to the DomainManager Mock
-        self.domains_mock = self.identity_client.domains
-        self.domains_mock.reset_mock()
-
-        # Get a shortcut to the ProjectManager Mock
-        self.projects_mock = self.identity_client.projects
-        self.projects_mock.reset_mock()
-
-
-class TestEndpointGroupCreate(TestEndpointGroup):
     columns = (
         'description',
         'filters',
@@ -51,33 +38,46 @@ class TestEndpointGroupCreate(TestEndpointGroup):
     def setUp(self):
         super().setUp()
 
-        self.endpoint_group = (
-            identity_fakes.FakeEndpointGroup.create_one_endpointgroup(
-                attrs={'filters': identity_fakes.endpoint_group_filters}
-            )
+        self.service = sdk_fakes.generate_fake_resource(_service.Service)
+        self.region = sdk_fakes.generate_fake_resource(_region.Region)
+        self.endpoint = sdk_fakes.generate_fake_resource(
+            resource_type=_endpoint.Endpoint,
+            service_id=self.service.id,
+            interface='admin',
+            region_id=self.region.id,
         )
-
-        self.endpoint_groups_mock.create.return_value = self.endpoint_group
+        self.endpoint_group_filters = {
+            'service_id': self.service.id,
+            'region_id': self.region.id,
+        }
 
         # Get the command object to test
         self.cmd = endpoint_group.CreateEndpointGroup(self.app, None)
 
     def test_endpointgroup_create_no_options(self):
+        endpoint_group = sdk_fakes.generate_fake_resource(
+            _endpoint_group.EndpointGroup, filters=self.endpoint_group_filters
+        )
+
+        self.identity_sdk_client.create_endpoint_group.return_value = (
+            endpoint_group
+        )
+
         arglist = [
             '--description',
-            self.endpoint_group.description,
-            self.endpoint_group.name,
-            identity_fakes.endpoint_group_file_path,
+            endpoint_group.description,
+            endpoint_group.name,
+            self.endpoint_group_file_path,
         ]
         verifylist = [
-            ('name', self.endpoint_group.name),
-            ('filters', identity_fakes.endpoint_group_file_path),
-            ('description', self.endpoint_group.description),
+            ('name', endpoint_group.name),
+            ('filters', self.endpoint_group_file_path),
+            ('description', endpoint_group.description),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         mocker = mock.Mock()
-        mocker.return_value = identity_fakes.endpoint_group_filters
+        mocker.return_value = self.endpoint_group_filters
         with mock.patch(
             "openstackclient.identity.v3.endpoint_group."
             "CreateEndpointGroup._read_filters",
@@ -87,34 +87,37 @@ class TestEndpointGroupCreate(TestEndpointGroup):
 
         # Set expected values
         kwargs = {
-            'name': self.endpoint_group.name,
-            'filters': identity_fakes.endpoint_group_filters,
-            'description': self.endpoint_group.description,
+            'name': endpoint_group.name,
+            'filters': self.endpoint_group_filters,
+            'description': endpoint_group.description,
         }
 
-        self.endpoint_groups_mock.create.assert_called_with(**kwargs)
+        self.identity_sdk_client.create_endpoint_group.assert_called_with(
+            **kwargs
+        )
 
         self.assertEqual(self.columns, columns)
         datalist = (
-            self.endpoint_group.description,
-            identity_fakes.endpoint_group_filters,
-            self.endpoint_group.id,
-            self.endpoint_group.name,
+            endpoint_group.description,
+            self.endpoint_group_filters,
+            endpoint_group.id,
+            endpoint_group.name,
         )
         self.assertEqual(datalist, data)
 
 
-class TestEndpointGroupDelete(TestEndpointGroup):
-    endpoint_group = (
-        identity_fakes.FakeEndpointGroup.create_one_endpointgroup()
-    )
-
+class TestEndpointGroupDelete(identity_fakes.TestIdentity):
     def setUp(self):
         super().setUp()
 
-        # This is the return value for utils.find_resource(endpoint)
-        self.endpoint_groups_mock.get.return_value = self.endpoint_group
-        self.endpoint_groups_mock.delete.return_value = None
+        self.endpoint_group = sdk_fakes.generate_fake_resource(
+            _endpoint_group.EndpointGroup
+        )
+
+        self.identity_sdk_client.find_endpoint_group.return_value = (
+            self.endpoint_group
+        )
+        self.identity_sdk_client.delete_endpoint_group.return_value = None
 
         # Get the command object to test
         self.cmd = endpoint_group.DeleteEndpointGroup(self.app, None)
@@ -130,19 +133,13 @@ class TestEndpointGroupDelete(TestEndpointGroup):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.endpoint_groups_mock.delete.assert_called_with(
+        self.identity_sdk_client.delete_endpoint_group.assert_called_with(
             self.endpoint_group.id,
         )
         self.assertIsNone(result)
 
 
-class TestEndpointGroupList(TestEndpointGroup):
-    endpoint_group = (
-        identity_fakes.FakeEndpointGroup.create_one_endpointgroup()
-    )
-    project = identity_fakes.FakeProject.create_one_project()
-    domain = identity_fakes.FakeDomain.create_one_domain()
-
+class TestEndpointGroupList(identity_fakes.TestIdentity):
     columns = (
         'ID',
         'Name',
@@ -152,12 +149,23 @@ class TestEndpointGroupList(TestEndpointGroup):
     def setUp(self):
         super().setUp()
 
-        self.endpoint_groups_mock.list.return_value = [self.endpoint_group]
-        self.endpoint_groups_mock.get.return_value = self.endpoint_group
-        self.epf_mock.list_projects_for_endpoint_group.return_value = [
+        self.endpoint_group = sdk_fakes.generate_fake_resource(
+            _endpoint_group.EndpointGroup
+        )
+        self.project = sdk_fakes.generate_fake_resource(_project.Project)
+        self.domain = sdk_fakes.generate_fake_resource(_domain.Domain)
+
+        self.identity_sdk_client.endpoint_groups.return_value = [
+            self.endpoint_group
+        ]
+        self.identity_sdk_client.find_endpoint_group.return_value = (
+            self.endpoint_group
+        )
+        self.identity_sdk_client.find_project.return_value = self.project
+        self.identity_sdk_client.endpoint_group_projects.return_value = [
             self.project
         ]
-        self.epf_mock.list_endpoint_groups_for_project.return_value = [
+        self.identity_sdk_client.project_endpoint_groups.return_value = [
             self.endpoint_group
         ]
 
@@ -173,7 +181,7 @@ class TestEndpointGroupList(TestEndpointGroup):
         # returns a tuple containing the column names and an iterable
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
-        self.endpoint_groups_mock.list.assert_called_with()
+        self.identity_sdk_client.endpoint_groups.assert_called_with()
 
         self.assertEqual(self.columns, columns)
         datalist = (
@@ -199,7 +207,7 @@ class TestEndpointGroupList(TestEndpointGroup):
         # returns a tuple containing the column names and an iterable
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
-        self.epf_mock.list_projects_for_endpoint_group.assert_called_with(
+        self.identity_sdk_client.endpoint_group_projects.assert_called_with(
             endpoint_group=self.endpoint_group.id
         )
 
@@ -214,11 +222,6 @@ class TestEndpointGroupList(TestEndpointGroup):
         self.assertEqual(datalist, tuple(data))
 
     def test_endpoint_group_list_by_project(self):
-        self.epf_mock.list_endpoints_for_project.return_value = [
-            self.endpoint_group
-        ]
-        self.projects_mock.get.return_value = self.project
-
         arglist = [
             '--project',
             self.project.name,
@@ -235,7 +238,7 @@ class TestEndpointGroupList(TestEndpointGroup):
         # returns a tuple containing the column names and an iterable
         # containing the data to be listed.
         columns, data = self.cmd.take_action(parsed_args)
-        self.epf_mock.list_endpoint_groups_for_project.assert_called_with(
+        self.identity_sdk_client.project_endpoint_groups.assert_called_with(
             project=self.project.id
         )
 
@@ -250,18 +253,31 @@ class TestEndpointGroupList(TestEndpointGroup):
         self.assertEqual(datalist, tuple(data))
 
 
-class TestEndpointGroupSet(TestEndpointGroup):
-    endpoint_group = (
-        identity_fakes.FakeEndpointGroup.create_one_endpointgroup()
-    )
+class TestEndpointGroupSet(identity_fakes.TestIdentity):
+    endpoint_group_file_path = '/tmp/path/to/file'
 
     def setUp(self):
         super().setUp()
 
-        # This is the return value for utils.find_resource(endpoint)
-        self.endpoint_groups_mock.get.return_value = self.endpoint_group
+        self.region = sdk_fakes.generate_fake_resource(_region.Region)
+        self.endpoint_group_filters_2 = {
+            'region_id': self.region.id,
+        }
 
-        self.endpoint_groups_mock.update.return_value = self.endpoint_group
+        self.endpoint_group = sdk_fakes.generate_fake_resource(
+            _endpoint_group.EndpointGroup
+        )
+        self.endpoint_group_2 = sdk_fakes.generate_fake_resource(
+            _endpoint_group.EndpointGroup,
+            filters=self.endpoint_group_filters_2,
+        )
+
+        self.identity_sdk_client.find_endpoint_group.return_value = (
+            self.endpoint_group
+        )
+        self.identity_sdk_client.update_endpoint_group.return_value = (
+            self.endpoint_group_2
+        )
 
         # Get the command object to test
         self.cmd = endpoint_group.SetEndpointGroup(self.app, None)
@@ -278,7 +294,7 @@ class TestEndpointGroupSet(TestEndpointGroup):
         result = self.cmd.take_action(parsed_args)
 
         kwargs = {'name': None, 'filters': None, 'description': ''}
-        self.endpoint_groups_mock.update.assert_called_with(
+        self.identity_sdk_client.update_endpoint_group.assert_called_with(
             self.endpoint_group.id, **kwargs
         )
         self.assertIsNone(result)
@@ -295,7 +311,7 @@ class TestEndpointGroupSet(TestEndpointGroup):
 
         # Set expected values
         kwargs = {'name': 'qwerty', 'filters': None, 'description': ''}
-        self.endpoint_groups_mock.update.assert_called_with(
+        self.identity_sdk_client.update_endpoint_group.assert_called_with(
             self.endpoint_group.id, **kwargs
         )
         self.assertIsNone(result)
@@ -303,18 +319,18 @@ class TestEndpointGroupSet(TestEndpointGroup):
     def test_endpoint_group_set_filters(self):
         arglist = [
             '--filters',
-            identity_fakes.endpoint_group_file_path,
+            self.endpoint_group_file_path,
             self.endpoint_group.id,
         ]
         verifylist = [
-            ('filters', identity_fakes.endpoint_group_file_path),
+            ('filters', self.endpoint_group_file_path),
             ('endpointgroup', self.endpoint_group.id),
         ]
 
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         mocker = mock.Mock()
-        mocker.return_value = identity_fakes.endpoint_group_filters_2
+        mocker.return_value = self.endpoint_group_filters_2
         with mock.patch(
             "openstackclient.identity.v3.endpoint_group."
             "SetEndpointGroup._read_filters",
@@ -325,11 +341,11 @@ class TestEndpointGroupSet(TestEndpointGroup):
         # Set expected values
         kwargs = {
             'name': None,
-            'filters': identity_fakes.endpoint_group_filters_2,
+            'filters': self.endpoint_group_filters_2,
             'description': '',
         }
 
-        self.endpoint_groups_mock.update.assert_called_with(
+        self.identity_sdk_client.update_endpoint_group.assert_called_with(
             self.endpoint_group.id, **kwargs
         )
 
@@ -351,40 +367,37 @@ class TestEndpointGroupSet(TestEndpointGroup):
             'filters': None,
             'description': 'qwerty',
         }
-        self.endpoint_groups_mock.update.assert_called_with(
+        self.identity_sdk_client.update_endpoint_group.assert_called_with(
             self.endpoint_group.id, **kwargs
         )
         self.assertIsNone(result)
 
 
-class TestAddProjectToEndpointGroup(TestEndpointGroup):
-    project = identity_fakes.FakeProject.create_one_project()
-    domain = identity_fakes.FakeDomain.create_one_domain()
-    endpoint_group = (
-        identity_fakes.FakeEndpointGroup.create_one_endpointgroup()
-    )
-
-    new_ep_filter = (
-        identity_fakes.FakeEndpointGroup.create_one_endpointgroup_filter(
-            attrs={'endpointgroup': endpoint_group.id, 'project': project.id}
-        )
-    )
-
+class TestAddProjectToEndpointGroup(identity_fakes.TestIdentity):
     def setUp(self):
         super().setUp()
 
-        # This is the return value for utils.find_resource()
-        self.endpoint_groups_mock.get.return_value = self.endpoint_group
+        self.endpoint_group = sdk_fakes.generate_fake_resource(
+            _endpoint_group.EndpointGroup
+        )
+        self.project = sdk_fakes.generate_fake_resource(_project.Project)
+        self.domain = sdk_fakes.generate_fake_resource(_domain.Domain)
 
-        # Update the image_id in the MEMBER dict
-        self.epf_mock.create.return_value = self.new_ep_filter
-        self.projects_mock.get.return_value = self.project
-        self.domains_mock.get.return_value = self.domain
+        self.project_endpoint_group = sdk_fakes.generate_fake_resource(
+            _endpoint_group.ProjectEndpointGroup
+        )
+
+        self.identity_sdk_client.find_endpoint_group.return_value = (
+            self.endpoint_group
+        )
+        self.identity_sdk_client.find_project.return_value = self.project
+        self.identity_sdk_client.find_domain.return_value = self.domain
+        self.identity_sdk_client.associate_project_with_endpoint_group.return_value = self.project_endpoint_group
 
         # Get the command object to test
         self.cmd = endpoint_group.AddProjectToEndpointGroup(self.app, None)
 
-    def test_add_project_to_endpoint_no_option(self):
+    def test_add_project_to_endpoint_group_no_option(self):
         arglist = [
             self.endpoint_group.id,
             self.project.id,
@@ -396,13 +409,13 @@ class TestAddProjectToEndpointGroup(TestEndpointGroup):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
-        self.epf_mock.add_endpoint_group_to_project.assert_called_with(
+        self.identity_sdk_client.associate_project_with_endpoint_group.assert_called_with(
             project=self.project.id,
             endpoint_group=self.endpoint_group.id,
         )
         self.assertIsNone(result)
 
-    def test_add_project_to_endpoint_with_option(self):
+    def test_add_project_to_endpoint_group_with_option(self):
         arglist = [
             self.endpoint_group.id,
             self.project.id,
@@ -417,36 +430,40 @@ class TestAddProjectToEndpointGroup(TestEndpointGroup):
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
-        self.epf_mock.add_endpoint_group_to_project.assert_called_with(
+        self.identity_sdk_client.associate_project_with_endpoint_group.assert_called_with(
             project=self.project.id,
             endpoint_group=self.endpoint_group.id,
         )
         self.assertIsNone(result)
 
 
-class TestRemoveProjectEndpointGroup(TestEndpointGroup):
-    project = identity_fakes.FakeProject.create_one_project()
-    domain = identity_fakes.FakeDomain.create_one_domain()
-    endpoint_group = (
-        identity_fakes.FakeEndpointGroup.create_one_endpointgroup()
-    )
-
+class TestRemoveProjectEndpointGroup(identity_fakes.TestIdentity):
     def setUp(self):
         super().setUp()
 
-        # This is the return value for utils.find_resource()
-        self.endpoint_groups_mock.get.return_value = self.endpoint_group
+        self.endpoint_group = sdk_fakes.generate_fake_resource(
+            _endpoint_group.EndpointGroup
+        )
+        self.project = sdk_fakes.generate_fake_resource(_project.Project)
+        self.domain = sdk_fakes.generate_fake_resource(_domain.Domain)
 
-        self.projects_mock.get.return_value = self.project
-        self.domains_mock.get.return_value = self.domain
-        self.epf_mock.delete.return_value = None
+        self.project_endpoint_group = sdk_fakes.generate_fake_resource(
+            _endpoint_group.ProjectEndpointGroup
+        )
+
+        self.identity_sdk_client.find_endpoint_group.return_value = (
+            self.endpoint_group
+        )
+        self.identity_sdk_client.find_project.return_value = self.project
+        self.identity_sdk_client.find_domain.return_value = self.domain
+        self.identity_sdk_client.disassociate_project_from_endpoint_group.return_value = self.project_endpoint_group
 
         # Get the command object to test
         self.cmd = endpoint_group.RemoveProjectFromEndpointGroup(
             self.app, None
         )
 
-    def test_remove_project_endpoint_no_options(self):
+    def test_remove_project_endpoint_group_no_options(self):
         arglist = [
             self.endpoint_group.id,
             self.project.id,
@@ -459,13 +476,13 @@ class TestRemoveProjectEndpointGroup(TestEndpointGroup):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.epf_mock.delete_endpoint_group_from_project.assert_called_with(
+        self.identity_sdk_client.disassociate_project_from_endpoint_group.assert_called_with(
             project=self.project.id,
             endpoint_group=self.endpoint_group.id,
         )
         self.assertIsNone(result)
 
-    def test_remove_project_endpoint_with_options(self):
+    def test_remove_project_endpoint_group_with_options(self):
         arglist = [
             self.endpoint_group.id,
             self.project.id,
@@ -481,7 +498,7 @@ class TestRemoveProjectEndpointGroup(TestEndpointGroup):
 
         result = self.cmd.take_action(parsed_args)
 
-        self.epf_mock.delete_endpoint_group_from_project.assert_called_with(
+        self.identity_sdk_client.disassociate_project_from_endpoint_group.assert_called_with(
             project=self.project.id,
             endpoint_group=self.endpoint_group.id,
         )
