@@ -56,7 +56,6 @@ _attr_map_dict = {
 }
 
 _auth_algorithms = [
-    'sha1',
     'sha256',
     'sha384',
     'sha512',
@@ -65,7 +64,6 @@ _auth_algorithms = [
 ]
 
 _encryption_algorithms = [
-    '3des',
     'aes-128',
     'aes-192',
     'aes-256',

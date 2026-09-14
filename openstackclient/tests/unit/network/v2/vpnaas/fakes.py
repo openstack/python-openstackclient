@@ -80,7 +80,7 @@ class IKEPolicy(FakeVPNaaS):
             (
                 ('id', 'ikepolicy-id-' + uuid.uuid4().hex),
                 ('name', 'my-ikepolicy-' + uuid.uuid4().hex),
-                ('auth_algorithm', 'sha1'),
+                ('auth_algorithm', 'sha256'),
                 ('encryption_algorithm', 'aes-128'),
                 ('ike_version', 'v1'),
                 ('pfs', 'group5'),
@@ -101,7 +101,7 @@ class IPSecPolicy(FakeVPNaaS):
             (
                 ('id', 'ikepolicy-id-' + uuid.uuid4().hex),
                 ('name', 'my-ikepolicy-' + uuid.uuid4().hex),
-                ('auth_algorithm', 'sha1'),
+                ('auth_algorithm', 'sha256'),
                 ('encapsulation_mode', 'tunnel'),
                 ('transform_protocol', 'esp'),
                 ('encryption_algorithm', 'aes-128'),

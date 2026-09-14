@@ -123,7 +123,7 @@ class TestCreateIPSecPolicy(TestIPSecPolicy):
         arglist = [
             'my-name',
             '--auth-algorithm',
-            'sha1',
+            'sha256',
             '--encapsulation-mode',
             'tunnel',
             '--transform-protocol',
@@ -139,7 +139,7 @@ class TestCreateIPSecPolicy(TestIPSecPolicy):
         ]
         verifylist = [
             ('name', 'my-name'),
-            ('auth_algorithm', 'sha1'),
+            ('auth_algorithm', 'sha256'),
             ('encapsulation_mode', 'tunnel'),
             ('transform_protocol', 'esp'),
             ('encryption_algorithm', 'aes-128'),
@@ -151,7 +151,7 @@ class TestCreateIPSecPolicy(TestIPSecPolicy):
         headers, data = self.cmd.take_action(parsed_args)
         self.network_client.create_vpn_ipsec_policy.assert_called_once_with(
             name='my-name',
-            auth_algorithm='sha1',
+            auth_algorithm='sha256',
             encapsulation_mode='tunnel',
             transform_protocol='esp',
             encryption_algorithm='aes-128',
@@ -166,7 +166,7 @@ class TestCreateIPSecPolicy(TestIPSecPolicy):
         arglist = [
             'new_ipsecpolicy',
             '--auth-algorithm',
-            'sha1',
+            'sha256',
             '--encapsulation-mode',
             'tunnel',
             '--transform-protocol',
@@ -182,7 +182,7 @@ class TestCreateIPSecPolicy(TestIPSecPolicy):
         ]
         verifylist = [
             ('name', 'new_ipsecpolicy'),
-            ('auth_algorithm', 'sha1'),
+            ('auth_algorithm', 'sha256'),
             ('encapsulation_mode', 'tunnel'),
             ('transform_protocol', 'esp'),
             ('encryption_algorithm', 'aes-128'),
@@ -194,7 +194,7 @@ class TestCreateIPSecPolicy(TestIPSecPolicy):
         headers, data = self.cmd.take_action(parsed_args)
         self.network_client.create_vpn_ipsec_policy.assert_called_once_with(
             name='new_ipsecpolicy',
-            auth_algorithm='sha1',
+            auth_algorithm='sha256',
             encapsulation_mode='tunnel',
             transform_protocol='esp',
             encryption_algorithm='aes-128',
