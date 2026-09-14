@@ -127,7 +127,7 @@ class TestCreateIKEPolicy(TestIKEPolicy):
             '--description',
             'my-desc',
             '--auth-algorithm',
-            'sha1',
+            'sha256',
             '--encryption-algorithm',
             'aes-128',
             '--phase1-negotiation-mode',
@@ -142,7 +142,7 @@ class TestCreateIKEPolicy(TestIKEPolicy):
         ]
         verifylist = [
             ('description', 'my-desc'),
-            ('auth_algorithm', 'sha1'),
+            ('auth_algorithm', 'sha256'),
             ('encryption_algorithm', 'aes-128'),
             ('phase1_negotiation_mode', 'main'),
             ('ike_version', 'v1'),
@@ -159,7 +159,7 @@ class TestCreateIKEPolicy(TestIKEPolicy):
         )
         self.network_client.create_vpn_ike_policy.assert_called_once_with(
             description='my-desc',
-            auth_algorithm='sha1',
+            auth_algorithm='sha256',
             encryption_algorithm='aes-128',
             phase1_negotiation_mode='main',
             ike_version='v1',
