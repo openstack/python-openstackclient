@@ -2504,7 +2504,11 @@ class TestImageSave(image_fakes.TestImagev2):
         self.cmd.take_action(parsed_args)
 
         self.image_client.download_image.assert_called_once_with(
-            self.image.id, output='/path/to/file', stream=True, chunk_size=1024
+            self.image.id,
+            stream=True,
+            output='/path/to/file',
+            chunk_size=1024,
+            store_preferences=None,
         )
 
     def test_save_data_with_chunk_size(self):
@@ -2526,7 +2530,65 @@ class TestImageSave(image_fakes.TestImagev2):
         self.cmd.take_action(parsed_args)
 
         self.image_client.download_image.assert_called_once_with(
-            self.image.id, output='/path/to/file', stream=True, chunk_size=2048
+            self.image.id,
+            stream=True,
+            output='/path/to/file',
+            chunk_size=2048,
+            store_preferences=None,
+        )
+
+    def test_save_data_with_single_store_preference(self):
+        arglist = [
+            '--file',
+            '/path/to/file',
+            '--store-preference',
+            'ceph',
+            self.image.id,
+        ]
+
+        verifylist = [
+            ('filename', '/path/to/file'),
+            ('store_preferences', ['ceph']),
+            ('image', self.image.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+
+        self.image_client.download_image.assert_called_once_with(
+            self.image.id,
+            output='/path/to/file',
+            stream=True,
+            chunk_size=1024,
+            store_preferences=['ceph'],
+        )
+
+    def test_save_data_with_multiple_store_preferences(self):
+        arglist = [
+            '--file',
+            '/path/to/file',
+            '--store-preference',
+            'ceph',
+            '--store-preference',
+            's3',
+            self.image.id,
+        ]
+
+        verifylist = [
+            ('filename', '/path/to/file'),
+            ('store_preferences', ['ceph', 's3']),
+            ('image', self.image.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+
+        self.image_client.download_image.assert_called_once_with(
+            self.image.id,
+            output='/path/to/file',
+            stream=True,
+            chunk_size=1024,
+            store_preferences=['ceph', 's3'],
         )
 
 
