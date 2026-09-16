@@ -123,6 +123,30 @@ class TestCreateFloatingIPNetwork(TestFloatingIPNetwork):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 
+    def test_create_with_router(self):
+        router = network_fakes.create_one_router()
+        self.network_client.find_router.return_value = router
+        arglist = [
+            '--router',
+            router.id,
+            self.floating_ip.floating_network_id,
+        ]
+        verifylist = [
+            ('router', router.id),
+            ('network', self.floating_ip.floating_network_id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+
+        self.network_client.find_router.assert_called_once_with(
+            router.id, ignore_missing=False
+        )
+        self.network_client.create_ip.assert_called_once_with(
+            floating_network_id=self.floating_ip.floating_network_id,
+            router_id=router.id,
+        )
+
     def test_create_all_options(self):
         arglist = [
             '--subnet',
@@ -844,6 +868,29 @@ class TestSetFloatingIP(TestFloatingIPNetwork):
 
         self.network_client.update_ip.assert_called_once_with(
             self.floating_ip, **attrs
+        )
+
+    def test_router_option(self):
+        router = network_fakes.create_one_router()
+        self.network_client.find_router.return_value = router
+        arglist = [
+            self.floating_ip.id,
+            '--router',
+            router.id,
+        ]
+        verifylist = [
+            ('floating_ip', self.floating_ip.id),
+            ('router', router.id),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+
+        self.network_client.find_router.assert_called_once_with(
+            router.id, ignore_missing=False
+        )
+        self.network_client.update_ip.assert_called_once_with(
+            self.floating_ip, router_id=router.id
         )
 
     def test_fixed_ip_option(self):

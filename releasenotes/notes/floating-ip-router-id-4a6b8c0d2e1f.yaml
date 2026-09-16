@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    Add the ``--router`` option to ``network floating ip create`` and
+    ``network floating ip set``. The option accepts a router name or UUID and
+    passes the resolved router ID to Neutron as the floating IP hosting
+    router.
