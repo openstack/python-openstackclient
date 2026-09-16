@@ -169,8 +169,7 @@ class ClientManager(clientmanager.ClientManager):
             is not False
         )
 
-    # TODO(stephenfin): Drop volume_client argument in OSC 8.0 or later.
-    def is_volume_endpoint_enabled(self, volume_client: Any = None) -> bool:
+    def is_volume_endpoint_enabled(self) -> bool:
         """Check if volume endpoint is enabled"""
         # We check against the service type and all aliases defined by the
         # Service Types Authority
