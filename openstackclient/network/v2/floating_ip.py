@@ -74,6 +74,12 @@ def _get_attrs(
         port = network_client.find_port(parsed_args.port, ignore_missing=False)
         attrs['port_id'] = port.id
 
+    if parsed_args.router:
+        router = network_client.find_router(
+            parsed_args.router, ignore_missing=False
+        )
+        attrs['router_id'] = router.id
+
     if parsed_args.floating_ip_address:
         attrs['floating_ip_address'] = parsed_args.floating_ip_address
 
@@ -128,6 +134,11 @@ class CreateFloatingIP(command.ShowOne, common.NeutronCommandWithExtraArgs):
             '--port',
             metavar='<port>',
             help=_("Port to be associated with the floating IP (name or ID)"),
+        )
+        parser.add_argument(
+            '--router',
+            metavar='<router>',
+            help=_("Router hosting the floating IP (name or ID)"),
         )
         parser.add_argument(
             '--floating-ip-address',
@@ -443,6 +454,11 @@ class SetFloatingIP(common.NeutronCommandWithExtraArgs):
             help=_("Associate the floating IP with port (name or ID)"),
         )
         parser.add_argument(
+            '--router',
+            metavar='<router>',
+            help=_("Router hosting the floating IP (name or ID)"),
+        )
+        parser.add_argument(
             '--fixed-ip-address',
             metavar='<ip-address>',
             dest='fixed_ip_address',
@@ -486,6 +502,12 @@ class SetFloatingIP(common.NeutronCommandWithExtraArgs):
 
         if parsed_args.fixed_ip_address:
             attrs['fixed_ip_address'] = parsed_args.fixed_ip_address
+
+        if parsed_args.router:
+            router = client.find_router(
+                parsed_args.router, ignore_missing=False
+            )
+            attrs['router_id'] = router.id
 
         if parsed_args.description:
             attrs['description'] = parsed_args.description
