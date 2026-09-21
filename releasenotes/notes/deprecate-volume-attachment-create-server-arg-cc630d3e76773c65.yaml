@@ -1,0 +1,6 @@
+---
+upgrade:
+  - |
+    The ``volume attachment create`` command no longer requires a positional
+    ``<server>`` argument. This argument is now optional and can be provided
+    using the ``--server`` optional argument.
