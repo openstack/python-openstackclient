@@ -19,6 +19,7 @@ import logging
 from typing import Any
 
 from openstack.accelerator.v2 import device_profile as _device_profile
+from osc_lib.cli import parseractions
 from osc_lib import exceptions
 from osc_lib import utils
 
@@ -54,13 +55,23 @@ class CreateDeviceProfile(command.ShowOne):
             metavar='<name>',
             help=_("Unique name for the device profile"),
         )
+        # Deprecated positional, replaced by --group
         parser.add_argument(
             'groups',
-            metavar='<groups>',
+            nargs='?',
+            default=None,
+            help=argparse.SUPPRESS,
+        )
+        parser.add_argument(
+            '--group',
+            metavar='key1=value1,key2=value2,...',
+            action=parseractions.MultiKeyValueAction,
+            dest='group',
             help=_(
-                "Device profile groups as a JSON list. "
-                "e.g. '[{\"resources:FPGA\": 1, "
-                "\"trait:CUSTOM_FPGA_INTEL\": \"required\"}]'"
+                "Device profile group "
+                "(repeat option to specify multiple groups). "
+                "e.g. --group resources:FPGA=1,"
+                "trait:CUSTOM_FPGA_INTEL=required"
             ),
         )
         parser.add_argument(
@@ -74,9 +85,28 @@ class CreateDeviceProfile(command.ShowOne):
         self, parsed_args: argparse.Namespace
     ) -> tuple[Sequence[str], Iterable[Any]]:
         acc_client = self.app.client_manager.accelerator
+
+        groups = parsed_args.group
+        if parsed_args.groups:
+            if groups:
+                msg = _(
+                    "Cannot specify groups as both a positional "
+                    "argument and with the --group option."
+                )
+                raise exceptions.CommandError(msg)
+            self.log.warning(
+                "Passing groups as a JSON positional argument has "
+                "been deprecated. Please use the '--group' option "
+                "instead."
+            )
+            groups = list(json.loads(parsed_args.groups))
+        if not groups:
+            msg = _("At least one --group is required.")
+            raise exceptions.CommandError(msg)
+
         attrs = {
             'name': parsed_args.name,
-            'groups': list(json.loads(parsed_args.groups)),
+            'groups': groups,
             'description': parsed_args.description,
         }
         device_profile = acc_client.create_device_profile(**attrs)
@@ -90,9 +120,9 @@ class DeleteDeviceProfile(command.Command):
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'device_profiles',
-            metavar='<uuid>',
+            metavar='<device_profile>',
             nargs='+',
-            help=_("UUID(s) of the device profile(s) to delete"),
+            help=_("The device profile(s) to delete"),
         )
         return parser
 
@@ -101,6 +131,8 @@ class DeleteDeviceProfile(command.Command):
         result = 0
         for uuid in parsed_args.device_profiles:
             try:
+                # TODO(melwitt): switch to find_device_profile once added to
+                # the SDK
                 acc_client.delete_device_profile(uuid, ignore_missing=False)
             except Exception as e:
                 result += 1
@@ -162,7 +194,7 @@ class ShowDeviceProfile(command.ShowOne):
         parser.add_argument(
             'device_profile',
             metavar='<device_profile>',
-            help=_("Name or UUID of the device profile"),
+            help=_("The device profile"),
         )
         return parser
 
@@ -170,6 +202,7 @@ class ShowDeviceProfile(command.ShowOne):
         self, parsed_args: argparse.Namespace
     ) -> tuple[Sequence[str], Iterable[Any]]:
         acc_client = self.app.client_manager.accelerator
+        # TODO(melwitt): switch to find_device_profile once added to the SDK
         device_profile = acc_client.get_device_profile(
             parsed_args.device_profile
         )

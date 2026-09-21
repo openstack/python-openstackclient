@@ -47,9 +47,9 @@ class CreateAttribute(command.ShowOne):
     def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
-            'deployable_id',
-            metavar='<deployable_id>',
-            help=_("Deployable ID for the attribute"),
+            'deployable',
+            metavar='<deployable>',
+            help=_("The deployable for the attribute"),
         )
         parser.add_argument(
             'key',
@@ -68,7 +68,7 @@ class CreateAttribute(command.ShowOne):
     ) -> tuple[Sequence[str], Iterable[Any]]:
         acc_client = self.app.client_manager.accelerator
         attrs = {
-            'deployable_id': parsed_args.deployable_id,
+            'deployable_id': parsed_args.deployable,
             'key': parsed_args.key,
             'value': parsed_args.value,
         }
@@ -83,9 +83,9 @@ class DeleteAttribute(command.Command):
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'attributes',
-            metavar='<uuid>',
+            metavar='<attribute>',
             nargs='+',
-            help=_("UUID(s) of the attribute(s) to delete"),
+            help=_("The attribute(s) to delete"),
         )
         return parser
 
@@ -155,8 +155,8 @@ class ShowAttribute(command.ShowOne):
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'attribute',
-            metavar='<uuid>',
-            help=_("UUID of the attribute"),
+            metavar='<attribute>',
+            help=_("The attribute"),
         )
         return parser
 
