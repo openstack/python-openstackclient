@@ -5008,6 +5008,48 @@ class TestServerList(_TestServerList):
         self.assertIn('Properties', columns)
         self.assertCountEqual(columns, set(columns))
 
+    def test_server_list_column_option_normalized(self):
+        arglist = [
+            '-c',
+            'PROJECT id',
+            '-c',
+            'USER id',
+            '-c',
+            'CREATED at',
+            '-c',
+            'SECURITY groups',
+            '-c',
+            'TASK state',
+            '-c',
+            'POWER state',
+            '-c',
+            'IMAGE id',
+            '-c',
+            'FLAVOR id',
+            '-c',
+            'AVAILABILITY zone',
+            '-c',
+            'hOsT',
+            '-c',
+            'PROPERTIES',
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, [])
+
+        columns, _data = self.cmd.take_action(parsed_args)
+
+        self.assertIn('Project ID', columns)
+        self.assertIn('User ID', columns)
+        self.assertIn('Created At', columns)
+        self.assertIn('Security Groups', columns)
+        self.assertIn('Task State', columns)
+        self.assertIn('Power State', columns)
+        self.assertIn('Image ID', columns)
+        self.assertIn('Flavor ID', columns)
+        self.assertIn('Availability Zone', columns)
+        self.assertIn('Host', columns)
+        self.assertIn('Properties', columns)
+        self.assertCountEqual(columns, set(columns))
+
     def test_server_list_no_name_lookup_option(self):
         self.data = tuple(
             (

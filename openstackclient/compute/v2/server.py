@@ -3035,50 +3035,45 @@ class ListServer(command.Lister):
         # support for additional columns
         if parsed_args.columns:
             for c in parsed_args.columns:
-                if c in ('Project ID', 'project_id'):
+                normalized_column = c.lower().strip().replace(' ', '_')
+                if normalized_column == 'project_id':
                     columns += ('project_id',)
                     column_headers += ('Project ID',)
-                if c in ('User ID', 'user_id'):
+                if normalized_column == 'user_id':
                     columns += ('user_id',)
                     column_headers += ('User ID',)
-                if c in ('Created At', 'created_at'):
+                if normalized_column == 'created_at':
                     columns += ('created_at',)
                     column_headers += ('Created At',)
-                if c in ('Security Groups', 'security_groups'):
+                if normalized_column == 'security_groups':
                     columns += ('security_groups_name',)
                     column_headers += ('Security Groups',)
-                if c in ("Task State", "task_state"):
+                if normalized_column == 'task_state':
                     columns += ('task_state',)
                     column_headers += ('Task State',)
-                if c in ("Power State", "power_state"):
+                if normalized_column == 'power_state':
                     columns += ('power_state',)
                     column_headers += ('Power State',)
-                if c in ("Image ID", "image_id"):
+                if normalized_column == 'image_id':
                     columns += ('Image ID',)
                     column_headers += ('Image ID',)
-                if c in ("Flavor ID", "flavor_id"):
+                if normalized_column == 'flavor_id':
                     columns += ('flavor_id',)
                     column_headers += ('Flavor ID',)
-                if c in ('Availability Zone', "availability_zone"):
+                if normalized_column == 'availability_zone':
                     columns += ('availability_zone',)
                     column_headers += ('Availability Zone',)
-                if c in (
-                    'pinned_availability_zone',
-                    'Pinned Availability Zone',
-                ):
+                if normalized_column == 'pinned_availability_zone':
                     if sdk_utils.supports_microversion(compute_client, '2.96'):
                         columns += ('pinned_availability_zone',)
                         column_headers += ('Pinned Availability Zone',)
-                if c in ('Host', "host"):
+                if normalized_column == 'host':
                     columns += ('hypervisor_hostname',)
                     column_headers += ('Host',)
-                if c in ('Properties', "properties"):
+                if normalized_column == 'properties':
                     columns += ('Metadata',)
                     column_headers += ('Properties',)
-                if c in (
-                    'scheduler_hints',
-                    "Scheduler Hints",
-                ):
+                if normalized_column == 'scheduler_hints':
                     if sdk_utils.supports_microversion(
                         compute_client, '2.100'
                     ):
