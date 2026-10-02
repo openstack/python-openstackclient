@@ -34,8 +34,6 @@ class AddressScopeTests(common.NetworkTests):
             name1,
             cmd_output['name'],
         )
-        # Check the default values
-        self.assertFalse(cmd_output['shared'])
 
         name2 = uuid.uuid4().hex
         cmd_output = self.openstack(
@@ -56,7 +54,7 @@ class AddressScopeTests(common.NetworkTests):
         """Test create defaults, list filters, delete"""
         name1 = uuid.uuid4().hex
         cmd_output = self.openstack(
-            'address scope create ' + '--ip-version 4 ' + '--share ' + name1,
+            'address scope create ' + '--ip-version 4 ' + name1,
             parse_output=True,
         )
         self.addCleanup(self.openstack, 'address scope delete ' + name1)
@@ -68,14 +66,10 @@ class AddressScopeTests(common.NetworkTests):
             4,
             cmd_output['ip_version'],
         )
-        self.assertTrue(cmd_output['shared'])
 
         name2 = uuid.uuid4().hex
         cmd_output = self.openstack(
-            'address scope create '
-            + '--ip-version 6 '
-            + '--no-share '
-            + name2,
+            'address scope create ' + '--ip-version 6 ' + name2,
             parse_output=True,
         )
         self.addCleanup(self.openstack, 'address scope delete ' + name2)
@@ -87,7 +81,6 @@ class AddressScopeTests(common.NetworkTests):
             6,
             cmd_output['ip_version'],
         )
-        self.assertFalse(cmd_output['shared'])
 
         # Test list
         cmd_output = self.openstack(
@@ -98,30 +91,12 @@ class AddressScopeTests(common.NetworkTests):
         self.assertIn(4, col_data)
         self.assertIn(6, col_data)
 
-        # Test list --share
-        cmd_output = self.openstack(
-            'address scope list --share',
-            parse_output=True,
-        )
-        col_data = [x["Shared"] for x in cmd_output]
-        self.assertIn(True, col_data)
-        self.assertNotIn(False, col_data)
-
-        # Test list --no-share
-        cmd_output = self.openstack(
-            'address scope list --no-share',
-            parse_output=True,
-        )
-        col_data = [x["Shared"] for x in cmd_output]
-        self.assertIn(False, col_data)
-        self.assertNotIn(True, col_data)
-
     def test_address_scope_set(self):
         """Tests create options, set, show, delete"""
         name = uuid.uuid4().hex
         newname = name + "_"
         cmd_output = self.openstack(
-            'address scope create ' + '--ip-version 4 ' + '--no-share ' + name,
+            'address scope create ' + '--ip-version 4 ' + name,
             parse_output=True,
         )
         self.addCleanup(self.openstack, 'address scope delete ' + newname)
@@ -133,10 +108,9 @@ class AddressScopeTests(common.NetworkTests):
             4,
             cmd_output['ip_version'],
         )
-        self.assertFalse(cmd_output['shared'])
 
         raw_output = self.openstack(
-            'address scope set ' + '--name ' + newname + ' --share ' + name,
+            'address scope set ' + '--name ' + newname + ' ' + name,
         )
         self.assertOutput('', raw_output)
 
@@ -152,4 +126,3 @@ class AddressScopeTests(common.NetworkTests):
             4,
             cmd_output['ip_version'],
         )
-        self.assertTrue(cmd_output['shared'])
