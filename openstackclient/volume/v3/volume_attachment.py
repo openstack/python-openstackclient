@@ -443,6 +443,12 @@ class ListVolumeAttachment(command.Lister):
             help=_('Filters results by a volume ID. ') + _FILTER_DEPRECATED,
         )
         parser.add_argument(
+            '--server-id',
+            metavar='<server-id>',
+            default=None,
+            help=_('Filters results by a server ID. ') + _FILTER_DEPRECATED,
+        )
+        parser.add_argument(
             '--status',
             metavar='<status>',
             help=_('Filters results by a status. ') + _FILTER_DEPRECATED,
@@ -488,24 +494,21 @@ class ListVolumeAttachment(command.Lister):
                 parsed_args.project,
                 parsed_args.project_domain,
             )
-
-        search_opts = {
-            'all_tenants': True if project_id else parsed_args.all_projects,
+        # set 'all_tenants' when using arguments project or all_projects
+        all_projects = bool(parsed_args.project) or parsed_args.all_projects
+        query = {
+            'all_tenants': all_projects,
             'project_id': project_id,
-            'status': parsed_args.status,
             'volume_id': parsed_args.volume_id,
+            'instance_id': parsed_args.server_id,
+            'status': parsed_args.status,
+            'limit': parsed_args.limit,
+            'marker': parsed_args.marker,
+            'max_items': parsed_args.max_items,
         }
-        # Update search option with `filters`
-        # if AppendFilters.filters:
-        #     search_opts.update(shell_utils.extract_filters(AppendFilters.filters))  # noqa: E501
 
         # TODO(stephenfin): Implement sorting
-        attachments = volume_client.attachments(
-            search_opts=search_opts,
-            marker=parsed_args.marker,
-            limit=parsed_args.limit,
-            max_items=parsed_args.max_items,
-        )
+        attachments = volume_client.attachments(**query)
 
         column_headers = (
             'ID',
