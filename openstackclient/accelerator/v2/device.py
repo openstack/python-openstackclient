@@ -94,8 +94,8 @@ class ShowDevice(command.ShowOne):
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'device',
-            metavar='<uuid>',
-            help=_("UUID of the device"),
+            metavar='<device>',
+            help=_("The device"),
         )
         return parser
 

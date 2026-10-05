@@ -100,6 +100,63 @@ class TestCreateDeviceProfile(TestDeviceProfile):
         self.assertEqual(self.show_columns, columns)
         self.assertCountEqual(self.show_data, data)
 
+    def test_create_with_group_option(self):
+        arglist = [
+            self.fake_dp.name,
+            '--group',
+            'resources:FPGA=1,trait:CUSTOM_FPGA_INTEL=required',
+        ]
+        verifylist = [
+            ('name', self.fake_dp.name),
+            (
+                'group',
+                [
+                    {
+                        'resources:FPGA': '1',
+                        'trait:CUSTOM_FPGA_INTEL': 'required',
+                    },
+                ],
+            ),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.accelerator_client.create_device_profile.assert_called_once_with(
+            name=self.fake_dp.name,
+            groups=[
+                {
+                    'resources:FPGA': '1',
+                    'trait:CUSTOM_FPGA_INTEL': 'required',
+                },
+            ],
+            description=None,
+        )
+        self.assertEqual(self.show_columns, columns)
+        self.assertCountEqual(self.show_data, data)
+
+    def test_create_positional_and_group_conflict(self):
+        arglist = [
+            self.fake_dp.name,
+            '[{"resources:FPGA": 1}]',
+            '--group',
+            'resources:FPGA=1',
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, [])
+        self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args,
+        )
+
+    def test_create_no_groups(self):
+        arglist = [self.fake_dp.name]
+        parsed_args = self.check_parser(self.cmd, arglist, [])
+        self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args,
+        )
+
 
 class TestDeleteDeviceProfile(TestDeviceProfile):
     def setUp(self):

@@ -23,6 +23,7 @@ from openstackclient.accelerator.v2 import accelerator_request
 from openstackclient.tests.unit.accelerator.v2 import (
     fakes as accelerator_fakes,
 )
+from openstackclient.tests.unit.compute.v2 import fakes as compute_fakes
 
 SHOW_COLUMNS = (
     "uuid",
@@ -57,31 +58,40 @@ class TestAcceleratorRequest(accelerator_fakes.TestAccelerator):
         self.data = tuple(self.fake_arq[col] for col in SHOW_COLUMNS)
 
 
-class TestBindAcceleratorRequest(TestAcceleratorRequest):
+class TestBindAcceleratorRequest(
+    compute_fakes.FakeClientMixin,
+    TestAcceleratorRequest,
+):
     def setUp(self):
         super().setUp()
 
         self.accelerator_client.get_accelerator_request.return_value = (
             self.fake_arq
         )
+        self.fake_server = compute_fakes.create_one_server()
+        self.compute_client.find_server.return_value = self.fake_server
         self.cmd = accelerator_request.BindAcceleratorRequest(self.app, None)
 
     def test_bind(self):
         arglist = [
             self.fake_arq.uuid,
             'host1',
-            'instance-uuid-1',
+            self.fake_server.name,
             'device-rp-uuid-1',
         ]
         verifylist = [
             ('accelerator_request', self.fake_arq.uuid),
             ('hostname', 'host1'),
-            ('instance_uuid', 'instance-uuid-1'),
-            ('device_rp_uuid', 'device-rp-uuid-1'),
+            ('server', self.fake_server.name),
+            ('resource_provider', 'device-rp-uuid-1'),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
 
+        self.compute_client.find_server.assert_called_once_with(
+            self.fake_server.name,
+            ignore_missing=False,
+        )
         expected_patch = [
             {
                 'op': 'add',
@@ -91,7 +101,7 @@ class TestBindAcceleratorRequest(TestAcceleratorRequest):
             {
                 'op': 'add',
                 'path': '/instance_uuid',
-                'value': 'instance-uuid-1',
+                'value': self.fake_server.id,
             },
             {
                 'op': 'add',
@@ -125,13 +135,11 @@ class TestCreateAcceleratorRequest(TestAcceleratorRequest):
 
         self.accelerator_client.create_accelerator_request.assert_called_once_with(
             device_profile_name='dp1',
-            device_profile_group_id=None,
-            image_uuid=None,
         )
         self.assertEqual(SHOW_COLUMNS, columns)
         self.assertCountEqual(self.data, data)
 
-    def test_create_with_options(self):
+    def test_create_with_deprecated_options(self):
         arglist = [
             'dp1',
             '--group-id',
@@ -149,8 +157,6 @@ class TestCreateAcceleratorRequest(TestAcceleratorRequest):
 
         self.accelerator_client.create_accelerator_request.assert_called_once_with(
             device_profile_name='dp1',
-            device_profile_group_id='0',
-            image_uuid='img-uuid-1',
         )
         self.assertEqual(SHOW_COLUMNS, columns)
         self.assertCountEqual(self.data, data)

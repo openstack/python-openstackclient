@@ -51,7 +51,7 @@ class BindAcceleratorRequest(command.ShowOne):
         parser.add_argument(
             'accelerator_request',
             metavar='<accelerator_request>',
-            help=_("UUID of the accelerator request"),
+            help=_("The accelerator request"),
         )
         parser.add_argument(
             'hostname',
@@ -59,16 +59,16 @@ class BindAcceleratorRequest(command.ShowOne):
             help=_("Hostname to bind the accelerator request to"),
         )
         parser.add_argument(
-            'instance_uuid',
-            metavar='<instance_uuid>',
-            help=_("UUID of the instance to bind the accelerator request to"),
+            'server',
+            metavar='<server>',
+            help=_("The server to bind the accelerator request to"),
         )
         parser.add_argument(
-            'device_rp_uuid',
-            metavar='<device_rp_uuid>',
+            'resource_provider',
+            metavar='<resource_provider>',
             help=_(
-                "UUID of the device resource provider to "
-                "bind the accelerator request to"
+                "The device resource provider to bind the "
+                "accelerator request to"
             ),
         )
         return parser
@@ -77,9 +77,19 @@ class BindAcceleratorRequest(command.ShowOne):
         self, parsed_args: argparse.Namespace
     ) -> tuple[Sequence[str], Iterable[Any]]:
         acc_client = self.app.client_manager.accelerator
+
+        compute_client = self.app.client_manager.compute
+        instance_uuid = compute_client.find_server(
+            parsed_args.server,
+            ignore_missing=False,
+        ).id
+
         patch = []
-        for field in ('hostname', 'instance_uuid', 'device_rp_uuid'):
-            value = getattr(parsed_args, field)
+        for field, value in (
+            ('hostname', parsed_args.hostname),
+            ('instance_uuid', instance_uuid),
+            ('device_rp_uuid', parsed_args.resource_provider),
+        ):
             if value:
                 patch.append(
                     {
@@ -110,19 +120,17 @@ class CreateAcceleratorRequest(command.ShowOne):
             metavar='<device_profile_name>',
             help=_("Name of the device profile for the accelerator request"),
         )
+        # Deprecated: sent to the API but the server ignores it
         parser.add_argument(
             '--group-id',
-            metavar='<device_profile_group_id>',
             dest='group_id',
-            help=_(
-                "Group ID of the device profile for the accelerator request"
-            ),
+            help=argparse.SUPPRESS,
         )
+        # Deprecated: never implemented in Cyborg/SDK
         parser.add_argument(
             '--image-uuid',
-            metavar='<glance_image_uuid>',
             dest='img_uuid',
-            help=_("UUID of the image saved in Glance"),
+            help=argparse.SUPPRESS,
         )
         return parser
 
@@ -130,10 +138,18 @@ class CreateAcceleratorRequest(command.ShowOne):
         self, parsed_args: argparse.Namespace
     ) -> tuple[Sequence[str], Iterable[Any]]:
         acc_client = self.app.client_manager.accelerator
+        if parsed_args.group_id:
+            self.log.warning(
+                "The '--group-id' option is deprecated and has no "
+                "effect (the server ignores it)."
+            )
+        if parsed_args.img_uuid:
+            self.log.warning(
+                "The '--image-uuid' option is deprecated and has no "
+                "effect (the value is not sent to the server)."
+            )
         attrs = {
             'device_profile_name': parsed_args.device_profile_name,
-            'device_profile_group_id': parsed_args.group_id,
-            'image_uuid': parsed_args.img_uuid,
         }
         arq = acc_client.create_accelerator_request(**attrs)
         return _format_accelerator_request(arq)
@@ -146,9 +162,9 @@ class DeleteAcceleratorRequest(command.Command):
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'accelerator_requests',
-            metavar='<uuid>',
+            metavar='<accelerator_request>',
             nargs='+',
-            help=_("UUID(s) of the accelerator request(s) to delete"),
+            help=_("The accelerator request(s) to delete"),
         )
         return parser
 
@@ -225,8 +241,8 @@ class ShowAcceleratorRequest(command.ShowOne):
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'accelerator_request',
-            metavar='<uuid>',
-            help=_("UUID of the accelerator request"),
+            metavar='<accelerator_request>',
+            help=_("The accelerator request"),
         )
         return parser
 
@@ -248,7 +264,7 @@ class UnbindAcceleratorRequest(command.ShowOne):
         parser.add_argument(
             'accelerator_request',
             metavar='<accelerator_request>',
-            help=_("UUID of the accelerator request"),
+            help=_("The accelerator request"),
         )
         return parser
 

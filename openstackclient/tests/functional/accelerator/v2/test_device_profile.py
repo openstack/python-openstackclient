@@ -80,3 +80,26 @@ class TestDeviceProfile(common.AcceleratorTests):
         )
         uuids = [dp['uuid'] for dp in cmd_output]
         self.assertNotIn(dp_uuid, uuids)
+
+    def test_device_profile_create_with_group_option(self):
+        name = uuid.uuid4().hex
+
+        # create using --group option instead of JSON positional
+        cmd_output = self.openstack(
+            'accelerator device profile create '
+            + name
+            + ' --group resources:CUSTOM_ACCELERATOR_FPGA=1,'
+            + 'trait:CUSTOM_FPGA_INTEL=required',
+            parse_output=True,
+        )
+        dp_uuid = cmd_output['uuid']
+        self.addCleanup(
+            self.openstack,
+            'accelerator device profile delete ' + dp_uuid,
+            fail_ok=True,
+        )
+        self.assertEqual(name, cmd_output['name'])
+        self.assertEqual(1, len(cmd_output['groups']))
+        group = cmd_output['groups'][0]
+        self.assertEqual('1', group['resources:CUSTOM_ACCELERATOR_FPGA'])
+        self.assertEqual('required', group['trait:CUSTOM_FPGA_INTEL'])

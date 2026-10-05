@@ -98,14 +98,14 @@ class ProgramDeployable(command.ShowOne):
     def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
-            'deployable_uuid',
-            metavar='<deployable_uuid>',
-            help=_("UUID of the deployable to reconfigure"),
+            'deployable',
+            metavar='<deployable>',
+            help=_("The deployable to reconfigure"),
         )
         parser.add_argument(
-            'image_uuid',
-            metavar='<image_uuid>',
-            help=_("UUID of the image to program"),
+            'image',
+            metavar='<image>',
+            help=_("The image to program"),
         )
         return parser
 
@@ -113,12 +113,13 @@ class ProgramDeployable(command.ShowOne):
         self, parsed_args: argparse.Namespace
     ) -> tuple[Sequence[str], Iterable[Any]]:
         acc_client = self.app.client_manager.accelerator
-        dep_uuid = parsed_args.deployable_uuid
+        dep_uuid = parsed_args.deployable
 
+        # TODO(melwitt): switch to find_deployable once added to the SDK
         acc_client.get_deployable(dep_uuid)
 
         image_client = self.app.client_manager.image
-        image_uuid = parsed_args.image_uuid
+        image_uuid = parsed_args.image
         try:
             image_client.get_image(image_uuid)
         except sdk_exceptions.NotFoundException:
@@ -144,8 +145,8 @@ class ShowDeployable(command.ShowOne):
         parser = super().get_parser(prog_name)
         parser.add_argument(
             'deployable',
-            metavar='<uuid>',
-            help=_("UUID of the deployable"),
+            metavar='<deployable>',
+            help=_("The deployable"),
         )
         return parser
 
@@ -153,5 +154,6 @@ class ShowDeployable(command.ShowOne):
         self, parsed_args: argparse.Namespace
     ) -> tuple[Sequence[str], Iterable[Any]]:
         acc_client = self.app.client_manager.accelerator
+        # TODO(melwitt): switch to find_deployable once added to the SDK
         deployable = acc_client.get_deployable(parsed_args.deployable)
         return _format_deployable(deployable)

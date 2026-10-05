@@ -59,7 +59,7 @@ class TestCreateAttribute(TestAttribute):
     def test_create(self):
         arglist = ['dep-id-1', 'trait:key', 'required']
         verifylist = [
-            ('deployable_id', 'dep-id-1'),
+            ('deployable', 'dep-id-1'),
             ('key', 'trait:key'),
             ('value', 'required'),
         ]

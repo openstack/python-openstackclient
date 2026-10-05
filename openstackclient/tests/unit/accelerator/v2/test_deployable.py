@@ -102,8 +102,8 @@ class TestProgramDeployable(TestDeployable):
     def test_program(self):
         arglist = [self.fake_dep.id, 'image-uuid-1']
         verifylist = [
-            ('deployable_uuid', self.fake_dep.id),
-            ('image_uuid', 'image-uuid-1'),
+            ('deployable', self.fake_dep.id),
+            ('image', 'image-uuid-1'),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
