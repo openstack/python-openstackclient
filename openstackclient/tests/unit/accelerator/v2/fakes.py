@@ -12,6 +12,7 @@
 
 from unittest import mock
 
+from keystoneauth1 import discover
 from openstack.accelerator import v2 as accelerator_v2
 
 from openstackclient.tests.unit.image.v2 import fakes as image_fakes
@@ -26,6 +27,16 @@ class FakeClientMixin:
             spec=accelerator_v2.Proxy
         )
         self.accelerator_client = self.app.client_manager.accelerator
+        self.set_accelerator_api_version()
+
+    def set_accelerator_api_version(self, version: str = '2.0'):
+        self.accelerator_client.default_microversion = version
+        self.accelerator_client.get_endpoint_data.return_value = (
+            discover.EndpointData(
+                min_microversion='2.0',
+                max_microversion=version,
+            )
+        )
 
 
 class TestAccelerator(

@@ -49,6 +49,40 @@ class TestDevice(fakes.TestAccelerator):
         )
 
 
+class TestDisableDevice(TestDevice):
+    def setUp(self):
+        super().setUp()
+
+        self.cmd = device.DisableDevice(self.app, None)
+
+    def test_disable(self):
+        arglist = [self.fake_device.uuid]
+        verifylist = [('device', self.fake_device.uuid)]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.cmd.take_action(parsed_args)
+
+        self.accelerator_client.disable_device.assert_called_once_with(
+            self.fake_device.uuid
+        )
+
+
+class TestEnableDevice(TestDevice):
+    def setUp(self):
+        super().setUp()
+
+        self.cmd = device.EnableDevice(self.app, None)
+
+    def test_enable(self):
+        arglist = [self.fake_device.uuid]
+        verifylist = [('device', self.fake_device.uuid)]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        self.cmd.take_action(parsed_args)
+
+        self.accelerator_client.enable_device.assert_called_once_with(
+            self.fake_device.uuid
+        )
+
+
 class TestListDevice(TestDevice):
     def setUp(self):
         super().setUp()
@@ -137,3 +171,13 @@ class TestShowDevice(TestDevice):
         )
         self.assertEqual(self.show_columns, columns)
         self.assertCountEqual(self.show_data, data)
+
+    def test_show_with_status(self):
+        self.set_accelerator_api_version('2.3')
+        arglist = [self.fake_device.uuid]
+        verifylist = [('device', self.fake_device.uuid)]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.assertEqual((*self.show_columns, "status"), columns)
+        self.assertCountEqual((*self.show_data, self.fake_device.status), data)
