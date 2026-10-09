@@ -47,7 +47,9 @@ class CreateNDPProxy(command.ShowOne):
     def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
         parser.add_argument(
-            'router', metavar='<router>', help=_("The name or ID of a router")
+            'router',
+            metavar='<router>',
+            help=_("Router to associate with this NDP proxy (name or ID)"),
         )
         parser.add_argument(
             '--name', metavar='<name>', help=_("New NDP proxy name")
@@ -56,10 +58,7 @@ class CreateNDPProxy(command.ShowOne):
             '--port',
             metavar='<port>',
             required=True,
-            help=_(
-                "The name or ID of the network port associated "
-                "to the NDP proxy"
-            ),
+            help=_("Port to associate with this NDP proxy (name or ID)"),
         )
         parser.add_argument(
             '--ip-address',

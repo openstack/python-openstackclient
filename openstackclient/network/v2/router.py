@@ -627,7 +627,7 @@ class CreateRouter(command.ShowOne, common.NeutronCommandWithExtraArgs):
         parser.add_argument(
             '--flavor',
             metavar='<flavor-id>',
-            help=_("Associate the router to a flavor (by name or ID"),
+            help=_("Associate the router to a flavor (name or ID)"),
         )
         parser.add_argument(
             '--flavor-id',
