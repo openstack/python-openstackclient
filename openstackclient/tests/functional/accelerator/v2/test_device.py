@@ -45,3 +45,21 @@ class TestDevice(common.AcceleratorTests):
         self.assertIn('type', cmd_output)
         self.assertIn('vendor', cmd_output)
         self.assertIn('hostname', cmd_output)
+
+        # disable
+        self.openstack('accelerator device disable ' + device_uuid)
+        cmd_output = self.openstack(
+            '--os-accelerator-api-version 2.3 '
+            'accelerator device show ' + device_uuid,
+            parse_output=True,
+        )
+        self.assertEqual('maintaining', cmd_output['status'])
+
+        # enable
+        self.openstack('accelerator device enable ' + device_uuid)
+        cmd_output = self.openstack(
+            '--os-accelerator-api-version 2.3 '
+            'accelerator device show ' + device_uuid,
+            parse_output=True,
+        )
+        self.assertEqual('enabled', cmd_output['status'])

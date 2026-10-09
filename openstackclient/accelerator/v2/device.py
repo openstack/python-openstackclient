@@ -17,7 +17,9 @@ from collections.abc import Iterable, Sequence
 import logging
 from typing import Any
 
+from openstack.accelerator import v2 as accelerator_v2
 from openstack.accelerator.v2 import device as _device
+from openstack import utils as sdk_utils
 from osc_lib import utils
 
 from openstackclient import command
@@ -28,8 +30,9 @@ LOG = logging.getLogger(__name__)
 
 def _format_device(
     device: _device.Device,
+    acc_client: accelerator_v2.Proxy,
 ) -> tuple[tuple[str, ...], Iterable[Any]]:
-    columns = (
+    columns: tuple[str, ...] = (
         "created_at",
         "updated_at",
         "uuid",
@@ -40,7 +43,43 @@ def _format_device(
         "std_board_info",
         "vendor_board_info",
     )
+    if sdk_utils.supports_microversion(acc_client, '2.3'):
+        columns += ("status",)
     return columns, utils.get_item_properties(device, columns)
+
+
+class DisableDevice(command.Command):
+    _description = _("Disable a device")
+
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
+        parser = super().get_parser(prog_name)
+        parser.add_argument(
+            'device',
+            metavar='<device>',
+            help=_("The device to disable"),
+        )
+        return parser
+
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
+        acc_client = self.app.client_manager.accelerator
+        acc_client.disable_device(parsed_args.device)
+
+
+class EnableDevice(command.Command):
+    _description = _("Enable a device")
+
+    def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
+        parser = super().get_parser(prog_name)
+        parser.add_argument(
+            'device',
+            metavar='<device>',
+            help=_("The device to enable"),
+        )
+        return parser
+
+    def take_action(self, parsed_args: argparse.Namespace) -> None:
+        acc_client = self.app.client_manager.accelerator
+        acc_client.enable_device(parsed_args.device)
 
 
 class ListDevice(command.Lister):
@@ -80,6 +119,10 @@ class ListDevice(command.Lister):
             )
             columns = column_headers
 
+        if sdk_utils.supports_microversion(acc_client, '2.3'):
+            column_headers += ("status",)
+            columns += ("status",)
+
         data = acc_client.devices()
         return (
             column_headers,
@@ -104,4 +147,4 @@ class ShowDevice(command.ShowOne):
     ) -> tuple[Sequence[str], Iterable[Any]]:
         acc_client = self.app.client_manager.accelerator
         device = acc_client.get_device(parsed_args.device)
-        return _format_device(device)
+        return _format_device(device, acc_client)
