@@ -70,7 +70,7 @@ class CreateProtocol(command.ShowOne):
         identity_client = self.app.client_manager.sdk_connection.identity
 
         protocol = identity_client.create_federation_protocol(
-            name=parsed_args.federation_protocol,
+            id=parsed_args.federation_protocol,
             idp_id=parsed_args.identity_provider,
             mapping_id=parsed_args.mapping,
         )
@@ -189,13 +189,15 @@ class SetProtocol(command.Command):
     def take_action(self, parsed_args):
         identity_client = self.app.client_manager.sdk_connection.identity
 
-        kwargs = {'idp_id': parsed_args.identity_provider}
-        if parsed_args.federation_protocol:
-            kwargs['name'] = parsed_args.federation_protocol
+        kwargs = {}
         if parsed_args.mapping:
             kwargs['mapping_id'] = parsed_args.mapping
 
-        protocol = identity_client.update_federation_protocol(**kwargs)
+        protocol = identity_client.update_federation_protocol(
+            idp_id=parsed_args.identity_provider,
+            protocol=parsed_args.federation_protocol,
+            **kwargs,
+        )
         return _format_protocol(protocol)
 
 
