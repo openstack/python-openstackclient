@@ -48,7 +48,7 @@ class TestProtocolCreate(identity_fakes.TestFederatedIdentity):
         parsed_args = self.check_parser(self.cmd, argslist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
         self.identity_sdk_client.create_federation_protocol.assert_called_with(
-            name=self.proto.id,
+            id=self.proto.name,
             idp=self.proto.idp_id,
             mapping_id=self.proto.mapping_id,
         )
@@ -167,9 +167,9 @@ class TestProtocolSet(identity_fakes.TestFederatedIdentity):
         columns, data = self.cmd.take_action(parsed_args)
 
         self.identity_sdk_client.update_federation_protocol.assert_called_with(
-            idp_id=self.proto.idp_id,
-            name=self.proto.name,
-            mapping_id=self.mapping.id,
+            idp=self.proto.idp_id,
+            protocol=self.proto.name,
+            mapping_id=self.mapping.name,
         )
 
         collist = ('id', 'identity_provider', 'mapping')

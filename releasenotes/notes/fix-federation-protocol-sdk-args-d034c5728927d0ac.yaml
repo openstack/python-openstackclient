@@ -1,0 +1,9 @@
+---
+fixes:
+  - |
+    Fixed ``federation protocol create`` and ``federation protocol set``
+    after the migration to SDK. Create now passes the protocol identifier
+    as ``id`` (required for the Keystone PUT create URL) instead of
+    ``name``, which was silently ignored by openstacksdk. Set now calls
+    ``update_federation_protocol`` with the required ``idp`` and
+    ``protocol`` arguments.
