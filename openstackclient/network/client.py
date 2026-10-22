@@ -12,10 +12,11 @@
 
 import argparse
 import logging
-from typing import Any
 
+from openstack.network import v2 as network_v2
 from osc_lib import utils
 
+from openstackclient.common import clientmanager
 from openstackclient.i18n import _
 
 LOG = logging.getLogger(__name__)
@@ -34,7 +35,7 @@ API_EXTENSIONS = (
 )
 
 
-def make_client(instance: Any) -> Any:
+def make_client(instance: clientmanager.ClientManager) -> network_v2.Proxy:
     """Returns a network proxy"""
     LOG.debug(
         'Network client initialized using OpenStack SDK: %s',

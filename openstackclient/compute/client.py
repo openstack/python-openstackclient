@@ -14,10 +14,11 @@
 
 import argparse
 import logging
-from typing import Any
 
+from openstack.compute import v2 as compute_v2
 from osc_lib import utils
 
+from openstackclient.common import clientmanager
 from openstackclient.i18n import _
 
 LOG = logging.getLogger(__name__)
@@ -29,7 +30,7 @@ API_NAME = 'compute'
 API_VERSIONS = ('2', '2.1')
 
 
-def make_client(instance: Any) -> Any:
+def make_client(instance: clientmanager.ClientManager) -> compute_v2.Proxy:
     """Returns a compute service client."""
     LOG.debug(
         'Compute client initialized using OpenStack SDK: %s',

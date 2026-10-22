@@ -14,10 +14,12 @@
 
 import argparse
 import logging
-from typing import Any
 
+from openstack.block_storage import v2 as volume_v2
+from openstack.block_storage import v3 as volume_v3
 from osc_lib import utils
 
+from openstackclient.common import clientmanager
 from openstackclient.i18n import _
 
 LOG = logging.getLogger(__name__)
@@ -29,7 +31,9 @@ API_NAME = 'volume'
 API_VERSIONS = ('2', '3')
 
 
-def make_client(instance: Any) -> Any:
+def make_client(
+    instance: clientmanager.ClientManager,
+) -> volume_v2.Proxy | volume_v3.Proxy:
     """Returns a volume service client."""
     LOG.debug(
         'Volume client initialized using OpenStack SDK: %s',

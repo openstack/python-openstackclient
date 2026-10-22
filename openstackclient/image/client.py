@@ -14,10 +14,12 @@
 
 import argparse
 import logging
-from typing import Any
 
+from openstack.image import v1 as image_v1
+from openstack.image import v2 as image_v2
 from osc_lib import utils
 
+from openstackclient.common import clientmanager
 from openstackclient.i18n import _
 
 LOG = logging.getLogger(__name__)
@@ -29,7 +31,9 @@ API_NAME = 'image'
 API_VERSIONS = ('1', '2')
 
 
-def make_client(instance: Any) -> Any:
+def make_client(
+    instance: clientmanager.ClientManager,
+) -> image_v1.Proxy | image_v2.Proxy:
     """Returns an image service client."""
     LOG.debug(
         'Image client initialized using OpenStack SDK: %s',

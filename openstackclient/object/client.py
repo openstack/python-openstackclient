@@ -16,11 +16,11 @@
 """Object client"""
 
 import argparse
-from typing import Any
 
 from osc_lib import utils
 
 from openstackclient.api import object_store_v1
+from openstackclient.common import clientmanager
 
 # global variables used when building the shell
 DEFAULT_API_VERSION = '1'
@@ -29,7 +29,9 @@ API_NAME = 'object_store'
 API_VERSIONS = ('1',)
 
 
-def make_client(instance: Any) -> object_store_v1.APIv1:
+def make_client(
+    instance: clientmanager.ClientManager,
+) -> object_store_v1.APIv1:
     """Returns an object-store API client."""
 
     endpoint = instance.get_endpoint_for_service_type(

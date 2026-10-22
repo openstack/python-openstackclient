@@ -12,10 +12,11 @@
 
 import argparse
 import logging
-from typing import Any
 
+from openstack.accelerator import v2 as accelerator_v2
 from osc_lib import utils
 
+from openstackclient.common import clientmanager
 from openstackclient.i18n import _
 
 LOG = logging.getLogger(__name__)
@@ -26,7 +27,7 @@ API_NAME = 'accelerator'
 API_VERSIONS = ('2',)
 
 
-def make_client(instance: Any) -> Any:
+def make_client(instance: clientmanager.ClientManager) -> accelerator_v2.Proxy:
     """Returns an accelerator proxy"""
     LOG.debug(
         'Accelerator client initialized using OpenStack SDK: %s',

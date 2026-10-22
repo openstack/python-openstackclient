@@ -19,6 +19,7 @@ from typing import Any
 from keystoneclient.v2_0 import client as identity_client_v2
 from osc_lib import utils
 
+from openstackclient.common import clientmanager
 from openstackclient.i18n import _
 
 LOG = logging.getLogger(__name__)
@@ -41,7 +42,9 @@ AUTH_VERSIONS = {
 }
 
 
-def make_client(instance: Any) -> Any:
+# TODO(stephenfin): Return SDK proxy instances once we've migrated remaining
+# callers from keystoneclient
+def make_client(instance: clientmanager.ClientManager) -> Any:
     """Returns an identity service client."""
     identity_client = utils.get_client_class(
         API_NAME, instance._api_version[API_NAME], API_VERSIONS

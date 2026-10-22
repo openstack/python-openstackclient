@@ -14,11 +14,12 @@
 
 import argparse
 import logging
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from osc_lib import exceptions
 from osc_lib import utils
 
+from openstackclient.common import clientmanager
 from openstackclient.i18n import _
 
 if TYPE_CHECKING:
@@ -35,7 +36,7 @@ API_NAME = 'share'
 _share_api_version = None
 
 
-def make_client(instance: Any) -> 'client.Client':
+def make_client(instance: clientmanager.ClientManager) -> 'client.Client':
     """Returns a manilaclient.client.Client instance."""
     # Defer client imports until we actually need them
     from manilaclient import client
