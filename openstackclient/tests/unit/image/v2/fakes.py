@@ -115,11 +115,13 @@ def create_one_image_member(attrs=None):
     return member.Member(**image_member_info)
 
 
-def create_one_import_info(attrs=None):
+def create_one_import_info(attrs=None, detail=False):
     """Create a fake import info.
 
     :param attrs: A dictionary with all attributes of import info
     :type attrs: dict
+    :param detail: Whether the fake import info should include plugin details
+    :type detail: bool
     :return: A fake Import object.
     :rtype: `openstack.image.v2.service_info.Import`
     """
@@ -137,6 +139,26 @@ def create_one_import_info(attrs=None):
             ],
         }
     }
+
+    if detail:
+        import_info['plugins'] = [
+            {
+                'name': 'inject_image_metadata',
+                'properties': {
+                    'ignore_user_roles': ['admin'],
+                    'inject': {'os_distro': 'fedora'},
+                },
+            },
+            {
+                'name': 'image_conversion',
+                'properties': {'output_format': 'raw'},
+            },
+            {
+                'name': 'image_decompression',
+                'properties': {},
+            },
+        ]
+
     import_info.update(attrs)
 
     return _service_info.Import(**import_info)

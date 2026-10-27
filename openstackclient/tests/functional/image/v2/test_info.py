@@ -28,7 +28,18 @@ class InfoTests(base.BaseImageTests):
 
     def test_image_import_info(self):
         output = self.openstack('image import info', parse_output=True)
-        self.assertIsNotNone(output['import-methods'])
+        self.assert_table_structure(output, ['Field', 'Value'])
+        self.assertEqual('import-methods', output[0]['Field'])
+        self.assertIsNotNone(output[0]['Value'])
+
+    def test_image_import_info_detail(self):
+        output = self.openstack(
+            'image import info --detail',
+            parse_output=True,
+        )
+        self.assert_table_structure(output, ['Field', 'Value', 'Plugins'])
+        self.assertEqual('import-methods', output[0]['Field'])
+        self.assertIsNotNone(output[0]['Plugins'])
 
     def test_image_stores_list(self):
         try:
