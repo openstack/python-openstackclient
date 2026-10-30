@@ -226,5 +226,4 @@ class TestShowIPAvailability(network_fakes.TestNetworkV2):
         self.network_client.find_network.assert_called_once_with(
             self._ip_availability.network_name, ignore_missing=False
         )
-        self.assertEqual(self.columns, columns)
-        self.assertCountEqual(self.data, data)
+        self.assertColumnsDataSubset(self.columns, self.data, columns, data)

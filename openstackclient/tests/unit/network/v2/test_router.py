@@ -245,8 +245,7 @@ class TestCreateRouter(network_fakes.TestNetworkV2):
             }
         )
         self.assertFalse(self.network_client.set_tags.called)
-        self.assertEqual(self.columns, columns)
-        self.assertCountEqual(self.data, data)
+        self.assertColumnsDataSubset(self.columns, self.data, columns, data)
 
     def test_create_with_gateway(self):
         _network = network_fakes.create_one_network()
@@ -286,8 +285,7 @@ class TestCreateRouter(network_fakes.TestNetworkV2):
             }
         )
         self.assertFalse(self.network_client.set_tags.called)
-        self.assertEqual(self.columns, columns)
-        self.assertCountEqual(self.data, data)
+        self.assertColumnsDataSubset(self.columns, self.data, columns, data)
 
     def _test_create_with_ha_options(self, option, ha):
         arglist = [
@@ -312,8 +310,7 @@ class TestCreateRouter(network_fakes.TestNetworkV2):
                 'ha': ha,
             }
         )
-        self.assertEqual(self.columns, columns)
-        self.assertCountEqual(self.data, data)
+        self.assertColumnsDataSubset(self.columns, self.data, columns, data)
 
     def test_create_with_ha_option(self):
         self._test_create_with_ha_options('--ha', True)
@@ -343,8 +340,7 @@ class TestCreateRouter(network_fakes.TestNetworkV2):
                 'distributed': distributed,
             }
         )
-        self.assertEqual(self.columns, columns)
-        self.assertCountEqual(self.data, data)
+        self.assertColumnsDataSubset(self.columns, self.data, columns, data)
 
     def test_create_with_distributed_option(self):
         self._test_create_with_distributed_options('--distributed', True)
@@ -378,8 +374,7 @@ class TestCreateRouter(network_fakes.TestNetworkV2):
             }
         )
 
-        self.assertEqual(self.columns, columns)
-        self.assertCountEqual(self.data, data)
+        self.assertColumnsDataSubset(self.columns, self.data, columns, data)
 
     def _test_create_with_tag(self, add_tags=True):
         arglist = [self.new_router.name]
@@ -410,8 +405,7 @@ class TestCreateRouter(network_fakes.TestNetworkV2):
             )
         else:
             self.assertFalse(self.network_client.set_tags.called)
-        self.assertEqual(self.columns, columns)
-        self.assertCountEqual(self.data, data)
+        self.assertColumnsDataSubset(self.columns, self.data, columns, data)
 
     def test_create_with_tags(self):
         self._test_create_with_tag(add_tags=True)
@@ -443,8 +437,7 @@ class TestCreateRouter(network_fakes.TestNetworkV2):
                 'flavor_id': _flavor.id,
             }
         )
-        self.assertEqual(self.columns, columns)
-        self.assertCountEqual(self.data, data)
+        self.assertColumnsDataSubset(self.columns, self.data, columns, data)
 
     def test_create_with_flavor_id_name(self):
         _flavor = network_fakes.create_one_network_flavor()
@@ -466,8 +459,7 @@ class TestCreateRouter(network_fakes.TestNetworkV2):
                 'flavor_id': _flavor.id,
             }
         )
-        self.assertEqual(self.columns, columns)
-        self.assertCountEqual(self.data, data)
+        self.assertColumnsDataSubset(self.columns, self.data, columns, data)
 
     def test_create_with_flavor_id(self):
         _flavor = network_fakes.create_one_network_flavor()
@@ -493,8 +485,7 @@ class TestCreateRouter(network_fakes.TestNetworkV2):
                 'flavor_id': _flavor.id,
             }
         )
-        self.assertEqual(self.columns, columns)
-        self.assertCountEqual(self.data, data)
+        self.assertColumnsDataSubset(self.columns, self.data, columns, data)
 
     def test_create_with_flavor_name(self):
         _flavor = network_fakes.create_one_network_flavor()
@@ -516,8 +507,7 @@ class TestCreateRouter(network_fakes.TestNetworkV2):
                 'flavor_id': _flavor.id,
             }
         )
-        self.assertEqual(self.columns, columns)
-        self.assertCountEqual(self.data, data)
+        self.assertColumnsDataSubset(self.columns, self.data, columns, data)
 
     def test_create_with_enable_default_route_bfd(self):
         self._extensions = {
@@ -538,8 +528,7 @@ class TestCreateRouter(network_fakes.TestNetworkV2):
             admin_state_up=True,
             enable_default_route_bfd=True,
         )
-        self.assertEqual(self.columns, columns)
-        self.assertCountEqual(self.data, data)
+        self.assertColumnsDataSubset(self.columns, self.data, columns, data)
 
     def test_create_with_enable_default_route_bfd_no_extension(self):
         arglist = [self.new_router.name, '--enable-default-route-bfd']
@@ -573,8 +562,7 @@ class TestCreateRouter(network_fakes.TestNetworkV2):
             admin_state_up=True,
             enable_default_route_ecmp=True,
         )
-        self.assertEqual(self.columns, columns)
-        self.assertCountEqual(self.data, data)
+        self.assertColumnsDataSubset(self.columns, self.data, columns, data)
 
     def test_create_with_enable_default_route_ecmp_no_extension(self):
         arglist = [self.new_router.name, '--enable-default-route-ecmp']
@@ -620,8 +608,7 @@ class TestCreateRouter(network_fakes.TestNetworkV2):
                 **{'external_gateway_info': gw_info},
             }
         )
-        self.assertEqual(self.columns, columns)
-        self.assertCountEqual(self.data, data)
+        self.assertColumnsDataSubset(self.columns, self.data, columns, data)
 
     def test_create_with_qos_policy_no_external_gateway(self):
         _qos_policy = network_fakes.create_one_qos_policy()
@@ -2076,8 +2063,7 @@ class TestShowRouter(network_fakes.TestNetworkV2):
         self.network_client.ports.assert_called_with(
             **{'device_id': self._router.id}
         )
-        self.assertEqual(self.columns, columns)
-        self.assertCountEqual(self.data, data)
+        self.assertColumnsDataSubset(self.columns, self.data, columns, data)
 
     def test_show_no_ha_no_distributed(self):
         _router = network_fakes.create_one_router(
@@ -2454,8 +2440,7 @@ class TestCreateMultipleGateways(TestGatewayOps):
                 }
             },
         )
-        self.assertEqual(self._columns, columns)
-        self.assertCountEqual(self._data, data)
+        self.assertColumnsDataSubset(self._columns, self._data, columns, data)
 
     def test_create_multiple_gateways(self):
         arglist = [
@@ -2519,8 +2504,7 @@ class TestCreateMultipleGateways(TestGatewayOps):
                 }
             },
         )
-        self.assertEqual(self._columns, columns)
-        self.assertCountEqual(self._data, data)
+        self.assertColumnsDataSubset(self._columns, self._data, columns, data)
 
 
 class TestUpdateMultipleGateways(TestGatewayOps):

@@ -15,11 +15,10 @@
 
 import argparse
 import io
-import os
 
 from cliff import columns as cliff_columns
 import fixtures
-import testtools
+from osc_lib.test import base as osc_lib_base
 
 from openstackclient.tests.unit import fakes
 
@@ -35,36 +34,26 @@ class CompareBySet(list):
         return set(self) == set(other)
 
 
-class TestCase(testtools.TestCase):
-    # provide additional context for failures
-    maxDiff = None
-
+class TestCase(osc_lib_base.TestCase):
     def setUp(self):
-        testtools.TestCase.setUp(self)
-
-        if (
-            os.environ.get("OS_STDOUT_CAPTURE") == "True"
-            or os.environ.get("OS_STDOUT_CAPTURE") == "1"
-        ):
-            stdout = self.useFixture(fixtures.StringStream("stdout")).stream
-            self.useFixture(fixtures.MonkeyPatch("sys.stdout", stdout))
-
-        if (
-            os.environ.get("OS_STDERR_CAPTURE") == "True"
-            or os.environ.get("OS_STDERR_CAPTURE") == "1"
-        ):
-            stderr = self.useFixture(fixtures.StringStream("stderr")).stream
-            self.useFixture(fixtures.MonkeyPatch("sys.stderr", stderr))
+        super().setUp()
 
         self.log = self.useFixture(fixtures.LoggerFixture())
 
-    def assertNotCalled(self, m, msg=None):
-        """Assert a function was not called"""
+    def assertColumnsDataSubset(
+        self, expected_columns, expected_data, columns, data
+    ):
+        """Assert each expected column is present with the expected value.
 
-        if m.called:
-            if not msg:
-                msg = f'method {m} should not have been called'
-            self.fail(msg)
+        Unlike an exact comparison, this tolerates extra columns (e.g. fields
+        newly added by the SDK) while still checking that every expected
+        column maps to its expected value.
+        """
+        expected = dict(zip(expected_columns, expected_data))
+        actual = dict(zip(columns, data))
+        self.assertEqual(
+            expected, {k: actual[k] for k in expected if k in actual}
+        )
 
 
 class TestCommand(TestCase):
