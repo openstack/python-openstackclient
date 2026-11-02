@@ -9,6 +9,7 @@ Command List
    :maxdepth: 2
 
    command-objects/common/index
+   command-objects/accelerator/v2/index
    command-objects/compute/v2/index
    command-objects/identity/v2/index
    command-objects/identity/v3/index

@@ -9,7 +9,6 @@ Plugin Commands
 
    aodh
    barbican
-   cyborg
    designate
    gnocchi
    heat

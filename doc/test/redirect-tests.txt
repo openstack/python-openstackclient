@@ -16,6 +16,7 @@
 /python-openstackclient/latest/humaninterfaceguide.html 301 /python-openstackclient/latest/contributor/humaninterfaceguide.html
 /python-openstackclient/latest/plugins.html 301 /python-openstackclient/latest/contributor/plugins.html
 /python-openstackclient/latest/cli/plugin-commands.html 301 /python-openstackclient/latest/cli/plugin-commands/index.html
+/python-openstackclient/latest/cli/plugin-commands/cyborg.html 301 /python-openstackclient/latest/cli/command-objects/accelerator/v2/index.html
 /python-openstackclient/latest/cli/command-objects/ec2-credentials.html 301 /python-openstackclient/latest/cli/_hidden/ec2-credentials.html
 /python-openstackclient/latest/cli/command-objects/endpoint.html 301 /python-openstackclient/latest/cli/_hidden/endpoint.html
 /python-openstackclient/latest/cli/command-objects/image.html 301 /python-openstackclient/latest/cli/_hidden/image.html
