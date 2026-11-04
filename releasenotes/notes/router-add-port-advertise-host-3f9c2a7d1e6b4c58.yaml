@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Add ``--advertise-host`` option to the ``router add port`` command.
+    When set, the prefixes of the port being added are advertised as host
+    routes within the router's EVPN VNI. Only valid for EVPN routers.

@@ -360,6 +360,17 @@ class AddPortToRouter(command.Command):
         parser.add_argument(
             'port', metavar='<port>', help=_("Port to be added (name or ID)")
         )
+        parser.add_argument(
+            '--advertise-host',
+            action='store_true',
+            default=False,
+            dest='advertise_host',
+            help=_(
+                "Mark the port's prefixes to be advertised as host "
+                "routes within the router's EVPN VNI. "
+                "Only valid for EVPN routers."
+            ),
+        )
         return parser
 
     def take_action(self, parsed_args: argparse.Namespace) -> None:
@@ -368,6 +379,7 @@ class AddPortToRouter(command.Command):
         client.add_interface_to_router(
             client.find_router(parsed_args.router, ignore_missing=False),
             port=port.id,
+            advertise_host=parsed_args.advertise_host,
         )
 
 

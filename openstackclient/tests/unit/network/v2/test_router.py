@@ -57,13 +57,34 @@ class TestAddPortToRouter(network_fakes.TestNetworkV2):
         verifylist = [
             ('router', self._router.id),
             ('port', self._router.port),
+            ('advertise_host', False),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
 
         result = self.cmd.take_action(parsed_args)
 
-        self.network_client.add_interface_to_router.assert_called_with(
-            self._router, port=self._router.port
+        self.network_client.add_interface_to_router.assert_called_once_with(
+            self._router, port=self._router.port, advertise_host=False
+        )
+        self.assertIsNone(result)
+
+    def test_add_port_with_advertise_host(self):
+        arglist = [
+            self._router.id,
+            self._router.port,
+            '--advertise-host',
+        ]
+        verifylist = [
+            ('router', self._router.id),
+            ('port', self._router.port),
+            ('advertise_host', True),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        self.network_client.add_interface_to_router.assert_called_once_with(
+            self._router, port=self._router.port, advertise_host=True
         )
         self.assertIsNone(result)
 
