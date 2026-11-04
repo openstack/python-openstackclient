@@ -173,8 +173,8 @@
     description: Build Docker images.
     allowed-projects: openstack/python-openstackclient
     requires:
-      - python-builder-3.11-bookworm-container-image
-      - python-base-3.11-bookworm-container-image
+      - python-builder-3.14-trixie-container-image
+      - python-base-3.14-trixie-container-image
     provides: osc-container-image
     vars:
       docker_images:

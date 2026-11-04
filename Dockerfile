@@ -13,12 +13,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM docker.io/opendevorg/python-builder:3.12-bookworm AS builder
+FROM docker.io/opendevorg/python-builder:3.14-trixie AS builder
 
 COPY . /tmp/src
 RUN assemble
 
-FROM docker.io/opendevorg/python-base:3.12-bookworm
+FROM docker.io/opendevorg/python-base:3.14-trixie
 
 LABEL org.opencontainers.image.title="python-openstackclient"
 LABEL org.opencontainers.image.description="Client for OpenStack services."
