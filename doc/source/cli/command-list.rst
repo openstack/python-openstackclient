@@ -17,6 +17,7 @@ Command List
    command-objects/image/v2/index
    command-objects/network/v2/index
    command-objects/object-store/v1/index
+   command-objects/placement/v1/index
    command-objects/share/v2/index
    command-objects/volume/v2/index
    command-objects/volume/v3/index

@@ -40,8 +40,9 @@ IGNORED_MODULES = (
     'neutronclient.osc.v2.subnet_onboard',
     'neutronclient.osc.v2.vpnaas',
     'cyborgclient.osc.v2',
-    # FIXME(stephenfin): this is ignored temporarily while we complete
-    # implementation. This should be dropped once completed.
+    # FIXME(stephenfin): these are ignored temporarily while we complete
+    # implementation. These should be dropped once completed.
+    'openstackclient.placement.v1',
     'openstackclient.share.v2',
 )
 

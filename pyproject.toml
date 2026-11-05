@@ -758,6 +758,8 @@ object_set = "openstackclient.object.v1.object:SetObject"
 object_show = "openstackclient.object.v1.object:ShowObject"
 object_unset = "openstackclient.object.v1.object:UnsetObject"
 
+[project.entry-points."openstack.placement.v1"]
+
 [project.entry-points."openstack.share.v2"]
 share_group_create = "openstackclient.share.v2.share_groups:CreateShareGroup"
 share_group_delete = "openstackclient.share.v2.share_groups:DeleteShareGroup"

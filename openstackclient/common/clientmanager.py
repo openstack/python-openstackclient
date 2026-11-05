@@ -29,6 +29,7 @@ from openstack.block_storage import v3 as volume_v3
 from openstack.compute import v2 as compute_v2
 from openstack.image import v2 as image_v2
 from openstack.network import v2 as network_v2
+from openstack.placement import v1 as placement_v1
 from osc_lib.cli import client_config
 from osc_lib import clientmanager
 from osc_lib import shell
@@ -62,6 +63,7 @@ class ClientManager(clientmanager.ClientManager):
     image: image_v2.Proxy
     network: network_v2.Proxy
     object_store: object_store_v1.APIv1
+    placement: placement_v1.Proxy
     share: Any
     volume: volume_v2.Proxy | volume_v3.Proxy
 
