@@ -2,7 +2,6 @@
 Object Storage v1 Commands
 ==========================
 
-
 container
 ---------
 

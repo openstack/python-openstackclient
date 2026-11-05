@@ -2,7 +2,6 @@
 Block Storage v2 Commands
 =========================
 
-
 consistency group
 -----------------
 

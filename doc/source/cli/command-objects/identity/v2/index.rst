@@ -2,7 +2,6 @@
 Identity v2 Commands
 ====================
 
-
 catalog
 -------
 

@@ -2,7 +2,6 @@
 Network v2 Commands
 ===================
 
-
 address group
 -------------
 

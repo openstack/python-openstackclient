@@ -2,7 +2,6 @@
 Block Storage v3 Commands
 =========================
 
-
 block storage
 -------------
 
