@@ -672,12 +672,16 @@ class SetQuota(command.Command):
             network_client.update_quota(project, **network_kwargs)
 
 
-class ShowQuota(command.Lister):
+class ShowQuota(command.ShowOneWithDetails):
     _description = _(
         """Show quotas for project or class.
 
 Specify ``--os-compute-api-version 2.50`` or higher to see ``server-groups``
-and ``server-group-members`` output for a given quota class."""
+and ``server-group-members`` output for a given quota class.
+
+Use ``-c`` / ``--column`` to select quota resources, such as ``cores`` or
+``instances``. All output columns, including usage details when requested,
+are retained for each selected resource."""
     )
 
     def get_parser(self, prog_name: str) -> argparse.ArgumentParser:

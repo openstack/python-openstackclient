@@ -1,0 +1,14 @@
+---
+fixes:
+  - |
+    The ``quota show`` command now supports selecting quota resources with
+    ``-c`` / ``--column``, consistent with other show commands. For example,
+    ``openstack quota show --usage -c cores -c instances`` displays only those
+    resources while retaining their limit, usage, and reservation columns.
+upgrade:
+  - |
+    The ``quota show`` command's ``-c`` / ``--column`` option now selects
+    resource rows rather than output columns such as ``Resource`` or ``Limit``.
+    The list-specific ``--sort-column``, ``--sort-ascending``, and
+    ``--sort-descending`` options are no longer available. The default output
+    and the structure of machine-readable output are unchanged.
