@@ -14,13 +14,13 @@ import argparse
 from collections.abc import Iterable, Sequence
 from typing import Any
 
+from openstack import utils as sdk_utils
+from osc_lib import exceptions
 from osc_lib import utils
 
 from openstackclient import command
-from openstackclient.placement import version
+from openstackclient.i18n import _
 
-BASE_URL = '/resource_classes'
-PER_CLASS_URL = BASE_URL + '/{name}'
 FIELDS = ('name',)
 
 
@@ -32,19 +32,22 @@ class ListResourceClass(command.Lister):
 
     def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
-
         return parser
 
-    @version.check(version.ge('1.2'))
     def take_action(
         self, parsed_args: argparse.Namespace
     ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
-        http = self.app.client_manager.placement
+        placement_client = self.app.client_manager.sdk_connection.placement
 
-        resource_classes = http.request('GET', BASE_URL).json()[
-            'resource_classes'
-        ]
-        rows = (utils.get_dict_properties(i, FIELDS) for i in resource_classes)
+        if not sdk_utils.supports_microversion(placement_client, '1.2'):
+            msg = _(
+                '--os-placement-api-version 1.2 or greater is required '
+                "to support the 'resource class list' command"
+            )
+            raise exceptions.CommandError(msg)
+
+        resource_classes = list(placement_client.resource_classes())
+        rows = ((rc.name,) for rc in resource_classes)
         return FIELDS, rows
 
 
@@ -61,11 +64,17 @@ class CreateResourceClass(command.Command):
         )
         return parser
 
-    @version.check(version.ge('1.2'))
     def take_action(self, parsed_args: argparse.Namespace) -> None:
-        http = self.app.client_manager.placement
+        placement_client = self.app.client_manager.sdk_connection.placement
 
-        http.request('POST', BASE_URL, json={'name': parsed_args.name})
+        if not sdk_utils.supports_microversion(placement_client, '1.2'):
+            msg = _(
+                '--os-placement-api-version 1.2 or greater is required '
+                "to support the 'resource class create' command"
+            )
+            raise exceptions.CommandError(msg)
+
+        placement_client.create_resource_class(name=parsed_args.name)
 
 
 class SetResourceClass(command.Command):
@@ -85,13 +94,17 @@ class SetResourceClass(command.Command):
         )
         return parser
 
-    @version.check(version.ge('1.7'))
     def take_action(self, parsed_args: argparse.Namespace) -> None:
-        http = self.app.client_manager.placement
+        placement_client = self.app.client_manager.sdk_connection.placement
 
-        url = BASE_URL + '/' + parsed_args.name
+        if not sdk_utils.supports_microversion(placement_client, '1.7'):
+            msg = _(
+                '--os-placement-api-version 1.7 or greater is required '
+                "to support the 'resource class set' command"
+            )
+            raise exceptions.CommandError(msg)
 
-        http.request('PUT', url)
+        placement_client.update_resource_class(parsed_args.name)
 
 
 class ShowResourceClass(command.ShowOne):
@@ -107,16 +120,20 @@ class ShowResourceClass(command.ShowOne):
         )
         return parser
 
-    @version.check(version.ge('1.2'))
     def take_action(
         self, parsed_args: argparse.Namespace
     ) -> tuple[Sequence[str], Iterable[Any]]:
-        http = self.app.client_manager.placement
+        placement_client = self.app.client_manager.sdk_connection.placement
 
-        url = PER_CLASS_URL.format(name=parsed_args.name)
+        if not sdk_utils.supports_microversion(placement_client, '1.2'):
+            msg = _(
+                '--os-placement-api-version 1.2 or greater is required '
+                "to support the 'resource class show' command"
+            )
+            raise exceptions.CommandError(msg)
 
-        resource = http.request('GET', url).json()
-        return FIELDS, utils.get_dict_properties(resource, FIELDS)
+        rc = placement_client.get_resource_class(parsed_args.name)
+        return FIELDS, utils.get_item_properties(rc, FIELDS)
 
 
 class DeleteResourceClass(command.Command):
@@ -134,10 +151,16 @@ class DeleteResourceClass(command.Command):
         )
         return parser
 
-    @version.check(version.ge('1.2'))
     def take_action(self, parsed_args: argparse.Namespace) -> None:
-        http = self.app.client_manager.placement
+        placement_client = self.app.client_manager.sdk_connection.placement
 
-        url = PER_CLASS_URL.format(name=parsed_args.name)
+        if not sdk_utils.supports_microversion(placement_client, '1.2'):
+            msg = _(
+                '--os-placement-api-version 1.2 or greater is required '
+                "to support the 'resource class delete' command"
+            )
+            raise exceptions.CommandError(msg)
 
-        http.request('DELETE', url)
+        placement_client.delete_resource_class(
+            parsed_args.name, ignore_missing=False
+        )
