@@ -16,7 +16,7 @@
 """Manage access to the clients, including authenticating when needed."""
 
 import argparse
-from collections.abc import Callable
+from collections.abc import Callable, Collection
 import importlib
 import logging
 import sys
@@ -225,8 +225,10 @@ def _on_load_failure_callback(
     )
 
 
-def get_plugin_modules(group: str) -> list[Any]:
-    """Find plugin entry points"""
+def get_plugin_modules(
+    group: str, *, ignored_api_names: Collection[str] = ()
+) -> list[Any]:
+    """Find plugin entry points, skipping superseded service plugins."""
     mod_list = []
     mgr: stevedore.ExtensionManager[PluginModule]
     mgr = stevedore.ExtensionManager(
@@ -243,6 +245,14 @@ def get_plugin_modules(group: str) -> list[Any]:
             sys.stderr.write(
                 f"WARNING: Failed to import plugin "
                 f"{ep.module_name}:{ep.name}: {err}.\n"
+            )
+            continue
+
+        if module.API_NAME in ignored_api_names:
+            LOG.debug(
+                'Ignoring plugin %s: API %s is already provided in-tree',
+                module_name,
+                module.API_NAME,
             )
             continue
 
@@ -274,13 +284,11 @@ def build_plugin_option_parser(
 PLUGIN_MODULES = get_plugin_modules(
     'openstack.cli.base',
 )
-# Append list of external plugin modules, skipping any whose API_NAME
-# is already provided by a base module to avoid argparse conflicts
-# (e.g. cyborgclient's accelerator plugin is superseded by the in-tree
-# accelerator module).
-_base_api_names = {mod.API_NAME for mod in PLUGIN_MODULES}
+# Skip superseded external plugins before registering their client factories
+# or adding their options (e.g. cyborgclient).
 PLUGIN_MODULES.extend(
-    mod
-    for mod in get_plugin_modules('openstack.cli.extension')
-    if mod.API_NAME not in _base_api_names
+    get_plugin_modules(
+        'openstack.cli.extension',
+        ignored_api_names={mod.API_NAME for mod in PLUGIN_MODULES},
+    )
 )
