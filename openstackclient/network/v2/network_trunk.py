@@ -31,6 +31,7 @@ from osc_lib.cli import identity as identity_utils
 from osc_lib.cli import parseractions
 from osc_lib import exceptions
 from osc_lib import utils as osc_utils
+from osc_lib.utils import tags as _tag
 
 from openstackclient import command
 from openstackclient.i18n import _
@@ -92,6 +93,7 @@ class CreateNetworkTrunk(command.ShowOne):
             '--disable', action='store_true', help=_("Disable trunk")
         )
         identity_utils.add_project_owner_option_to_parser(parser)
+        _tag.add_tag_option_to_parser_for_create(parser, _('trunk'))
         return parser
 
     def take_action(
@@ -104,6 +106,8 @@ class CreateNetworkTrunk(command.ShowOne):
             network_client, identity_client, parsed_args
         )
         obj = network_client.create_trunk(**attrs)
+        # tags cannot be set when created, so tags need to be set later.
+        _tag.update_tags_for_set(network_client, obj, parsed_args)
         display_columns, columns = _get_columns(obj)
         data = osc_utils.get_dict_properties(
             obj, columns, formatters=_formatters
@@ -163,13 +167,16 @@ class ListNetworkTrunk(command.Lister):
             default=False,
             help=_("List additional fields in output"),
         )
+        _tag.add_tag_filtering_option_to_parser(parser, _('trunks'))
         return parser
 
     def take_action(
         self, parsed_args: argparse.Namespace
     ) -> tuple[tuple[str, ...], Iterable[tuple[Any, ...]]]:
         network_client = self.app.client_manager.network
-        data = network_client.trunks()
+        args: dict[str, Any] = {}
+        _tag.get_tag_filtering_args(parsed_args, args)
+        data = network_client.trunks(**args)
         headers: tuple[str, ...] = ('ID', 'Name', 'Parent Port', 'Description')
         columns: tuple[str, ...] = ('id', 'name', 'port_id', 'description')
         if parsed_args.long:
@@ -180,6 +187,8 @@ class ListNetworkTrunk(command.Lister):
                 'Updated At',
             )
             columns += ('status', 'admin_state_up', 'created_at', 'updated_at')
+            headers += ('Tags',)
+            columns += ('tags',)
         return (
             headers,
             (
@@ -230,6 +239,7 @@ class SetNetworkTrunk(command.Command):
         admin_group.add_argument(
             '--disable', action='store_true', help=_("Disable trunk")
         )
+        _tag.add_tag_option_to_parser_for_set(parser, _('trunk'))
         return parser
 
     def take_action(self, parsed_args: argparse.Namespace) -> None:
@@ -263,6 +273,8 @@ class SetNetworkTrunk(command.Command):
                     'e': e,
                 }
                 raise exceptions.CommandError(msg)
+        # tags is a subresource and it needs to be updated separately.
+        _tag.update_tags_for_set(network_client, trunk_id, parsed_args)
 
 
 class ShowNetworkTrunk(command.ShowOne):
@@ -433,7 +445,6 @@ class UnsetNetworkTrunk(command.Command):
         parser.add_argument(
             '--subport',
             metavar="<subport>",
-            required=True,
             action='append',
             dest='unset_subports',
             help=_(
@@ -441,21 +452,26 @@ class UnsetNetworkTrunk(command.Command):
                 "(repeat option to unset multiple subports)"
             ),
         )
+        _tag.add_tag_option_to_parser_for_unset(parser, _('trunk'))
         return parser
 
     def take_action(self, parsed_args: argparse.Namespace) -> None:
         network_client = self.app.client_manager.network
-        attrs = _get_attrs_for_subports(network_client, parsed_args)
         trunk_id = network_client.find_trunk(
             parsed_args.trunk,
             ignore_missing=False,
         )
-        network_client.delete_trunk_subports(trunk_id, attrs)
+        if parsed_args.unset_subports:
+            attrs = _get_attrs_for_subports(network_client, parsed_args)
+            network_client.delete_trunk_subports(trunk_id, attrs)
+        # tags is a subresource and it needs to be updated separately.
+        _tag.update_tags_for_unset(network_client, trunk_id, parsed_args)
 
 
 _formatters = {
     'admin_state_up': AdminStateColumn,
     'sub_ports': format_columns.ListDictColumn,
+    'tags': format_columns.ListColumn,
 }
 
 
