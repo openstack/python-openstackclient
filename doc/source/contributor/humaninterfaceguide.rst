@@ -240,6 +240,13 @@ form help option (``-h``) is also available.
 The standard ``--version`` option displays the name and version on standard
 output.  All other options and commands are ignored when this is present.
 
+``--plugin-versions``
++++++++++++++++++++++
+
+The ``--plugin-versions`` option displays the name and version of every
+installed package that provides CLI commands, including plugins, on standard
+output.  All other options and commands are ignored when this is present.
+
 Objects and Actions
 ~~~~~~~~~~~~~~~~~~~
 
