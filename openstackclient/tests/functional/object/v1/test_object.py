@@ -10,85 +10,179 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import hashlib
 import os
+import shlex
 import uuid
 
 import fixtures
+from tempest.lib import exceptions
 
 from openstackclient.tests.functional.object.v1 import common
 
-BASIC_LIST_HEADERS = ['Name']
-CONTAINER_FIELDS = ['account', 'container', 'x-trans-id']
-OBJECT_FIELDS = ['object', 'container', 'etag']
-
 
 class ObjectTests(common.ObjectStoreTests):
-    """Functional tests for Object Store object commands"""
-
-    CONTAINER_NAME = uuid.uuid4().hex
-
-    def setUp(self):
-        super().setUp()
-        # Skip tests if no object-store is present
-        if not self.haz_object_store:
-            self.skipTest("No object-store service present")
-        self.temp_dir = self.useFixture(fixtures.TempDir()).path
+    """Functional tests for Object Store object commands."""
 
     def test_object(self):
-        object_file = os.path.join(self.temp_dir, 'test-object')
-        with open(object_file, 'w') as f:
-            f.write('test content')
-        self._test_object(object_file)
-
-    def _test_object(self, object_file):
-        raw_output = self.openstack('container create ' + self.CONTAINER_NAME)
-        items = self.parse_listing(raw_output)
-        self.assert_show_fields(items, CONTAINER_FIELDS)
-
-        raw_output = self.openstack('container list')
-        items = self.parse_listing(raw_output)
-        self.assert_table_structure(items, BASIC_LIST_HEADERS)
-
-        self.openstack('container show ' + self.CONTAINER_NAME)
-        # TODO(stevemar): Assert returned fields
-
-        self.openstack('container save ' + self.CONTAINER_NAME)
-        # TODO(stevemar): Assert returned fields
-
-        raw_output = self.openstack(
-            f'object create {self.CONTAINER_NAME} {object_file}'
+        content = b'test content\n'
+        etag = hashlib.md5(content, usedforsecurity=False).hexdigest()
+        directory = self.useFixture(fixtures.TempDir()).path
+        container = uuid.uuid4().hex
+        # Registered after TempDir so remote cleanup runs before local cleanup.
+        self.addCleanup(
+            self.openstack,
+            f'container delete --recursive {container}',
+            fail_ok=True,
         )
-        items = self.parse_listing(raw_output)
-        self.assert_show_fields(items, OBJECT_FIELDS)
+        self.openstack(f'container create {container}')
 
-        raw_output = self.openstack(f'object list {self.CONTAINER_NAME}')
-        items = self.parse_listing(raw_output)
-        self.assert_table_structure(items, BASIC_LIST_HEADERS)
+        # Absolute names keep default downloads inside our temporary directory.
+        downloads = os.path.join(directory, 'downloads')
+        os.mkdir(downloads)
+        names = [
+            os.path.join(downloads, name)
+            for name in ('prefix-a', 'prefix-b', 'prefix-c')
+        ]
+        for name in names:
+            with open(name, 'wb') as f:
+                f.write(content)
+        arguments = ' '.join(shlex.quote(name) for name in names)
+        data = self.openstack(
+            f'object create {container} {arguments}', parse_output=True
+        )
+        self.assertEqual(names, [item['object'] for item in data])
+        for item in data:
+            self.assertEqual(container, item['container'])
+            self.assertEqual(etag, item['etag'].strip('"'))
 
-        self.openstack(f'object save {self.CONTAINER_NAME} {object_file}')
-        # TODO(stevemar): Assert returned fields
+        # Reuse the first file to exercise uploading with a different name.
+        name = 'object with spaces'
+        quoted = shlex.quote(name)
+        data = self.openstack(
+            f'object create {container} {shlex.quote(names[0])} --name {quoted}',
+            parse_output=True,
+        )
+        self.assertEqual(name, data[0]['object'])
+        self.assertEqual(container, data[0]['container'])
+        self.assertEqual(etag, data[0]['etag'].strip('"'))
+        command = f'object show {container} {quoted}'
+        data = self.openstack(command, parse_output=True)
+        self.assertEqual(name, data['object'])
+        self.assertEqual(container, data['container'])
+        self.assertTrue(data['account'])
+        self.assertEqual(len(content), int(data['content-length']))
+        self.assertTrue(data['content-type'])
+        self.assertTrue(data['last-modified'])
+        self.assertEqual(etag, data['etag'].strip('"'))
 
-        tmp_file = os.path.join(self.temp_dir, 'tmp.txt')
+        # List the original objects, filtering out the renamed upload.
+        prefix = shlex.quote(os.path.join(downloads, 'prefix-'))
+        listing = f'object list {container} --prefix {prefix}'
+        data = self.openstack(listing + ' --long', parse_output=True)
+        self.assertEqual(names, [item['Name'] for item in data])
+        for item in data:
+            self.assertEqual(len(content), int(item['Bytes']))
+            self.assertEqual(etag, item['Hash'])
+            self.assertTrue(item['Content Type'])
+            self.assertTrue(item['Last Modified'])
+        for options, expected in (
+            ('--limit 1', names[:1]),
+            (f'--marker {shlex.quote(names[0])}', names[1:]),
+            (f'--end-marker {shlex.quote(names[2])}', names[:2]),
+            ('--all --limit 1', names),
+        ):
+            data = self.openstack(f'{listing} {options}', parse_output=True)
+            self.assertEqual(expected, [item['Name'] for item in data])
+
+        data = self.openstack(f'{listing} --delimiter /', parse_output=True)
+        self.assertEqual(names, [item['Name'] for item in data])
+        # Swift rolls up the downloads directory into one subdir entry.
+        data = self.openstack(
+            f'object list {container} --delimiter / '
+            f'--prefix {shlex.quote(directory + "/")}',
+            parse_output=True,
+        )
+        self.assertEqual(1, len(data))
+
+        self.assertEqual(
+            '',
+            self.openstack(
+                f'object set {container} {quoted} '
+                '--property first=one --property second=two'
+            ),
+        )
+        data = self.openstack(command, parse_output=True)
+        self.assertEqual(
+            {'first': 'one', 'second': 'two'}, self.get_properties(data)
+        )
+        # Swift object POST replaces metadata, unlike account/container POST.
         self.openstack(
-            f'object save {self.CONTAINER_NAME} {object_file} --file {tmp_file}'
+            f'object set {container} {quoted} '
+            '--property first=updated --property second=two'
         )
-        # TODO(stevemar): Assert returned fields
-
-        raw_output = self.openstack(
-            f'object save {self.CONTAINER_NAME} {object_file} --file -'
+        data = self.openstack(command, parse_output=True)
+        self.assertEqual(
+            {'first': 'updated', 'second': 'two'}, self.get_properties(data)
         )
-        self.assertEqual(raw_output, 'test content')
-
-        self.openstack(f'object show {self.CONTAINER_NAME} {object_file}')
-        # TODO(stevemar): Assert returned fields
-
-        raw_output = self.openstack(
-            f'object delete {self.CONTAINER_NAME} {object_file}'
+        self.assertEqual(
+            '',
+            self.openstack(
+                f'object unset {container} {quoted} '
+                '--property first --property second'
+            ),
         )
-        self.assertEqual(0, len(raw_output))
+        data = self.openstack(command, parse_output=True)
+        self.assertFalse(self.get_properties(data))
 
-        self.openstack(f'object create {self.CONTAINER_NAME} {object_file}')
-        raw_output = self.openstack(
-            f'container delete -r {self.CONTAINER_NAME}'
+        # Download to an explicit file and stdout without uploading again.
+        destination = os.path.join(directory, 'new directory', 'download')
+        self.assertEqual(
+            '',
+            self.openstack(
+                f'object save {container} {quoted} '
+                f'--file {shlex.quote(destination)}'
+            ),
         )
-        self.assertEqual(0, len(raw_output))
+        with open(destination, 'rb') as f:
+            self.assertEqual(content, f.read())
+        self.assertEqual(
+            content.decode(),
+            self.openstack(f'object save {container} {quoted} --file -'),
+        )
+        self.assertEqual(
+            '', self.openstack(f'object delete {container} {quoted}')
+        )
+        with self.assertRaises(exceptions.CommandFailed):
+            self.openstack(command)
+
+        # Download using the default name, then save the whole container.
+        os.remove(names[0])
+        self.assertEqual(
+            '',
+            self.openstack(f'object save {container} {shlex.quote(names[0])}'),
+        )
+        with open(names[0], 'rb') as f:
+            self.assertEqual(content, f.read())
+        for name in names:
+            os.remove(name)
+        os.rmdir(downloads)
+        self.assertEqual('', self.openstack(f'container save {container}'))
+        for name in names:
+            with open(name, 'rb') as f:
+                self.assertEqual(content, f.read())
+
+        # Batch-delete two objects, leaving one to test recursive deletion.
+        arguments = ' '.join(shlex.quote(name) for name in names[:2])
+        self.assertEqual(
+            '', self.openstack(f'object delete {container} {arguments}')
+        )
+        data = self.openstack(f'object list {container}', parse_output=True)
+        self.assertEqual(names[2:], [item['Name'] for item in data])
+        with self.assertRaises(exceptions.CommandFailed):
+            self.openstack(f'container delete {container}')
+        self.assertEqual(
+            '', self.openstack(f'container delete --recursive {container}')
+        )
+        with self.assertRaises(exceptions.CommandFailed):
+            self.openstack(f'container show {container}')

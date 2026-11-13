@@ -12,44 +12,95 @@
 
 import uuid
 
-# from openstackclient.tests.functional import base
+from tempest.lib import exceptions
+
 from openstackclient.tests.functional.object.v1 import common
 
 
 class ContainerTests(common.ObjectStoreTests):
-    """Functional tests for Object Store container commands"""
+    """Functional tests for Object Store container commands."""
 
-    NAME = uuid.uuid4().hex
+    def test_container(self):
+        prefix = uuid.uuid4().hex
+        names = [prefix + suffix for suffix in 'abc']
+        for name in names:
+            self.addCleanup(
+                self.openstack, f'container delete {name}', fail_ok=True
+            )
 
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        if cls.haz_object_store:
-            opts = cls.get_opts(['container'])
-            raw_output = cls.openstack('container create ' + cls.NAME + opts)
-            cls.assertOutput(cls.NAME + '\n', raw_output)
+        # Create and show a container, then reuse its storage policy.
+        name = names[0]
+        data = self.openstack(f'container create {name}', parse_output=True)
+        self.assertEqual(name, data[0]['container'])
+        self.assertTrue(data[0]['account'])
+        self.assertTrue(data[0]['x-trans-id'])
+        data = self.openstack(f'container show {name}', parse_output=True)
+        self.assertEqual(name, data['container'])
+        self.assertTrue(data['account'])
+        self.assertEqual(0, int(data['object_count']))
+        self.assertEqual(0, int(data['bytes_used']))
+        self.assertTrue(data['storage_policy'])
+        policy = data['storage_policy']
 
-    @classmethod
-    def tearDownClass(cls):
-        try:
-            if cls.haz_object_store:
-                raw_output = cls.openstack('container delete ' + cls.NAME)
-                cls.assertOutput('', raw_output)
-        finally:
-            super().tearDownClass()
+        # Batch-create public containers using the discovered storage policy.
+        data = self.openstack(
+            f'container create --public --storage-policy {policy} '
+            + ' '.join(names[1:]),
+            parse_output=True,
+        )
+        self.assertEqual(names[1:], [item['container'] for item in data])
+        data = self.openstack(f'container show {names[1]}', parse_output=True)
+        self.assertEqual(
+            {'.r:*', '.rlistings'}, set(data['read_acl'].split(','))
+        )
+        self.assertEqual(policy, data['storage_policy'])
 
-    def setUp(self):
-        super().setUp()
-        # Skip tests if no object-store is present
-        if not self.haz_object_store:
-            self.skipTest("No object-store service present")
+        command = f'container list --prefix {prefix}'
+        data = self.openstack(command + ' --long', parse_output=True)
+        self.assertEqual(names, [item['Name'] for item in data])
+        for item in data:
+            self.assertEqual(0, int(item['Bytes']))
+            self.assertEqual(0, int(item['Count']))
 
-    def test_container_list(self):
-        opts = self.get_opts(['Name'])
-        raw_output = self.openstack('container list' + opts)
-        self.assertIn(self.NAME, raw_output)
+        for options, expected in (
+            ('--limit 1', names[:1]),
+            (f'--marker {names[0]}', names[1:]),
+            (f'--end-marker {names[2]}', names[:2]),
+            ('--all --limit 1', names),
+        ):
+            data = self.openstack(f'{command} {options}', parse_output=True)
+            self.assertEqual(expected, [item['Name'] for item in data])
 
-    def test_container_show(self):
-        opts = self.get_opts(['container'])
-        raw_output = self.openstack('container show ' + self.NAME + opts)
-        self.assertEqual(self.NAME + "\n", raw_output)
+        self.assertEqual(
+            '',
+            self.openstack(
+                f'container set {name} --property first=one '
+                '--property second=two'
+            ),
+        )
+        data = self.openstack(f'container show {name}', parse_output=True)
+        self.assertEqual(
+            {'first': 'one', 'second': 'two'}, self.get_properties(data)
+        )
+        self.openstack(f'container set {name} --property first=updated')
+        data = self.openstack(f'container show {name}', parse_output=True)
+        self.assertEqual(
+            {'first': 'updated', 'second': 'two'}, self.get_properties(data)
+        )
+        self.assertEqual(
+            '', self.openstack(f'container unset {name} --property first')
+        )
+        data = self.openstack(f'container show {name}', parse_output=True)
+        self.assertEqual({'second': 'two'}, self.get_properties(data))
+        self.openstack(f'container unset {name} --property second')
+        data = self.openstack(f'container show {name}', parse_output=True)
+        self.assertFalse(self.get_properties(data))
+
+        # Exercise both single and batch deletion.
+        self.assertEqual('', self.openstack(f'container delete {name}'))
+        self.assertEqual(
+            '', self.openstack('container delete ' + ' '.join(names[1:]))
+        )
+        for name in names:
+            with self.assertRaises(exceptions.CommandFailed):
+                self.openstack(f'container show {name}')
