@@ -17,6 +17,8 @@
 """Command-line interface to the OpenStack APIs"""
 
 import argparse
+from collections.abc import Sequence
+from importlib import metadata
 import sys
 from typing import Any
 import warnings
@@ -45,6 +47,46 @@ IGNORED_MODULES = (
     'openstackclient.placement.v1',
     'openstackclient.share.v2',
 )
+
+
+def get_plugin_versions() -> dict[str, str]:
+    """Return the packages providing CLI commands and their versions."""
+    versions: dict[str, str] = {}
+    for dist in metadata.distributions():
+        # broken or partial installs may lack a Name header
+        if 'Name' not in dist.metadata:
+            continue
+        name = dist.metadata['Name']
+        if not name:
+            continue
+        if any(ep.group.startswith('openstack.') for ep in dist.entry_points):
+            versions[name] = dist.version
+    return dict(sorted(versions.items()))
+
+
+class _PluginVersionsAction(argparse.Action):
+    """Print the version of every package providing CLI commands."""
+
+    def __init__(
+        self,
+        option_strings: Sequence[str],
+        dest: str,
+        **kwargs: Any,
+    ) -> None:
+        kwargs['nargs'] = 0
+        kwargs['default'] = argparse.SUPPRESS
+        super().__init__(option_strings, dest, **kwargs)
+
+    def __call__(
+        self,
+        parser: argparse.ArgumentParser,
+        namespace: argparse.Namespace,
+        values: str | Sequence[Any] | None,
+        option_string: str | None = None,
+    ) -> None:
+        for name, version in get_plugin_versions().items():
+            print(f'{name} {version}')
+        parser.exit()
 
 
 class OpenStackShell(shell.OpenStackShell):
@@ -79,6 +121,14 @@ class OpenStackShell(shell.OpenStackShell):
     ) -> argparse.ArgumentParser:
         parser = super().build_option_parser(
             description, version, argparse_kwargs
+        )
+        parser.add_argument(
+            '--plugin-versions',
+            action=_PluginVersionsAction,
+            help=(
+                'Show the versions of all installed packages providing '
+                'CLI commands and exit'
+            ),
         )
         parser = clientmanager.build_plugin_option_parser(parser)
         parser = auth.build_auth_plugins_option_parser(parser)

@@ -14,6 +14,7 @@
 #
 
 import importlib
+from importlib import metadata
 import os
 from unittest import mock
 
@@ -411,3 +412,56 @@ class TestShellCli(TestShell):
             "network_api_version": LIB_NETWORK_API_VERSION,
         }
         self._assert_cli(flag, kwargs)
+
+
+class _FakeDistribution(metadata.Distribution):
+    """A distribution backed by in-memory metadata files."""
+
+    def __init__(self, name, version, *groups):
+        name_header = f'Name: {name}\n' if name is not None else ''
+        self._files = {
+            'METADATA': f'Metadata-Version: 2.1\n{name_header}'
+            f'Version: {version}\n',
+            'entry_points.txt': ''.join(
+                f'[{group}]\nfoo = foo:main\n' for group in groups
+            ),
+        }
+
+    def read_text(self, filename):
+        return self._files.get(filename)
+
+    def locate_file(self, path):
+        raise NotImplementedError()
+
+
+class TestShellPluginVersions(osc_lib_test_utils.TestCase):
+    def test_plugin_versions(self):
+        dists = [
+            _FakeDistribution('python-bclient', '2.0', 'openstack.foo.v1'),
+            _FakeDistribution(
+                'python-aclient', '1.0', 'console_scripts', 'openstack.cli'
+            ),
+            _FakeDistribution('other', '3.0', 'console_scripts'),
+            _FakeDistribution(None, '4.0', 'openstack.cli'),
+        ]
+
+        with mock.patch(
+            'importlib.metadata.distributions', return_value=dists
+        ):
+            self.assertEqual(
+                {'python-aclient': '1.0', 'python-bclient': '2.0'},
+                shell.get_plugin_versions(),
+            )
+
+    def test_plugin_versions_option(self):
+        with mock.patch(
+            'openstackclient.shell.get_plugin_versions',
+            return_value={'python-aclient': '1.0'},
+        ):
+            with mock.patch('builtins.print') as mock_print:
+                self.assertRaises(
+                    SystemExit,
+                    shell.OpenStackShell().run,
+                    ['--plugin-versions'],
+                )
+        mock_print.assert_called_once_with('python-aclient 1.0')

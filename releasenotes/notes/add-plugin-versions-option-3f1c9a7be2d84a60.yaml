@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    A ``--plugin-versions`` global option has been added. It lists the
+    packages that provide CLI commands (for example ``python-ironicclient``
+    or other plugins) along with their installed versions.
