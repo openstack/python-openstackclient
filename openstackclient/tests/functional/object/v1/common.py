@@ -24,3 +24,16 @@ class ObjectStoreTests(base.TestCase):
     def setUpClass(cls):
         super().setUpClass()
         cls.haz_object_store = cls.is_service_enabled('object-store')
+
+    def get_properties(self, data):
+        # Swift metadata keys come from case-insensitive HTTP headers, whose
+        # casing can differ between the legacy client and the SDK.
+        return {
+            key.lower(): value
+            for key, value in data.get('properties', {}).items()
+        }
+
+    def setUp(self):
+        super().setUp()
+        if not self.haz_object_store:
+            self.skipTest('No object-store service present')
