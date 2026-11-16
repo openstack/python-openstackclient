@@ -11,8 +11,9 @@
 #    under the License.
 
 import os
-import tempfile
 import uuid
+
+import fixtures
 
 from openstackclient.tests.functional.object.v1 import common
 
@@ -31,12 +32,13 @@ class ObjectTests(common.ObjectStoreTests):
         # Skip tests if no object-store is present
         if not self.haz_object_store:
             self.skipTest("No object-store service present")
+        self.temp_dir = self.useFixture(fixtures.TempDir()).path
 
     def test_object(self):
-        with tempfile.NamedTemporaryFile(mode='w+') as f:
+        object_file = os.path.join(self.temp_dir, 'test-object')
+        with open(object_file, 'w') as f:
             f.write('test content')
-            f.flush()
-            self._test_object(f.name)
+        self._test_object(object_file)
 
     def _test_object(self, object_file):
         raw_output = self.openstack('container create ' + self.CONTAINER_NAME)
@@ -66,8 +68,7 @@ class ObjectTests(common.ObjectStoreTests):
         self.openstack(f'object save {self.CONTAINER_NAME} {object_file}')
         # TODO(stevemar): Assert returned fields
 
-        tmp_file = 'tmp.txt'
-        self.addCleanup(os.remove, tmp_file)
+        tmp_file = os.path.join(self.temp_dir, 'tmp.txt')
         self.openstack(
             f'object save {self.CONTAINER_NAME} {object_file} --file {tmp_file}'
         )
