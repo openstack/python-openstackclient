@@ -12,6 +12,7 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 
+import base64
 import copy
 import io
 import tempfile
@@ -21,6 +22,7 @@ from openstack.block_storage.v2 import volume as _volume
 from openstack import exceptions as sdk_exceptions
 from openstack.identity.v3 import domain as _domain
 from openstack.identity.v3 import project as _project
+from openstack.image import image_signer
 from openstack.test import fakes as sdk_fakes
 from osc_lib.cli import format_columns
 from osc_lib import exceptions
@@ -235,6 +237,112 @@ class TestImageCreate(image_fakes.TestImagev2, volume_fakes.TestVolume):
 
         self.assertEqual(self.expected_columns, columns)
         self.assertCountEqual(self.expected_data, data)
+
+    @mock.patch('openstackclient.image.v2.image.utils.get_password')
+    @mock.patch('openstackclient.image.v2.image.image_signer.ImageSigner')
+    def test_image_create_file_signed_mldsa(
+        self, mock_signer, mock_get_password
+    ):
+        imagefile = tempfile.NamedTemporaryFile(delete=False)
+        imagefile.write(b'\0')
+        imagefile.close()
+
+        signer = mock_signer.return_value
+        signer.generate_signature.return_value = b'signature'
+        signer.hash_method = 'SHA-256'
+        signer.padding_method = 'ML-DSA-65'
+        mock_get_password.return_value = None
+
+        arglist = [
+            '--file',
+            imagefile.name,
+            '--sign-key-path',
+            '/tmp/sign-key.pem',
+            '--sign-cert-id',
+            'sign-cert-id',
+            '--signature-algorithm',
+            'ML-DSA-65',
+            self.new_image.name,
+        ]
+        verifylist = [
+            ('filename', imagefile.name),
+            ('sign_key_path', '/tmp/sign-key.pem'),
+            ('sign_cert_id', 'sign-cert-id'),
+            ('signature_algorithm', 'ML-DSA-65'),
+            ('name', self.new_image.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+
+        mock_signer.assert_called_once_with(signature_algorithm='ML-DSA-65')
+        signer.load_private_key.assert_called_once_with(
+            '/tmp/sign-key.pem', password=None
+        )
+        self.image_client.create_image.assert_called_with(
+            name=self.new_image.name,
+            allow_duplicates=True,
+            container_format=_image.DEFAULT_CONTAINER_FORMAT,
+            disk_format=_image.DEFAULT_DISK_FORMAT,
+            filename=imagefile.name,
+            img_signature=base64.b64encode(b'signature'),
+            img_signature_certificate_uuid='sign-cert-id',
+            img_signature_hash_method='SHA-256',
+            img_signature_key_type='ML-DSA-65',
+        )
+
+    @mock.patch('openstackclient.image.v2.image.utils.get_password')
+    @mock.patch('openstackclient.image.v2.image.image_signer.ImageSigner')
+    def test_image_create_file_signed_default(
+        self, mock_signer, mock_get_password
+    ):
+        imagefile = tempfile.NamedTemporaryFile(delete=False)
+        imagefile.write(b'\0')
+        imagefile.close()
+
+        signer = mock_signer.return_value
+        signer.generate_signature.return_value = b'signature'
+        signer.hash_method = 'SHA-256'
+        signer.padding_method = image_signer.RSA_PSS
+        mock_get_password.return_value = None
+
+        arglist = [
+            '--file',
+            imagefile.name,
+            '--sign-key-path',
+            '/tmp/sign-key.pem',
+            '--sign-cert-id',
+            'sign-cert-id',
+            self.new_image.name,
+        ]
+        verifylist = [
+            ('filename', imagefile.name),
+            ('sign_key_path', '/tmp/sign-key.pem'),
+            ('sign_cert_id', 'sign-cert-id'),
+            (
+                'signature_algorithm',
+                image_signer.RSA_PSS,
+            ),
+            ('name', self.new_image.name),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        self.cmd.take_action(parsed_args)
+
+        mock_signer.assert_called_once_with(
+            signature_algorithm=image_signer.RSA_PSS
+        )
+        self.image_client.create_image.assert_called_with(
+            name=self.new_image.name,
+            allow_duplicates=True,
+            container_format=_image.DEFAULT_CONTAINER_FORMAT,
+            disk_format=_image.DEFAULT_DISK_FORMAT,
+            filename=imagefile.name,
+            img_signature=base64.b64encode(b'signature'),
+            img_signature_certificate_uuid='sign-cert-id',
+            img_signature_hash_method='SHA-256',
+            img_signature_key_type=image_signer.RSA_PSS,
+        )
 
     def test_image_create_file_with_size(self):
         imagefile = tempfile.NamedTemporaryFile(delete=False)

@@ -423,6 +423,16 @@ class CreateImage(command.ShowOne):
                 "Only use in combination with --sign-key-path"
             ),
         )
+        parser.add_argument(
+            '--signature-algorithm',
+            metavar='<signature-algorithm>',
+            choices=list(image_signer.SIGNATURE_ALGORITHMS),
+            default=image_signer.RSA_PSS,
+            help=_(
+                "Signature algorithm used when signing the image "
+                "(default: RSA-PSS)"
+            ),
+        )
         _add_is_protected_args(parser)
         _add_visibility_args(parser)
         parser.add_argument(
@@ -582,7 +592,9 @@ class CreateImage(command.ShowOne):
 
             sign_key_path = parsed_args.sign_key_path
             sign_cert_id = parsed_args.sign_cert_id
-            signer = image_signer.ImageSigner()
+            signer = image_signer.ImageSigner(
+                signature_algorithm=parsed_args.signature_algorithm
+            )
             try:
                 pw: str | None = utils.get_password(
                     self.app.stdin,

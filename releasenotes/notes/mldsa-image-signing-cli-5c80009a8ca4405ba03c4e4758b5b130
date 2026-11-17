@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Add the ``--signature-algorithm`` option to ``openstack image create``.
+    It supports ``RSA-PSS``, ``ML-DSA-44``, ``ML-DSA-65``, and ``ML-DSA-87``.
+    The default remains ``RSA-PSS``.
