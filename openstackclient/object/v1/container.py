@@ -36,12 +36,19 @@ class CreateContainer(command.Lister):
 
     def get_parser(self, prog_name: str) -> argparse.ArgumentParser:
         parser = super().get_parser(prog_name)
-        parser.add_argument(
+
+        read_acl_group = parser.add_mutually_exclusive_group()
+        read_acl_group.add_argument(
             '--public',
             action='store_true',
             default=False,
-            help="Make the container publicly accessible",
+            help="Make the container publicly readable",
         )
+        read_acl_group.add_argument(
+            '--read-acl',
+            help=_('Read ACL string'),
+        )
+
         parser.add_argument(
             '--storage-policy',
             help="Specify a particular storage policy to use.",
@@ -51,6 +58,10 @@ class CreateContainer(command.Lister):
             metavar='<container-name>',
             nargs="+",
             help=_('New container name(s)'),
+        )
+        parser.add_argument(
+            '--write-acl',
+            help=_('Write ACL string'),
         )
         return parser
 
@@ -69,6 +80,8 @@ class CreateContainer(command.Lister):
                 container=container,
                 public=parsed_args.public,
                 storage_policy=parsed_args.storage_policy,
+                read_acl=parsed_args.read_acl,
+                write_acl=parsed_args.write_acl,
             )
             results.append(data)
 
@@ -219,12 +232,19 @@ class SetContainer(command.Command):
         parser.add_argument(
             "--property",
             metavar="<key=value>",
-            required=True,
             action=parseractions.KeyValueAction,
             help=_(
                 "Set a property on this container "
                 "(repeat option to set multiple properties)"
             ),
+        )
+        parser.add_argument(
+            '--read-acl',
+            help=_('Read ACL string'),
+        )
+        parser.add_argument(
+            '--write-acl',
+            help=_('Write ACL string'),
         )
         return parser
 
@@ -232,6 +252,8 @@ class SetContainer(command.Command):
         self.app.client_manager.object_store.container_set(
             parsed_args.container,
             properties=parsed_args.property,
+            read_acl=parsed_args.read_acl,
+            write_acl=parsed_args.write_acl,
         )
 
 
@@ -273,7 +295,6 @@ class UnsetContainer(command.Command):
         parser.add_argument(
             '--property',
             metavar='<key>',
-            required=True,
             action='append',
             default=[],
             help=_(
@@ -281,10 +302,24 @@ class UnsetContainer(command.Command):
                 '(repeat option to remove multiple properties)'
             ),
         )
+        parser.add_argument(
+            '--read-acl',
+            action='store_true',
+            default=False,
+            help=_("Remove read ACL"),
+        )
+        parser.add_argument(
+            '--write-acl',
+            action='store_true',
+            default=False,
+            help=_("Remove write ACL"),
+        )
         return parser
 
     def take_action(self, parsed_args: argparse.Namespace) -> None:
         self.app.client_manager.object_store.container_unset(
             parsed_args.container,
             properties=parsed_args.property,
+            read_acl=parsed_args.read_acl,
+            write_acl=parsed_args.write_acl,
         )

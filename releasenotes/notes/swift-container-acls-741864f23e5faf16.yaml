@@ -1,0 +1,10 @@
+---
+features:
+  - |
+    The following commands now supports the ``--read-acl`` option and
+    the ``--write-acl`` option to manage read/write ACL strings of a swift
+    container.
+
+    - ``openstack container create``
+    - ``openstack container set``
+    - ``openstack container unset``

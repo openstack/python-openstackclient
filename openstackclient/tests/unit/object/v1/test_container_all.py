@@ -110,6 +110,47 @@ class TestContainerCreate(TestContainerAll):
         ]
         self.assertEqual(datalist, list(data))
 
+    def test_object_create_container_acl(self):
+        self.requests_mock.register_uri(
+            'PUT',
+            object_fakes.ENDPOINT + '/ernie',
+            headers={
+                'x-trans-id': '314159',
+                'x-container-read': '.r:*,.rlistings',
+                'x-container-write': '.r:*',
+            },
+            status_code=200,
+        )
+
+        arglist = [
+            'ernie',
+            '--read-acl',
+            '.r:*,.rlistings',
+            '--write-acl',
+            '.r:*',
+        ]
+        verifylist = [
+            ('containers', ['ernie']),
+            ('read_acl', '.r:*,.rlistings'),
+            ('write_acl', '.r:*'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # In base command class ShowOne in cliff, abstract method take_action()
+        # returns a two-part tuple with a tuple of column names and a tuple of
+        # data to be shown.
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.assertEqual(self.columns, columns)
+        datalist = [
+            (
+                object_fakes.ACCOUNT_ID,
+                'ernie',
+                '314159',
+            )
+        ]
+        self.assertEqual(datalist, list(data))
+
     def test_object_create_container_public(self):
         self.requests_mock.register_uri(
             'PUT',
@@ -185,6 +226,66 @@ class TestContainerCreate(TestContainerAll):
             ),
         ]
         self.assertEqual(datalist, list(data))
+
+
+class TestContainerSet(TestContainerAll):
+    def setUp(self):
+        super().setUp()
+
+        # Get the command object to test
+        self.cmd = container_cmds.SetContainer(self.app, None)
+
+    def test_object_set_container(self):
+        self.requests_mock.register_uri(
+            'POST',
+            object_fakes.ENDPOINT + '/ernie',
+            status_code=204,
+            headers={'x-object-meta-key': 'value'},
+        )
+
+        arglist = [
+            'ernie',
+            '--property',
+            'key=value',
+        ]
+        verifylist = [
+            ('container', 'ernie'),
+            ('property', {'key': 'value'}),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # Command.take_action() returns None
+        ret = self.cmd.take_action(parsed_args)
+        self.assertIsNone(ret)
+
+    def test_object_set_container_acl(self):
+        self.requests_mock.register_uri(
+            'POST',
+            object_fakes.ENDPOINT + '/ernie',
+            status_code=204,
+            headers={
+                'x-container-read': '.r:*,.rlistings',
+                'x-container-write': '.r:*',
+            },
+        )
+
+        arglist = [
+            'ernie',
+            '--read-acl',
+            '.r:*,.rlistings',
+            '--write-acl',
+            '.r:*',
+        ]
+        verifylist = [
+            ('container', 'ernie'),
+            ('read_acl', '.r:*,.rlistings'),
+            ('write_acl', '.r:*'),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # Command.take_action() returns None
+        ret = self.cmd.take_action(parsed_args)
+        self.assertIsNone(ret)
 
 
 class TestContainerDelete(TestContainerAll):
@@ -426,3 +527,86 @@ class TestContainerShow(TestContainerAll):
             'wsx',
         ]
         self.assertEqual(datalist, list(data))
+
+
+class TestContainerUnet(TestContainerAll):
+    def setUp(self):
+        super().setUp()
+
+        # Get the command object to test
+        self.cmd = container_cmds.UnsetContainer(self.app, None)
+
+    def test_object_unset_container(self):
+        self.requests_mock.register_uri(
+            'POST',
+            object_fakes.ENDPOINT + '/ernie',
+            status_code=204,
+            headers={'x-remove-object-meta-key': 'x'},
+        )
+
+        arglist = [
+            'ernie',
+            '--property',
+            'key',
+        ]
+        verifylist = [
+            ('container', 'ernie'),
+            ('property', ['key']),
+            ('read_acl', False),
+            ('write_acl', False),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # Command.take_action() returns None
+        ret = self.cmd.take_action(parsed_args)
+        self.assertIsNone(ret)
+
+    def test_object_unset_container_read_acl(self):
+        self.requests_mock.register_uri(
+            'POST',
+            object_fakes.ENDPOINT + '/ernie',
+            status_code=204,
+            headers={
+                'x-remove-container-read': 'x',
+            },
+        )
+
+        arglist = [
+            'ernie',
+            '--read-acl',
+        ]
+        verifylist = [
+            ('container', 'ernie'),
+            ('read_acl', True),
+            ('write_acl', False),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # Command.take_action() returns None
+        ret = self.cmd.take_action(parsed_args)
+        self.assertIsNone(ret)
+
+    def test_object_unset_container_write_acl(self):
+        self.requests_mock.register_uri(
+            'POST',
+            object_fakes.ENDPOINT + '/ernie',
+            status_code=204,
+            headers={
+                'x-remove-container-write': 'x',
+            },
+        )
+
+        arglist = [
+            'ernie',
+            '--write-acl',
+        ]
+        verifylist = [
+            ('container', 'ernie'),
+            ('read_acl', False),
+            ('write_acl', True),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        # Command.take_action() returns None
+        ret = self.cmd.take_action(parsed_args)
+        self.assertIsNone(ret)

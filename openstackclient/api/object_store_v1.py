@@ -40,6 +40,8 @@ class APIv1(api.BaseAPI):
         container: str,
         public: bool = False,
         storage_policy: str | None = None,
+        read_acl: str | None = None,
+        write_acl: str | None = None,
     ) -> dict[str, Any | None]:
         """Create a container
 
@@ -51,6 +53,10 @@ class APIv1(api.BaseAPI):
         :param string storage_policy:
             Name of the a specific storage policy to use. If not specified
             swift will use its default storage policy.
+        :param string read_acl:
+            read ACL string. Ignored when public is True.
+        :param string write_acl:
+            write ACL string.
         :returns:
             dict of returned headers
         """
@@ -58,6 +64,12 @@ class APIv1(api.BaseAPI):
         headers = {}
         if public:
             headers['x-container-read'] = ",".join(PUBLIC_CONTAINER_ACLS)
+        elif read_acl:
+            headers['x-container-read'] = read_acl
+
+        if write_acl:
+            headers['x-container-write'] = write_acl
+
         if storage_policy is not None:
             headers['x-storage-policy'] = storage_policy
 
@@ -159,7 +171,9 @@ class APIv1(api.BaseAPI):
     def container_set(
         self,
         container: str,
-        properties: dict[str, str],
+        properties: dict[str, str] | None = None,
+        read_acl: str | None = None,
+        write_acl: str | None = None,
     ) -> None:
         """Set container properties
 
@@ -167,9 +181,21 @@ class APIv1(api.BaseAPI):
             name of container to modify
         :param dict properties:
             properties to add or update for the container
+        :param string read_acl:
+            read ACL string.
+        :param string write_acl:
+            write ACL string.
         """
 
-        headers = self._set_properties(properties, 'X-Container-Meta-%s')
+        headers = {}
+        if properties:
+            headers.update(
+                self._set_properties(properties, 'X-Container-Meta-%s')
+            )
+        if read_acl:
+            headers['x-container-read'] = read_acl
+        if write_acl:
+            headers['x-container-write'] = write_acl
         if headers:
             self.create(urllib.parse.quote(container), headers=headers)
 
@@ -211,7 +237,9 @@ class APIv1(api.BaseAPI):
     def container_unset(
         self,
         container: str,
-        properties: dict[str, str],
+        properties: dict[str, str] | None = None,
+        read_acl: bool = False,
+        write_acl: bool = False,
     ) -> None:
         """Unset container properties
 
@@ -219,11 +247,23 @@ class APIv1(api.BaseAPI):
             name of container to modify
         :param dict properties:
             properties to remove from the container
+        :param dict read_acl:
+            whether to unset read ACL
+        :param dict write_acl:
+            whether to unset write ACL
         """
 
-        headers = self._unset_properties(
-            properties, 'X-Remove-Container-Meta-%s'
-        )
+        headers = {}
+        if properties:
+            headers.update(
+                self._unset_properties(
+                    properties, 'X-Remove-Container-Meta-%s'
+                )
+            )
+        if read_acl:
+            headers['x-remova-container-read'] = 'x'
+        if write_acl:
+            headers['x-remova-container-write'] = 'x'
         if headers:
             self.create(urllib.parse.quote(container), headers=headers)
 
