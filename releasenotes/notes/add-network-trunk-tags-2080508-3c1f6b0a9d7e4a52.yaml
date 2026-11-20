@@ -1,0 +1,12 @@
+---
+features:
+  - |
+    Added support for tags on network trunks.
+
+    - Add ``--tag`` and ``--no-tag`` options to the ``network trunk create``
+      and ``network trunk set`` commands.
+    - Add ``--tag`` and ``--all-tag`` options to the ``network trunk unset``
+      command. The ``--subport`` option of this command is no longer required.
+    - Add ``--tags``, ``--any-tags``, ``--not-tags`` and ``--not-any-tags``
+      options to the ``network trunk list`` command, and a ``Tags`` column
+      to its ``--long`` output.

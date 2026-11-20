@@ -68,7 +68,7 @@ class TestCreateNetworkTrunk(network_fakes.TestNetworkV2):
         new_trunk.project_id,
         new_trunk.status,
         format_columns.ListDictColumn(new_trunk.sub_ports),
-        [],
+        format_columns.ListColumn([]),
     )
 
     def setUp(self):
@@ -173,6 +173,40 @@ class TestCreateNetworkTrunk(network_fakes.TestNetworkV2):
         data_with_desc[0] = self.new_trunk['description']
         data_with_desc = tuple(data_with_desc)
         self.assertEqual(data_with_desc, data)
+
+    def _test_create_with_tag(self, add_tags=True):
+        arglist = ['--parent-port', self.new_trunk.port_id]
+        if add_tags:
+            arglist += ['--tag', 'red', '--tag', 'blue']
+        else:
+            arglist += ['--no-tag']
+        arglist.append(self.new_trunk.name)
+        verifylist = [
+            ('parent_port', self.new_trunk.port_id),
+            ('name', self.new_trunk.name),
+        ]
+        if add_tags:
+            verifylist.append(('tags', ['red', 'blue']))
+        else:
+            verifylist.append(('no_tag', True))
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, _data = self.cmd.take_action(parsed_args)
+
+        self.network_client.create_trunk.assert_called_once()
+        if add_tags:
+            self.network_client.set_tags.assert_called_once_with(
+                self.new_trunk, test_utils.CompareBySet(['red', 'blue'])
+            )
+        else:
+            self.assertFalse(self.network_client.set_tags.called)
+        self.assertEqual(self.columns, columns)
+
+    def test_create_with_tags(self):
+        self._test_create_with_tag(add_tags=True)
+
+    def test_create_with_no_tag(self):
+        self._test_create_with_tag(add_tags=False)
 
     def test_create_trunk_with_subport_invalid_segmentation_id_fail(self):
         subport = self.new_trunk.sub_ports[0]
@@ -399,7 +433,7 @@ class TestShowNetworkTrunk(network_fakes.TestNetworkV2):
         new_trunk.project_id,
         new_trunk.status,
         format_columns.ListDictColumn(new_trunk.sub_ports),
-        [],
+        format_columns.ListColumn([]),
     )
 
     def setUp(self):
@@ -456,7 +490,14 @@ class TestListNetworkTrunk(network_fakes.TestNetworkV2):
     )
 
     columns = ('ID', 'Name', 'Parent Port', 'Description')
-    columns_long = (*columns, 'Status', 'State', 'Created At', 'Updated At')
+    columns_long = (
+        *columns,
+        'Status',
+        'State',
+        'Created At',
+        'Updated At',
+        'Tags',
+    )
     data = []
     for t in new_trunks:
         data.append((t['id'], t['name'], t['port_id'], t['description']))
@@ -472,6 +513,7 @@ class TestListNetworkTrunk(network_fakes.TestNetworkV2):
                 network_trunk.AdminStateColumn(''),
                 '2001-01-01 00:00:00',
                 '2001-01-01 00:00:00',
+                format_columns.ListColumn(t['tags']),
             )
         )
 
@@ -510,6 +552,38 @@ class TestListNetworkTrunk(network_fakes.TestNetworkV2):
         self.network_client.trunks.assert_called_once_with()
         self.assertEqual(self.columns_long, columns)
         self.assertEqual(self.data_long, list(data))
+
+    def test_trunk_list_with_tag_options(self):
+        arglist = [
+            '--tags',
+            'red,blue',
+            '--any-tags',
+            'red,green',
+            '--not-tags',
+            'orange,yellow',
+            '--not-any-tags',
+            'black,white',
+        ]
+        verifylist = [
+            ('tags', ['red', 'blue']),
+            ('any_tags', ['red', 'green']),
+            ('not_tags', ['orange', 'yellow']),
+            ('not_any_tags', ['black', 'white']),
+        ]
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.network_client.trunks.assert_called_once_with(
+            **{
+                'tags': 'red,blue',
+                'any_tags': 'red,green',
+                'not_tags': 'orange,yellow',
+                'not_any_tags': 'black,white',
+            }
+        )
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, list(data))
 
 
 class TestSetNetworkTrunk(network_fakes.TestNetworkV2):
@@ -802,6 +876,33 @@ class TestSetNetworkTrunk(network_fakes.TestNetworkV2):
             self._trunk, [{'port_id': 'invalid_subport'}]
         )
 
+    def _test_set_tags(self, with_tags=True):
+        if with_tags:
+            arglist = ['--tag', 'red', '--tag', 'blue']
+            verifylist = [('tags', ['red', 'blue'])]
+            expected_args = ['red', 'blue', 'green']
+        else:
+            arglist = ['--no-tag']
+            verifylist = [('no_tag', True)]
+            expected_args = []
+        arglist.append(self._trunk['name'])
+        verifylist.append(('trunk', self._trunk['name']))
+        self._trunk.tags = ['green']
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+
+        self.network_client.set_tags.assert_called_once_with(
+            self._trunk, test_utils.CompareBySet(expected_args)
+        )
+        self.assertIsNone(result)
+
+    def test_set_with_tags(self):
+        self._test_set_tags(with_tags=True)
+
+    def test_set_with_no_tag(self):
+        self._test_set_tags(with_tags=False)
+
 
 class TestListNetworkSubport(network_fakes.TestNetworkV2):
     _trunk = network_fakes.create_one_trunk()
@@ -928,20 +1029,49 @@ class TestUnsetNetworkTrunk(network_fakes.TestNetworkV2):
         )
         self.assertIsNone(result)
 
-    def test_unset_subport_no_arguments_fail(self):
+    def test_unset_no_arguments(self):
         arglist = [
             self._trunk['name'],
         ]
         verifylist = [
             ('trunk', self._trunk['name']),
+            ('unset_subports', None),
         ]
-        self.assertRaises(
-            test_utils.ParserException,
-            self.check_parser,
-            self.cmd,
-            arglist,
-            verifylist,
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        result = self.cmd.take_action(parsed_args)
+
+        self.assertFalse(self.network_client.delete_trunk_subports.called)
+        self.assertFalse(self.network_client.set_tags.called)
+        self.assertIsNone(result)
+
+    def _test_unset_tags(self, with_tags=True):
+        if with_tags:
+            arglist = ['--tag', 'red', '--tag', 'blue']
+            verifylist = [('tags', ['red', 'blue'])]
+            expected_args = ['green']
+        else:
+            arglist = ['--all-tag']
+            verifylist = [('all_tag', True)]
+            expected_args = []
+        arglist.append(self._trunk['name'])
+        verifylist.append(('trunk', self._trunk['name']))
+        self._trunk.tags = ['green', 'red', 'blue']
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        result = self.cmd.take_action(parsed_args)
+
+        self.assertFalse(self.network_client.delete_trunk_subports.called)
+        self.network_client.set_tags.assert_called_once_with(
+            self._trunk, test_utils.CompareBySet(expected_args)
         )
+        self.assertIsNone(result)
+
+    def test_unset_with_tags(self):
+        self._test_unset_tags(with_tags=True)
+
+    def test_unset_with_all_tag(self):
+        self._test_unset_tags(with_tags=False)
 
 
 class TestListNetworkTrunkSubport(network_fakes.TestNetworkV2):
