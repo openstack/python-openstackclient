@@ -52,6 +52,7 @@ class TestCreateNetworkSegmentRange(network_fakes.TestNetworkV2):
         'physical_network',
         'project_id',
         'shared',
+        'tags',
         'used',
     )
 
@@ -66,6 +67,7 @@ class TestCreateNetworkSegmentRange(network_fakes.TestNetworkV2):
         _network_segment_range.physical_network,
         _network_segment_range.project_id,
         _network_segment_range.shared,
+        _network_segment_range.tags,
         {'3312e4ba67864b2eb53f3f41432f8efc': ['104', '106']},
     )
 
@@ -658,6 +660,7 @@ class TestShowNetworkSegmentRange(network_fakes.TestNetworkV2):
         'physical_network',
         'project_id',
         'shared',
+        'tags',
         'used',
     )
 
@@ -672,6 +675,7 @@ class TestShowNetworkSegmentRange(network_fakes.TestNetworkV2):
         _network_segment_range.physical_network,
         _network_segment_range.project_id,
         _network_segment_range.shared,
+        _network_segment_range.tags,
         {'3312e4ba67864b2eb53f3f41432f8efc': ['104', '106']},
     )
 
