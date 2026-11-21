@@ -87,6 +87,14 @@ class CreateServiceProvider(command.ShowOne):
             ),
         )
 
+        parser.add_argument(
+            '--relay-state-prefix',
+            metavar='<relay-state-prefix>',
+            help=_(
+                'Prefix for the RelayState value in ECP-wrapped SAML messages'
+            ),
+        )
+
         enable_service_provider = parser.add_mutually_exclusive_group()
         enable_service_provider.add_argument(
             '--enable',
@@ -126,6 +134,9 @@ class CreateServiceProvider(command.ShowOne):
 
         if parsed_args.service_provider_url:
             kwargs['sp_url'] = parsed_args.service_provider_url
+
+        if parsed_args.relay_state_prefix is not None:
+            kwargs['relay_state_prefix'] = parsed_args.relay_state_prefix
 
         sp = service_client.create_service_provider(**kwargs)
 
@@ -232,6 +243,13 @@ class SetServiceProvider(command.ShowOne):
             metavar='<sp-url>',
             help=_('New service provider URL, where SAML assertions are sent'),
         )
+        parser.add_argument(
+            '--relay-state-prefix',
+            metavar='<relay-state-prefix>',
+            help=_(
+                'Prefix for the RelayState value in ECP-wrapped SAML messages'
+            ),
+        )
         enable_service_provider = parser.add_mutually_exclusive_group()
         enable_service_provider.add_argument(
             '--enable',
@@ -269,6 +287,9 @@ class SetServiceProvider(command.ShowOne):
 
         if parsed_args.service_provider_url:
             kwargs['sp_url'] = parsed_args.service_provider_url
+
+        if parsed_args.relay_state_prefix is not None:
+            kwargs['relay_state_prefix'] = parsed_args.relay_state_prefix
 
         service_provider = service_client.update_service_provider(
             parsed_args.service_provider,

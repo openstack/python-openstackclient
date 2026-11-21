@@ -114,6 +114,34 @@ class TestServiceProviderCreate(service_fakes.TestFederatedIdentity):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 
+    def test_create_service_provider_relay_state_prefix(self) -> None:
+        for prefix in ('ss:mem:', ''):
+            with self.subTest(prefix=prefix):
+                arglist = [
+                    '--auth-url',
+                    self.service_provider.auth_url,
+                    '--service-provider-url',
+                    self.service_provider.sp_url,
+                    '--relay-state-prefix',
+                    prefix,
+                    self.service_provider.id,
+                ]
+                verifylist = [('relay_state_prefix', prefix)]
+                parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+                columns, data = self.cmd.take_action(parsed_args)
+
+                self.identity_sdk_client.create_service_provider.assert_called_once_with(
+                    id=self.service_provider.id,
+                    is_enabled=True,
+                    auth_url=self.service_provider.auth_url,
+                    sp_url=self.service_provider.sp_url,
+                    relay_state_prefix=prefix,
+                )
+                self.assertEqual(self.columns, columns)
+                self.assertEqual(self.data, data)
+                self.identity_sdk_client.create_service_provider.reset_mock()
+
     def test_create_service_provider_disabled(self):
         arglist = [
             '--auth-url',
@@ -291,6 +319,27 @@ class TestServiceProviderSet(service_fakes.TestFederatedIdentity):
         self.assertEqual(columns, self.columns)
         self.assertEqual(data, self.data)
 
+    def test_service_provider_relay_state_prefix(self) -> None:
+        for prefix in ('ss:mem:', ''):
+            with self.subTest(prefix=prefix):
+                arglist = [
+                    '--relay-state-prefix',
+                    prefix,
+                    self.service_provider.id,
+                ]
+                verifylist = [('relay_state_prefix', prefix)]
+                parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+                columns, data = self.cmd.take_action(parsed_args)
+
+                self.identity_sdk_client.update_service_provider.assert_called_once_with(
+                    self.service_provider.id,
+                    relay_state_prefix=prefix,
+                )
+                self.assertEqual(self.columns, columns)
+                self.assertEqual(self.data, data)
+                self.identity_sdk_client.update_service_provider.reset_mock()
+
     def test_service_provider_no_options(self):
         arglist = [
             self.service_provider.id,
@@ -301,9 +350,13 @@ class TestServiceProviderSet(service_fakes.TestFederatedIdentity):
             ('is_enabled', None),
             ('auth_url', None),
             ('service_provider_url', None),
+            ('relay_state_prefix', None),
         ]
         parsed_args = self.check_parser(self.cmd, arglist, verifylist)
         columns, data = self.cmd.take_action(parsed_args)
+        self.identity_sdk_client.update_service_provider.assert_called_once_with(
+            self.service_provider.id,
+        )
         self.assertEqual(columns, self.columns)
         self.assertEqual(data, self.data)
 
