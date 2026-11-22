@@ -21,6 +21,7 @@ import logging
 from typing import Any
 
 from cliff import columns as cliff_columns
+from openstack.block_storage import v3 as block_storage_v3
 from openstack.block_storage.v3 import snapshot as _snapshot
 from openstack import utils as sdk_utils
 from osc_lib.cli import format_columns
@@ -65,24 +66,31 @@ class VolumeIdColumn(cliff_columns.FormattableColumn[str]):
         return volume
 
 
-def _format_snapshot(snapshot: _snapshot.Snapshot) -> dict[str, object]:
+def _format_snapshot(
+    snapshot: _snapshot.Snapshot, volume_client: block_storage_v3.Proxy
+) -> dict[str, object]:
     # Some columns returned by openstacksdk should not be shown because they're
     # either irrelevant or duplicates
     ignored_columns = {
         # computed columns
         'location',
         # create-only columns
-        'consumes_quota',
         'force',
-        'group_snapshot_id',
         # ignored columns
         'os-extended-snapshot-attributes:progress',
         'os-extended-snapshot-attributes:project_id',
         'updated_at',
-        'user_id',
         # unnecessary columns
         'links',
     }
+
+    for field, microversion in (
+        ('group_snapshot_id', '3.14'),
+        ('user_id', '3.41'),
+        ('consumes_quota', '3.65'),
+    ):
+        if not sdk_utils.supports_microversion(volume_client, microversion):
+            ignored_columns.add(field)
 
     info = snapshot.to_dict(original_names=True)
     data = {}
@@ -205,7 +213,7 @@ class CreateVolumeSnapshot(command.ShowOne):
                     metadata=parsed_args.properties,
                 )
 
-        data = _format_snapshot(snapshot)
+        data = _format_snapshot(snapshot, volume_client)
         col_headers, col_data = zip(*sorted(data.items()))
         return col_headers, col_data
 
@@ -570,7 +578,7 @@ class ShowVolumeSnapshot(command.ShowOne):
             parsed_args.snapshot, ignore_missing=False
         )
 
-        data = _format_snapshot(snapshot)
+        data = _format_snapshot(snapshot, volume_client)
         col_headers, col_data = zip(*sorted(data.items()))
         return col_headers, col_data
 
