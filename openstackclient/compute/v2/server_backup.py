@@ -77,6 +77,7 @@ class CreateServerBackup(command.ShowOne):
                 self.app.stderr.flush()
 
         compute_client = self.app.client_manager.compute
+        image_client = self.app.client_manager.image
 
         server = compute_client.find_server(
             parsed_args.server, ignore_missing=False
@@ -96,26 +97,25 @@ class CreateServerBackup(command.ShowOne):
         else:
             backup_rotation = parsed_args.rotate
 
-        compute_client.backup_server(
+        image_id = compute_client.backup_server(
             server.id,
             backup_name,
             backup_type,
             backup_rotation,
-        )
-
-        image_client = self.app.client_manager.image
-        image = image_client.find_image(backup_name, ignore_missing=False)
+        ).id
 
         if parsed_args.wait:
             if utils.wait_for_status(
                 image_client.get_image,
-                image.id,
+                image_id,
                 callback=_show_progress,
             ):
                 self.app.stdout.write('\n')
             else:
                 msg = _('Error creating server backup: %s') % parsed_args.name
                 raise exceptions.CommandError(msg)
+
+        image = image_client.find_image(image_id, ignore_missing=False)
 
         if self.app.client_manager._api_version['image'] == '1':
             info = {}

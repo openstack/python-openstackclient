@@ -56,6 +56,7 @@ class TestServerBackupCreate(compute_fakes.TestCompute):
         self.image = image_fakes.create_one_image(
             {'name': self.server.name, 'status': 'active'}
         )
+        self.compute_client.backup_server.return_value = self.image
         self.image_client.find_image.return_value = self.image
 
         # Get the command object to test
@@ -124,8 +125,6 @@ class TestServerBackupCreate(compute_fakes.TestCompute):
 
     @mock.patch.object(common_utils, 'wait_for_status', return_value=False)
     def test_server_backup_wait_fail(self, mock_wait_for_status):
-        self.image_client.get_image.return_value = self.image
-
         arglist = [
             '--name',
             'image',
@@ -161,8 +160,6 @@ class TestServerBackupCreate(compute_fakes.TestCompute):
 
     @mock.patch.object(common_utils, 'wait_for_status', return_value=True)
     def test_server_backup_wait_ok(self, mock_wait_for_status):
-        self.image_client.get_image.side_effect = (self.image,)
-
         arglist = [
             '--name',
             'image',
