@@ -93,6 +93,45 @@ class TestConsistencyGroupSnapshotCreate(volume_fakes.TestVolume):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.data, data)
 
+    def test_consistency_group_snapshot_create_missing_source(self) -> None:
+        for arglist in ([], ['--description', 'A snapshot']):
+            with self.subTest(arglist=arglist):
+                parsed_args = self.check_parser(self.cmd, arglist, [])
+
+                exc = self.assertRaises(
+                    exceptions.CommandError,
+                    self.cmd.take_action,
+                    parsed_args,
+                )
+
+                self.assertEqual(
+                    "Either --consistency-group or <snapshot-name> is "
+                    "required to create a consistency group snapshot.",
+                    str(exc),
+                )
+                self.volume_client.find_consistency_group.assert_not_called()
+                self.volume_client.create_consistency_group_snapshot.assert_not_called()
+
+    def test_consistency_group_snapshot_create_no_name(self) -> None:
+        parsed_args = self.check_parser(
+            self.cmd,
+            ['--consistency-group', self.consistency_group.id],
+            [('snapshot_name', None)],
+        )
+
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.volume_client.find_consistency_group.assert_called_once_with(
+            self.consistency_group.id, ignore_missing=False
+        )
+        self.volume_client.create_consistency_group_snapshot.assert_called_once_with(
+            consistencygroup_id=self.consistency_group.id,
+            name=None,
+            description=None,
+        )
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.data, data)
+
     def test_consistency_group_snapshot_create_no_consistency_group(self):
         arglist = [
             '--description',

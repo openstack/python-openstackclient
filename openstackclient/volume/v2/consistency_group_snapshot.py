@@ -86,6 +86,13 @@ class CreateConsistencyGroupSnapshot(command.ShowOne):
             # If "--consistency-group" not specified, then consistency_group
             # will be the same as the new consistency group snapshot name
             consistency_group = parsed_args.snapshot_name
+        if not consistency_group:
+            msg = _(
+                "Either --consistency-group or <snapshot-name> is required "
+                "to create a consistency group snapshot."
+            )
+            raise exceptions.CommandError(msg)
+
         consistency_group_id = volume_client.find_consistency_group(
             consistency_group, ignore_missing=False
         ).id
