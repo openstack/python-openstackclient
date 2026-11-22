@@ -1,0 +1,13 @@
+---
+features:
+  - |
+    Added commands to manage explicit per-project default volume type
+    overrides:
+
+    * ``volume type default set``
+    * ``volume type default unset``
+    * ``volume type default list``
+    * ``volume type default show``
+
+    These commands require ``--os-volume-api-version 3.67`` or greater and
+    administrative privileges under Cinder's default policies.

@@ -31,6 +31,10 @@ consisgroup-list,consistency group list,Lists all consistencygroups.
 consisgroup-show,consistency group show,Shows details of a consistency group.
 consisgroup-update,consistency group set,Updates a consistencygroup.
 create,volume create,Creates a volume.
+default-type-set,volume type default set,Sets a default volume type for a project.
+default-type-unset,volume type default unset,Unset default volume type for a project.
+default-type-list,volume type default list,Lists all default volume types.
+default-type-list --project-id,volume type default show,Show default volume type for a project.
 delete,volume delete,Removes one or more volumes.
 encryption-type-create,volume type create --encryption-provider --enc..,Creates encryption type for a volume type. Admin only.
 encryption-type-delete,volume type delete,Deletes encryption type for a volume type. Admin only.

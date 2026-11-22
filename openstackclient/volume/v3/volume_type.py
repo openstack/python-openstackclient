@@ -447,7 +447,12 @@ class ListVolumeType(command.Lister):
             "--default",
             action='store_true',
             default=False,
-            help=_('List the default volume type'),
+            help=_(
+                'Show the effective default volume type for the current '
+                'project, falling back to the deployment-wide default if '
+                'no project override is configured. Use "volume type '
+                'default" commands to manage project overrides.'
+            ),
         )
         public_group.add_argument(
             "--public",
