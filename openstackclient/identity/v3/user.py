@@ -801,7 +801,8 @@ class ShowUser(command.ShowOne):
         parser.add_argument(
             'user',
             metavar='<user>',
-            help=_('User to display (name or ID)'),
+            nargs='?',
+            help=_('User to display (name or ID) (defaults to current user)'),
         )
         parser.add_argument(
             '--domain',
@@ -817,8 +818,17 @@ class ShowUser(command.ShowOne):
             self.app.client_manager.sdk_connection.identity, '3'
         )
 
+        user_id = parsed_args.user
+        if user_id is None:
+            auth_ref = self.app.client_manager.auth_ref
+            if not auth_ref or not auth_ref.user_id:
+                raise exceptions.CommandError(
+                    _('No current user available. Specify a user explicitly.')
+                )
+            user_id = auth_ref.user_id
+
         user_str = common._get_token_resource(
-            identity_client, 'user', parsed_args.user, parsed_args.domain
+            identity_client, 'user', user_id, parsed_args.domain
         )
 
         domain = None

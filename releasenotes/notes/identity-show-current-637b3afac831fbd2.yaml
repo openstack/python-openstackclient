@@ -1,0 +1,8 @@
+---
+features:
+  - |
+    The Identity v3 ``user show`` and ``project show`` commands now default to
+    the authenticated user and project, respectively, when no name or ID is
+    supplied. If authentication does not provide the corresponding ID (for
+    example, a project ID with an unscoped or system-scoped token), an explicit
+    argument is required.

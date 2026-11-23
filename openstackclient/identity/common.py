@@ -150,16 +150,18 @@ def _get_token_resource(
     the CLI using names. However, by default, keystone does not allow look up
     by name since it would involve listing all entities. Instead opt to use
     the correct ID (from the token) instead.
+
     :param client: An identity client
-    :param resource: A resource to look at in the token, this may be `domain`,
-                     `project_domain`, `user_domain`, `project`, or `user`.
+    :param resource: A resource to look at in the token, this may be
+        ``domain``, ``project_domain``, ``user_domain``, ``project``, or
+        ``user``.
     :param parsed_name: This is input from parsed_args that the user is hoping
-                        to find in the token.
+        to find in the token.
     :param parsed_domain: This is domain filter from parsed_args that used to
-                          filter the results.
+        filter the results.
 
     :returns: The ID of the resource from the token, or the original value from
-              parsed_args if it does not match.
+        parsed_args if it does not match.
     """
 
     try:
@@ -175,6 +177,7 @@ def _get_token_resource(
         # user/project under different domain may has a same name
         if parsed_domain and parsed_domain not in obj['domain'].values():
             return parsed_name
+
         if isinstance(obj, list):
             for item in obj:
                 if item['name'] == parsed_name:

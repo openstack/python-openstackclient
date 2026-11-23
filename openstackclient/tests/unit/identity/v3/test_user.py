@@ -1853,6 +1853,58 @@ class TestUserShow(identity_fakes.TestIdentity):
             }
         }
 
+    def test_user_show_current(self):
+        self.app.client_manager.auth_ref = mock.Mock(user_id=self.user.id)
+        parsed_args = self.check_parser(self.cmd, [], [('user', None)])
+
+        _columns, data = self.cmd.take_action(parsed_args)
+
+        self.identity_sdk_client.find_user.assert_called_with(
+            name_or_id=self.user.id, ignore_missing=False
+        )
+        self.assertIn(self.user.id, data)
+
+    def test_user_show_current_with_domain(self):
+        domain = sdk_fakes.generate_fake_resource(_domain.Domain)
+        self.identity_sdk_client.find_domain.return_value = domain
+        self.app.client_manager.auth_ref = mock.Mock(user_id=self.user.id)
+        parsed_args = self.check_parser(
+            self.cmd, ['--domain', domain.id], [('user', None)]
+        )
+
+        self.cmd.take_action(parsed_args)
+
+        self.identity_sdk_client.find_user.assert_called_with(
+            name_or_id=self.user.id,
+            domain_id=domain.id,
+            ignore_missing=False,
+        )
+
+    def test_user_show_no_current(self):
+        for auth_ref in (None, mock.Mock(user_id=None)):
+            with self.subTest(auth_ref=auth_ref):
+                self.app.client_manager.auth_ref = auth_ref
+                parsed_args = self.check_parser(self.cmd, [], [])
+
+                self.assertRaisesRegex(
+                    exceptions.CommandError,
+                    'No current user available',
+                    self.cmd.take_action,
+                    parsed_args,
+                )
+
+                self.identity_sdk_client.find_user.assert_not_called()
+
+    def test_user_show_explicit_without_auth_ref(self):
+        self.app.client_manager.auth_ref = None
+        parsed_args = self.check_parser(self.cmd, [self.user.id], [])
+
+        self.cmd.take_action(parsed_args)
+
+        self.identity_sdk_client.find_user.assert_called_with(
+            name_or_id=self.user.id, ignore_missing=False
+        )
+
     def test_user_show(self):
         arglist = [
             self.user.id,
