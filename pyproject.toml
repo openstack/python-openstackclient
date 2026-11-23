@@ -98,6 +98,7 @@ identity = "openstackclient.identity.client"
 image = "openstackclient.image.client"
 network = "openstackclient.network.client"
 object_store = "openstackclient.object.client"
+placement = "openstackclient.placement.client"
 volume = "openstackclient.volume.client"
 
 [project.entry-points."openstack.common"]
@@ -760,6 +761,11 @@ object_show = "openstackclient.object.v1.object:ShowObject"
 object_unset = "openstackclient.object.v1.object:UnsetObject"
 
 [project.entry-points."openstack.placement.v1"]
+resource_class_list = "openstackclient.placement.v1.resource_class:ListResourceClass"
+resource_class_create = "openstackclient.placement.v1.resource_class:CreateResourceClass"
+resource_class_set = "openstackclient.placement.v1.resource_class:SetResourceClass"
+resource_class_show = "openstackclient.placement.v1.resource_class:ShowResourceClass"
+resource_class_delete = "openstackclient.placement.v1.resource_class:DeleteResourceClass"
 
 [project.entry-points."openstack.share.v2"]
 share_group_create = "openstackclient.share.v2.share_groups:CreateShareGroup"

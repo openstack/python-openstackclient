@@ -28,6 +28,11 @@ LOG = logging.getLogger(__name__)
 
 def execute(cmd: str, *, fail_ok: bool = False) -> str:
     """Executes specified command for the given action."""
+    return execute_with_stderr(cmd, fail_ok=fail_ok)[0]
+
+
+def execute_with_stderr(cmd: str, *, fail_ok: bool = False) -> tuple[str, str]:
+    """Execute a command, returning both stdout and stderr."""
     LOG.debug('Executing: %s', cmd)
     cmdlist = shlex.split(cmd)
     stdout = subprocess.PIPE
@@ -51,10 +56,15 @@ def execute(cmd: str, *, fail_ok: bool = False) -> str:
             result_err,
         )
 
-    return result_out
+    return result_out, result_err.decode('utf-8')
 
 
 class TestCase(testtools.TestCase):
+    @staticmethod
+    def execute(cmd: str, *, fail_ok: bool = False) -> str:
+        """Execute a command, allowing subclasses to override the transport."""
+        return execute(cmd, fail_ok=fail_ok)
+
     @overload
     @classmethod
     def openstack(
@@ -115,7 +125,7 @@ class TestCase(testtools.TestCase):
         if parse_output:
             format_args.append('-f json')
 
-        output = execute(
+        output = cls.execute(
             ' '.join(['openstack', *auth_args, cmd, *format_args]),
             fail_ok=fail_ok,
         )
