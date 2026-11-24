@@ -156,6 +156,11 @@ def _get_attrs(
     # Update DNS network options
     if parsed_args.dns_domain is not None:
         attrs['dns_domain'] = parsed_args.dns_domain
+    # EVPN VNI
+    if getattr(parsed_args, 'auto_evpn_vni', False):
+        attrs['evpn_vni'] = 0
+    elif getattr(parsed_args, 'evpn_vni', None) is not None:
+        attrs['evpn_vni'] = parsed_args.evpn_vni
     return attrs
 
 
@@ -354,6 +359,22 @@ class CreateNetwork(command.ShowOne, common.NeutronCommandWithExtraArgs):
                 "Disable Private VLAN for the network "
                 "(PVLAN extension required)"
             ),
+        )
+
+        evpn_vni_group = parser.add_mutually_exclusive_group()
+        evpn_vni_group.add_argument(
+            '--auto-evpn-vni',
+            action='store_true',
+            default=False,
+            help=_(
+                "Enable EVPN on the network with an automatically assigned VNI"
+            ),
+        )
+        evpn_vni_group.add_argument(
+            '--evpn-vni',
+            metavar='<vni>',
+            type=int,
+            help=_("Enable EVPN on the network with the specified VNI"),
         )
 
         _add_additional_network_options(parser)
@@ -824,6 +845,21 @@ class SetNetwork(common.NeutronCommandWithExtraArgs):
                 "PVLAN extension required."
             ),
         )
+        evpn_vni_group = parser.add_mutually_exclusive_group()
+        evpn_vni_group.add_argument(
+            '--auto-evpn-vni',
+            action='store_true',
+            default=False,
+            help=_(
+                "Enable EVPN on the network with an automatically assigned VNI"
+            ),
+        )
+        evpn_vni_group.add_argument(
+            '--evpn-vni',
+            metavar='<vni>',
+            type=int,
+            help=_("Set the EVPN VNI for the network"),
+        )
         _tag.add_tag_option_to_parser_for_set(parser, _('network'))
         _add_additional_network_options(parser)
         return parser
@@ -886,6 +922,11 @@ class UnsetNetwork(common.NeutronUnsetCommandWithExtraArgs):
             metavar="<network>",
             help=_("Network to modify (name or ID)"),
         )
+        parser.add_argument(
+            '--evpn-vni',
+            action='store_true',
+            help=_("Remove EVPN VNI from the network"),
+        )
         _tag.add_tag_option_to_parser_for_unset(parser, _('network'))
         return parser
 
@@ -893,7 +934,12 @@ class UnsetNetwork(common.NeutronUnsetCommandWithExtraArgs):
         client = self.app.client_manager.network
         obj = client.find_network(parsed_args.network, ignore_missing=False)
 
-        attrs = self._parse_extra_properties(parsed_args.extra_properties)
+        attrs: dict[str, Any] = {}
+        if parsed_args.evpn_vni:
+            attrs['evpn_vni'] = None
+        attrs.update(
+            self._parse_extra_properties(parsed_args.extra_properties)
+        )
         if attrs:
             client.update_network(obj, **attrs)
 
