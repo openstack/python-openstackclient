@@ -1253,6 +1253,15 @@ class CreateServer(command.ShowOne):
             ),
         )
         parser.add_argument(
+            "--volume-type",
+            metavar="<volume-type>",
+            help=_(
+                "When used together with --boot-from-volume, "
+                "specifies the type of volume to create from image "
+                "(supported by --os-compute-api-version 2.67 or above)."
+            ),
+        )
+        parser.add_argument(
             '--delete-on-termination',
             action='store_true',
             default=False,
@@ -1737,6 +1746,19 @@ class CreateServer(command.ShowOne):
             )
             raise exceptions.CommandError(msg)
 
+        if parsed_args.volume_type:
+            if not parsed_args.boot_from_volume:
+                msg = _(
+                    "--volume-type can only be used with --boot-from-volume"
+                )
+                raise exceptions.CommandError(msg)
+            if not sdk_utils.supports_microversion(compute_client, '2.67'):
+                msg = _(
+                    '--os-compute-api-version 2.67 or greater '
+                    'is required to support --volume-type'
+                )
+                raise exceptions.CommandError(msg)
+
         snapshot = None
         if parsed_args.snapshot:
             # --snapshot and --boot-from-volume are mutually exclusive.
@@ -1825,6 +1847,10 @@ class CreateServer(command.ShowOne):
                     'delete_on_termination': parsed_args.delete_on_termination,
                 }
             ]
+            if parsed_args.volume_type:
+                block_device_mapping_v2[0]["volume_type"] = (
+                    parsed_args.volume_type
+                )
             # If booting from volume we do not pass an image to compute.
             image = None
         elif image:

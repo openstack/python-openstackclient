@@ -1,0 +1,6 @@
+features:
+  - |
+    ``server create`` command now accepts ``--volume-type`` argument.
+    When used together with ``--boot-from-volume``, this specifies the type
+    of the volume to create from the image.
+    Requires compute api version 2.67 or later.

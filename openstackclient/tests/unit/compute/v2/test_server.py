@@ -3519,6 +3519,129 @@ class TestServerCreate(TestServer):
         self.assertEqual(self.columns, columns)
         self.assertEqual(self.datalist(), data)
 
+    def test_server_create_volume_type_without_boot_from_volume(self):
+        # Fail if --volume-type is used without --boot-from-volume
+        arglist = [
+            '--image',
+            self.image.id,
+            '--flavor',
+            self.flavor.id,
+            '--volume-type',
+            'spam',
+            self.server.name,
+        ]
+        verifylist = [
+            ('image', self.image.id),
+            ('flavor', self.flavor.id),
+            ('volume_type', 'spam'),
+            ('config_drive', False),
+            ('server_name', self.server.name),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        exc = self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args,
+        )
+
+        self.assertIn(
+            '--volume-type can only be used with --boot-from-volume',
+            str(exc),
+        )
+
+        self.compute_client.create_server.assert_not_called()
+
+    def test_server_create_boot_from_volume_volume_type_pre_v267(self):
+        # Fail if --volume-type is used with a microversion lower than 2.67
+        self.set_compute_api_version('2.66')
+
+        arglist = [
+            '--image',
+            self.image.id,
+            '--flavor',
+            self.flavor.id,
+            '--boot-from-volume',
+            '10',
+            '--volume-type',
+            'spam',
+            self.server.name,
+        ]
+        verifylist = [
+            ('image', self.image.id),
+            ('flavor', self.flavor.id),
+            ('boot_from_volume', 10),
+            ('volume_type', 'spam'),
+            ('config_drive', False),
+            ('server_name', self.server.name),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+
+        exc = self.assertRaises(
+            exceptions.CommandError,
+            self.cmd.take_action,
+            parsed_args,
+        )
+
+        self.assertIn(
+            '--os-compute-api-version 2.67 or greater '
+            'is required to support --volume-type',
+            str(exc),
+        )
+
+        self.compute_client.create_server.assert_not_called()
+
+    def test_server_create_boot_from_volume_volume_type(self):
+        self.set_compute_api_version('2.67')
+
+        arglist = [
+            '--image',
+            self.image.id,
+            '--flavor',
+            self.flavor.id,
+            '--boot-from-volume',
+            '10',
+            '--volume-type',
+            'spam',
+            self.server.name,
+        ]
+        verifylist = [
+            ('image', self.image.id),
+            ('flavor', self.flavor.id),
+            ('boot_from_volume', 10),
+            ('volume_type', 'spam'),
+            ('config_drive', False),
+            ('server_name', self.server.name),
+        ]
+
+        parsed_args = self.check_parser(self.cmd, arglist, verifylist)
+        columns, data = self.cmd.take_action(parsed_args)
+
+        self.compute_client.create_server.assert_called_once_with(
+            name=self.server.name,
+            image_id='',
+            flavor_id=self.flavor.id,
+            min_count=1,
+            max_count=1,
+            block_device_mapping=[
+                {
+                    'uuid': self.image.id,
+                    'boot_index': 0,
+                    'source_type': 'image',
+                    'destination_type': 'volume',
+                    'volume_size': 10,
+                    'delete_on_termination': False,
+                    'volume_type': 'spam',
+                },
+            ],
+            networks='auto',
+        )
+
+        self.assertEqual(self.columns, columns)
+        self.assertEqual(self.datalist(), data)
+
     def test_server_create_boot_from_volume_no_image(self):
         # Test --boot-from-volume option without --image or
         # --image-property.
