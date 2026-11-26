@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add ``image import info --detail`` command, allowing users to get
+    information about configured plugins for the enabled import methods.
