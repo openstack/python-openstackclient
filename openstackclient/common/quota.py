@@ -875,6 +875,32 @@ are retained for each selected resource."""
                 'Reserved',
             )
 
+        # Backwards compat for 6.1.0 - 10.2.0 behavior where we switched from a
+        # ShowOne (where -c selects rows) to Lister (where -c selects columns).
+        # We're back to the former behavior since 10.3.0 but want to avoid
+        # breaking anyone yet.
+        #
+        # https://bugs.launchpad.net/python-openstackclient/+bug/2169115
+        # https://bugs.launchpad.net/nova/+bug/2176167
+        filter_columns = {
+            self._normalize_column_name(column)
+            for column in parsed_args.columns
+        }.intersection(columns)
+        if filter_columns:
+            parsed_args.columns = [
+                column
+                for column in parsed_args.columns
+                if self._normalize_column_name(column) not in filter_columns
+            ]
+            column_headers = tuple(
+                header
+                for column, header in zip(columns, column_headers)
+                if column in filter_columns
+            )
+            columns = tuple(
+                column for column in columns if column in filter_columns
+            )
+
         return (
             column_headers,
             (utils.get_dict_properties(s, columns) for s in result),

@@ -1167,6 +1167,33 @@ class TestQuotaShow(TestQuota):
         )
         self.assertNotCalled(self.network_client.get_quota_default)
 
+    def test_quota_show__with_deprecated_columns(self):
+        for resources in ([], ['networks']):
+            with self.subTest(resources=resources):
+                arglist = [
+                    '--network',
+                    '--usage',
+                    '-c',
+                    'In Use',
+                    '-c',
+                    'Resource',
+                ]
+                for resource in resources:
+                    arglist.extend(['-c', resource])
+                parsed_args = self.check_parser(self.cmd, arglist, [])
+
+                headers, data = self.cmd.take_action(parsed_args)
+
+                self.assertEqual(('Resource', 'In Use'), headers)
+                self.assertEqual(
+                    sorted(
+                        (resource, 0)
+                        for resource in self._network_quota_details
+                    ),
+                    sorted(data),
+                )
+                self.assertEqual(resources, parsed_args.columns)
+
     def test_quota_show__with_default(self):
         arglist = [
             '--default',
